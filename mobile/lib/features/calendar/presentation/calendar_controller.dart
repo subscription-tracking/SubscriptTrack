@@ -6,7 +6,6 @@ class CalendarController {
 
   final SubscriptionController subscriptions;
 
-  // Belirli bir güne düşen yenilemeleri döner
   List<Subscription> renewalsForDay(DateTime day) {
     final target = DateTime(day.year, day.month, day.day);
     return subscriptions.active.where((s) {
@@ -15,7 +14,6 @@ class CalendarController {
     }).toList();
   }
 
-  // Bu ayın tüm yenileme günleri (Set — hızlı lookup için)
   Set<DateTime> renewalDaysInMonth(int year, int month) {
     return subscriptions.active
         .where((s) =>
@@ -28,12 +26,14 @@ class CalendarController {
         .toSet();
   }
 
-  // Seçili ayın toplam maliyeti (aylık normalize edilmiş)
-  double totalForMonth(int year, int month) {
-    return subscriptions.active
-        .where((s) =>
-            s.nextRenewalDate.year == year &&
-            s.nextRenewalDate.month == month)
-        .fold(0.0, (sum, s) => sum + s.monthlyAmount);
+  /// Para birimine göre aylık toplam — farklı para birimleri karışmaz.
+  Map<String, double> totalsByCurrencyForMonth(int year, int month) {
+    final map = <String, double>{};
+    for (final s in subscriptions.active) {
+      if (s.nextRenewalDate.year == year && s.nextRenewalDate.month == month) {
+        map[s.currency] = (map[s.currency] ?? 0) + s.amount;
+      }
+    }
+    return map;
   }
 }

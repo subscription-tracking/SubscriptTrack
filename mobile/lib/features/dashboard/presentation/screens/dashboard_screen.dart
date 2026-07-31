@@ -17,7 +17,7 @@ class DashboardScreen extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final active = controller.active;
     final upcoming = controller.upcomingRenewals;
-    final total = controller.totalMonthly;
+    final totals = controller.totalsByCurrency;
 
     return RefreshIndicator(
       onRefresh: controller.load,
@@ -32,7 +32,7 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 20),
           _MonthlySpendCard(
             colors: colors,
-            total: total,
+            totals: totals,
             onAnalysisTap: active.isEmpty
                 ? null
                 : () => Navigator.push(
@@ -62,6 +62,31 @@ class DashboardScreen extends StatelessWidget {
               ),
             ],
           ),
+          if (controller.paused.isNotEmpty || controller.cancelled.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (controller.paused.isNotEmpty)
+                  Expanded(
+                    child: _MetricCard(
+                      label: 'Duraklatıldı',
+                      value: '${controller.paused.length}',
+                      icon: Icons.pause_circle_outline,
+                    ),
+                  ),
+                if (controller.paused.isNotEmpty && controller.cancelled.isNotEmpty)
+                  const SizedBox(width: 12),
+                if (controller.cancelled.isNotEmpty)
+                  Expanded(
+                    child: _MetricCard(
+                      label: 'İptal edildi',
+                      value: '${controller.cancelled.length}',
+                      icon: Icons.cancel_outlined,
+                    ),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: 28),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,12 +126,12 @@ class DashboardScreen extends StatelessWidget {
 class _MonthlySpendCard extends StatelessWidget {
   const _MonthlySpendCard({
     required this.colors,
-    required this.total,
+    required this.totals,
     this.onAnalysisTap,
   });
 
   final ColorScheme colors;
-  final double total;
+  final Map<String, double> totals;
   final VoidCallback? onAnalysisTap;
 
   @override
@@ -123,21 +148,30 @@ class _MonthlySpendCard extends StatelessWidget {
                     style: TextStyle(
                         color: colors.onPrimary.withValues(alpha: .8))),
                 const SizedBox(height: 4),
-                Text(
-                  DateTimeUtils.formatCurrency(total),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: colors.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
+                if (totals.isEmpty)
+                  Text(
+                    'Henüz abonelik eklenmedi',
+                    style: TextStyle(
+                        color: colors.onPrimary.withValues(alpha: .8)),
+                  )
+                else
+                  ...totals.entries.map((e) => Text(
+                        DateTimeUtils.formatCurrency(e.value, symbol: e.key),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              color: colors.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      )),
                 const SizedBox(height: 4),
-                Text(
-                  total == 0
-                      ? 'Henüz abonelik eklenmedi'
-                      : 'Aylık ortalama',
-                  style: TextStyle(
-                      color: colors.onPrimary.withValues(alpha: .8)),
-                ),
+                if (totals.isNotEmpty)
+                  Text(
+                    'Aylık ortalama',
+                    style: TextStyle(
+                        color: colors.onPrimary.withValues(alpha: .8)),
+                  ),
                 if (onAnalysisTap != null) ...[
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
