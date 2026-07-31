@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../auth_controller.dart';
 
@@ -101,10 +102,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? 'En az 6 karakter gir'
                         : null,
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => context.push('/forgot-password'),
+                      child: const Text('Şifremi unuttum'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   FilledButton(
                     onPressed:
                         widget.controller.loading ? null : _submit,
+                    style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52)),
                     child: widget.controller.loading
                         ? const SizedBox(
                             height: 20,
