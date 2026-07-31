@@ -1,17 +1,18 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/datasources/subscription_data_source.dart';
 import '../data/subscription_repository.dart';
 import '../domain/subscription_models.dart';
 
 class SubscriptionController extends ChangeNotifier {
   SubscriptionController({
     required String userId,
-    SubscriptionRepository? repository,
+    SubscriptionDataSource? repository,
   })  : _userId = userId,
         _repo = repository ?? SubscriptionRepository();
 
   final String _userId;
-  final SubscriptionRepository _repo;
+  final SubscriptionDataSource _repo;
 
   List<Subscription> _items = [];
   bool _loading = false;
@@ -76,7 +77,7 @@ class SubscriptionController extends ChangeNotifier {
       notifyListeners();
       return false;
     } finally {
-      _loading = false;
+      _setLoading(false); // fix: was `_loading = false` (listener'lar bilgilendirilmiyordu)
     }
   }
 
@@ -94,7 +95,7 @@ class SubscriptionController extends ChangeNotifier {
       notifyListeners();
       return false;
     } finally {
-      _loading = false;
+      _setLoading(false); // fix: was `_loading = false`
     }
   }
 

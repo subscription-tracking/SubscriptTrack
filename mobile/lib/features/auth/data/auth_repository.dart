@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../domain/auth_models.dart';
 
 // Supabase'e geçince bu sınıfın içi değişir, imzalar aynı kalır.
-class AuthRepository {
+class AuthRepository implements AuthDataSource {
   AuthRepository({SecureStorage? storage})
       : _storage = storage ?? SecureStorage.instance;
 
@@ -15,6 +16,7 @@ class AuthRepository {
   static const _uuid = Uuid();
 
   // Mevcut oturumu döner, yoksa null
+  @override
   Future<AppUser?> currentUser() async {
     final json = await _storage.readCurrentUser();
     if (json == null) return null;
@@ -25,6 +27,7 @@ class AuthRepository {
     }
   }
 
+  @override
   Future<AppUser> signUp({
     required String email,
     required String password,
@@ -59,6 +62,7 @@ class AuthRepository {
     return user;
   }
 
+  @override
   Future<AppUser> signIn({
     required String email,
     required String password,
@@ -78,9 +82,11 @@ class AuthRepository {
     return user;
   }
 
+  @override
   Future<void> signOut() => _storage.deleteCurrentUser();
 
   // Hesabı ve tüm credentials'ı tamamen siler
+  @override
   Future<void> deleteAccount(String email) async {
     await _storage.deleteCredentialsForEmail(email);
     await _storage.deleteCurrentUser();

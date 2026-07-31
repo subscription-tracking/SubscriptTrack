@@ -1,0 +1,19 @@
+import '../../../features/subscriptions/domain/subscription_models.dart';
+
+abstract class SubscriptionDataSource {
+  Future<List<Subscription>> getAll(String userId);
+  Future<Subscription> create({
+    required String userId,
+    required String name,
+    required double amount,
+    required String currency,
+    required BillingCycle billingCycle,
+    required DateTime nextRenewalDate,
+    required SubscriptionCategory category,
+    String? notes,
+  });
+  Future<Subscription> update(Subscription updated);
+  Future<void> delete(String userId, String subscriptionId);
+  Future<void> archive(String userId, String subscriptionId);
+  Future<void> restore(String userId, String subscriptionId);
+}

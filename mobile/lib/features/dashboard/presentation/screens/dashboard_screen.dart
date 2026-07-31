@@ -1,109 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../stats/presentation/screens/stats_screen.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
-import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
 import '../../../subscriptions/presentation/screens/subscription_detail_screen.dart';
+import '../../../subscriptions/presentation/subscription_controller.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({required this.controller, super.key});
-
-  final SubscriptionController controller;
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<SubscriptionController>();
     final colors = Theme.of(context).colorScheme;
+    final active = controller.active;
+    final upcoming = controller.upcomingRenewals;
+    final total = controller.totalMonthly;
 
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, _) {
-        final active = controller.active;
-        final upcoming = controller.upcomingRenewals;
-        final total = controller.totalMonthly;
-
-        return RefreshIndicator(
-          onRefresh: controller.load,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+    return RefreshIndicator(
+      onRefresh: controller.load,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [
+          Text('Tekrar hoş geldin 👋',
+              style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text('Aboneliklerini tek bakışta takip et',
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 20),
+          _MonthlySpendCard(
+            colors: colors,
+            total: total,
+            onAnalysisTap: active.isEmpty
+                ? null
+                : () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => StatsScreen(controller: controller),
+                      ),
+                    ),
+          ),
+          const SizedBox(height: 16),
+          Row(
             children: [
-              Text('Tekrar hoş geldin 👋',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 4),
-              Text('Aboneliklerini tek bakışta takip et',
-                  style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 20),
-              _MonthlySpendCard(
-                colors: colors,
-                total: total,
-                onAnalysisTap: active.isEmpty
-                    ? null
-                    : () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                StatsScreen(controller: controller),
-                          ),
-                        ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Aktif abonelik',
-                      value: '${active.length}',
-                      icon: Icons.repeat,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Bu ay yenileniyor',
-                      value: '${upcoming.length}',
-                      icon: Icons.event_outlined,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 28),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Yaklaşan yenilemeler',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  if (upcoming.isNotEmpty)
-                    TextButton(
-                        onPressed: () {},
-                        child: const Text('Tümünü gör')),
-                ],
-              ),
-              const SizedBox(height: 8),
-              if (upcoming.isEmpty)
-                _EmptyRenewalsCard(colors: colors)
-              else
-                ...upcoming.map((s) => _RenewalTile(
-                      subscription: s,
-                      controller: controller,
-                    )),
-              const SizedBox(height: 20),
-              if (active.isEmpty)
-                FilledButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) =>
-                          AddSubscriptionScreen(controller: controller),
-                    ),
-                  ),
-                  icon: const Icon(Icons.add),
-                  label: const Text('İlk aboneliğini ekle'),
+              Expanded(
+                child: _MetricCard(
+                  label: 'Aktif abonelik',
+                  value: '${active.length}',
+                  icon: Icons.repeat,
                 ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _MetricCard(
+                  label: 'Bu ay yenileniyor',
+                  value: '${upcoming.length}',
+                  icon: Icons.event_outlined,
+                ),
+              ),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Yaklaşan yenilemeler',
+                  style: Theme.of(context).textTheme.titleMedium),
+              if (upcoming.isNotEmpty)
+                TextButton(onPressed: () {}, child: const Text('Tümünü gör')),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (upcoming.isEmpty)
+            _EmptyRenewalsCard(colors: colors)
+          else
+            ...upcoming.map((s) => _RenewalTile(
+                  subscription: s,
+                  controller: controller,
+                )),
+          const SizedBox(height: 20),
+          if (active.isEmpty)
+            FilledButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => AddSubscriptionScreen(controller: controller),
+                ),
+              ),
+              icon: const Icon(Icons.add),
+              label: const Text('İlk aboneliğini ekle'),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -179,7 +169,8 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) => Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(icon, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 12),
             Text(value,
@@ -203,8 +194,7 @@ class _EmptyRenewalsCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
           child: Column(children: [
-            Icon(Icons.calendar_month_outlined,
-                size: 40, color: colors.primary),
+            Icon(Icons.calendar_month_outlined, size: 40, color: colors.primary),
             const SizedBox(height: 12),
             const Text('Yaklaşan yenileme yok'),
             const SizedBox(height: 4),
@@ -219,8 +209,7 @@ class _EmptyRenewalsCard extends StatelessWidget {
 }
 
 class _RenewalTile extends StatelessWidget {
-  const _RenewalTile(
-      {required this.subscription, required this.controller});
+  const _RenewalTile({required this.subscription, required this.controller});
 
   final Subscription subscription;
   final SubscriptionController controller;

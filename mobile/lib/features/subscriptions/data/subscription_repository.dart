@@ -1,18 +1,20 @@
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/local_storage.dart';
 import '../domain/subscription_models.dart';
 
 // Supabase'e geçince bu sınıfın içi değişir, imzalar aynı kalır.
-class SubscriptionRepository {
+class SubscriptionRepository implements SubscriptionDataSource {
   SubscriptionRepository({LocalStorage? storage})
       : _storage = storage ?? LocalStorage.instance;
 
   final LocalStorage _storage;
   static const _uuid = Uuid();
 
+  @override
   Future<List<Subscription>> getAll(String userId) async {
     final raw = await _storage.readSubscriptions(userId);
     if (raw == null) return [];
@@ -22,6 +24,7 @@ class SubscriptionRepository {
         .toList();
   }
 
+  @override
   Future<Subscription> create({
     required String userId,
     required String name,
@@ -58,6 +61,7 @@ class SubscriptionRepository {
     return sub;
   }
 
+  @override
   Future<Subscription> update(Subscription updated) async {
     final list = await getAll(updated.userId);
     final idx = list.indexWhere((s) => s.id == updated.id);
@@ -67,12 +71,14 @@ class SubscriptionRepository {
     return updated;
   }
 
+  @override
   Future<void> delete(String userId, String subscriptionId) async {
     final list = await getAll(userId);
     list.removeWhere((s) => s.id == subscriptionId);
     await _persist(userId, list);
   }
 
+  @override
   Future<void> archive(String userId, String subscriptionId) async {
     final list = await getAll(userId);
     final idx = list.indexWhere((s) => s.id == subscriptionId);
@@ -81,6 +87,7 @@ class SubscriptionRepository {
     await _persist(userId, list);
   }
 
+  @override
   Future<void> restore(String userId, String subscriptionId) async {
     final list = await getAll(userId);
     final idx = list.indexWhere((s) => s.id == subscriptionId);

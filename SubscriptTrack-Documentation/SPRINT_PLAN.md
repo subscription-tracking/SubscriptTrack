@@ -61,6 +61,46 @@ Ekip uygulamayı lokal olarak çalıştırabilir ve aynı API sözleşmesi üzer
 
 ---
 
+## Sprint 0.5 — Mimari zemin (go_router + provider + DI)
+
+### Hedef
+
+Sprint 1 öncesinde mimari borçları kapatmak: navigation guard için go_router, prop drilling'i kesmek için provider, Supabase geçişine zemin hazırlamak için abstract repository interface'leri.
+
+### Kullanıcı/ekip çıktısı
+
+Uygulama aynı şekilde çalışır; ekip Sprint 1'den itibaren navigation guard ve dependency injection altyapısına sahip olarak geliştirir.
+
+### Görevler
+
+- [x] `go_router` ve `provider` paketlerini ekle; kullanılmayan `sqflite` ve `path`'i kaldır.
+- [x] `AuthDataSource` ve `SubscriptionDataSource` abstract interface'lerini oluştur.
+- [x] `AuthRepository` ve `SubscriptionRepository` bu interface'leri implement etsin; `@override` annotasyonları ekle.
+- [x] `AuthController._repo` ve `SubscriptionController._repo` tiplerini concrete'ten abstract'a yükselt.
+- [x] `SubscriptionController.add()` ve `edit()` finally bloğundaki `_loading = false` bug'ını `_setLoading(false)` ile düzelt.
+- [x] `AuthController`'a `initialized`, `onboardingNeeded`, `onboardingDone()` ekle; init() onboarding kontrolünü de kapsasın.
+- [x] `AppRouter` — `AuthController`'ı `refreshListenable` olarak kullanan go_router; `/splash`, `/onboarding`, `/login`, `/register`, `/home` rotaları; auth redirect guard.
+- [x] `AuthenticatedShell` widget'ı: `SubscriptionController`'ı oluşturup `ChangeNotifierProvider` ile alt ağaca sağlar.
+- [x] `app.dart` — `MultiProvider` (AuthController + SettingsController) ve `MaterialApp.router`.
+- [x] `AppShell` — constructor param almaz; tab ekranları `context.watch<T>()` ile bağımsız okur.
+- [x] `DashboardScreen`, `CalendarScreen`, `SubscriptionListScreen`, `ProfileTab` — constructor param kaldırıldı, `context.watch/read` ile controller alır.
+
+### Kabul kriterleri
+
+- `flutter analyze` sıfır hata döner.
+- Login → Home → Logout akışı go_router redirect ile çalışır.
+- Kimlik doğrulanmamış kullanıcı `/home`'a giremez; otomatik `/login`'e yönlendirilir.
+- Authenticated kullanıcı `/login`'e giderse otomatik `/home`'a döner.
+- Onboarding ilk açılışta gösterilir; tamamlandıktan sonra bir daha çıkmaz.
+- `AppShell` ve tab ekranları constructor aracılığıyla controller almaz.
+
+### Test ve bağımlılıklar
+
+- `flutter analyze` ve mevcut smoke build.
+- Bağımlılık: Sprint 0; Sprint 1'in ön koşuludur.
+
+---
+
 ## Sprint 1 — Auth ve onboarding
 
 ### Hedef
