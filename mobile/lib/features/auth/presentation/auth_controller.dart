@@ -51,12 +51,44 @@ class AuthController extends ChangeNotifier {
     if (EnvironmentConfig.isSupabaseConfigured) {
       _authSubscription = sb.Supabase.instance.client.auth.onAuthStateChange
           .listen((data) {
-        if (data.event == sb.AuthChangeEvent.passwordRecovery) {
-          _passwordRecoveryMode = true;
-          notifyListeners();
-        } else if (data.event == sb.AuthChangeEvent.userUpdated) {
-          _passwordRecoveryMode = false;
-          notifyListeners();
+        switch (data.event) {
+          case sb.AuthChangeEvent.passwordRecovery:
+            _passwordRecoveryMode = true;
+            notifyListeners();
+          case sb.AuthChangeEvent.userUpdated:
+            _passwordRecoveryMode = false;
+            _user = data.session?.user == null
+                ? _user
+                : AppUser(
+                    id: data.session!.user.id,
+                    email: data.session!.user.email ?? '',
+                    displayName: data.session!.user.userMetadata?['display_name']
+                        as String?,
+                    createdAt: DateTime.parse(data.session!.user.createdAt),
+                  );
+            notifyListeners();
+          case sb.AuthChangeEvent.signedIn:
+          case sb.AuthChangeEvent.tokenRefreshed:
+            if (data.session?.user != null) {
+              _user = AppUser(
+                id: data.session!.user.id,
+                email: data.session!.user.email ?? '',
+                displayName: data.session!.user.userMetadata?['display_name']
+                    as String?,
+                createdAt: DateTime.parse(data.session!.user.createdAt),
+              );
+              _status = AuthStatus.authenticated;
+              _initialized = true;
+              notifyListeners();
+            }
+          case sb.AuthChangeEvent.signedOut:
+            _user = null;
+            _status = AuthStatus.unauthenticated;
+            _passwordRecoveryMode = false;
+            _initialized = true;
+            notifyListeners();
+          default:
+            break;
         }
       });
     }
