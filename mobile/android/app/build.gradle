@@ -7,15 +7,21 @@ plugins {
 android {
     namespace "com.subscripttrack.app"
     compileSdk flutter.compileSdkVersion
+    ndkVersion "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions { jvmTarget = '21' }
 
     defaultConfig { applicationId "com.subscripttrack.app"; minSdk flutter.minSdkVersion; targetSdk flutter.targetSdkVersion; versionCode 1; versionName "0.1.0" }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 
 flutter { source '../..' }

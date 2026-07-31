@@ -3,18 +3,12 @@ enum AppEnvironment { development, staging, production }
 abstract final class EnvironmentConfig {
   static const current = AppEnvironment.development;
 
-  // ─── Supabase ────────────────────────────────────────────────
-  // Keyleri buraya yapıştır — bu iki satır dolunca her şey otomatik devreye girer.
-  static const supabaseUrl = 'https://tdbljrojcmyjwchawfif.supabase.co';
-  static const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkYmxqcm9qY215andjaGF3ZmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MDIzMTksImV4cCI6MjEwMTA3ODMxOX0.66FcXj8rrmE_zMfQ4n2h0HZpdYVznYzguB8AW6Zqq6I';
-
-  static const bool isSupabaseConfigured = true;
-  // ─────────────────────────────────────────────────────────────
-
-  // ─── Firebase (Sprint 6) ─────────────────────────────────────
-  // FlutterFire CLI çalıştırıldıktan sonra true yap.
-  static const bool isFirebaseConfigured = false;
-  // ─────────────────────────────────────────────────────────────
+  // Secrets are injected with --dart-define and never committed to source.
+  static const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static bool get isSupabaseConfigured =>
+      supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+  static const isFirebaseConfigured = false;
 
   static String get apiBaseUrl {
     switch (current) {

@@ -95,6 +95,8 @@ class LocalNotificationService {
             presentSound: true,
           ),
         ),
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     }
