@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -27,10 +28,10 @@ class AppRouter {
             case AuthStatus.unknown:
               return '/splash';
             case AuthStatus.unauthenticated:
-              const publicRoutes = {'/login', '/register'};
+              const publicRoutes = {'/login', '/register', '/forgot-password'};
               return publicRoutes.contains(loc) ? null : '/login';
             case AuthStatus.authenticated:
-              const authOnlyRoutes = {'/login', '/register', '/splash', '/onboarding'};
+              const authOnlyRoutes = {'/login', '/register', '/forgot-password', '/splash', '/onboarding'};
               return authOnlyRoutes.contains(loc) ? '/home' : null;
           }
         },
@@ -62,6 +63,12 @@ class AppRouter {
             builder: (context, _) => RegisterScreen(
               controller: context.read<AuthController>(),
               onLoginTap: () => context.go('/login'),
+            ),
+          ),
+          GoRoute(
+            path: '/forgot-password',
+            builder: (context, _) => ForgotPasswordScreen(
+              controller: context.read<AuthController>(),
             ),
           ),
           GoRoute(

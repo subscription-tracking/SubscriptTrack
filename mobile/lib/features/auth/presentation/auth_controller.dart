@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/storage/local_storage.dart';
 import '../data/auth_repository.dart';
+import '../data/supabase_auth_repository.dart';
 import '../domain/auth_models.dart';
 
 export '../domain/auth_models.dart';
@@ -12,7 +14,10 @@ enum AuthStatus { unknown, authenticated, unauthenticated }
 
 class AuthController extends ChangeNotifier {
   AuthController({AuthDataSource? repository})
-      : _repo = repository ?? AuthRepository();
+      : _repo = repository ??
+            (EnvironmentConfig.isSupabaseConfigured
+                ? SupabaseAuthRepository()
+                : AuthRepository());
 
   final AuthDataSource _repo;
 
@@ -94,6 +99,23 @@ class AuthController extends ChangeNotifier {
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  Future<bool> sendPasswordResetEmail(String email) async {
+    _setLoading(true);
+    try {
+      final repo = _repo;
+      if (repo is SupabaseAuthRepository) {
+        await repo.sendPasswordResetEmail(email);
+      }
+      _error = null;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void clearError() {
