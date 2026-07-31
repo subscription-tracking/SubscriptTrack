@@ -27,14 +27,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _prevMonth() => setState(() {
-        _focusedMonth =
-            DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+        _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
         _selectedDay = null;
       });
 
   void _nextMonth() => setState(() {
-        _focusedMonth =
-            DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+        _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
         _selectedDay = null;
       });
 
@@ -45,9 +43,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final renewalDays =
         cal.renewalDaysInMonth(_focusedMonth.year, _focusedMonth.month);
     final selectedEvents =
-        _selectedDay != null ? cal.renewalsForDay(_selectedDay!) : [];
-    final monthTotal =
-        cal.totalForMonth(_focusedMonth.year, _focusedMonth.month);
+        _selectedDay != null ? cal.renewalsForDay(_selectedDay!) : <dynamic>[];
+    final monthTotals =
+        cal.totalsByCurrencyForMonth(_focusedMonth.year, _focusedMonth.month);
 
     return Column(
       children: [
@@ -67,12 +65,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       style: Theme.of(context).textTheme.titleMedium,
                       textAlign: TextAlign.center,
                     ),
-                    if (monthTotal > 0)
-                      Text(
-                        '${DateTimeUtils.formatCurrency(monthTotal)} bu ay',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                    if (monthTotals.isNotEmpty)
+                      ...monthTotals.entries.map(
+                        (e) => Text(
+                          '${DateTimeUtils.formatCurrency(e.value, symbol: e.key)} bu ay',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                        ),
                       ),
                   ],
                 ),
@@ -112,7 +114,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
           child: selectedEvents.isEmpty
               ? Center(
                   child: Text(
-                    _selectedDay != null ? 'Bu gün yenileme yok' : 'Bir gün seç',
+                    _selectedDay != null
+                        ? 'Bu gün yenileme yok'
+                        : 'Bir gün seç',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
@@ -188,7 +192,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   String _monthName(int month) => const [
-        '', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+        '',
+        'Ocak',
+        'Şubat',
+        'Mart',
+        'Nisan',
+        'Mayıs',
+        'Haziran',
+        'Temmuz',
+        'Ağustos',
+        'Eylül',
+        'Ekim',
+        'Kasım',
+        'Aralık'
       ][month];
 }
