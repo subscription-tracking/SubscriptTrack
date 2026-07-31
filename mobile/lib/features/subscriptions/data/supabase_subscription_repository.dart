@@ -19,7 +19,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .order('next_renewal_date');
       return rows.map(_fromRow).toList();
     } on PostgrestException catch (e) {
-      throw AppException(e.message);
+      throw NetworkException(e.message);
     }
   }
 
@@ -55,7 +55,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .single();
       return _fromRow(row);
     } on PostgrestException catch (e) {
-      throw AppException(e.message);
+      throw NetworkException(e.message);
     }
   }
 
@@ -81,7 +81,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .single();
       return _fromRow(row);
     } on PostgrestException catch (e) {
-      throw AppException(e.message);
+      throw NetworkException(e.message);
     }
   }
 
@@ -94,7 +94,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .eq('id', subscriptionId)
           .eq('user_id', userId);
     } on PostgrestException catch (e) {
-      throw AppException(e.message);
+      throw NetworkException(e.message);
     }
   }
 
@@ -129,7 +129,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .eq('id', id)
           .eq('user_id', userId);
     } on PostgrestException catch (e) {
-      throw AppException(e.message);
+      throw NetworkException(e.message);
     }
   }
 

@@ -12,9 +12,6 @@ void main() async {
     await Supabase.initialize(
       url: EnvironmentConfig.supabaseUrl,
       publishableKey: EnvironmentConfig.supabaseAnonKey,
-      authOptions: const FlutterAuthClientOptions(
-        authCallbackUrlHostname: 'auth-callback',
-      ),
     );
   }
 

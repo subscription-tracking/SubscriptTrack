@@ -34,11 +34,9 @@ class ExportDataScreen extends StatelessWidget {
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/subscripttrack_export.csv');
     await file.writeAsString(csv);
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path, mimeType: 'text/csv')],
-        subject: 'SubscriptTrack Abonelik Verisi',
-      ),
+    await Share.shareXFiles(
+      [XFile(file.path, mimeType: 'text/csv')],
+      subject: 'SubscriptTrack Abonelik Verisi',
     );
   }
 
