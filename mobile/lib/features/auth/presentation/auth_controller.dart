@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/auth_data_source.dart';
@@ -20,6 +23,7 @@ class AuthController extends ChangeNotifier {
                 : AuthRepository());
 
   final AuthDataSource _repo;
+  StreamSubscription<sb.AuthState>? _authSubscription;
 
   AuthStatus _status = AuthStatus.unknown;
   AppUser? _user;
@@ -27,6 +31,7 @@ class AuthController extends ChangeNotifier {
   bool _loading = false;
   bool _initialized = false;
   bool _onboardingNeeded = false;
+  bool _passwordRecoveryMode = false;
 
   AuthStatus get status => _status;
   AppUser? get user => _user;
@@ -34,8 +39,28 @@ class AuthController extends ChangeNotifier {
   bool get loading => _loading;
   bool get initialized => _initialized;
   bool get onboardingNeeded => _onboardingNeeded;
+  bool get passwordRecoveryMode => _passwordRecoveryMode;
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
 
   Future<bool> init() async {
+    if (EnvironmentConfig.isSupabaseConfigured) {
+      _authSubscription = sb.Supabase.instance.client.auth.onAuthStateChange
+          .listen((data) {
+        if (data.event == sb.AuthChangeEvent.passwordRecovery) {
+          _passwordRecoveryMode = true;
+          notifyListeners();
+        } else if (data.event == sb.AuthChangeEvent.userUpdated) {
+          _passwordRecoveryMode = false;
+          notifyListeners();
+        }
+      });
+    }
+
     final results = await Future.wait<dynamic>([
       _repo.currentUser(),
       _checkOnboarding(),
@@ -99,6 +124,26 @@ class AuthController extends ChangeNotifier {
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  Future<bool> updatePassword(String newPassword) async {
+    if (!EnvironmentConfig.isSupabaseConfigured) return false;
+    _setLoading(true);
+    try {
+      await sb.Supabase.instance.client.auth
+          .updateUser(sb.UserAttributes(password: newPassword));
+      _passwordRecoveryMode = false;
+      _error = null;
+      return true;
+    } on sb.AuthException catch (e) {
+      _error = e.message;
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
   }
 
   Future<bool> sendPasswordResetEmail(String email) async {
