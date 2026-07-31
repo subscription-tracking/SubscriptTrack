@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
@@ -12,11 +16,12 @@ class ExportDataScreen extends StatelessWidget {
 
   String _buildCsv() {
     final buf = StringBuffer();
-    buf.writeln('Ad,Tutar,Para Birimi,Döngü,Kategori,Sonraki Yenileme,Notlar');
-    for (final s in subscriptions.active) {
+    buf.writeln('Ad,Tutar,Para Birimi,Döngü,Kategori,Durum,Sonraki Yenileme,Notlar');
+    for (final s in [...subscriptions.active, ...subscriptions.paused, ...subscriptions.cancelled]) {
       buf.writeln(
         '"${s.name}",${s.amount},${s.currency},'
         '${s.billingCycle.label},${s.category.label},'
+        '${s.status.label},'
         '${DateTimeUtils.formatDate(s.nextRenewalDate)},'
         '"${s.notes ?? ''}"',
       );
@@ -24,14 +29,39 @@ class ExportDataScreen extends StatelessWidget {
     return buf.toString();
   }
 
+  Future<void> _shareAsFile(BuildContext context) async {
+    final csv = _buildCsv();
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/subscripttrack_export.csv');
+    await file.writeAsString(csv);
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path, mimeType: 'text/csv')],
+        subject: 'SubscriptTrack Abonelik Verisi',
+      ),
+    );
+  }
+
+  Future<void> _copyToClipboard(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: _buildCsv()));
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('CSV panoya kopyalandı.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final total = subscriptions.active.length +
+        subscriptions.paused.length +
+        subscriptions.cancelled.length;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Veri dışa aktar')),
       body: ListenableBuilder(
         listenable: subscriptions,
         builder: (context, _) {
-          final csv = _buildCsv();
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
@@ -43,16 +73,14 @@ class ExportDataScreen extends StatelessWidget {
                     children: [
                       Row(children: [
                         Icon(Icons.table_chart_outlined,
-                            color:
-                                Theme.of(context).colorScheme.primary),
+                            color: Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 12),
                         const Text('CSV Formatı',
-                            style:
-                                TextStyle(fontWeight: FontWeight.bold)),
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                       ]),
                       const SizedBox(height: 8),
                       Text(
-                        '${subscriptions.active.length} aktif abonelik',
+                        '$total abonelik (aktif + duraklatıldı + iptal)',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -61,28 +89,19 @@ class ExportDataScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               FilledButton.icon(
-                onPressed: subscriptions.active.isEmpty
-                    ? null
-                    : () async {
-                        await Clipboard.setData(
-                            ClipboardData(text: csv));
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'CSV panoya kopyalandı. Bir metin editörüne yapıştırıp .csv olarak kaydet.'),
-                            ),
-                          );
-                        }
-                      },
-                icon: const Icon(Icons.copy),
-                label: const Text('CSV\'yi panoya kopyala'),
+                onPressed: total == 0 ? null : () => _shareAsFile(context),
+                icon: const Icon(Icons.share_outlined),
+                label: const Text('Dosya olarak paylaş'),
+                style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Not: Dosyaya kaydetme özelliği Supabase entegrasyonu tamamlandığında eklenecek.',
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: total == 0 ? null : () => _copyToClipboard(context),
+                icon: const Icon(Icons.copy),
+                label: const Text('Panoya kopyala'),
+                style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)),
               ),
             ],
           );
