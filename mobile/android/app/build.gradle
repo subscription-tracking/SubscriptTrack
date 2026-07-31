@@ -1,0 +1,21 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace "com.subscripttrack.app"
+    compileSdk flutter.compileSdkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    kotlinOptions { jvmTarget = '21' }
+
+    defaultConfig { applicationId "com.subscripttrack.app"; minSdk flutter.minSdkVersion; targetSdk flutter.targetSdkVersion; versionCode 1; versionName "0.1.0" }
+}
+
+flutter { source '../..' }
