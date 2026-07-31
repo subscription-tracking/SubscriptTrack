@@ -1,3 +1,20 @@
+enum SubscriptionStatus { active, paused, cancelled, archived }
+
+extension SubscriptionStatusExt on SubscriptionStatus {
+  String get label => switch (this) {
+        SubscriptionStatus.active => 'Aktif',
+        SubscriptionStatus.paused => 'Duraklatıldı',
+        SubscriptionStatus.cancelled => 'İptal edildi',
+        SubscriptionStatus.archived => 'Arşivlendi',
+      };
+
+  String get key => name;
+
+  static SubscriptionStatus fromKey(String key) =>
+      SubscriptionStatus.values.firstWhere((e) => e.key == key,
+          orElse: () => SubscriptionStatus.active);
+}
+
 enum BillingCycle { weekly, monthly, quarterly, yearly }
 
 extension BillingCycleLabel on BillingCycle {
@@ -8,7 +25,6 @@ extension BillingCycleLabel on BillingCycle {
         BillingCycle.yearly => 'Yıllık',
       };
 
-  // Kaç günde bir yineleniyor
   int get intervalDays => switch (this) {
         BillingCycle.weekly => 7,
         BillingCycle.monthly => 30,
@@ -16,7 +32,6 @@ extension BillingCycleLabel on BillingCycle {
         BillingCycle.yearly => 365,
       };
 
-  // Supabase / JSON için string key
   String get key => name;
 
   static BillingCycle fromKey(String key) =>
@@ -66,10 +81,11 @@ class Subscription {
     required this.amount,
     required this.currency,
     required this.billingCycle,
+    required this.startDate,
     required this.nextRenewalDate,
     required this.category,
     this.notes,
-    this.isArchived = false,
+    this.status = SubscriptionStatus.active,
     required this.createdAt,
   });
 
@@ -79,13 +95,15 @@ class Subscription {
   final double amount;
   final String currency;
   final BillingCycle billingCycle;
+  final DateTime startDate;
   final DateTime nextRenewalDate;
   final SubscriptionCategory category;
   final String? notes;
-  final bool isArchived;
+  final SubscriptionStatus status;
   final DateTime createdAt;
 
-  // Aylık normalize edilmiş tutar (dashboard toplamı için)
+  bool get isArchived => status == SubscriptionStatus.archived;
+
   double get monthlyAmount => switch (billingCycle) {
         BillingCycle.weekly => amount * 4.33,
         BillingCycle.monthly => amount,
@@ -101,10 +119,11 @@ class Subscription {
     double? amount,
     String? currency,
     BillingCycle? billingCycle,
+    DateTime? startDate,
     DateTime? nextRenewalDate,
     SubscriptionCategory? category,
     String? notes,
-    bool? isArchived,
+    SubscriptionStatus? status,
   }) =>
       Subscription(
         id: id,
@@ -113,10 +132,11 @@ class Subscription {
         amount: amount ?? this.amount,
         currency: currency ?? this.currency,
         billingCycle: billingCycle ?? this.billingCycle,
+        startDate: startDate ?? this.startDate,
         nextRenewalDate: nextRenewalDate ?? this.nextRenewalDate,
         category: category ?? this.category,
         notes: notes ?? this.notes,
-        isArchived: isArchived ?? this.isArchived,
+        status: status ?? this.status,
         createdAt: createdAt,
       );
 
@@ -127,27 +147,38 @@ class Subscription {
         'amount': amount,
         'currency': currency,
         'billingCycle': billingCycle.key,
+        'startDate': startDate.toIso8601String(),
         'nextRenewalDate': nextRenewalDate.toIso8601String(),
         'category': category.key,
         'notes': notes,
-        'isArchived': isArchived,
+        'status': status.key,
         'createdAt': createdAt.toIso8601String(),
       };
 
-  factory Subscription.fromJson(Map<String, dynamic> json) => Subscription(
-        id: json['id'] as String,
-        userId: json['userId'] as String,
-        name: json['name'] as String,
-        amount: (json['amount'] as num).toDouble(),
-        currency: json['currency'] as String? ?? '₺',
-        billingCycle:
-            BillingCycleLabel.fromKey(json['billingCycle'] as String),
-        nextRenewalDate:
-            DateTime.parse(json['nextRenewalDate'] as String),
-        category: SubscriptionCategoryLabel.fromKey(
-            json['category'] as String),
-        notes: json['notes'] as String?,
-        isArchived: json['isArchived'] as bool? ?? false,
-        createdAt: DateTime.parse(json['createdAt'] as String),
-      );
+  factory Subscription.fromJson(Map<String, dynamic> json) {
+    final SubscriptionStatus status;
+    if (json['status'] != null) {
+      status = SubscriptionStatusExt.fromKey(json['status'] as String);
+    } else {
+      status = (json['isArchived'] as bool? ?? false)
+          ? SubscriptionStatus.archived
+          : SubscriptionStatus.active;
+    }
+    return Subscription(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      name: json['name'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'TRY',
+      billingCycle: BillingCycleLabel.fromKey(json['billingCycle'] as String),
+      startDate: json['startDate'] != null
+          ? DateTime.parse(json['startDate'] as String)
+          : DateTime.now(),
+      nextRenewalDate: DateTime.parse(json['nextRenewalDate'] as String),
+      category: SubscriptionCategoryLabel.fromKey(json['category'] as String),
+      notes: json['notes'] as String?,
+      status: status,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+  }
 }

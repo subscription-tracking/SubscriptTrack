@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
 import '../../domain/subscription_models.dart';
@@ -10,22 +11,29 @@ import 'subscription_detail_screen.dart';
 enum _SortOption { date, amount, name }
 
 class SubscriptionListScreen extends StatefulWidget {
-  const SubscriptionListScreen({required this.controller, super.key});
-
-  final SubscriptionController controller;
+  const SubscriptionListScreen({super.key});
 
   @override
   State<SubscriptionListScreen> createState() => _SubscriptionListScreenState();
 }
 
-class _SubscriptionListScreenState extends State<SubscriptionListScreen> {
+class _SubscriptionListScreenState extends State<SubscriptionListScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabs;
   final _search = TextEditingController();
   SubscriptionCategory? _filterCategory;
   _SortOption _sort = _SortOption.date;
   bool _searchVisible = false;
 
   @override
+  void initState() {
+    super.initState();
+    _tabs = TabController(length: 3, vsync: this);
+  }
+
+  @override
   void dispose() {
+    _tabs.dispose();
     _search.dispose();
     super.dispose();
   }
@@ -34,16 +42,13 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen> {
     var list = items.where((s) {
       final q = _search.text.toLowerCase();
       final matchSearch = q.isEmpty || s.name.toLowerCase().contains(q);
-      final matchCat =
-          _filterCategory == null || s.category == _filterCategory;
+      final matchCat = _filterCategory == null || s.category == _filterCategory;
       return matchSearch && matchCat;
     }).toList();
 
     list.sort((a, b) => switch (_sort) {
-          _SortOption.date =>
-            a.nextRenewalDate.compareTo(b.nextRenewalDate),
-          _SortOption.amount =>
-            b.monthlyAmount.compareTo(a.monthlyAmount),
+          _SortOption.date => a.nextRenewalDate.compareTo(b.nextRenewalDate),
+          _SortOption.amount => b.monthlyAmount.compareTo(a.monthlyAmount),
           _SortOption.name => a.name.compareTo(b.name),
         });
 
@@ -52,94 +57,155 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: widget.controller,
-      builder: (context, _) {
-        if (widget.controller.loading &&
-            widget.controller.active.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final controller = context.watch<SubscriptionController>();
 
-        final filtered = _filtered(widget.controller.active);
+    if (controller.loading && controller.active.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        return Scaffold(
-          body: Column(
-            children: [
-              // Arama + filtre toolbar
-              _Toolbar(
-                searchController: _search,
-                searchVisible: _searchVisible,
-                filterCategory: _filterCategory,
-                sortOption: _sort,
-                archivedCount: widget.controller.archived.length,
-                onSearchToggle: () => setState(() {
-                  _searchVisible = !_searchVisible;
-                  if (!_searchVisible) _search.clear();
-                }),
-                onSearchChanged: (_) => setState(() {}),
-                onCategoryChanged: (c) =>
-                    setState(() => _filterCategory = c),
-                onSortChanged: (s) => setState(() => _sort = s),
-                onArchiveTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) => ArchivedSubscriptionsScreen(
-                        controller: widget.controller),
-                  ),
-                ),
+    return Scaffold(
+      body: Column(
+        children: [
+          _Toolbar(
+            searchController: _search,
+            searchVisible: _searchVisible,
+            filterCategory: _filterCategory,
+            sortOption: _sort,
+            archivedCount: controller.archived.length,
+            onSearchToggle: () => setState(() {
+              _searchVisible = !_searchVisible;
+              if (!_searchVisible) _search.clear();
+            }),
+            onSearchChanged: (_) => setState(() {}),
+            onCategoryChanged: (c) => setState(() => _filterCategory = c),
+            onSortChanged: (s) => setState(() => _sort = s),
+            onArchiveTap: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    ArchivedSubscriptionsScreen(controller: controller),
               ),
-              // Liste
-              Expanded(
-                child: widget.controller.active.isEmpty
-                    ? _EmptyState(onAdd: () => _openAdd(context))
-                    : filtered.isEmpty
-                        ? const Center(child: Text('Sonuç bulunamadı.'))
-                        : RefreshIndicator(
-                            onRefresh: widget.controller.load,
-                            child: ListView.separated(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                              itemCount: filtered.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 8),
-                              itemBuilder: (context, i) {
-                                final sub = filtered[i];
-                                return _SubscriptionTile(
-                                  subscription: sub,
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (_) =>
-                                          SubscriptionDetailScreen(
-                                        subscription: sub,
-                                        controller: widget.controller,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-              ),
+            ),
+          ),
+          TabBar(
+            controller: _tabs,
+            tabs: [
+              Tab(text: 'Aktif (${controller.active.length})'),
+              Tab(text: 'Duraklatıldı (${controller.paused.length})'),
+              Tab(text: 'İptal (${controller.cancelled.length})'),
             ],
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _openAdd(context),
-            icon: const Icon(Icons.add),
-            label: const Text('Abonelik ekle'),
+          Expanded(
+            child: TabBarView(
+              controller: _tabs,
+              children: [
+                _SubscriptionTabView(
+                  items: _filtered(controller.active),
+                  allEmpty: controller.active.isEmpty,
+                  emptyMessage: 'Henüz abonelik yok',
+                  emptyDetail:
+                      'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
+                  controller: controller,
+                  onRefresh: controller.load,
+                  onAdd: () => _openAdd(context, controller),
+                  showAddButton: true,
+                ),
+                _SubscriptionTabView(
+                  items: _filtered(controller.paused),
+                  allEmpty: controller.paused.isEmpty,
+                  emptyMessage: 'Duraklatılmış abonelik yok',
+                  emptyDetail: 'Aboneliği detay sayfasından duraklatabilirsin.',
+                  controller: controller,
+                  onRefresh: controller.load,
+                ),
+                _SubscriptionTabView(
+                  items: _filtered(controller.cancelled),
+                  allEmpty: controller.cancelled.isEmpty,
+                  emptyMessage: 'İptal edilmiş abonelik yok',
+                  emptyDetail: 'İptal ettiğin abonelikler burada görünür.',
+                  controller: controller,
+                  onRefresh: controller.load,
+                ),
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _openAdd(context, controller),
+        icon: const Icon(Icons.add),
+        label: const Text('Abonelik ekle'),
+      ),
     );
   }
 
-  Future<void> _openAdd(BuildContext context) => Navigator.push(
+  Future<void> _openAdd(
+          BuildContext context, SubscriptionController controller) =>
+      Navigator.push(
         context,
         MaterialPageRoute<void>(
-          builder: (_) =>
-              AddSubscriptionScreen(controller: widget.controller),
+          builder: (_) => AddSubscriptionScreen(controller: controller),
         ),
       );
+}
+
+class _SubscriptionTabView extends StatelessWidget {
+  const _SubscriptionTabView({
+    required this.items,
+    required this.allEmpty,
+    required this.emptyMessage,
+    required this.emptyDetail,
+    required this.controller,
+    required this.onRefresh,
+    this.onAdd,
+    this.showAddButton = false,
+  });
+
+  final List<Subscription> items;
+  final bool allEmpty;
+  final String emptyMessage;
+  final String emptyDetail;
+  final SubscriptionController controller;
+  final Future<void> Function() onRefresh;
+  final VoidCallback? onAdd;
+  final bool showAddButton;
+
+  @override
+  Widget build(BuildContext context) {
+    if (allEmpty) {
+      return _EmptyState(
+        message: emptyMessage,
+        detail: emptyDetail,
+        onAdd: showAddButton ? onAdd : null,
+      );
+    }
+    if (items.isEmpty) {
+      return const Center(child: Text('Sonuç bulunamadı.'));
+    }
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        itemBuilder: (context, i) {
+          final sub = items[i];
+          return _SubscriptionTile(
+            subscription: sub,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => SubscriptionDetailScreen(
+                  subscription: sub,
+                  controller: controller,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _Toolbar extends StatelessWidget {
@@ -175,7 +241,6 @@ class _Toolbar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
           child: Row(
             children: [
-              // Kategori filtresi chip'i
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -200,25 +265,19 @@ class _Toolbar extends StatelessWidget {
                   ),
                 ),
               ),
-              // Arama butonu
               IconButton(
-                icon: Icon(searchVisible
-                    ? Icons.search_off
-                    : Icons.search),
+                icon: Icon(searchVisible ? Icons.search_off : Icons.search),
                 onPressed: onSearchToggle,
               ),
-              // Sıralama
               PopupMenuButton<_SortOption>(
                 icon: const Icon(Icons.sort),
                 onSelected: onSortChanged,
                 itemBuilder: (_) => [
                   _sortItem(_SortOption.date, 'Tarihe göre', sortOption),
-                  _sortItem(
-                      _SortOption.amount, 'Tutara göre', sortOption),
+                  _sortItem(_SortOption.amount, 'Tutara göre', sortOption),
                   _sortItem(_SortOption.name, 'İsme göre', sortOption),
                 ],
               ),
-              // Arşiv
               if (archivedCount > 0)
                 Badge(
                   label: Text('$archivedCount'),
@@ -231,7 +290,6 @@ class _Toolbar extends StatelessWidget {
             ],
           ),
         ),
-        // Arama kutusu
         if (searchVisible)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -264,7 +322,10 @@ class _Toolbar extends StatelessWidget {
     return PopupMenuItem(
       value: opt,
       child: Row(children: [
-        Icon(opt == current ? Icons.radio_button_checked : Icons.radio_button_off,
+        Icon(
+            opt == current
+                ? Icons.radio_button_checked
+                : Icons.radio_button_off,
             size: 18),
         const SizedBox(width: 8),
         Text(label),
@@ -274,8 +335,7 @@ class _Toolbar extends StatelessWidget {
 }
 
 class _SubscriptionTile extends StatelessWidget {
-  const _SubscriptionTile(
-      {required this.subscription, required this.onTap});
+  const _SubscriptionTile({required this.subscription, required this.onTap});
 
   final Subscription subscription;
   final VoidCallback onTap;
@@ -285,27 +345,59 @@ class _SubscriptionTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final days = subscription.daysUntilRenewal;
     final urgent = days <= 3;
+    final isPaused = subscription.status == SubscriptionStatus.paused;
+    final isCancelled = subscription.status == SubscriptionStatus.cancelled;
 
     return Card(
       child: ListTile(
         onTap: onTap,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: colors.primaryContainer,
+          backgroundColor: isPaused
+              ? colors.surfaceContainerHighest
+              : isCancelled
+                  ? colors.errorContainer
+                  : colors.primaryContainer,
           child: Icon(_categoryIcon(subscription.category),
-              color: colors.onPrimaryContainer),
+              color: isPaused
+                  ? colors.onSurfaceVariant
+                  : isCancelled
+                      ? colors.onErrorContainer
+                      : colors.onPrimaryContainer),
         ),
-        title: Text(subscription.name,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(subscription.name,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      decoration:
+                          isCancelled ? TextDecoration.lineThrough : null)),
+            ),
+            if (isPaused)
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.pause_circle_outline,
+                    size: 16, color: colors.onSurfaceVariant),
+              ),
+          ],
+        ),
         subtitle: Text(
-          DateTimeUtils.renewalLabel(days),
+          isPaused
+              ? 'Duraklatıldı'
+              : isCancelled
+                  ? 'İptal edildi'
+                  : DateTimeUtils.renewalLabel(days),
           style: TextStyle(
-              color: urgent
-                  ? colors.error
-                  : days <= 7
-                      ? colors.primary
-                      : null),
+              color: isPaused
+                  ? colors.onSurfaceVariant
+                  : isCancelled
+                      ? colors.error
+                      : urgent
+                          ? colors.error
+                          : days <= 7
+                              ? colors.primary
+                              : null),
         ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -314,7 +406,9 @@ class _SubscriptionTile extends StatelessWidget {
             Text(
               DateTimeUtils.formatCurrency(subscription.amount,
                   symbol: subscription.currency),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isCancelled ? colors.onSurfaceVariant : null),
             ),
             Text(subscription.billingCycle.label,
                 style: Theme.of(context).textTheme.bodySmall),
@@ -339,8 +433,11 @@ class _SubscriptionTile extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onAdd});
-  final VoidCallback onAdd;
+  const _EmptyState(
+      {required this.message, required this.detail, this.onAdd});
+  final String message;
+  final String detail;
+  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -351,23 +448,21 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.subscriptions_outlined,
-                size: 72, color: colors.primary),
+            Icon(Icons.subscriptions_outlined, size: 72, color: colors.primary),
             const SizedBox(height: 20),
-            Text('Henüz abonelik yok',
-                style: Theme.of(context).textTheme.titleLarge),
+            Text(message, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(
-              'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 28),
-            FilledButton.icon(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add),
-              label: const Text('Abonelik ekle'),
-            ),
+            Text(detail,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium),
+            if (onAdd != null) ...[
+              const SizedBox(height: 28),
+              FilledButton.icon(
+                onPressed: onAdd,
+                icon: const Icon(Icons.add),
+                label: const Text('Abonelik ekle'),
+              ),
+            ],
           ],
         ),
       ),

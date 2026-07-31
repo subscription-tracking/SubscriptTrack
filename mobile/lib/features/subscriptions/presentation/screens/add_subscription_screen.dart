@@ -27,6 +27,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       amount: amount,
       currency: _data.currency,
       billingCycle: _data.billingCycle,
+      startDate: _data.startDate,
       nextRenewalDate: _data.nextRenewalDate,
       category: _data.category,
       notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),

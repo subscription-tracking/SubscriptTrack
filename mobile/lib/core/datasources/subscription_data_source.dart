@@ -8,6 +8,7 @@ abstract class SubscriptionDataSource {
     required double amount,
     required String currency,
     required BillingCycle billingCycle,
+    required DateTime startDate,
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
@@ -16,4 +17,7 @@ abstract class SubscriptionDataSource {
   Future<void> delete(String userId, String subscriptionId);
   Future<void> archive(String userId, String subscriptionId);
   Future<void> restore(String userId, String subscriptionId);
+  Future<void> pause(String userId, String subscriptionId);
+  Future<void> resume(String userId, String subscriptionId);
+  Future<void> cancel(String userId, String subscriptionId);
 }

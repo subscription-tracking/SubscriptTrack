@@ -6,7 +6,6 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/local_storage.dart';
 import '../domain/subscription_models.dart';
 
-// Supabase'e geçince bu sınıfın içi değişir, imzalar aynı kalır.
 class SubscriptionRepository implements SubscriptionDataSource {
   SubscriptionRepository({LocalStorage? storage})
       : _storage = storage ?? LocalStorage.instance;
@@ -31,6 +30,7 @@ class SubscriptionRepository implements SubscriptionDataSource {
     required double amount,
     required String currency,
     required BillingCycle billingCycle,
+    required DateTime startDate,
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
@@ -49,6 +49,7 @@ class SubscriptionRepository implements SubscriptionDataSource {
       amount: amount,
       currency: currency,
       billingCycle: billingCycle,
+      startDate: startDate,
       nextRenewalDate: nextRenewalDate,
       category: category,
       notes: notes?.trim(),
@@ -79,20 +80,31 @@ class SubscriptionRepository implements SubscriptionDataSource {
   }
 
   @override
-  Future<void> archive(String userId, String subscriptionId) async {
-    final list = await getAll(userId);
-    final idx = list.indexWhere((s) => s.id == subscriptionId);
-    if (idx == -1) throw const NotFoundException('Abonelik bulunamadı.');
-    list[idx] = list[idx].copyWith(isArchived: true);
-    await _persist(userId, list);
-  }
+  Future<void> archive(String userId, String subscriptionId) =>
+      _setStatus(userId, subscriptionId, SubscriptionStatus.archived);
 
   @override
-  Future<void> restore(String userId, String subscriptionId) async {
+  Future<void> restore(String userId, String subscriptionId) =>
+      _setStatus(userId, subscriptionId, SubscriptionStatus.active);
+
+  @override
+  Future<void> pause(String userId, String subscriptionId) =>
+      _setStatus(userId, subscriptionId, SubscriptionStatus.paused);
+
+  @override
+  Future<void> resume(String userId, String subscriptionId) =>
+      _setStatus(userId, subscriptionId, SubscriptionStatus.active);
+
+  @override
+  Future<void> cancel(String userId, String subscriptionId) =>
+      _setStatus(userId, subscriptionId, SubscriptionStatus.cancelled);
+
+  Future<void> _setStatus(
+      String userId, String id, SubscriptionStatus status) async {
     final list = await getAll(userId);
-    final idx = list.indexWhere((s) => s.id == subscriptionId);
+    final idx = list.indexWhere((s) => s.id == id);
     if (idx == -1) throw const NotFoundException('Abonelik bulunamadı.');
-    list[idx] = list[idx].copyWith(isArchived: false);
+    list[idx] = list[idx].copyWith(status: status);
     await _persist(userId, list);
   }
 
