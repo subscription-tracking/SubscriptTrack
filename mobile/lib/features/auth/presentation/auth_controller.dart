@@ -1,34 +1,53 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/storage/local_storage.dart';
 import '../data/auth_repository.dart';
 import '../domain/auth_models.dart';
 
+export '../domain/auth_models.dart';
+
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
 class AuthController extends ChangeNotifier {
-  AuthController({AuthRepository? repository})
+  AuthController({AuthDataSource? repository})
       : _repo = repository ?? AuthRepository();
 
-  final AuthRepository _repo;
+  final AuthDataSource _repo;
 
   AuthStatus _status = AuthStatus.unknown;
   AppUser? _user;
   String? _error;
   bool _loading = false;
+  bool _initialized = false;
+  bool _onboardingNeeded = false;
 
   AuthStatus get status => _status;
   AppUser? get user => _user;
   String? get error => _error;
   bool get loading => _loading;
+  bool get initialized => _initialized;
+  bool get onboardingNeeded => _onboardingNeeded;
 
   Future<bool> init() async {
-    _user = await _repo.currentUser();
+    final results = await Future.wait<dynamic>([
+      _repo.currentUser(),
+      _checkOnboarding(),
+    ]);
+    _user = results[0] as AppUser?;
+    _onboardingNeeded = results[1] as bool;
     _status = _user != null
         ? AuthStatus.authenticated
         : AuthStatus.unauthenticated;
+    _initialized = true;
     notifyListeners();
     return _user != null;
+  }
+
+  void onboardingDone() {
+    _onboardingNeeded = false;
+    notifyListeners();
   }
 
   Future<bool> signUp(String email, String password) async {
@@ -85,5 +104,10 @@ class AuthController extends ChangeNotifier {
   void _setLoading(bool value) {
     _loading = value;
     notifyListeners();
+  }
+
+  static Future<bool> _checkOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('onboarding_done') != true;
   }
 }
