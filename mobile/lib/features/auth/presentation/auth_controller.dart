@@ -21,12 +21,13 @@ class AuthController extends ChangeNotifier {
   String? get error => _error;
   bool get loading => _loading;
 
-  Future<void> init() async {
+  Future<bool> init() async {
     _user = await _repo.currentUser();
     _status = _user != null
         ? AuthStatus.authenticated
         : AuthStatus.unauthenticated;
     notifyListeners();
+    return _user != null;
   }
 
   Future<bool> signUp(String email, String password) async {

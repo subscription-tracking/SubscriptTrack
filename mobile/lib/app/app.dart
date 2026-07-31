@@ -7,6 +7,7 @@ import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/settings/presentation/settings_controller.dart';
 import '../features/subscriptions/presentation/subscription_controller.dart';
 import 'shell/app_shell.dart';
+import 'splash_screen.dart';
 import 'theme/app_theme.dart';
 
 class SubscriptTrackApp extends StatefulWidget {
@@ -19,15 +20,28 @@ class SubscriptTrackApp extends StatefulWidget {
 class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
   final _auth = AuthController();
   final _settings = SettingsController.instance;
+
+  // Her ikisi de hazır olana kadar splash göster — flash yok.
+  bool _ready = false;
   bool _showOnboarding = false;
 
   @override
   void initState() {
     super.initState();
-    _auth.init();
     _settings.load();
-    OnboardingScreen.shouldShow().then((v) {
-      if (mounted) setState(() => _showOnboarding = v);
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    // Auth ve onboarding kontrolünü paralel başlat, her ikisi bitince devam et.
+    final results = await Future.wait<dynamic>([
+      _auth.init(),
+      OnboardingScreen.shouldShow(),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _showOnboarding = results[1] as bool;
+      _ready = true;
     });
   }
 
@@ -47,29 +61,29 @@ class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: _settings.themeMode,
-        home: _showOnboarding
-            ? OnboardingScreen(
-                onDone: () => setState(() => _showOnboarding = false),
-              )
-            : ListenableBuilder(
-                listenable: _auth,
-                builder: (context, _) => switch (_auth.status) {
-                  AuthStatus.unknown => const Scaffold(
-                      body: Center(child: CircularProgressIndicator()),
-                    ),
-                  AuthStatus.authenticated =>
-                    _AuthenticatedShell(auth: _auth, settings: _settings),
-                  AuthStatus.unauthenticated => _AuthFlow(auth: _auth),
-                },
-              ),
+        home: !_ready
+            ? const SplashScreen()
+            : _showOnboarding
+                ? OnboardingScreen(
+                    onDone: () => setState(() => _showOnboarding = false),
+                  )
+                : ListenableBuilder(
+                    listenable: _auth,
+                    builder: (context, _) => switch (_auth.status) {
+                      AuthStatus.unknown => const SplashScreen(),
+                      AuthStatus.authenticated =>
+                        _AuthenticatedShell(auth: _auth, settings: _settings),
+                      AuthStatus.unauthenticated => _AuthFlow(auth: _auth),
+                    },
+                  ),
       ),
     );
   }
 }
 
 class _AuthenticatedShell extends StatefulWidget {
-  const _AuthenticatedShell(
-      {required this.auth, required this.settings});
+  const _AuthenticatedShell({required this.auth, required this.settings});
+
   final AuthController auth;
   final SettingsController settings;
 
@@ -103,6 +117,7 @@ class _AuthenticatedShellState extends State<_AuthenticatedShell> {
 
 class _AuthFlow extends StatefulWidget {
   const _AuthFlow({required this.auth});
+
   final AuthController auth;
 
   @override
