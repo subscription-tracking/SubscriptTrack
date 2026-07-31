@@ -81,6 +81,14 @@ class SubscriptionRepository {
     await _persist(userId, list);
   }
 
+  Future<void> restore(String userId, String subscriptionId) async {
+    final list = await getAll(userId);
+    final idx = list.indexWhere((s) => s.id == subscriptionId);
+    if (idx == -1) throw const NotFoundException('Abonelik bulunamadı.');
+    list[idx] = list[idx].copyWith(isArchived: false);
+    await _persist(userId, list);
+  }
+
   Future<void> _persist(String userId, List<Subscription> list) =>
       _storage.writeSubscriptions(
         userId,

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/storage/local_storage.dart';
 import '../data/auth_repository.dart';
 import '../domain/auth_models.dart';
 
@@ -62,6 +63,15 @@ class AuthController extends ChangeNotifier {
 
   Future<void> signOut() async {
     await _repo.signOut();
+    _user = null;
+    _status = AuthStatus.unauthenticated;
+    notifyListeners();
+  }
+
+  Future<void> deleteAccount(LocalStorage localStorage) async {
+    if (_user == null) return;
+    await localStorage.deleteSubscriptions(_user!.id);
+    await _repo.deleteAccount(_user!.email);
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();

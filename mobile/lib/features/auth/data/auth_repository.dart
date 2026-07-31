@@ -80,6 +80,12 @@ class AuthRepository {
 
   Future<void> signOut() => _storage.deleteCurrentUser();
 
+  // Hesabı ve tüm credentials'ı tamamen siler
+  Future<void> deleteAccount(String email) async {
+    await _storage.deleteCredentialsForEmail(email);
+    await _storage.deleteCurrentUser();
+  }
+
   // ---- private helpers ----
 
   String _hash(String password) =>

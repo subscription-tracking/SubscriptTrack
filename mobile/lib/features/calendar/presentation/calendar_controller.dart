@@ -28,12 +28,12 @@ class CalendarController {
         .toSet();
   }
 
-  // Seçili ayın toplam maliyeti
+  // Seçili ayın toplam maliyeti (aylık normalize edilmiş)
   double totalForMonth(int year, int month) {
     return subscriptions.active
         .where((s) =>
             s.nextRenewalDate.year == year &&
             s.nextRenewalDate.month == month)
-        .fold(0.0, (sum, s) => sum + s.amount);
+        .fold(0.0, (sum, s) => sum + s.monthlyAmount);
   }
 }

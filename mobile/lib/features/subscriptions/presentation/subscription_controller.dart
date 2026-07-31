@@ -111,6 +111,13 @@ class SubscriptionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> restore(String subscriptionId) async {
+    await _repo.restore(_userId, subscriptionId);
+    final idx = _items.indexWhere((s) => s.id == subscriptionId);
+    if (idx != -1) _items[idx] = _items[idx].copyWith(isArchived: false);
+    notifyListeners();
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

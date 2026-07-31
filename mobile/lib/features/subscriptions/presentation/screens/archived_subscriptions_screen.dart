@@ -61,17 +61,39 @@ class ArchivedSubscriptionsScreen extends StatelessWidget {
                   title: Text(sub.name,
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: Text(sub.billingCycle.label),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        DateTimeUtils.formatCurrency(sub.amount,
-                            symbol: sub.currency),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            DateTimeUtils.formatCurrency(sub.amount,
+                                symbol: sub.currency),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(sub.category.label,
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ],
                       ),
-                      Text(sub.category.label,
-                          style: Theme.of(context).textTheme.bodySmall),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: 'Aktif yap',
+                        icon: Icon(Icons.unarchive_outlined,
+                            color: colors.primary),
+                        onPressed: () async {
+                          await controller.restore(sub.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    '${sub.name} aktif aboneliklerine eklendi.'),
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),

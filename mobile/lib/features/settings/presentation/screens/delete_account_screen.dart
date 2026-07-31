@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/storage/local_storage.dart';
 import '../../../auth/presentation/auth_controller.dart';
 
 class DeleteAccountScreen extends StatefulWidget {
@@ -13,13 +14,20 @@ class DeleteAccountScreen extends StatefulWidget {
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   final _confirm = TextEditingController();
-  bool get _canDelete =>
-      _confirm.text.trim().toLowerCase() == 'sil';
+  bool _deleting = false;
+
+  bool get _canDelete => _confirm.text.trim().toLowerCase() == 'sil';
 
   @override
   void dispose() {
     _confirm.dispose();
     super.dispose();
+  }
+
+  Future<void> _delete() async {
+    setState(() => _deleting = true);
+    await widget.auth.deleteAccount(LocalStorage.instance);
+    // Auth durumu unauthenticated'a döndüğünde app.dart otomatik login'e yönlendirir.
   }
 
   @override
@@ -40,7 +48,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Bu işlem geri alınamaz. Tüm abonelik verilerin silinecek.',
+                    'Bu işlem geri alınamaz. Hesabın ve tüm abonelik verilerin kalıcı olarak silinecek.',
                     style: TextStyle(color: colors.onErrorContainer),
                   ),
                 ),
@@ -48,28 +56,25 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Onaylamak için aşağıya "sil" yazın:',
-          ),
+          const Text('Onaylamak için aşağıya "sil" yazın:'),
           const SizedBox(height: 12),
           TextField(
             controller: _confirm,
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
-              hintText: 'sil',
-            ),
+            decoration: const InputDecoration(hintText: 'sil'),
           ),
           const SizedBox(height: 24),
           FilledButton(
-            onPressed: _canDelete
-                ? () async {
-                    await widget.auth.signOut();
-                  }
-                : null,
-            style: FilledButton.styleFrom(
-              backgroundColor: colors.error,
-            ),
-            child: const Text('Hesabı kalıcı olarak sil'),
+            onPressed: (_canDelete && !_deleting) ? _delete : null,
+            style: FilledButton.styleFrom(backgroundColor: colors.error),
+            child: _deleting
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text('Hesabı kalıcı olarak sil'),
           ),
         ],
       ),
