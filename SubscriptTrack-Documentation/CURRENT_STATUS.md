@@ -9,7 +9,8 @@ Son guncelleme: 31 Temmuz 2026
 - Flutter stable 3.44.8 / Dart 3.12.2
 - Supabase credentials are injected with `--dart-define`; no secret is committed.
 - Android debug APK basariyla uretilebiliyor
-- `flutter analyze` basarili
+- `flutter analyze --no-pub`: hata yok, 4 mevcut info/deprecation uyarisi var
+- `flutter test --no-pub`: 2 test basarili
 
 ---
 
@@ -19,11 +20,11 @@ Son guncelleme: 31 Temmuz 2026
 |--------|--------|-------|
 | S0 | Proje temeli (Flutter, ortam, CI) | TAMAMLANDI |
 | S0.5 | Mimari zemin (go_router, provider, soyut DI) | TAMAMLANDI |
-| S1 | Auth ve onboarding | TAMAMLANDI |
-| S2 | Ortak UI + abonelik ekleme | TAMAMLANDI |
-| S3 | Abonelik yasam dongusu | TAMAMLANDI |
-| S4 | Dashboard ve finansal hesaplamalar | TAMAMLANDI |
-| S5 | Takvim ve in-app bildirimler | TAMAMLANDI |
+| S1 | Auth ve onboarding | TAMAMLANDI - testli |
+| S2 | Ortak UI + abonelik ekleme | AKTIF |
+| S3 | Abonelik yasam dongusu | KISMI |
+| S4 | Dashboard ve finansal hesaplamalar | KISMI |
+| S5 | Takvim ve in-app bildirimler | KISMI |
 | S6 | Push bildirimleri | KISMI |
 | S7 | Ayarlar, export, hesap silme | TAMAMLANDI |
 | S8 | Kalite, guvenlik, release candidate | BASLANMADI |
@@ -173,3 +174,62 @@ subscripttrack://auth-callback
 - [ ] Store listing, gizlilik politikasi, kullanim sartlari
 - [ ] Production Supabase ortami dogrulamasi
 - [ ] App Store ve Google Play gonderimleri
+
+---
+
+## Son uygulama kaydi
+
+### Aktif sprint: S2
+
+S1 kapatildi. S2 icin siradaki teknik isler:
+
+- [ ] Money/decimal modelini tasarla; mobildeki `double` para alanlarini kaldir.
+- [ ] Abonelik create request/response contractini backend ile eslestir.
+- [ ] Form validation ve currency/billing cycle kurallarini test et.
+- [ ] Add subscription widget testini ekle.
+- [ ] `flutter analyze`, `flutter test` ve Android smoke build ile S2 kabulunu yap.
+
+### Sprint kapatma kaydi
+
+- S1 durumu: TAMAMLANDI
+- S1 test sonucu: `flutter test --no-pub` basarili
+- S1 analyze sonucu: hata yok; 4 info/deprecation uyarisi
+- S2 durumu: AKTIF
+- Sonraki sprintlere gecis: mevcut sprintin kabul kriterleri ve testleri gecmeden yapilmayacak.
+
+---
+
+## Kanonik sprint plani
+
+Mevcut kod incelemesine gore Sprint 0-S7 kapsaminda genis bir urun temeli vardir; ancak production hardening tamamlanmamistir. Eski Sprint 8 ve Sprint 9 basliklari artik tek basina takip edilmeyecek; asagidaki kanonik akista dogru sprintlere dagitilmistir. Bundan sonra resmi takip tablosu budur:
+
+| Sprint | Odak | Durum | Tamamlanma kosulu |
+|---|---|---|---|
+| S10 | API mimarisi, Money/decimal, RLS ve secret guvenligi | PLANLANDI | Tek veri akisi, para dogrulugu, ownership guvenligi |
+| S11 | Auth ve abonelik API entegrasyonu | PLANLANDI | Login'den CRUD ve lifecycle'a uctan uca akis |
+| S12 | Dashboard, liste, detay, takvim ve stats | PLANLANDI | Gercek API verisi ve tum UI durumlari |
+| S13 | Kalite, test, guvenlik ve API contract | PLANLANDI | Kritik test suite yesil ve guvenlik kapisi gecildi |
+| S14 | Push bildirim, offline cache ve sync | PLANLANDI | Timezone uyumlu, kalici, tekrarsiz bildirim |
+| S15 | Temizlik, dokumantasyon ve release candidate | PLANLANDI | Kod/dokuman uyumu ve staging release |
+| S16 | Beta, CI/CD ve Android/iOS magaza yayini | PLANLANDI | Gercek cihaz smoke testi ve kontrollu beta |
+
+### Kritik teknik borclar
+
+- Mobil subscription akisi direct Supabase repository ile backend REST akisi arasinda ayrisiyor; S10'da REST standartlastirilacak.
+- Mobil para modeli `double` kullaniyor; S10'da Money/decimal modele gecilecek.
+- RLS aktif ancak user-owned policy kapsami ayrica dogrulanacak.
+- Backend ve API contract testleri henuz yok; S13 zorunlu kalite kapisidir.
+- FCM/APNs device token ve backend push worker henuz tamamlanmadi; S14'e tasindi.
+- Onceki sprint checkboxlari tarihsel kapsamdir; guncel ilerleme S10-S16 tablosundan takip edilecektir.
+
+### Commit stratejisi
+
+Her sprint degisiklikleri su gruplarla commitlenecek:
+
+1. `chore`: altyapi/dependency
+2. `feat`: dikey feature
+3. `test`: test ve kalite
+4. `docs`: API/sprint/architecture
+5. `fix`: review veya smoke test duzeltmesi
+
+Sprint sonunda `flutter analyze`, `flutter test`, backend testleri, Android build ve Graphify kontrolu yapilacak.

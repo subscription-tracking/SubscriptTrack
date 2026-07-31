@@ -439,3 +439,156 @@ MVP’nin teknik kalite ve güvenlik kapılarını tamamlamak.
 - Tam web dashboard
 - Banka entegrasyonu
 - Otomatik abonelik iptali
+
+---
+
+# Uygulama ve production hardening plani — Sprint 10-16
+
+Bu plan, gercek kod incelemesinden sonra production seviyesine cikmak icin eklenmistir. Her sprint iki haftalik planlanir; sprint tamamlanmasi icin ilgili testler, dokumanlar ve Android smoke build birlikte gecmelidir.
+
+## Kanonik uygulama sirasi
+
+Asagidaki siralama tek gecerli uygulama siralamasi olarak kullanilacaktir. Eski Sprint 8-9 tanimlari tarihsel kapsamdir; production hardening kapsamlarinin yeni yeri bu tablodur.
+
+| Sprint | Baslik | Onceki kapsamdan tasinanlar |
+|---|---|---|
+| S10 | API mimarisi ve veri temeli | Yeni API akisi, Money/decimal, RLS, secret guvenligi |
+| S11 | Auth ve abonelik API entegrasyonu | Auth, CRUD, status lifecycle, pagination |
+| S12 | Ana urun ekranlari | Dashboard, liste, detay, takvim, stats |
+| S13 | Kalite, test ve guvenlik | Eski S8'in test, security ve contract kapsami |
+| S14 | Push bildirim ve offline | Eski S6 backlog'u, FCM/APNs, cache ve sync |
+| S15 | Temizlik ve release candidate | UTF-8, placeholder, dokuman, staging release |
+| S16 | Beta ve magaza yayini | Eski S9'un beta, store ve production kapsami |
+
+## Ortak kabul kapisi
+
+- `flutter analyze` hatasiz calisir.
+- Etkilenen Flutter ve backend testleri yesildir.
+- Loading, error, empty ve uygun yerlerde offline durumlari uygulanmistir.
+- API veya domain degisikligi ilgili dokumana islenmistir.
+- Android build ve en az bir emulator smoke testi gecmistir.
+- Secret, service-role key veya hassas veri commit edilmemistir.
+- Degisiklikler geri alinabilir commitlere bolunmustur.
+- Graphify kontrolu guncellenmis veya sorgulanmistir.
+
+## Sprint 10 — Mimari kararlar ve veri temeli
+
+**Hedef:** Mobil, backend ve veritabani veri akisinin REST API uzerinden standartlastirilmasi.
+
+**Gorevler:**
+
+- [ ] Mobil ana subscription akisinin REST API olacagini kesinlestir.
+- [ ] ApiClient: base URL, Bearer token, timeout, request ID, retry ve ortak hata modeli.
+- [ ] ApiSubscriptionRepository ve auth API katmanini ekle.
+- [ ] Flutter request/response modellerini backend ile eslestir.
+- [ ] Mobildeki `double` para alanlarini Money/decimal yaklasimina tasi.
+- [ ] Billing cycle normalize hesaplarini tek domain servisinde birlestir.
+- [ ] RLS user-owned policy tanimlarini ekle veya direct client erisimini kaldir.
+- [ ] CORS'u production origin listesiyle sinirla.
+- [ ] Secret scan ve gerekli Supabase key rotation islemlerini yap.
+- [ ] API, architecture ve environment dokumanlarini guncelle.
+
+**Kabul kriterleri:** Mobil subscription verisi REST API'den gelir; para hesaplari floating point hatasi uretmez; ownership guvenligi testle kanitlanir; secret scan temizdir.
+
+## Sprint 11 — Auth ve abonelik API entegrasyonu
+
+**Hedef:** Oturumdan subscription CRUD ve lifecycle akisina kadar uctan uca backend entegrasyonu.
+
+**Gorevler:**
+
+- [ ] Session restore, token refresh ve 401 redirect akisini tamamla.
+- [ ] Login, register, reset password ve logout akisini standartlastir.
+- [ ] List/create/detail/update endpointlerini Flutter'a bagla.
+- [ ] Pause, resume, cancel, archive ve restore endpointlerini bagla.
+- [ ] Cursor pagination ve filtreleri uygula.
+- [ ] Backend status transition kurallarini UI ile aynilastir.
+- [ ] Re-auth, account deletion ve local data temizligini tamamla.
+- [ ] Idempotency ve duplicate request davranisini kontrol et.
+
+**Kabul kriterleri:** Gecmis oturum korunur; CRUD backend event uretir; gecersiz status gecisi reddedilir; 401 guvenli login yonlendirmesi yapar.
+
+## Sprint 12 — Ana urun ekranlari
+
+**Hedef:** Dashboard, liste, detay, takvim ve stats ekranlarini gercek API verisiyle tamamlamak.
+
+**Gorevler:**
+
+- [ ] Dashboard summary ve upcoming verisini API'den al.
+- [ ] Aylik/yillik toplam ve currency ayrimini tamamla.
+- [ ] Bos callback'leri ve `Tumunu gor` navigation'ini tamamla.
+- [ ] Liste arama, filtre ve siralamayi API/cache ile uyumla.
+- [ ] Detay ve edit ekranini response modeliyle eslestir.
+- [ ] Takvim timezone ve ay siniri hesaplarini dogrula.
+- [ ] Stats ve savings ekranlarini endpointlere bagla.
+- [ ] Tum ana ekranlara loading/error/empty/offline state ekle.
+- [ ] Text scaling, contrast ve erisilebilirlik kontrolu yap.
+
+**Kabul kriterleri:** Ekranlar ayni backend verisini gosterir; currency'ler toplanmaz; inactive kayitlar aktif toplama girmez; refresh/empty/error akislari calisir.
+
+## Sprint 13 — Bildirim ve offline altyapisi
+
+**Hedef:** Bildirimleri kalici, timezone uyumlu, tekrarsiz ve offline dayan​​ikli hale getirmek.
+
+**Gorevler:**
+
+- [ ] Local notification schedule/cancel/reschedule akisini tamamla.
+- [ ] Android channel ve iOS permission akisini dogrula.
+- [ ] FCM/APNs device token register/revoke endpointlerini ekle.
+- [ ] Backend push worker, retry ve invalid token akisini ekle.
+- [ ] Timezone ve days-before tercihlerini worker'a bagla.
+- [ ] Read/read-all durumunu backend'e kalici yaz.
+- [ ] Duplicate occurrence/channel/type kontrolu ekle.
+- [ ] Offline cache, son basarili veri ve offline banner ekle.
+- [ ] Offline mutation kuyrugu ve sync stratejisini belirle.
+
+**Kabul kriterleri:** Bildirim dogru timezone'da gelir; duplicate gonderim olmaz; kapali kanal bildirim almaz; offline veri ve okunma durumu korunur.
+
+## Sprint 14 — Test, guvenlik ve kalite kapisi
+
+**Hedef:** Kritik domain, API ve guvenlik akislarini otomatik testlerle korumak.
+
+**Gorevler:**
+
+- [ ] Money, billing cycle, tarih ve timezone unit testleri.
+- [ ] AuthController, SubscriptionController ve repository testleri.
+- [ ] Login, form, dashboard, liste, takvim ve notification widget testleri.
+- [ ] Backend auth, validation, ownership ve status transition testleri.
+- [ ] API contract, migration ve RLS authorization testleri.
+- [ ] Rate limit, CORS, secret scan ve error response kontrolleri.
+- [ ] Crash reporting ve temel analytics eventleri.
+
+**Kabul kriterleri:** Kritik test suite yesildir; backend test scripti CI'da calisir; ownership ve lifecycle testle kanitlanir; kritik security finding kalmaz.
+
+## Sprint 15 — Temizlik ve dokumantasyon
+
+**Hedef:** Kod, metin ve proje dokumanlarini tek dogru kaynak haline getirmek.
+
+**Gorevler:**
+
+- [ ] Dart, JavaScript, SQL ve Markdown dosyalarini UTF-8 normalize et.
+- [ ] Placeholder, kullanilmayan demo widget ve bos callbackleri temizle.
+- [ ] Deprecated Flutter API'lerini guncelle.
+- [ ] SPRINT_PLAN, CURRENT_STATUS, API ve architecture dokumanlarini senkronla.
+- [ ] Environment, migration ve deployment rehberi yaz.
+- [ ] Graphify update/query ile dosya iliskilerini kontrol et.
+- [ ] Commitleri chore/feat/test/docs/fix olarak bol.
+
+**Kabul kriterleri:** Karakter bozulmasi, kritik placeholder ve dokuman celiskisi kalmaz.
+
+## Sprint 16 — Release ve yayin
+
+**Hedef:** Android ve iOS icin izlenebilir staging/release ciktilari almak.
+
+**Gorevler:**
+
+- [ ] Android keystore, signing, versioning ve App Bundle.
+- [ ] iOS bundle ID, signing, archive ve TestFlight.
+- [ ] ProGuard/R8 ve release ayarlarini dogrula.
+- [ ] CI/CD: analyze, test, secret scan ve build.
+- [ ] Staging deploy ve production smoke test.
+- [ ] Gercek Android/iOS cihaz ana akis testleri.
+- [ ] Store listing, privacy policy ve terms.
+- [ ] Rollback, incident ve destek plani.
+- [ ] TestFlight ve Google Play Internal Testing dagitimi.
+
+**Kabul kriterleri:** Release buildler gercek cihazda acar; kayit, abonelik ve bildirim ana akisi gecer; production credentiallari ayridir; CI yesildir.
