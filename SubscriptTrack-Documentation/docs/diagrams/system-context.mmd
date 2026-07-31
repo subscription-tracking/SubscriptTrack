@@ -1,0 +1,10 @@
+flowchart LR
+    U[Kullanıcı] --> M[iOS / Android Mobil Uygulama]
+    M -->|HTTPS REST/JSON| B[Backend API]
+    B --> DB[(PostgreSQL)]
+    B --> Q[Job / Queue]
+    Q --> P[Push Provider: FCM/APNs]
+    Q --> E[E-posta Sağlayıcısı]
+    P --> M
+    W[Web Sitesi] --> B
+    A[Admin/Operasyon Aracı] --> B
