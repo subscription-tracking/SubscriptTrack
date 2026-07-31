@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../settings/presentation/settings_controller.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({required this.onDone, super.key});
 
@@ -23,8 +25,10 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _page = 0;
+  String _selectedCurrency = '₺';
 
-  static const _pages = [
+  // Info pages (index 0-2) + currency page (index 3)
+  static const _infoPages = [
     _PageData(
       icon: Icons.account_balance_wallet_outlined,
       title: 'Aboneliklerini takip et',
@@ -45,6 +49,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
   ];
 
+  static const _pageCount = 4; // 3 info + 1 currency
+
   @override
   void dispose() {
     _controller.dispose();
@@ -52,6 +58,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finish() async {
+    await SettingsController.instance.setCurrency(_selectedCurrency);
     await OnboardingScreen.markDone();
     widget.onDone();
   }
@@ -59,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isLast = _page == _pages.length - 1;
+    final isLast = _page == _pageCount - 1;
 
     return Scaffold(
       body: SafeArea(
@@ -76,15 +83,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView.builder(
                 controller: _controller,
                 onPageChanged: (i) => setState(() => _page = i),
-                itemCount: _pages.length,
-                itemBuilder: (_, i) => _PageView(data: _pages[i]),
+                itemCount: _pageCount,
+                itemBuilder: (_, i) => i < _infoPages.length
+                    ? _PageView(data: _infoPages[i])
+                    : _CurrencyPage(
+                        selected: _selectedCurrency,
+                        onSelect: (c) =>
+                            setState(() => _selectedCurrency = c),
+                      ),
               ),
             ),
             // Dots
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
+                _pageCount,
                 (i) => AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -128,6 +141,75 @@ class _PageData {
   final IconData icon;
   final String title;
   final String body;
+}
+
+class _CurrencyPage extends StatelessWidget {
+  const _CurrencyPage({required this.selected, required this.onSelect});
+
+  final String selected;
+  final ValueChanged<String> onSelect;
+
+  static const _options = [
+    ('₺', 'Türk Lirası', 'TRY'),
+    ('\$', 'ABD Doları', 'USD'),
+    ('€', 'Euro', 'EUR'),
+    ('£', 'İngiliz Sterlini', 'GBP'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: colors.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.currency_exchange,
+                size: 56, color: colors.onPrimaryContainer),
+          ),
+          const SizedBox(height: 40),
+          Text(
+            'Para birimi seç',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Varsayılan para birimini seç. Daha sonra ayarlardan değiştirebilirsin.',
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          ...(_options.map((opt) => Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                color: selected == opt.$1
+                    ? colors.primaryContainer
+                    : colors.surfaceContainerHighest,
+                child: ListTile(
+                  onTap: () => onSelect(opt.$1),
+                  leading: Text(opt.$1,
+                      style: Theme.of(context).textTheme.headlineSmall),
+                  title: Text(opt.$2),
+                  subtitle: Text(opt.$3),
+                  trailing: selected == opt.$1
+                      ? Icon(Icons.check_circle, color: colors.primary)
+                      : null,
+                ),
+              ))),
+        ],
+      ),
+    );
+  }
 }
 
 class _PageView extends StatelessWidget {

@@ -5,6 +5,7 @@ import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../shell/authenticated_shell.dart';
 import '../splash_screen.dart';
@@ -20,6 +21,10 @@ class AppRouter {
             return loc == '/splash' ? null : '/splash';
           }
 
+          if (auth.passwordRecoveryMode) {
+            return loc == '/reset-password' ? null : '/reset-password';
+          }
+
           if (auth.onboardingNeeded) {
             return loc == '/onboarding' ? null : '/onboarding';
           }
@@ -31,7 +36,7 @@ class AppRouter {
               const publicRoutes = {'/login', '/register', '/forgot-password'};
               return publicRoutes.contains(loc) ? null : '/login';
             case AuthStatus.authenticated:
-              const authOnlyRoutes = {'/login', '/register', '/forgot-password', '/splash', '/onboarding'};
+              const authOnlyRoutes = {'/login', '/register', '/forgot-password', '/reset-password', '/splash', '/onboarding'};
               return authOnlyRoutes.contains(loc) ? '/home' : null;
           }
         },
@@ -68,6 +73,12 @@ class AppRouter {
           GoRoute(
             path: '/forgot-password',
             builder: (context, _) => ForgotPasswordScreen(
+              controller: context.read<AuthController>(),
+            ),
+          ),
+          GoRoute(
+            path: '/reset-password',
+            builder: (context, _) => ResetPasswordScreen(
               controller: context.read<AuthController>(),
             ),
           ),
