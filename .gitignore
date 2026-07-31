@@ -17,6 +17,10 @@ mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
 mobile/*.iml
 
+# Android/Gradle
+mobile/android/.gradle/
+mobile/android/local.properties
+
 # IDE
 .idea/
 .vscode/
