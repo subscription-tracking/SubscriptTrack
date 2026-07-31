@@ -31,6 +31,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       amount: widget.subscription.amount.toStringAsFixed(2),
       currency: widget.subscription.currency,
       billingCycle: widget.subscription.billingCycle,
+      startDate: widget.subscription.startDate,
       nextRenewalDate: widget.subscription.nextRenewalDate,
       category: widget.subscription.category,
       notes: widget.subscription.notes ?? '',

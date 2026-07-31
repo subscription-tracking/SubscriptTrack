@@ -39,14 +39,50 @@ class SubscriptionDetailScreen extends StatelessWidget {
           PopupMenuButton<_Action>(
             onSelected: (action) => _handleAction(context, action),
             itemBuilder: (_) => [
-              const PopupMenuItem(
-                value: _Action.archive,
-                child: Row(children: [
-                  Icon(Icons.archive_outlined),
-                  SizedBox(width: 12),
-                  Text('Arşivle'),
-                ]),
-              ),
+              if (subscription.status == SubscriptionStatus.active) ...[
+                const PopupMenuItem(
+                  value: _Action.pause,
+                  child: Row(children: [
+                    Icon(Icons.pause_circle_outline),
+                    SizedBox(width: 12),
+                    Text('Durakla'),
+                  ]),
+                ),
+                const PopupMenuItem(
+                  value: _Action.cancel,
+                  child: Row(children: [
+                    Icon(Icons.cancel_outlined),
+                    SizedBox(width: 12),
+                    Text('İptal et'),
+                  ]),
+                ),
+                const PopupMenuItem(
+                  value: _Action.archive,
+                  child: Row(children: [
+                    Icon(Icons.archive_outlined),
+                    SizedBox(width: 12),
+                    Text('Arşivle'),
+                  ]),
+                ),
+              ],
+              if (subscription.status == SubscriptionStatus.paused)
+                const PopupMenuItem(
+                  value: _Action.resume,
+                  child: Row(children: [
+                    Icon(Icons.play_circle_outline),
+                    SizedBox(width: 12),
+                    Text('Devam ettir'),
+                  ]),
+                ),
+              if (subscription.status == SubscriptionStatus.cancelled)
+                const PopupMenuItem(
+                  value: _Action.resume,
+                  child: Row(children: [
+                    Icon(Icons.refresh),
+                    SizedBox(width: 12),
+                    Text('Yeniden aktifleştir'),
+                  ]),
+                ),
               PopupMenuItem(
                 value: _Action.delete,
                 child: Row(children: [
@@ -114,6 +150,11 @@ class SubscriptionDetailScreen extends StatelessWidget {
               value: subscription.notes!,
             ),
           _InfoRow(
+            icon: Icons.play_arrow_outlined,
+            label: 'Başlangıç tarihi',
+            value: DateTimeUtils.formatDate(subscription.startDate),
+          ),
+          _InfoRow(
             icon: Icons.access_time_outlined,
             label: 'Eklenme tarihi',
             value: DateTimeUtils.formatDate(subscription.createdAt),
@@ -124,38 +165,48 @@ class SubscriptionDetailScreen extends StatelessWidget {
   }
 
   Future<void> _handleAction(BuildContext ctx, _Action action) async {
-    if (action == _Action.archive) {
-      await controller.archive(subscription.id);
-      if (ctx.mounted) Navigator.pop(ctx);
-    } else {
-      final confirm = await showDialog<bool>(
-        context: ctx,
-        builder: (_) => AlertDialog(
-          title: const Text('Aboneliği sil'),
-          content:
-              Text('${subscription.name} kalıcı olarak silinecek. Emin misin?'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('İptal')),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).colorScheme.error),
-              child: const Text('Sil'),
-            ),
-          ],
-        ),
-      );
-      if (confirm == true) {
-        await controller.delete(subscription.id);
+    switch (action) {
+      case _Action.pause:
+        await controller.pause(subscription.id);
         if (ctx.mounted) Navigator.pop(ctx);
-      }
+      case _Action.resume:
+        await controller.resume(subscription.id);
+        if (ctx.mounted) Navigator.pop(ctx);
+      case _Action.cancel:
+        await controller.cancel(subscription.id);
+        if (ctx.mounted) Navigator.pop(ctx);
+      case _Action.archive:
+        await controller.archive(subscription.id);
+        if (ctx.mounted) Navigator.pop(ctx);
+      case _Action.delete:
+        final confirm = await showDialog<bool>(
+          context: ctx,
+          builder: (_) => AlertDialog(
+            title: const Text('Aboneliği sil'),
+            content: Text(
+                '${subscription.name} kalıcı olarak silinecek. Emin misin?'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('İptal')),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(ctx).colorScheme.error),
+                child: const Text('Sil'),
+              ),
+            ],
+          ),
+        );
+        if (confirm == true) {
+          await controller.delete(subscription.id);
+          if (ctx.mounted) Navigator.pop(ctx);
+        }
     }
   }
 }
 
-enum _Action { archive, delete }
+enum _Action { pause, resume, cancel, archive, delete }
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow(

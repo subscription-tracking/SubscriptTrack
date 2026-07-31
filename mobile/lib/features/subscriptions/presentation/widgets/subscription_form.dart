@@ -8,16 +8,19 @@ class SubscriptionFormData {
     this.amount = '',
     this.currency = '₺',
     this.billingCycle = BillingCycle.monthly,
+    DateTime? startDate,
     DateTime? nextRenewalDate,
     this.category = SubscriptionCategory.other,
     this.notes = '',
-  }) : nextRenewalDate =
+  })  : startDate = startDate ?? DateTime.now(),
+        nextRenewalDate =
             nextRenewalDate ?? DateTime.now().add(const Duration(days: 30));
 
   String name;
   String amount;
   String currency;
   BillingCycle billingCycle;
+  DateTime startDate;
   DateTime nextRenewalDate;
   SubscriptionCategory category;
   String notes;
@@ -58,20 +61,33 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
+  Future<void> _pickStartDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: widget.data.startDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) setState(() => widget.data.startDate = picked);
+  }
+
+  Future<void> _pickNextRenewalDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: widget.data.nextRenewalDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
-    if (picked != null) {
-      setState(() => widget.data.nextRenewalDate = picked);
-    }
+    if (picked != null) setState(() => widget.data.nextRenewalDate = picked);
   }
+
+  String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
   @override
   Widget build(BuildContext context) {
+    final outlineColor =
+        Theme.of(context).colorScheme.outline.withValues(alpha: .5);
+
     return Form(
       key: widget.formKey,
       child: Column(
@@ -110,8 +126,8 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               Expanded(
                 child: TextFormField(
                   controller: _amount,
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Tutar',
@@ -119,9 +135,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                   ),
                   onChanged: (v) => widget.data.amount = v,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return 'Tutar gir';
-                    }
+                    if (v == null || v.trim().isEmpty) return 'Tutar gir';
                     final n = double.tryParse(v.replaceAll(',', '.'));
                     if (n == null || n <= 0) return 'Geçerli tutar gir';
                     return null;
@@ -138,11 +152,11 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               prefixIcon: Icon(Icons.repeat),
             ),
             items: BillingCycle.values
-                .map((c) => DropdownMenuItem(
-                    value: c, child: Text(c.label)))
+                .map((c) =>
+                    DropdownMenuItem(value: c, child: Text(c.label)))
                 .toList(),
-            onChanged: (v) =>
-                setState(() => widget.data.billingCycle = v ?? BillingCycle.monthly),
+            onChanged: (v) => setState(
+                () => widget.data.billingCycle = v ?? BillingCycle.monthly),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<SubscriptionCategory>(
@@ -152,29 +166,27 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               prefixIcon: Icon(Icons.category_outlined),
             ),
             items: SubscriptionCategory.values
-                .map((c) => DropdownMenuItem(
-                    value: c, child: Text(c.label)))
+                .map((c) =>
+                    DropdownMenuItem(value: c, child: Text(c.label)))
                 .toList(),
             onChanged: (v) => setState(
                 () => widget.data.category = v ?? SubscriptionCategory.other),
           ),
           const SizedBox(height: 16),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.calendar_today_outlined),
-            title: const Text('Sonraki yenileme'),
-            subtitle: Text(
-              '${widget.data.nextRenewalDate.day}/'
-              '${widget.data.nextRenewalDate.month}/'
-              '${widget.data.nextRenewalDate.year}',
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _pickDate,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: .5)),
-            ),
+          _DateTile(
+            icon: Icons.play_arrow_outlined,
+            label: 'Başlangıç tarihi',
+            value: _formatDate(widget.data.startDate),
+            onTap: _pickStartDate,
+            outlineColor: outlineColor,
+          ),
+          const SizedBox(height: 12),
+          _DateTile(
+            icon: Icons.calendar_today_outlined,
+            label: 'Sonraki yenileme',
+            value: _formatDate(widget.data.nextRenewalDate),
+            onTap: _pickNextRenewalDate,
+            outlineColor: outlineColor,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -192,4 +204,34 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
       ),
     );
   }
+}
+
+class _DateTile extends StatelessWidget {
+  const _DateTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+    required this.outlineColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+  final Color outlineColor;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(icon),
+        title: Text(label),
+        subtitle: Text(value),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: outlineColor),
+        ),
+      );
 }
