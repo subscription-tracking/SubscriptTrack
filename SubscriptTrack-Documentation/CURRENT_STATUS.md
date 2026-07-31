@@ -7,7 +7,7 @@ Son guncelleme: 31 Temmuz 2026
 ## Ortam
 
 - Flutter stable 3.44.8 / Dart 3.12.2
-- Supabase backend: `https://tdbljrojcmyjwchawfif.supabase.co`
+- Supabase credentials are injected with `--dart-define`; no secret is committed.
 - Android debug APK basariyla uretilebiliyor
 - `flutter analyze` basarili
 
