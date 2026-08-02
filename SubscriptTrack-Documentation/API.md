@@ -119,6 +119,7 @@ Sistem kategorilerini sıralı döndürür.
   "amount": "279.99",
   "currency": "TRY",
   "billingCycle": "MONTHLY",
+  "startDate": "2026-07-12T21:00:00Z",
   "nextRenewalAt": "2026-08-12T21:00:00Z",
   "timezone": "Europe/Istanbul",
   "status": "ACTIVE",
@@ -168,7 +169,8 @@ Partial update. Domain geçişleri için genel `status` güncellemesi yerine aks
 
 ### `POST /subscriptions/{id}/archive`
 
-### `POST /subscriptions/{id}/restore`
+`ARCHIVED` kaydını geri almak için ayrı bir endpoint yoktur; aynı kaynağa
+`POST /subscriptions/{id}/resume` gönderilir. Backend bu geçişe izin verir.
 
 ### `DELETE /subscriptions/{id}`
 
@@ -244,7 +246,19 @@ Dönüş öğeleri occurrence tabanlıdır.
 }
 ```
 
-### `POST /devices`
+### `POST /notifications/read-batch`
+
+Bildirim merkezi okundu durumunu API ile toplu senkronlar:
+
+```json
+{
+  "notification_ids": ["notification-id-1", "notification-id-2"]
+}
+```
+
+Yanıt: `{ "updatedCount": 2 }`.
+
+### `POST /notifications/devices`
 
 Push token kaydı:
 
@@ -256,7 +270,7 @@ Push token kaydı:
 }
 ```
 
-### `DELETE /devices/{id}`
+### `DELETE /notifications/devices/{id}`
 
 ## 10. Tasarruf
 

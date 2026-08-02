@@ -47,7 +47,20 @@ Son güncelleme: 2 Ağustos 2026 (S0–S19 tamamlandı · tam kod taraması yap�
 
 ## Prod Readiness Düzeltmeleri (S13 sonrası · 1–2 Ağustos 2026)
 
-58 ajan prod çıkış incelemesi + uçtan uca manuel doğrulama sonucu. Kod kalite puanı: **72/100** (önceki 65 tahmini, 7 bulgunun zaten fix'li olduğu görüldükten sonra yeniden hesaplandı).
+58 ajan prod çıkış incelemesi + uçtan uca manuel doğrulama + S20–S22 tam fix sonucu.
+Kod kalite puanı: **80/100** (S20–S22 öncesi 72, 13 bulgu kapatıldıktan sonra güncellendi).
+
+| Kategori | Ağırlık | Puan | Katkı |
+|---|---|---|---|
+| Mimari | %25 | 85 | 21.25 |
+| Güvenlik | %20 | 74 | 14.80 |
+| Android/Build | %20 | 82 | 16.40 |
+| Kod | %15 | 82 | 12.30 |
+| Veri | %10 | 80 | 8.00 |
+| UX | %10 | 76 | 7.60 |
+| **Toplam** | | | **80.35 → 80** |
+
+Kalan açıklar (100'e ulaşmak için): FCM push end-to-end çalışması, durable job queue (GDPR/export), iOS test, mağaza gönderimi, entegrasyon testleri.
 
 ### Kapatılan kritikler (S13 sonrası fix)
 

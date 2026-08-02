@@ -1,262 +1,179 @@
 # Mobil Uygulama Mimarisi
 
-## 1. Hedef
+Son güncelleme: 2 Ağustos 2026 (S0–S13 tamamlandı)
 
-Tek bir mobil kod tabanından iOS ve Android için sürdürülebilir, test edilebilir ve tasarım sistemiyle uyumlu uygulama geliştirmek.
+---
 
-Framework seçimi ADR ile yapılacaktır. Bu dokümandaki prensipler Flutter, React Native veya benzeri yapılara uygulanabilir.
+## 1. Teknoloji kararları
 
-## 2. Mimari yaklaşım
+- **Flutter 3.44.8 / Dart 3.12.2** — iOS + Android tek kod tabanı (ADR-0008)
+- **State yönetimi:** `Provider` + `ChangeNotifier` — go_router redirect guard ile entegre
+- **Navigation:** `go_router ^14` — declarative, deep link, redirect guard
+- **Backend:** Supabase (auth + PostgREST) — `--dart-define` inject, kaynak kodda secret yok
+- **Para hesaplamaları:** `Money` value class, integer minor unit — floating point drift yok (ADR-0004)
+- **Zaman:** UTC depolama, saat dilimi gösterimde uygulanır (ADR-0005)
 
-Önerilen yaklaşım:
+---
 
-- Feature-first klasörleme
-- Presentation / application / domain / data ayrımı
-- Repository abstraction
-- Tek yönlü veri akışı
-- Immutable UI state
-- Dependency injection
-- Design system ayrı modül
+## 2. Klasör yapısı (uygulanan)
 
-## 3. Klasör yapısı
-
-```text
-src/
+```
+mobile/lib/
 ├── app/
-│   ├── bootstrap/
-│   ├── navigation/
-│   ├── localization/
-│   └── app_state/
+│   ├── router/          app_router.dart          — go_router, redirect guard
+│   └── shell/           app_shell.dart            — bottom nav (4 sekme)
+│                        authenticated_shell.dart  — auth kontrolü, controller init
+│                        top_bar.dart              — bildirim badge
+│   └── theme/           app_theme.dart
+│
 ├── core/
-│   ├── design_system/
-│   ├── networking/
-│   ├── storage/
-│   ├── analytics/
-│   ├── errors/
-│   ├── auth/
-│   └── time/
-├── features/
-│   ├── onboarding/
-│   ├── authentication/
-│   ├── dashboard/
-│   ├── subscriptions/
-│   ├── calendar/
-│   ├── notifications/
-│   ├── savings/
-│   └── settings/
-└── shared/
-    ├── models/
-    └── utilities/
+│   ├── config/          app_environment.dart      — SUPABASE_URL/KEY/API_BASE_URL (dart-define)
+│   ├── datasources/     auth_data_source.dart     — abstract auth interface
+│   │                    subscription_data_source.dart — abstract CRUD interface
+│   ├── domain/          money.dart                — Money value class (minor units)
+│   ├── errors/          app_exception.dart        — NetworkException, AuthException, ValidationException
+│   ├── network/         api_client.dart           — Bearer token, X-Request-ID, Idempotency-Key, retry
+│   │                    token_provider.dart       — abstract + SupabaseTokenProvider
+│   ├── services/        local_notification_service.dart   — flutter_local_notifications, timezone
+│   │                    offline_mutation_queue.dart        — SharedPreferences kuyruk
+│   │                    device_token_service.dart          — FCM placeholder
+│   │                    notification_read_sync_service.dart — POST /v1/notifications/read-batch
+│   ├── storage/         local_storage.dart        — abonelik JSON cache (SharedPreferences)
+│   │                    secure_storage.dart       — hassas veri (flutter_secure_storage)
+│   └── utils/           date_time_utils.dart      — formatDate, formatCurrency, renewalLabel
+│
+└── features/
+    ├── auth/
+    │   ├── data/        supabase_auth_repository.dart
+    │   ├── domain/      auth_models.dart (AppUser, AuthStatus)
+    │   └── presentation/ auth_controller.dart, login_screen.dart, register_screen.dart
+    │                     forgot_password_screen.dart, reset_password_screen.dart
+    │
+    ├── subscriptions/
+    │   ├── data/        subscription_repository.dart          — local in-memory
+    │   │                supabase_subscription_repository.dart — PostgREST CRUD
+    │   │                api_subscription_repository.dart       — REST API + cursor pagination
+    │   ├── domain/      subscription_models.dart              — Subscription, BillingCycle, status transitions
+    │   └── presentation/ subscription_controller.dart         — CRUD, lifecycle, offline queue, pagination
+    │                     screens/  add, edit, detail, list, archived
+    │                     widgets/  subscription_form.dart
+    │
+    ├── dashboard/       DashboardScreen — totalsByCurrency, upcoming 30 gün, _OfflineBanner
+    ├── calendar/        CalendarController, CalendarScreen — renewalsForDay, totalsByCurrencyForMonth
+    ├── notifications/   NotificationController, NotificationCenterScreen — in-app, read sync
+    ├── stats/           StatsScreen — per-currency category breakdown, RefreshIndicator
+    ├── savings/         SavingsScreen — multi-currency top-3 scenario kartlar
+    ├── onboarding/      OnboardingScreen — 4 sayfa, ilk açılışta
+    └── settings/        SettingsController — theme, currency, timezone, daysBefore, notifications
+                         AppearanceScreen, NotificationPreferencesScreen
+                         ExportDataScreen (CSV), DeleteAccountScreen
 ```
 
-Bir feature içi:
+---
 
-```text
-subscriptions/
-├── presentation/
-│   ├── screens/
-│   ├── components/
-│   └── state/
-├── application/
-│   └── use_cases/
-├── domain/
-│   ├── entities/
-│   ├── value_objects/
-│   └── repositories/
-└── data/
-    ├── remote/
-    ├── local/
-    ├── dto/
-    └── repositories/
+## 3. Repository seçim önceliği
+
 ```
+isApiConfigured (API_BASE_URL dart-define)
+  → ApiSubscriptionRepository   (REST + cursor pagination + Idempotency-Key)
+isSupabaseConfigured (SUPABASE_URL + KEY dart-define)
+  → SupabaseSubscriptionRepository  (PostgREST)
+else
+  → SubscriptionRepository   (local in-memory, test/offline)
+```
+
+---
 
 ## 4. Katman sorumlulukları
 
-### Presentation
+| Katman | Sorumluluk | Örnekler |
+|--------|-----------|---------|
+| **Presentation** | Widget, UI state, format | Screen, Controller (ChangeNotifier) |
+| **Domain** | Framework bağımsız entity ve kurallar | `Subscription`, `Money`, `canTransitionTo()` |
+| **Data** | Network, cache, mapping | `ApiClient`, `SupabaseSubscriptionRepository`, `LocalStorage` |
+| **Core** | Yatay cross-cutting | `AppException`, `DateTimeUtils`, `OfflineMutationQueue` |
 
-- Widget/view/component
-- UI state
-- Kullanıcı olayı üretme
-- Formatlanmış veriyi gösterme
+---
 
-### Application
+## 5. State modeli
 
-- Use case koordinasyonu
-- Loading/error/success akışı
-- Birden fazla repository çağrısını birleştirme
+Her `ChangeNotifier` controller şu durumları yönetir:
 
-### Domain
+| Getter | Anlamı |
+|--------|--------|
+| `loading` | İlk yükleme devam ediyor |
+| `error` | Kurtarılabilir hata mesajı |
+| `isOffline` | Cache'ten gösteriliyor, ağ yok |
+| `lastSyncAt` | Son başarılı sync UTC zamanı |
+| `hasMore` | Cursor pagination devam ediyor |
 
-- Framework bağımsız entity ve kurallar
-- Para, durum, döngü gibi value object'ler
-- Repository arayüzleri
+---
 
-### Data
+## 6. Offline mimarisi (S11)
 
-- REST API istemcisi
-- Local database/cache
-- DTO ↔ domain mapping
-- Retry ve sync
+```
+load() başarısız
+  ↓ NetworkException
+  cache okuma (LocalStorage JSON)
+    cache var  → _items = cache, isOffline = true   ← UI banner gösterir
+    cache yok  → _error = mesaj
 
-## 5. Repository örneği
+status/lifecycle çağrısı → NetworkException
+  ↓ OfflineMutationQueue.enqueue(type, payload)
+  Optimistic local update (_updateLocalStatus)
+  ↓ LocalStorage cache güncellemesi (uygulama yeniden açılsa da korunur)
 
-```text
-SubscriptionRepository
-- list(filters)
-- get(id)
-- create(command)
-- update(id, command)
-- pause(id)
-- resume(id)
-- cancel(id, command)
-- archive(id)
+load() başarılı
+  ↓ _replayOfflineQueue()
+  queue.peek() → repo çağrısı → başarılıysa queue.removeFirst()
+  Başarısız → head yerinde kalır; sonraki mutation çalıştırılmaz (FIFO korunur)
 ```
 
-UI doğrudan HTTP istemcisini çağırmamalıdır.
+---
 
-## 6. State yönetimi
+## 7. Bildirim mimarisi (S6 + S11)
 
-Her ekran en az şu durumları modellemelidir:
+- **Yerel push:** `flutter_local_notifications` — `scheduleRenewalReminders()` N gün önce 09:00
+- **Duplicate guard:** `Object.hashAll(subs + daysBefore + timezone)` — hash değişmezse schedule atlanır
+- **Settings listener:** `daysBefore` veya `timezone` değişince otomatik yeniden zamanlama
+- **FCM/APNs:** `FcmDeviceTokenService` — izin ister, tokenı API'ye kaydeder,
+  token refresh'i yeniden kaydeder ve logout'ta revoke eder. Firebase'siz build'lerde
+  `PlaceholderDeviceTokenService` kullanılır.
+- **Read sync:** `NotificationReadSyncService` → `POST /v1/notifications/read-batch` (best-effort)
 
-- initial
-- loading
-- content
-- empty
-- refreshing
-- offline-content
-- recoverable-error
-- blocking-error
+---
 
-State içinde domain entity yerine gerekirse ekran modeli kullanılabilir.
+## 8. Güvenlik
 
-## 7. Navigation
+- Tüm credential'lar `--dart-define` ile inject edilir; kaynak kodda yoktur
+- RLS: `auth.uid() = user_id` her tablo için
+- `ApiClient`: Bearer token her istekte, X-Request-ID UUID trace
+- `OfflineMutationQueue`: payload'da yalnızca ID ve status; kullanıcı verisi queue'ya yazılmaz
+- `service_role` key client'a hiçbir zaman gönderilmez
 
-Alt navigasyon:
+---
 
-- Ana Sayfa
-- Takvim
-- Abonelikler
-- Profil
+## 9. Test piramidi (S8–S12)
 
-Global yollar:
+| Seviye | Kapsam | Dosya sayısı |
+|--------|--------|-------------|
+| Domain unit | `Money`, `BillingCycle`, `SubscriptionStatus` | `money_test`, `subscription_model_test`, `subscription_status_transition_test` |
+| Service unit | `OfflineMutationQueue`, `NotificationReadSyncService`, `DateTimeUtils` | 3 dosya |
+| Controller unit | `AuthController`, `SubscriptionController`, `CalendarController`, `NotificationController` | 5 dosya |
+| API unit | `ApiClient` (retry, headers, errors) | `api_client_test` |
+| Güvenlik | Secret scan (kaynak kodda URL/JWT/service_role yok) | `security_scan_test` |
+| Form | `SubscriptionForm` validasyon | `subscription_form_test` |
 
-```text
-/onboarding
-/auth
-/home
-/calendar
-/subscriptions
-/subscriptions/:id
-/subscriptions/new
-/notifications
-/settings
-/account/privacy
+Toplam: **189 test**, hepsi yeşil (`flutter test --no-pub`)
+
+---
+
+## 10. Build ortamları
+
+```
+Development  — dart-define ile yerel/staging backend
+Staging      — CI tarafından enjekte, TestFlight/Internal Test
+Production   — Play Store / App Store release
 ```
 
-Deep link şeması:
-
-```text
-subscripttrack://subscriptions/{id}
-subscripttrack://notifications/{id}
-```
-
-Universal/App Links web domainiyle eşleştirilmelidir.
-
-## 8. Local storage
-
-Saklanabilecek veriler:
-
-- Son abonelik listesi
-- Dashboard özeti
-- Kategori ve servis katalog cache'i
-- Tema ve locale
-- Auth sağlayıcısının güvenli oturum bilgisi
-- Bekleyen form taslağı
-
-Token ve hassas veriler platform secure storage içinde tutulur.
-
-## 9. Offline davranış
-
-MVP:
-
-- Offline son veriyi görüntüleme
-- Offline banner
-- Başarısız yazmada form verisini koruma
-- Bağlantı geldiğinde manuel/otomatik tekrar
-
-Sonraki aşama:
-
-- Local outbox
-- Conflict resolution
-- Background sync
-
-## 10. Push bildirim
-
-- Cihaz tokenı backend'e kaydedilir.
-- Token refresh dinlenir.
-- Logout ve hesap silmede token revoke edilir.
-- Foreground bildirim uygulama içi banner olarak gösterilebilir.
-- Bildirime dokunma deep link'e çevrilir.
-- Yetki istemeden önce açıklayıcı pre-permission ekranı gösterilir.
-
-## 11. Hata yönetimi
-
-Teknik hata kullanıcıya ham olarak gösterilmez.
-
-Hata kategorileri:
-
-- network unavailable
-- timeout
-- unauthorized/session expired
-- validation
-- domain conflict
-- server unavailable
-- unknown
-
-Her hata merkezi olarak loglanır; hassas payload loglanmaz.
-
-## 12. Tasarım sistemi entegrasyonu
-
-Ekranlarda ham renk, radius veya spacing değeri kullanılmaz.
-
-```text
-Foundation tokens
-→ primitive components
-→ product components
-→ patterns
-→ screens
-```
-
-## 13. Performans
-
-- Liste sanallaştırma
-- Logo image cache
-- Dashboard çağrılarını gereksiz tekrarlamama
-- Pagination
-- Uygulama açılışında kritik veri önceliği
-- Büyük JSON modellerinden kaçınma
-
-## 14. Erişilebilirlik
-
-- Dynamic type / font scaling
-- Screen reader label
-- Minimum dokunma alanı
-- Renk dışında ikon/metinle durum
-- Yeterli kontrast
-- Motion azaltma tercihine saygı
-
-## 15. Test piramidi
-
-- Domain unit testleri
-- Repository testleri
-- State/use case testleri
-- Component snapshot/golden testleri
-- Kritik akış E2E testleri
-
-## 16. Build ve ortamlar
-
-- Development
-- Staging
-- Production
-
-Bundle ID/application ID, API base URL, analytics ve push yapılandırması ortam bazında ayrılır. Secret'lar kaynak koda eklenmez.
+Detay: `DEPLOYMENT.md`
