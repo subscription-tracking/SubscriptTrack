@@ -68,7 +68,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     if (monthTotals.isNotEmpty)
                       ...monthTotals.entries.map(
                         (e) => Text(
-                          '${DateTimeUtils.formatCurrency(e.value, symbol: e.key)} bu ay',
+                          '${DateTimeUtils.formatCurrency(e.value.amount, symbol: e.key)} bu ay',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color:

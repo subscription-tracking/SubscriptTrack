@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/datasources/subscription_data_source.dart';
+import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/local_storage.dart';
 import '../domain/subscription_models.dart';
@@ -27,7 +28,7 @@ class SubscriptionRepository implements SubscriptionDataSource {
   Future<Subscription> create({
     required String userId,
     required String name,
-    required double amount,
+    required Money amount,
     required String currency,
     required BillingCycle billingCycle,
     required DateTime startDate,
@@ -38,7 +39,7 @@ class SubscriptionRepository implements SubscriptionDataSource {
     if (name.trim().isEmpty) {
       throw const ValidationException('Abonelik adı boş olamaz.');
     }
-    if (amount <= 0) {
+    if (amount.minorUnits <= 0) {
       throw const ValidationException('Tutar sıfırdan büyük olmalı.');
     }
 

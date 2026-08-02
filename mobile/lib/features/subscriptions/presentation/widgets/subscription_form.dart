@@ -72,10 +72,15 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   }
 
   Future<void> _pickNextRenewalDate() async {
+    final earliest = widget.data.startDate.isAfter(DateTime.now())
+        ? widget.data.startDate
+        : DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: widget.data.nextRenewalDate,
-      firstDate: DateTime.now(),
+      initialDate: widget.data.nextRenewalDate.isBefore(earliest)
+          ? earliest
+          : widget.data.nextRenewalDate,
+      firstDate: earliest,
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
     if (picked != null) setState(() => widget.data.nextRenewalDate = picked);

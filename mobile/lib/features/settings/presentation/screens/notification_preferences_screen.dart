@@ -74,14 +74,19 @@ class _NotificationPreferencesScreenState
                 child: Text('Kaç gün önce hatırlatılsın?',
                     style: Theme.of(context).textTheme.labelLarge),
               ),
-              ...[1, 3, 7].map(
-                (days) => RadioListTile<int>(
-                  title: Text(days == 1 ? '1 gün önce' : '$days gün önce'),
-                  value: days,
-                  groupValue: ctrl.daysBefore,
-                  onChanged: (v) async {
-                    if (v != null) await ctrl.setDaysBefore(v);
-                  },
+              RadioGroup<int>(
+                groupValue: ctrl.daysBefore,
+                onChanged: (v) async {
+                  if (v != null) await ctrl.setDaysBefore(v);
+                },
+                child: Column(
+                  children: [1, 3, 7]
+                      .map((days) => RadioListTile<int>(
+                            title: Text(
+                                days == 1 ? '1 gün önce' : '$days gün önce'),
+                            value: days,
+                          ))
+                      .toList(),
                 ),
               ),
               const Divider(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/domain/money.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
@@ -19,8 +20,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amount =
-        double.tryParse(_data.amount.replaceAll(',', '.')) ?? 0;
+    final amount = Money.parse(_data.amount);
 
     final ok = await widget.controller.add(
       name: _data.name,

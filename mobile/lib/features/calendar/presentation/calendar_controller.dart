@@ -1,3 +1,4 @@
+import '../../../core/domain/money.dart';
 import '../../subscriptions/domain/subscription_models.dart';
 import '../../subscriptions/presentation/subscription_controller.dart';
 
@@ -9,29 +10,32 @@ class CalendarController {
   List<Subscription> renewalsForDay(DateTime day) {
     final target = DateTime(day.year, day.month, day.day);
     return subscriptions.active.where((s) {
-      final d = s.nextRenewalDate;
+      final d = s.nextRenewalDate.toLocal();
       return DateTime(d.year, d.month, d.day) == target;
     }).toList();
   }
 
   Set<DateTime> renewalDaysInMonth(int year, int month) {
     return subscriptions.active
-        .where((s) =>
-            s.nextRenewalDate.year == year &&
-            s.nextRenewalDate.month == month)
+        .where((s) {
+          final d = s.nextRenewalDate.toLocal();
+          return d.year == year && d.month == month;
+        })
         .map((s) {
-          final d = s.nextRenewalDate;
+          final d = s.nextRenewalDate.toLocal();
           return DateTime(d.year, d.month, d.day);
         })
         .toSet();
   }
 
   /// Para birimine göre aylık toplam — farklı para birimleri karışmaz.
-  Map<String, double> totalsByCurrencyForMonth(int year, int month) {
-    final map = <String, double>{};
+  Map<String, Money> totalsByCurrencyForMonth(int year, int month) {
+    final map = <String, Money>{};
     for (final s in subscriptions.active) {
-      if (s.nextRenewalDate.year == year && s.nextRenewalDate.month == month) {
-        map[s.currency] = (map[s.currency] ?? 0) + s.amount;
+      final d = s.nextRenewalDate.toLocal();
+      if (d.year == year && d.month == month) {
+        final curr = map[s.currency];
+        map[s.currency] = curr == null ? s.amount : curr + s.amount;
       }
     }
     return map;

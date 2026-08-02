@@ -11,6 +11,9 @@ class LocalNotificationService {
   static const _channelId = 'subscripttrack_renewals';
   static const _channelName = 'Yenileme Hatırlatmaları';
 
+  /// Hash of the last schedule call — avoids redundant cancels+reschedules.
+  static int? _lastScheduleHash;
+
   static Future<void> initialize() async {
     if (_initialized) return;
     tz.initializeTimeZones();
@@ -53,6 +56,15 @@ class LocalNotificationService {
     int daysBefore, {
     String timezone = '',
   }) async {
+    // Deduplicate: skip reschedule if inputs haven't changed.
+    final hash = Object.hashAll([
+      daysBefore,
+      timezone,
+      ...subscriptions.map((s) => Object.hash(s.id, s.nextRenewalDate.millisecondsSinceEpoch, s.status.index)),
+    ]);
+    if (hash == _lastScheduleHash) return;
+    _lastScheduleHash = hash;
+
     await _plugin.cancelAll();
     final location = timezone.isNotEmpty
         ? tz.getLocation(timezone)
@@ -72,15 +84,21 @@ class LocalNotificationService {
       if (scheduled.isBefore(now)) continue;
 
       final body = daysBefore == 0
-          ? 'Bugün yenileniyor — ${sub.amount} ${sub.currency}'
-          : '$daysBefore gün içinde yenileniyor — ${sub.amount} ${sub.currency}';
+          ? 'Bugün yenileniyor — ${sub.amount.amount} ${sub.currency}'
+          : '$daysBefore gün içinde yenileniyor — ${sub.amount.amount} ${sub.currency}';
+
+      // Composite key: sub.id + daysBefore + tarih → çakışmayı engeller
+      final dateKey =
+          '${reminderDay.year}${reminderDay.month.toString().padLeft(2, '0')}${reminderDay.day.toString().padLeft(2, '0')}';
+      final stableNotifId =
+          '${sub.id}|$daysBefore|$dateKey'.hashCode.abs() % 2147483647;
 
       await _plugin.zonedSchedule(
-        sub.id.hashCode.abs() % 2147483647,
+        stableNotifId,
         sub.name,
         body,
         scheduled,
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             _channelId,
             _channelName,
@@ -89,7 +107,7 @@ class LocalNotificationService {
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
@@ -103,10 +121,22 @@ class LocalNotificationService {
   }
 
   static Future<void> sendTestNotification() async {
+    await showPushNotification(
+      title: 'Test Bildirimi',
+      body: 'SubscriptTrack bildirimleri çalışıyor ✓',
+    );
+  }
+
+  /// Shows an incoming notification while the app is active in the foreground.
+  static Future<void> showPushNotification({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
     await _plugin.show(
-      0,
-      'Test Bildirimi',
-      'SubscriptTrack bildirimleri çalışıyor ✓',
+      Object.hash(title, body, payload).abs() % 2147483647,
+      title,
+      body,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
@@ -119,6 +149,7 @@ class LocalNotificationService {
           presentSound: true,
         ),
       ),
+      payload: payload,
     );
   }
 

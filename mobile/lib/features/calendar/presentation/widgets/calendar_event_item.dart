@@ -46,7 +46,7 @@ class CalendarEventItem extends StatelessWidget {
         subtitle: Text(subscription.billingCycle.label),
         trailing: Text(
           DateTimeUtils.formatCurrency(
-            subscription.amount,
+            subscription.amount.amount,
             symbol: subscription.currency,
           ),
           style: TextStyle(

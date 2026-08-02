@@ -60,8 +60,9 @@ class NotificationCenterScreen extends StatelessWidget {
                 }
 
                 return ListTile(
-                  onTap: () {
-                    notif.markRead(n.id);
+                  onTap: () async {
+                    await notif.markRead(n.id);
+                    if (!context.mounted) return;
                     if (sub != null) {
                       Navigator.push(
                         context,

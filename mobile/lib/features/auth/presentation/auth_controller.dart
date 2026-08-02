@@ -20,7 +20,9 @@ class AuthController extends ChangeNotifier {
       : _repo = repository ??
             (EnvironmentConfig.isSupabaseConfigured
                 ? SupabaseAuthRepository()
-                : AuthRepository());
+                : EnvironmentConfig.enableLocalAuth
+                    ? AuthRepository()
+                    : const UnavailableAuthRepository());
 
   final AuthDataSource _repo;
   StreamSubscription<sb.AuthState>? _authSubscription;
@@ -97,12 +99,20 @@ class AuthController extends ChangeNotifier {
       _repo.currentUser(),
       _checkOnboarding(),
     ]);
-    _user = results[0] as AppUser?;
+    // Always apply onboarding state.
     _onboardingNeeded = results[1] as bool;
-    _status = _user != null
-        ? AuthStatus.authenticated
-        : AuthStatus.unauthenticated;
-    _initialized = true;
+
+    // The Supabase stream fires synchronously on subscription for existing
+    // sessions and sets _initialized = true. Only overwrite auth state when
+    // the stream hasn't already resolved it — otherwise we race-overwrite a
+    // valid authenticated state with a stale Future.wait result.
+    if (!_initialized) {
+      _user = results[0] as AppUser?;
+      _status = _user != null
+          ? AuthStatus.authenticated
+          : AuthStatus.unauthenticated;
+      _initialized = true;
+    }
     notifyListeners();
     return _user != null;
   }
@@ -151,25 +161,33 @@ class AuthController extends ChangeNotifier {
 
   Future<void> deleteAccount(LocalStorage localStorage) async {
     if (_user == null) return;
-    await localStorage.deleteSubscriptions(_user!.id);
-    await _repo.deleteAccount(_user!.email);
+    final userId = _user!.id;
+    final email = _user!.email;
+    // Clear all local user data before signing out.
+    await Future.wait([
+      localStorage.deleteSubscriptions(userId),
+      _clearNotificationReadState(),
+    ]);
+    await _repo.deleteAccount(email);
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
   }
 
+  static Future<void> _clearNotificationReadState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('notif_read_ids');
+    } catch (_) {}
+  }
+
   Future<bool> updatePassword(String newPassword) async {
-    if (!EnvironmentConfig.isSupabaseConfigured) return false;
     _setLoading(true);
     try {
-      await sb.Supabase.instance.client.auth
-          .updateUser(sb.UserAttributes(password: newPassword));
+      await _repo.updatePassword(newPassword);
       _passwordRecoveryMode = false;
       _error = null;
       return true;
-    } on sb.AuthException catch (e) {
-      _error = e.message;
-      return false;
     } catch (e) {
       _error = e.toString();
       return false;
@@ -181,10 +199,7 @@ class AuthController extends ChangeNotifier {
   Future<bool> sendPasswordResetEmail(String email) async {
     _setLoading(true);
     try {
-      final repo = _repo;
-      if (repo is SupabaseAuthRepository) {
-        await repo.sendPasswordResetEmail(email);
-      }
+      await _repo.sendPasswordResetEmail(email);
       _error = null;
       return true;
     } catch (e) {

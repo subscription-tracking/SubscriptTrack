@@ -3,7 +3,10 @@ class DateTimeUtils {
 
   static String formatDate(DateTime date) {
     final now = DateTime.now();
-    final diff = date.difference(now).inDays;
+    // Compare calendar days, not hours, to avoid late-night inDays=0 edge case.
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(date.year, date.month, date.day);
+    final diff = target.difference(today).inDays;
     if (diff == 0) return 'Bugün';
     if (diff == 1) return 'Yarın';
     if (diff < 0) return 'Geçti';
