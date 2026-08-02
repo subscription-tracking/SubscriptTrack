@@ -19,8 +19,8 @@ router.get('/summary', async (req, res, next) => {
     res.json({
       totals: rows.map((r) => ({
         currency: r.currency,
-        monthlyAmount: parseFloat(r.total_monthly).toFixed(2),
-        annualAmount: parseFloat(r.total_annual).toFixed(2),
+        monthlyAmount: formatDecimal(r.total_monthly, 2),
+        annualAmount: formatDecimal(r.total_annual, 2),
       })),
     });
   } catch (err) {
@@ -78,3 +78,8 @@ router.get('/events', async (req, res, next) => {
 });
 
 export default router;
+
+function formatDecimal(value, scale) {
+  const [whole = '0', fraction = ''] = String(value ?? '0').split('.');
+  return `${whole}.${fraction.padEnd(scale, '0').slice(0, scale)}`;
+}
