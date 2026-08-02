@@ -20,6 +20,19 @@ Son güncelleme: 1 Ağustos 2026
 
 Yerel bildirimler cihazda planlanır; harici push sağlayıcısı veya cihaz token kaydı yoktur.
 
+## Mobil Supabase geliştirme kurulumu
+
+`mobile/.env.example` dosyasını `mobile/.env` olarak kopyalayıp gerçek
+`SUPABASE_URL` ve `SUPABASE_ANON_KEY` değerlerini ekleyin. `.env` Git tarafından
+izlenmez. Android Studio'da `Supabase Development` çalıştırma profilini seçin;
+profil otomatik olarak `--dart-define-from-file=.env` ile başlatır.
+
+Komut satırı eşdeğeri:
+
+```bash
+flutter run --dart-define-from-file=.env
+```
+
 ## Doğrulama kapısı
 
 ```bash
