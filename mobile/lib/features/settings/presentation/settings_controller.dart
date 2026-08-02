@@ -27,7 +27,8 @@ class SettingsController extends ChangeNotifier {
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _currency = prefs.getString(_keyCurrency) ?? '₺';
-    _themeMode = ThemeMode.values[prefs.getInt(_keyTheme) ?? 0];
+    _themeMode = ThemeMode.values[
+        (prefs.getInt(_keyTheme) ?? 0).clamp(0, ThemeMode.values.length - 1)];
     _notificationsEnabled = prefs.getBool(_keyNotifications) ?? true;
     _daysBefore = prefs.getInt(_keyDaysBefore) ?? 3;
     _timezone = prefs.getString(_keyTimezone) ?? '';

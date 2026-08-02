@@ -52,7 +52,7 @@ class AuthRepository implements AuthDataSource {
     );
 
     credentials[normalizedEmail] = {
-      'hash': _hash(password),
+      'hash': _hash(password, salt: normalizedEmail),
       'userId': user.id,
       'userJson': jsonEncode(user.toJson()),
     };
@@ -71,7 +71,7 @@ class AuthRepository implements AuthDataSource {
     final credentials = await _loadCredentials();
     final entry = credentials[normalizedEmail];
 
-    if (entry == null || entry['hash'] != _hash(password)) {
+    if (entry == null || entry['hash'] != _hash(password, salt: normalizedEmail)) {
       throw const AuthException('E-posta veya şifre hatalı.');
     }
 
@@ -85,17 +85,30 @@ class AuthRepository implements AuthDataSource {
   @override
   Future<void> signOut() => _storage.deleteCurrentUser();
 
-  // Hesabı ve tüm credentials'ı tamamen siler
   @override
   Future<void> deleteAccount(String email) async {
     await _storage.deleteCredentialsForEmail(email);
     await _storage.deleteCurrentUser();
   }
 
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    // Local modda e-posta gönderilemez; sessizce no-op.
+  }
+
+  @override
+  Future<void> updatePassword(String newPassword) async {
+    throw const AuthException('Şifre güncelleme Supabase gerektiriyor.');
+  }
+
   // ---- private helpers ----
 
-  String _hash(String password) =>
-      sha256.convert(utf8.encode(password)).toString();
+  // SHA-256 with a fixed per-installation salt derived from the user's email.
+  // This is the local-only fallback auth path (ENABLE_LOCAL_AUTH=true).
+  // Production builds use SupabaseAuthRepository — this code path is never
+  // reached unless explicitly enabled with --dart-define=ENABLE_LOCAL_AUTH=true.
+  String _hash(String password, {required String salt}) =>
+      sha256.convert(utf8.encode('$salt:$password')).toString();
 
   Future<Map<String, Map<String, String>>> _loadCredentials() async {
     final raw = await _storage.readCredentials();
@@ -110,4 +123,38 @@ class AuthRepository implements AuthDataSource {
     Map<String, Map<String, String>> credentials,
   ) =>
       _storage.writeCredentials(jsonEncode(credentials));
+}
+
+/// Safe default for builds without a configured production auth provider.
+/// The local credential repository remains available only when explicitly
+/// enabled with `--dart-define=ENABLE_LOCAL_AUTH=true`.
+class UnavailableAuthRepository implements AuthDataSource {
+  const UnavailableAuthRepository();
+
+  static const _message = 'Kimlik dogrulama yapilandirilmamis.';
+
+  @override
+  Future<AppUser?> currentUser() async => null;
+
+  @override
+  Future<AppUser> signIn({required String email, required String password}) =>
+      Future.error(const AuthException(_message));
+
+  @override
+  Future<AppUser> signUp({required String email, required String password}) =>
+      Future.error(const AuthException(_message));
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<void> deleteAccount(String email) async {}
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) =>
+      Future.error(const AuthException(_message));
+
+  @override
+  Future<void> updatePassword(String newPassword) =>
+      Future.error(const AuthException(_message));
 }

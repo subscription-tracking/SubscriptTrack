@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/datasources/subscription_data_source.dart';
+import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/subscription_models.dart';
 
@@ -27,7 +28,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
   Future<Subscription> create({
     required String userId,
     required String name,
-    required double amount,
+    required Money amount,
     required String currency,
     required BillingCycle billingCycle,
     required DateTime startDate,
@@ -41,7 +42,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .insert({
             'user_id': userId,
             'name': name.trim(),
-            'amount': amount,
+            'amount': amount.toJson(),
             'currency': currency,
             'billing_cycle': billingCycle.key,
             'start_date': startDate.toIso8601String().substring(0, 10),
@@ -66,7 +67,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .from(_table)
           .update({
             'name': updated.name,
-            'amount': updated.amount,
+            'amount': updated.amount.toJson(),
             'currency': updated.currency,
             'billing_cycle': updated.billingCycle.key,
             'next_renewal_date':
@@ -144,17 +145,23 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       id: row['id'] as String,
       userId: row['user_id'] as String,
       name: row['name'] as String,
-      amount: (row['amount'] as num).toDouble(),
+      amount: Money.fromJson(row['amount']),
       currency: row['currency'] as String? ?? 'TRY',
-      billingCycle: BillingCycleLabel.fromKey(row['billing_cycle'] as String),
+      billingCycle: BillingCycleLabel.fromKey(
+          row['billing_cycle'] as String? ?? 'monthly'),
       startDate: row['start_date'] != null
-          ? DateTime.parse(row['start_date'] as String)
+          ? DateTime.tryParse(row['start_date'] as String) ?? DateTime.now()
           : DateTime.now(),
-      nextRenewalDate: DateTime.parse(row['next_renewal_date'] as String),
-      category: SubscriptionCategoryLabel.fromKey(row['category'] as String),
+      nextRenewalDate:
+          DateTime.tryParse(row['next_renewal_date'] as String? ?? '') ??
+              DateTime.now(),
+      category: SubscriptionCategoryLabel.fromKey(
+          row['category'] as String? ?? 'other'),
       notes: row['notes'] as String?,
       status: status,
-      createdAt: DateTime.parse(row['created_at'] as String),
+      createdAt:
+          DateTime.tryParse(row['created_at'] as String? ?? '') ??
+              DateTime.now().toUtc(),
     );
   }
 }

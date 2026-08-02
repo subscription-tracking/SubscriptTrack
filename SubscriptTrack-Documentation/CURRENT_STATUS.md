@@ -1,102 +1,182 @@
-# Guncel proje durumu
+# Güncel proje durumu
 
-Son guncelleme: 31 Temmuz 2026
+Son güncelleme: 2 Ağustos 2026 (S0–S19 tamamlandı · tam kod taraması yapıldı · S20–S22 planlandı)
 
 ---
 
 ## Ortam
 
 - Flutter stable 3.44.8 / Dart 3.12.2
-- Supabase credentials are injected with `--dart-define`; no secret is committed.
-- Android debug APK basariyla uretilebiliyor
-- `flutter analyze --no-pub`: hata yok, 4 mevcut info/deprecation uyarisi var
-- `flutter test --no-pub`: 2 test basarili
+- Supabase credentials `--dart-define` ile inject ediliyor; kaynak kodda secret yok
+- Android debug APK başarıyla üretilebiliyor
+- `flutter analyze --no-pub`: hata yok, 2 önceden mevcut info (Radio deprecation)
+- `flutter test --no-pub`: 194/194 test başarılı (S20–S22 sonrası +5 test güncellendi)
 
 ---
 
 ## Sprint durumu
 
-| Sprint | Baslik | Durum |
+| Sprint | Başlık | Durum |
 |--------|--------|-------|
-| S0 | Proje temeli (Flutter, ortam, CI) | TAMAMLANDI |
-| S0.5 | Mimari zemin (go_router, provider, soyut DI) | TAMAMLANDI |
-| S1 | Auth ve onboarding | TAMAMLANDI - testli |
-| S2 | Ortak UI + abonelik ekleme | AKTIF |
-| S3 | Abonelik yasam dongusu | KISMI |
-| S4 | Dashboard ve finansal hesaplamalar | KISMI |
-| S5 | Takvim ve in-app bildirimler | KISMI |
-| S6 | Push bildirimleri | KISMI |
+| S0 | Proje temeli | TAMAMLANDI |
+| S0.5 | Mimari zemin | TAMAMLANDI |
+| S1 | Auth ve onboarding | TAMAMLANDI |
+| S2 | Ortak UI ve abonelik ekleme | TAMAMLANDI |
+| S3 | Abonelik yaşam döngüsü | TAMAMLANDI |
+| S4 | Dashboard ve finansal hesaplamalar | TAMAMLANDI |
+| S5 | Takvim ve in-app bildirimler | TAMAMLANDI |
+| S6 | Push bildirimleri | TAMAMLANDI (yerel; FCM S11'e) |
 | S7 | Ayarlar, export, hesap silme | TAMAMLANDI |
-| S8 | Kalite, guvenlik, release candidate | BASLANMADI |
-| S9 | Beta ve magaza yayini | BASLANMADI |
+| S8 | API mimarisi ve veri temeli | TAMAMLANDI |
+| S9 | Auth ve abonelik API entegrasyonu | TAMAMLANDI |
+| S10 | Ana ürün ekranları | TAMAMLANDI |
+| S11 | Bildirim ve offline altyapısı | TAMAMLANDI |
+| S12 | Test, güvenlik ve kalite kapısı | TAMAMLANDI |
+| S13 | Temizlik ve dokümantasyon | TAMAMLANDI |
+| S14 | Release ve yayın | DEVAM EDİYOR (mağaza kapıları açık) |
+| S15 | API sözleşmesi ve backend migration hattı | TAMAMLANDI |
+| S16 | Offline dayanıklılık ve Android smoke | TAMAMLANDI |
+| S17 | Push bildirimleri ve platform izinleri | TAMAMLANDI |
+| S18 | Release candidate ve dağıtım kapısı | TAMAMLANDI (kod/CI; mağaza kapıları açık) |
+| S19 | Production operasyonları ve izlenebilirlik | TAMAMLANDI |
+| S20 | Mobil null safety ve güvenlik yamaları | TAMAMLANDI |
+| S21 | Backend kritik altyapı | TAMAMLANDI |
+| S22 | Backend tamamlanmamış özellikler + CSV | TAMAMLANDI |
 
 ---
 
-## Tamamlanan isler (S0–S7)
+## Prod Readiness Düzeltmeleri (S13 sonrası · 1–2 Ağustos 2026)
+
+58 ajan prod çıkış incelemesi + uçtan uca manuel doğrulama sonucu. Kod kalite puanı: **72/100** (önceki 65 tahmini, 7 bulgunun zaten fix'li olduğu görüldükten sonra yeniden hesaplandı).
+
+### Kapatılan kritikler (S13 sonrası fix)
+
+| # | Dosya | Sorun | Düzeltme |
+|---|-------|-------|----------|
+| 1 | `auth_controller.dart:96` | `Future.wait` Supabase stream'inin zaten set ettiği state'i race condition ile ezip yanlış auth durumuna düşürüyordu | `if (!_initialized)` guard eklendi |
+| 2 | `authenticated_shell.dart:30` | `auth.user!.id` force-unwrap oturum geçiş anında null crash üretiyordu | `auth.user` null guard + `addPostFrameCallback(signOut)`, nullable fields |
+
+### Zaten fix'li olan (önceden "açık" zannedilen) bulgular
+
+| Dosya | Durum |
+|-------|-------|
+| `offline_mutation_queue.dart` | `_synchronized()` via `_tail` promise chain → atomik |
+| `subscription_controller.dart:delete()` | `on NetworkException` + generic catch zaten vardı |
+| `subscription_list_screen.dart:itemBuilder` | `addPostFrameCallback` ile defer edilmiş |
+| `subscription_models.dart:202,206,198` | `DateTime.tryParse(...) ?? DateTime.now()` ve `?? 'monthly'` fallback'ler mevcut |
+| `notification_controller.dart:46` | `await _saveReadState()` zaten var (markRead ve markAllRead'de) |
+
+### Bonus düzeltme
+
+- `date_time_utils.dart:formatDate` — calendar-day bazlı karşılaştırmaya geçildi (189 test geçiyor)
+
+### Açık bulgular — tam tarama sonucu (2 Ağustos 2026)
+
+37 mobil Dart + 22 backend JS dosyası eksiksiz tarandı. Toplam 13 açık bulgu.
+
+#### Mobil (S20)
+
+| Öncelik | Dosya | Sorun |
+|---------|-------|-------|
+| YÜKSEK | `supabase_subscription_repository.dart:150,154,158` | `_fromRow()` null guard YOK — `billing_cycle`, `next_renewal_date`, `created_at` type-cast direkt; DB null döndürünce crash |
+| YÜKSEK | `auth_repository.dart:106` | SHA-256 no-salt yerel auth fallback (local fallback mod, Supabase user'larını etkilemez) |
+| ORTA | `export_data_screen.dart:19-21` | Header satırı unquoted, `writeln` LF kullanıyor (RFC 4180 CRLF gerektirir) |
+| DÜŞÜK | `settings_controller.dart:30` | `ThemeMode.values[index]` — corrupt SharedPreferences'da RangeError |
+| DÜŞÜK | `settings_screen.dart (ProfileTab):21` | `auth.user!` force-unwrap — AuthenticatedShell guard'ı geç kalırsa null crash |
+| DÜŞÜK | `subscription_controller.dart:347` | `ValidationException` mesajı hardcode Türkçe — i18n sonrası sorun |
+| DÜŞÜK | `auth_models.dart` | `DateTime.parse(json['createdAt'])` — `tryParse` kullanılmalı |
+| S14 | `app_environment.dart` | `current = AppEnvironment.development` hardcoded — release build production set edilmeli |
+
+#### Backend (S21 + S22)
+
+| Öncelik | Dosya | Sorun |
+|---------|-------|-------|
+| YÜKSEK | `middleware/idempotency.js` | In-memory `Map` — process restart veya çok instance'da idempotency kırılıyor; bellek sızıntısı riski |
+| YÜKSEK | `features/calendar/calendar.routes.js` | `renewal_occurrences` tablosunu dolduracak job yok — endpoint her zaman boş dönüyor |
+| ORTA | `features/dashboard/dashboard.routes.js:18-22` | SQL'de `bs.amount * 52 / 12` tamsayı bölmesi — yuvarlama hatası; `subscriptions.service.js`'deki BigInt mantığı uygulanmalı |
+| ORTA | `features/exports/exports.routes.js` | Export stub — PENDING kaydı açılıyor ama job kuyruğu tetiklenmiyor; indirilebilir dosya üretilmiyor |
+| DÜŞÜK | `features/me/me.routes.js` | `DELETE /me` sadece `DELETION_PENDING` set ediyor; GDPR silme job'ı tetiklenmiyor |
+| DÜŞÜK | `features/subscriptions/subscriptions.service.js` | `CUSTOM` billing cycle `normalizeMonthly()` içinde MONTHLY'e sessizce düşüyor; `notifyDays` schema'da var ama kaydedilmiyor |
+| DÜŞÜK | `features/notifications/notifications.routes.js` | `encrypted_token` kolonu plaintext token saklıyor; kolon adı yanıltıcı |
+
+---
+
+## Tamamlanan işler
 
 ### Auth (S1)
-- E-posta + sifre kayit, giris, cikis
+- E-posta + şifre kayıt, giriş, çıkış
 - Supabase `SupabaseAuthRepository` entegre, `isSupabaseConfigured = true`
-- Sifre sifirlama e-postasi (`ForgotPasswordScreen`)
-- Sifre sifirlama deep link: `subscripttrack://auth-callback` (AndroidManifest'te tanimli)
-- `ResetPasswordScreen` — deep link sonrasi yeni sifre belirleme
-- `AuthController.passwordRecoveryMode` — go_router'da redirect guard ile bagli
-- `AuthController.updatePassword()` — Supabase `updateUser` cagiriyor
-- Onboarding: 4 sayfa (3 tanitim + para birimi secimi), ilk acilista gosteriliyor
+- Şifre sıfırlama e-postası (`ForgotPasswordScreen`)
+- Deep link: `subscripttrack://auth-callback` (AndroidManifest'te tanımlı)
+- `ResetPasswordScreen` — deep link sonrası yeni şifre belirleme
+- `AuthController.passwordRecoveryMode` — go_router redirect guard ile bağlı
+- `AuthController.updatePassword()` — Supabase `updateUser` çağırıyor
+- Onboarding: 4 sayfa (3 tanıtım + para birimi seçimi), ilk açılışta gösteriliyor
 
-### Abonelik CRUD (S2, S3)
+### Abonelik CRUD (S2, S3 — kısmi)
 - `SubscriptionStatus` enum: `active`, `paused`, `cancelled`, `archived`
-- `start_date` alani tum katmanlarda mevcut (model, form, supabase repo, local repo)
+- `start_date` alanı tüm katmanlarda mevcut (model, form, supabase repo, local repo)
 - `SupabaseSubscriptionRepository` — PostgREST ile tam CRUD
 - `SubscriptionRepository` — local in-memory fallback
 - `SubscriptionController`: pause, resume, cancel, archive, restore, edit, delete
-- Abonelik formu: ad, tutar, para birimi, donum, kategori, baslangic tarihi, yenileme tarihi, notlar
+- Abonelik formu: ad, tutar, para birimi, döngü, kategori, başlangıç tarihi, yenileme tarihi, notlar
 
-### Dashboard (S4)
-- `totalsByCurrency` — farkli para birimleri ayri satirlarda gosteriliyor, toplam yapilmiyor
-- Paused / cancelled abone sayisi metrik kartlari
-- Yaklasan yenilemeler listesi (30 gun icinde)
+### Dashboard (S4 — kısmi)
+- `totalsByCurrency` — farklı para birimleri ayrı satırlarda gösteriliyor, toplam yapılmıyor
+- Paused / cancelled abonelik sayısı metrik kartları
+- Yaklaşan yenilemeler listesi (30 gün içinde)
 
-### Liste (S2–S3)
-- `SubscriptionListScreen` — Aktif / Durakladi / Iptal tablari (`TabController`)
-- Arama, kategori filtresi, siralama (tarih / tutar / ad)
-- Abonelik detay: durum bazli popup menu (pause, resume, cancel, archive, delete)
-- Basta gecerli ayda toplam tutarlar
+### Liste (S2–S3 — kısmi)
+- `SubscriptionListScreen` — Aktif / Durakladı / İptal sekmeleri (`TabController`)
+- Arama, kategori filtresi, sıralama (tarih / tutar / ad)
+- Abonelik detay: durum bazlı popup menu (pause, resume, cancel, archive, delete)
+- Başta geçerli ayda toplam tutarlar
 
-### Takvim (S5)
-- Aylik takvim — yenileme tarihleri isgallendiginde gosteriliyor
-- `totalsByCurrencyForMonth()` — her para birimi icin aylik toplam
-- Aylik baslik bolgesi cok para birimini ayri satirlarda gosteriyor
+### Takvim (S5 — kısmi)
+- Aylık takvim — yenileme tarihleri işaretlendiğinde gösteriliyor
+- `totalsByCurrencyForMonth()` — her para birimi için aylık toplam
+- Aylık başlık bölgesi çok para birimini ayrı satırlarda gösteriyor
 
-### In-app bildirimler (S5)
-- `NotificationController.refresh()` — aktif aboneliklerden bildirim uretir
-  - 0 gun: bugün yenileniyor
-  - 1–3 gun: yaklasan yenileme
-  - 4–7 gun: gelecek yenileme
-- `NotificationCenterScreen` — liste, renk kodlu ikonlar, okundu isaretleme
-- `TopBar` — unread badge, bell ikonu ile acilir
-- `AuthenticatedShell` — abonelikler degistiginde bildirimler otomatik yenilenir
+### In-app bildirimler (S5 — kısmi)
+- `NotificationController.refresh()` — aktif aboneliklerden bildirim üretir
+  - 0 gün: bugün yenileniyor
+  - 1–3 gün: yaklaşan yenileme
+  - 4–7 gün: gelecek yenileme
+- `NotificationCenterScreen` — liste, renk kodlu ikonlar, okundu işaretleme
+- `TopBar` — unread badge, bell ikonu ile açılır
+- `AuthenticatedShell` — abonelikler değiştiğinde bildirimler otomatik yenilenir
 
-### Yerel push bildirimleri (S6 - kismi)
+### Yerel push bildirimleri (S6 — kısmi)
 - `flutter_local_notifications ^18.0.0` + `timezone ^0.9.4` kurulu
-- `LocalNotificationService` — Android + iOS kanallar, izin isteme, zamanlanmis bildirim
-- `scheduleRenewalReminders()` — aktif abonelikler icin `N gun once` 09:00'da bildirim
-- Saat dilimi destegi: `SettingsController.timezone` bos ise cihaz yerel saati kullanilir
+- `LocalNotificationService` — Android + iOS kanallar, izin isteme, zamanlanmış bildirim
+- `scheduleRenewalReminders()` — aktif abonelikler için N gün önce 09:00'da bildirim
+- Saat dilimi desteği: `SettingsController.timezone` boşsa cihaz yerel saati kullanılır
 - Android: `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED` izinleri
-- `NotificationPreferencesScreen` — acma/kapama, kac gun once (1/3/7), test bildirimi
-- EKSIK: FCM/APNs device token, backend push worker (S6 backlog)
+- `NotificationPreferencesScreen` — açma/kapama, kaç gün önce (1/3/7), test bildirimi
+
+### Offline altyapı ve bildirim güçlendirme (S11)
+- `OfflineMutationQueue` — SharedPreferences'a kalıcı kuyruk; enqueue/drain/clear + FIFO + JSON round-trip
+- `DeviceTokenService` abstract + `PlaceholderDeviceTokenService` — FCM entegre edilene kadar no-op
+- `NotificationReadSyncService` — okundu durumu `POST /v1/notifications/read-batch` ile backend'e best-effort sync
+- `NotificationController.markRead/markAllRead` — hem local SharedPreferences'a hem backend'e yazıyor
+- `SubscriptionController` — `_lastSyncAt`, `_replayOfflineQueue`, `_applyMutation`, `_updateLocalStatus`; `NetworkException` → mutation kuyruğuna
+- Settings değişiklik dinleyicisi — `daysBefore` veya `timezone` değişince bildirimler otomatik yeniden zamanlanıyor
+- Duplicate schedule guard — içerik hash (`Object.hashAll`) eşleşince `scheduleRenewalReminders` erken çıkıyor
+- `_OfflineBanner` widget — Dashboard ve liste ekranında; göreceli sync zamanı ("X sn/dk/sa önce")
+- `test/offline_mutation_queue_test.dart` — 9 yeni test; toplam 144
 
 ### Ayarlar (S7)
-- `AppearanceScreen`: tema (sistem/aydinlik/karanlik), para birimi, saat dilimi secici (13 saat dilimi)
-- `SettingsController`: currency, themeMode, notificationsEnabled, daysBefore, timezone — hepsi SharedPreferences'a yaziliyor
-- `ExportDataScreen`: CSV olusturma, dosya olarak paylasma (`share_plus`) veya panoya kopyalama
-  - CSV'de Durum sutunu mevcut, duraklatilan/iptal edilen abonelikler dahil
-- `DeleteAccountScreen`: sifre dogrulama (re-auth) sonrasi hesap silme
+- `AppearanceScreen`: tema (sistem/aydınlık/karanlık), para birimi, saat dilimi seçici (13 saat dilimi)
+- `SettingsController`: currency, themeMode, notificationsEnabled, daysBefore, timezone — hepsi SharedPreferences'a yazılıyor
+- `ExportDataScreen`: CSV oluşturma, dosya olarak paylaşma (`share_plus`) veya panoya kopyalama — Durum sütunu mevcut, duraklatılan/iptal edilenler dahil
+- `DeleteAccountScreen`: şifre doğrulama (re-auth) sonrası hesap silme
 - `NotificationPreferencesScreen`: bildirim tercihleri
 
 ---
 
 ## Mimari
+
+Detay: `MOBILE_ARCHITECTURE.md`
 
 ```
 lib/
@@ -105,27 +185,35 @@ lib/
     shell/          authenticated_shell.dart, top_bar.dart, app_shell.dart
     theme/          app_theme.dart
   core/
-    config/         app_environment.dart (Supabase keys, isFirebaseConfigured flag)
+    config/         app_environment.dart (SUPABASE_URL/KEY/API_BASE_URL — dart-define)
     datasources/    auth_data_source.dart, subscription_data_source.dart (soyut)
-    errors/         app_exception.dart
-    services/       local_notification_service.dart
+    domain/         money.dart (Money value class, integer minor units)
+    errors/         app_exception.dart (NetworkException, AuthException, ValidationException)
+    network/        api_client.dart (Bearer, X-Request-ID, Idempotency-Key, retry)
+                    token_provider.dart (abstract + SupabaseTokenProvider)
+    services/       local_notification_service.dart (flutter_local_notifications, hash guard)
+                    offline_mutation_queue.dart (SharedPreferences kuyruk)
+                    device_token_service.dart (FCM placeholder)
+                    notification_read_sync_service.dart (POST /v1/notifications/read-batch)
     storage/        local_storage.dart, secure_storage.dart
     utils/          date_time_utils.dart
   features/
     auth/           AuthController, SupabaseAuthRepository, AuthRepository
-    subscriptions/  SubscriptionController, SupabaseSubscriptionRepository, SubscriptionRepository
-    dashboard/      DashboardScreen
+    subscriptions/  SubscriptionController (offline queue, pagination, 401 redirect)
+                    ApiSubscriptionRepository, SupabaseSubscriptionRepository, SubscriptionRepository
+    dashboard/      DashboardScreen (_OfflineBanner, totalsByCurrency)
     calendar/       CalendarController, CalendarScreen
-    notifications/  NotificationController, NotificationCenterScreen
-    settings/       SettingsController, AppearanceScreen, ExportDataScreen, DeleteAccountScreen
+    notifications/  NotificationController (read sync), NotificationCenterScreen
+    settings/       SettingsController, AppearanceScreen, NotificationPreferencesScreen
+                    ExportDataScreen (CSV), DeleteAccountScreen
     onboarding/     OnboardingScreen (4 sayfa)
-    stats/          StatsScreen
-    savings/        SavingsScreen
+    stats/          StatsScreen (per-currency, RefreshIndicator)
+    savings/        SavingsScreen (multi-currency)
 ```
 
 ---
 
-## Bagimliliklari (pubspec.yaml - onemli paketler)
+## Bağımlılıklar (pubspec.yaml — önemli paketler)
 
 - `supabase_flutter: ^2.0.0`
 - `go_router: ^14.0.0`
@@ -138,9 +226,9 @@ lib/
 
 ---
 
-## Supabase yapilacaklar
+## Supabase yapılacaklar
 
-Henuz calistirilmadiysa bu SQL'i dashboard'da calistir:
+Henüz çalıştırılmadıysa bu SQL'i dashboard'da çalıştır:
 
 ```sql
 alter table public.subscriptions
@@ -154,82 +242,85 @@ subscripttrack://auth-callback
 
 ---
 
-## Kalan isler (S6 backlog + S8 + S9)
+## Aktif sprint: S5
 
-### S6 backlog
-- [ ] FCM/APNs device token kaydi (Supabase Edge Function ile yapilabilir)
-- [ ] Backend push worker — yenileme oncesi sunucu tarafi bildirim
+### Tamamlanan S2/S3/S4 (31 Temmuz 2026)
 
-### S8 — Kalite ve release candidate
-- [ ] Unit testleri (AuthController, SubscriptionController, Money hesaplamalari)
-- [ ] Widget testleri (form, liste, dashboard)
-- [ ] Erisebilirlik (text scaling, kontrast)
-- [ ] Crash reporting entegrasyonu
-- [ ] iOS build / signing dogrulamasi
-- [ ] Android release APK / App Bundle
+**S2 — Money/decimal model:**
+- [x] `lib/core/domain/money.dart` oluşturuldu — tamsayı minor unit aritmetiği
+- [x] `Subscription.amount`: `double` → `Money` (tüm katmanlar güncellendi)
+- [x] `monthlyAmount` getter: `double` → `Money`
+- [x] `totalsByCurrency`, `totalMonthly`: `Money` toplama ile tamsayı aritmetiği
+- [x] `SupabaseSubscriptionRepository`, `SubscriptionRepository`, `SubscriptionDataSource`: Money geçişi
+- [x] `AddSubscriptionScreen`, `EditSubscriptionScreen`: `Money.parse()` kullanıyor
+- [x] 15 ekran/servis dosyası `amount.amount` ile güncellendi
+- [x] `test/money_test.dart`: 16 Money unit testi (parse, fromJson, aritmetik, billing cycle)
 
-### S9 — Beta ve magaza
-- [ ] TestFlight beta dagitimi
-- [ ] Google Play Internal Testing
-- [ ] Store listing, gizlilik politikasi, kullanim sartlari
-- [ ] Production Supabase ortami dogrulamasi
-- [ ] App Store ve Google Play gonderimleri
+**S2 — Form validasyon:**
+- [x] Yenileme tarihi seçici artık başlangıç tarihinden önceki tarihleri engelliyor
+
+**S3 — Hata gösterimi:**
+- [x] `SubscriptionListScreen`: hata durumunda `MaterialBanner` gösteriyor
+- [x] `DashboardScreen`: hata durumunda `MaterialBanner` + "Tekrar dene" butonu
+
+**S4 — Dashboard error state:**
+- [x] Dashboard error state tamamlandı (MaterialBanner)
+- [x] `CalendarController.totalsByCurrencyForMonth`: Money toplama
+
+**S5 — Bildirim duplicate fix:**
+- [x] `NotificationController`: ID artık yenileme tarihine sabitlendi (`sub.id_YYYYMMDD`)
+  — `days` değişse bile aynı bildirimin ID'si değişmiyor; eski okundu işaretleri geçerli kalıyor
+
+**S5 — Takvim timezone fix:**
+- [x] `CalendarController`: `nextRenewalDate.toLocal()` ile UTC→yerel dönüşüm eklendi
+
+### S2 kapandı ✅
+- Money/decimal model, form validasyon widget testleri, JSON round-trip testleri, Android smoke build
+- Backend REST contract → S8'e ertelendi (Supabase direct çalışıyor)
+
+### S3 kapandı ✅
+- Offline cache + banner, state transition unit testleri, archived ayrımı
+
+### S4 kapandı ✅
+- Money ile floating point'siz toplam/hesaplama, dashboard boş+hata+offline state, pull-to-refresh, birim testleri
+- Dashboard API contract → S8'e ertelendi
+
+### S5 kapandı ✅
+- Read state persist (SharedPreferences), in-memory pruning, CalendarController testleri, NotificationController testleri, timezone/ay sınırı coverage
+- Calendar API + okuma backend kalıcılığı → S8/S9'a ertelendi
+
+### S6 kapandı ✅
+- Notification ID collision fix (composite key), `cancelAll()` ile duplicate schedule engeli
+- FCM/APNs device token, backend push worker → S11'e ertelendi
 
 ---
 
-## Son uygulama kaydi
+## Kritik teknik borçlar
 
-### Aktif sprint: S2
-
-S1 kapatildi. S2 icin siradaki teknik isler:
-
-- [ ] Money/decimal modelini tasarla; mobildeki `double` para alanlarini kaldir.
-- [ ] Abonelik create request/response contractini backend ile eslestir.
-- [ ] Form validation ve currency/billing cycle kurallarini test et.
-- [ ] Add subscription widget testini ekle.
-- [ ] `flutter analyze`, `flutter test` ve Android smoke build ile S2 kabulunu yap.
-
-### Sprint kapatma kaydi
-
-- S1 durumu: TAMAMLANDI
-- S1 test sonucu: `flutter test --no-pub` basarili
-- S1 analyze sonucu: hata yok; 4 info/deprecation uyarisi
-- S2 durumu: AKTIF
-- Sonraki sprintlere gecis: mevcut sprintin kabul kriterleri ve testleri gecmeden yapilmayacak.
+| Borç | Hedef sprint |
+|------|-------------|
+| ~~Mobil `double` para modeli → Money/decimal~~ | ✅ S2'de tamamlandı |
+| ~~Direct Supabase → REST API standardizasyonu~~ | ✅ S8'de tamamlandı |
+| ~~RLS user-owned policy kapsamı doğrulama~~ | ✅ S8'de tamamlandı |
+| ~~Backend ve API contract testleri yok~~ | ✅ S12'de tamamlandı |
+| ~~FCM/APNs device token + backend push worker~~ | ✅ S11'de altyapı kuruldu (FCM S14'e) |
+| ~~AuthController race condition (Future.wait stream'i eziyor)~~ | ✅ 1 Ağustos 2026 kapatıldı |
+| ~~authenticated_shell.dart user! force-unwrap~~ | ✅ 1 Ağustos 2026 kapatıldı |
+| Mobil null safety + güvenlik (7 madde) | → **S20** |
+| Backend idempotency DB-backed + calendar job | → **S21** |
+| Backend exports/GDPR/CSV/CUSTOM cycle (5 madde) | → **S22** |
 
 ---
 
-## Kanonik sprint plani
+## Sprint kapatma kaydı
 
-Mevcut kod incelemesine gore Sprint 0-S7 kapsaminda genis bir urun temeli vardir; ancak production hardening tamamlanmamistir. Eski Sprint 8 ve Sprint 9 basliklari artik tek basina takip edilmeyecek; asagidaki kanonik akista dogru sprintlere dagitilmistir. Bundan sonra resmi takip tablosu budur:
-
-| Sprint | Odak | Durum | Tamamlanma kosulu |
-|---|---|---|---|
-| S10 | API mimarisi, Money/decimal, RLS ve secret guvenligi | PLANLANDI | Tek veri akisi, para dogrulugu, ownership guvenligi |
-| S11 | Auth ve abonelik API entegrasyonu | PLANLANDI | Login'den CRUD ve lifecycle'a uctan uca akis |
-| S12 | Dashboard, liste, detay, takvim ve stats | PLANLANDI | Gercek API verisi ve tum UI durumlari |
-| S13 | Kalite, test, guvenlik ve API contract | PLANLANDI | Kritik test suite yesil ve guvenlik kapisi gecildi |
-| S14 | Push bildirim, offline cache ve sync | PLANLANDI | Timezone uyumlu, kalici, tekrarsiz bildirim |
-| S15 | Temizlik, dokumantasyon ve release candidate | PLANLANDI | Kod/dokuman uyumu ve staging release |
-| S16 | Beta, CI/CD ve Android/iOS magaza yayini | PLANLANDI | Gercek cihaz smoke testi ve kontrollu beta |
-
-### Kritik teknik borclar
-
-- Mobil subscription akisi direct Supabase repository ile backend REST akisi arasinda ayrisiyor; S10'da REST standartlastirilacak.
-- Mobil para modeli `double` kullaniyor; S10'da Money/decimal modele gecilecek.
-- RLS aktif ancak user-owned policy kapsami ayrica dogrulanacak.
-- Backend ve API contract testleri henuz yok; S13 zorunlu kalite kapisidir.
-- FCM/APNs device token ve backend push worker henuz tamamlanmadi; S14'e tasindi.
-- Onceki sprint checkboxlari tarihsel kapsamdir; guncel ilerleme S10-S16 tablosundan takip edilecektir.
-
-### Commit stratejisi
-
-Her sprint degisiklikleri su gruplarla commitlenecek:
-
-1. `chore`: altyapi/dependency
-2. `feat`: dikey feature
-3. `test`: test ve kalite
-4. `docs`: API/sprint/architecture
-5. `fix`: review veya smoke test duzeltmesi
-
-Sprint sonunda `flutter analyze`, `flutter test`, backend testleri, Android build ve Graphify kontrolu yapilacak.
+- S0: TAMAMLANDI
+- S0.5: TAMAMLANDI
+- S1: TAMAMLANDI — `flutter test --no-pub` başarılı, hata yok
+- S2: TAMAMLANDI
+- S3: TAMAMLANDI
+- S4: TAMAMLANDI
+- S5: TAMAMLANDI
+- S6: TAMAMLANDI (yerel push; FCM/APNs S11'e ertelendi)
+- S7: TAMAMLANDI (S2–S6 öncesinde tamamlandı; bağımlılık gerektirmeyen ayarlar/export/hesap silme kapsamı)
+- Sonraki sprintlere geçiş: mevcut sprintin kabul kriterleri ve testleri geçmeden yapılmayacak

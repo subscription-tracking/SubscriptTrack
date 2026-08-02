@@ -14,17 +14,37 @@ class ExportDataScreen extends StatelessWidget {
 
   final SubscriptionController subscriptions;
 
+  String _csvField(String value) => '"${value.replaceAll('"', '""')}"';
+
   String _buildCsv() {
+    const eol = '\r\n';
     final buf = StringBuffer();
-    buf.writeln('Ad,Tutar,Para Birimi,Döngü,Kategori,Durum,Sonraki Yenileme,Notlar');
-    for (final s in [...subscriptions.active, ...subscriptions.paused, ...subscriptions.cancelled]) {
-      buf.writeln(
-        '"${s.name}",${s.amount},${s.currency},'
-        '${s.billingCycle.label},${s.category.label},'
-        '${s.status.label},'
-        '${DateTimeUtils.formatDate(s.nextRenewalDate)},'
-        '"${s.notes ?? ''}"',
+    // RFC 4180: header row quoted, CRLF line endings.
+    buf.write(
+      [
+        'Ad', 'Tutar', 'Para Birimi', 'Döngü',
+        'Kategori', 'Durum', 'Sonraki Yenileme', 'Notlar',
+      ].map(_csvField).join(','),
+    );
+    buf.write(eol);
+    for (final s in [
+      ...subscriptions.active,
+      ...subscriptions.paused,
+      ...subscriptions.cancelled,
+    ]) {
+      buf.write(
+        [
+          s.name,
+          s.amount.amount.toStringAsFixed(2),
+          s.currency,
+          s.billingCycle.label,
+          s.category.label,
+          s.status.label,
+          DateTimeUtils.formatDate(s.nextRenewalDate),
+          s.notes ?? '',
+        ].map(_csvField).join(','),
       );
+      buf.write(eol);
     }
     return buf.toString();
   }

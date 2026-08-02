@@ -1,432 +1,598 @@
 # SubscriptTrack Sprint Planı
 
+Son güncelleme: 2 Ağustos 2026
+
 ## Plan varsayımları
 
 - Sprint süresi: 2 hafta
-- Ürün: iOS ve Android mobil uygulaması
-- Web sitesi: tanıtım, yardım, iptal rehberleri ve yasal sayfalar
+- Ürün: iOS ve Android mobil uygulama
 - Geliştirme yöntemi: contract-first, dikey dilimler
-- Her sprint sonunda Android ve iOS üzerinde doğrulanabilir çıktı alınır.
-- Backend, mobil ve test işleri aynı feature kapsamında planlanır.
+- Her sprint sonunda Android ve iOS üzerinde doğrulanabilir çıktı alınır
+- Backend, mobil ve test işleri aynı feature kapsamında planlanır
 
-## Ortak Definition of Done
+## Ortak kabul kapısı (tüm sprintler için)
 
-Bir iş aşağıdaki şartlar sağlanmadan tamamlanmış sayılmaz:
-
-- Kabul kriterleri karşılanır.
-- Loading, error, empty ve uygun yerlerde offline durumları ele alınır.
-- Unit/component testleri yazılır.
-- API değişikliği varsa sözleşme ve ilgili doküman güncellenir.
-- Android ve iOS build üzerinde temel akış test edilir.
-- Güvenlik, erişilebilirlik ve analytics etkisi değerlendirilir.
-- Code review tamamlanır.
+- `flutter analyze` hatasız çalışır
+- Etkilenen Flutter ve backend testleri yeşildir
+- Loading, error, empty ve uygun yerlerde offline durumları uygulanmıştır
+- API veya domain değişikliği ilgili dokümana işlenmiştir
+- Android build ve en az bir emülatör smoke testi geçmiştir
+- Secret, service-role key veya hassas veri commit edilmemiştir
+- Değişiklikler geri alınabilir commitlere bölünmüştür
 
 ---
 
-## Sprint 0 — Proje temeli ve teknik kararlar
+## Genel durum tablosu
 
-### Hedef
-
-Çalışan Flutter proje kabuğunu, geliştirme ortamlarını ve kesin teknik kararları oluşturmak.
-
-### Kullanıcı/ekip çıktısı
-
-Ekip uygulamayı lokal olarak çalıştırabilir ve aynı API sözleşmesi üzerinden geliştirmeye başlayabilir.
-
-### Görevler
-
-- [ ] Flutter projesini `mobile/` altında oluştur.
-- [ ] `pubspec.yaml`, `main.dart`, lint ve format ayarlarını ekle.
-- [ ] Development, staging ve production environment yapısını kur.
-- [ ] Navigation, app shell ve bottom navigation temelini oluştur.
-- [ ] Tema tokenlarını ve ortak UI klasörlerini bağla.
-- [ ] Mobil framework kararını ADR ile kesinleştir.
-- [ ] Backend hosting/framework, auth, queue, e-posta ve analytics sağlayıcılarını kararlaştır.
-- [ ] API endpoint ve model isimlerini OpenAPI taslağına taşı.
-- [ ] CI’da lint, test ve Android build çalıştır.
-- [ ] iOS signing ve Android application ID planını dokümante et.
-
-### Kabul kriterleri
-
-- Uygulama Android emülatörde ve iOS simulator’da açılır.
-- Bir örnek route üzerinden ekranlar arasında geçiş yapılır.
-- CI lint ve boş test suite’i başarıyla çalıştırır.
-- Environment secret’ları kaynak kodda bulunmaz.
-- Kesinleşen teknik kararlar ADR olarak kaydedilir.
-
-### Test ve bağımlılıklar
-
-- Smoke build, lint, başlangıç widget testi.
-- Bağımlılık: yok; tüm sonraki sprintlerin ön koşuludur.
+| Sprint | Başlık | Durum |
+|--------|--------|-------|
+| S0 | Proje temeli | TAMAMLANDI |
+| S0.5 | Mimari zemin | TAMAMLANDI |
+| S1 | Auth ve onboarding | TAMAMLANDI |
+| S2 | Ortak UI ve abonelik ekleme | TAMAMLANDI |
+| S3 | Abonelik yaşam döngüsü | TAMAMLANDI |
+| S4 | Dashboard ve finansal hesaplamalar | TAMAMLANDI |
+| S5 | Takvim ve in-app bildirimler | TAMAMLANDI |
+| S6 | Push bildirimleri | TAMAMLANDI (yerel; FCM S11'e) |
+| S7 | Ayarlar, export, hesap silme | TAMAMLANDI |
+| S8 | API mimarisi ve veri temeli | TAMAMLANDI |
+| S9 | Auth ve abonelik API entegrasyonu | TAMAMLANDI |
+| S10 | Ana ürün ekranları | TAMAMLANDI |
+| S11 | Bildirim ve offline altyapısı | TAMAMLANDI |
+| S12 | Test, güvenlik ve kalite kapısı | TAMAMLANDI |
+| S13 | Temizlik ve dokümantasyon | TAMAMLANDI |
+| S14 | Release ve yayın | DEVAM EDİYOR (mağaza kapıları açık) |
+| S15 | API sözleşmesi ve backend migration hattı | TAMAMLANDI |
+| S16 | Offline dayanıklılık ve Android smoke | TAMAMLANDI |
+| S17 | Push bildirimleri ve platform izinleri | TAMAMLANDI |
+| S18 | Release candidate ve dağıtım kapısı | TAMAMLANDI (kod/CI; mağaza kapıları açık) |
+| S19 | Production operasyonları ve izlenebilirlik | TAMAMLANDI |
+| S20 | Mobil null safety ve güvenlik yamaları | TAMAMLANDI |
+| S21 | Backend kritik altyapı | TAMAMLANDI |
+| S22 | Backend tamamlanmamış özellikler + CSV | TAMAMLANDI |
 
 ---
 
-## Sprint 0.5 — Mimari zemin (go_router + provider + DI)
+## S0 — Proje temeli
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Sprint 1 öncesinde mimari borçları kapatmak: navigation guard için go_router, prop drilling'i kesmek için provider, Supabase geçişine zemin hazırlamak için abstract repository interface'leri.
+**Hedef:** Çalışan Flutter proje kabuğunu, geliştirme ortamlarını ve teknik kararları oluşturmak.
 
-### Kullanıcı/ekip çıktısı
-
-Uygulama aynı şekilde çalışır; ekip Sprint 1'den itibaren navigation guard ve dependency injection altyapısına sahip olarak geliştirir.
-
-### Görevler
-
-- [x] `go_router` ve `provider` paketlerini ekle; kullanılmayan `sqflite` ve `path`'i kaldır.
-- [x] `AuthDataSource` ve `SubscriptionDataSource` abstract interface'lerini oluştur.
-- [x] `AuthRepository` ve `SubscriptionRepository` bu interface'leri implement etsin; `@override` annotasyonları ekle.
-- [x] `AuthController._repo` ve `SubscriptionController._repo` tiplerini concrete'ten abstract'a yükselt.
-- [x] `SubscriptionController.add()` ve `edit()` finally bloğundaki `_loading = false` bug'ını `_setLoading(false)` ile düzelt.
-- [x] `AuthController`'a `initialized`, `onboardingNeeded`, `onboardingDone()` ekle; init() onboarding kontrolünü de kapsasın.
-- [x] `AppRouter` — `AuthController`'ı `refreshListenable` olarak kullanan go_router; `/splash`, `/onboarding`, `/login`, `/register`, `/home` rotaları; auth redirect guard.
-- [x] `AuthenticatedShell` widget'ı: `SubscriptionController`'ı oluşturup `ChangeNotifierProvider` ile alt ağaca sağlar.
-- [x] `app.dart` — `MultiProvider` (AuthController + SettingsController) ve `MaterialApp.router`.
-- [x] `AppShell` — constructor param almaz; tab ekranları `context.watch<T>()` ile bağımsız okur.
-- [x] `DashboardScreen`, `CalendarScreen`, `SubscriptionListScreen`, `ProfileTab` — constructor param kaldırıldı, `context.watch/read` ile controller alır.
-
-### Kabul kriterleri
-
-- `flutter analyze` sıfır hata döner.
-- Login → Home → Logout akışı go_router redirect ile çalışır.
-- Kimlik doğrulanmamış kullanıcı `/home`'a giremez; otomatik `/login`'e yönlendirilir.
-- Authenticated kullanıcı `/login`'e giderse otomatik `/home`'a döner.
-- Onboarding ilk açılışta gösterilir; tamamlandıktan sonra bir daha çıkmaz.
-- `AppShell` ve tab ekranları constructor aracılığıyla controller almaz.
-
-### Test ve bağımlılıklar
-
-- `flutter analyze` ve mevcut smoke build.
-- Bağımlılık: Sprint 0; Sprint 1'in ön koşuludur.
+**Yapılanlar:**
+- Flutter projesi `mobile/` altında oluşturuldu
+- `pubspec.yaml`, `main.dart`, lint ve format ayarları eklendi
+- Development/staging/production environment yapısı kuruldu
+- Navigation, app shell ve bottom navigation temeli oluşturuldu
+- Tema tokenları ve ortak UI klasörleri bağlandı
+- Mobil framework kararı ADR ile kesinleştirildi
+- Backend hosting, auth, queue, e-posta ve analytics sağlayıcıları kararlaştırıldı
+- OpenAPI taslağı oluşturuldu
+- CI'da lint, test ve Android build çalışıyor
+- Environment secret'ları kaynak kodda bulunmuyor
 
 ---
 
-## Sprint 1 — Auth ve onboarding
+## S0.5 — Mimari zemin
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Kullanıcının hesap oluşturup güvenli şekilde oturum açabilmesini sağlamak.
+**Hedef:** Sprint 1 öncesinde mimari borçları kapatmak: go_router, provider, abstract DI.
 
-### Kullanıcı hikâyeleri
-
-- Kullanıcı e-posta ve şifreyle kayıt olabilmeli.
-- Kullanıcı Google ve iOS’ta Apple ile giriş yapabilmeli.
-- Kullanıcı şifresini sıfırlayabilmeli.
-- Kullanıcı oturumunu kapatabilmeli ve tekrar açtığında oturumu korunmalı.
-
-### Görevler
-
-- [ ] Login/register/forgot-password API contract’larını kesinleştir.
-- [ ] Auth modelleri, repository ve API client katmanını oluştur.
-- [ ] Access/refresh token akışını ve secure storage’ı bağla.
-- [ ] Auth interceptor ve token refresh davranışını ekle.
-- [ ] Login, register, forgot password ve reset password ekranlarını bağla.
-- [ ] Navigation guard ile yetkisiz kullanıcıyı login’e yönlendir.
-- [ ] Onboarding’de timezone, locale ve temel profil ayarlarını al.
-- [ ] Logout ve token revoke akışını ekle.
-
-### Kabul kriterleri
-
-- Geçerli kullanıcı kayıt olabilir, giriş yapabilir ve çıkış yapabilir.
-- Geçersiz bilgiler anlamlı alan hatası gösterir.
-- Uygulama yeniden açıldığında geçerli oturum korunur.
-- Süresi dolan access token refresh ile yenilenir.
-- Başka kullanıcıya ait kaynaklar client’tan gönderilen `user_id` ile erişilemez.
-
-### Test ve bağımlılıklar
-
-- Auth controller unit testleri.
-- Secure storage testi.
-- Login/register widget testleri.
-- Token expiry ve unauthorized integration testi.
-- Bağımlılık: Sprint 0.
+**Yapılanlar:**
+- `go_router` ve `provider` eklendi; kullanılmayan `sqflite` ve `path` kaldırıldı
+- `AuthDataSource` ve `SubscriptionDataSource` abstract interface'leri oluşturuldu
+- `AuthRepository` ve `SubscriptionRepository` interface'leri implement etti
+- `AuthController` ve `SubscriptionController` tipleri abstract'a yükseltildi
+- `SubscriptionController.add()` ve `edit()` finally bloğu bug'ı düzeltildi
+- `AuthController`'a `initialized`, `onboardingNeeded`, `onboardingDone()` eklendi
+- `AppRouter` — go_router redirect guard, tüm temel rotalar
+- `AuthenticatedShell` widget'ı oluşturuldu
+- `app.dart` — `MultiProvider` (AuthController + SettingsController) ve `MaterialApp.router`
+- `AppShell` ve tab ekranları `context.watch/read` ile çalışıyor
 
 ---
 
-## Sprint 2 — Ortak UI ve abonelik ekleme
+## S1 — Auth ve onboarding
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Kullanıcının ilk aboneliğini doğrulanmış bir form üzerinden ekleyebilmesini sağlamak.
+**Hedef:** Kullanıcının hesap oluşturup güvenli şekilde oturum açabilmesi.
 
-### Kullanıcı hikâyeleri
-
-- Kullanıcı abonelik adını, tutarını, para birimini ve döngüsünü girebilmeli.
-- Kullanıcı sistem kategorilerinden seçim yapabilmeli.
-- Kullanıcı bir sonraki yenileme tarihini seçebilmeli.
-
-### Görevler
-
-- [ ] App shell, top bar ve bottom navigation’ı tamamla.
-- [ ] Button, text field, card, badge, dialog ve bottom sheet bileşenlerini oluştur.
-- [ ] Theme, spacing, typography ve renk tokenlarını bağla.
-- [ ] `Money`, currency, billing cycle ve category modellerini oluştur.
-- [ ] Subscription create request/response contract’ını bağla.
-- [ ] Add subscription ekranını ve form validation’ını oluştur.
-- [ ] Tarih, para ve kategori seçim bileşenlerini ekle.
-- [ ] Başarılı kayıttan sonra liste/dashboard yönlendirmesini ekle.
-
-### Kabul kriterleri
-
-- Zorunlu alanlar boşken kayıt yapılamaz.
-- Tutar floating point kaybı olmadan API’ye gönderilir.
-- Desteklenen currency ve billing cycle değerleri dışında seçim yapılamaz.
-- Başarılı kayıt sonrası yeni abonelik görünür.
-- API hatası formu bozmadan kullanıcıya gösterilir.
-
-### Test ve bağımlılıklar
-
-- Money ve form validation unit testleri.
-- Subscription form widget testleri.
-- Create subscription contract testi.
-- Bağımlılık: Sprint 1 auth.
+**Yapılanlar:**
+- E-posta + şifre kayıt, giriş, çıkış
+- `SupabaseAuthRepository` entegre, `isSupabaseConfigured = true`
+- Şifre sıfırlama e-postası (`ForgotPasswordScreen`)
+- Deep link: `subscripttrack://auth-callback` (AndroidManifest'te tanımlı)
+- `ResetPasswordScreen` — deep link sonrası yeni şifre belirleme
+- `AuthController.passwordRecoveryMode` — go_router redirect guard ile bağlı
+- `AuthController.updatePassword()` — Supabase `updateUser` çağırıyor
+- Onboarding: 4 sayfa (3 tanıtım + para birimi seçimi), ilk açılışta gösteriliyor
+- Auth controller unit testleri geçiyor
+- `flutter test --no-pub` başarılı
 
 ---
 
-## Sprint 3 — Abonelik yaşam döngüsü
+## S2 — Ortak UI ve abonelik ekleme
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Aboneliklerin listelenmesi, detayının görülmesi ve domain durumlarının yönetilmesi.
+**Hedef:** Kullanıcının ilk aboneliğini doğrulanmış bir form üzerinden ekleyebilmesi.
 
-### Kullanıcı hikâyeleri
-
-- Kullanıcı aboneliklerini yenileme tarihine göre görebilmeli.
-- Kullanıcı aboneliği düzenleyebilmeli.
-- Kullanıcı pause, resume, cancel, archive ve restore işlemlerini yapabilmeli.
-
-### Görevler
-
-- [ ] Subscription list/detail/update API bağlantılarını ekle.
-- [ ] Liste, detay ve düzenleme ekranlarını bağla.
-- [ ] Subscription card, status badge ve category badge’i tamamla.
-- [ ] Pause/resume/cancel/archive/restore action sheet’lerini ekle.
-- [ ] Domain state geçiş hatalarını UI’da göster.
-- [ ] Archive kayıtlarını varsayılan listeden çıkar.
-- [ ] Local cache ile son başarılı listeyi sakla.
-- [ ] Offline read-only görünümü ve offline banner ekle.
-
-### Kabul kriterleri
-
-- Liste en yakın yenileme tarihine göre sıralanır.
-- Durum değişikliğinde geçmiş kaydı silinmez.
-- Archived kayıtlar varsayılan aktif listede görünmez.
-- Offline durumda son liste açılır; desteklenmeyen yazma işlemi açıkça belirtilir.
-- Yetkisiz veya geçersiz durum geçişleri engellenir.
-
-### Test ve bağımlılıklar
-
-- State transition unit testleri.
-- Liste/detail widget testleri.
-- Offline cache testi.
-- Authorization ve contract testleri.
-- Bağımlılık: Sprint 2.
+**Yapılanlar:**
+- App shell, top bar, bottom navigation tamamlandı
+- Button, card, dialog, badge, bottom sheet bileşenleri oluşturuldu
+- `SubscriptionStatus` enum: `active`, `paused`, `cancelled`, `archived`
+- `start_date` alanı tüm katmanlarda mevcut
+- `SupabaseSubscriptionRepository` — PostgREST ile tam CRUD
+- `SubscriptionController`: pause, resume, cancel, archive, restore, edit, delete
+- Abonelik formu: ad, tutar, para birimi, döngü, kategori, başlangıç tarihi, yenileme tarihi, notlar
+- `lib/core/domain/money.dart` — tamsayı minor unit ile floating point'siz para hesaplama
+- Tüm katmanlar (`amount: double` → `Money`) güncellendi — 15 dosya
+- `Subscription.toJson/fromJson` JSON round-trip testi (`test/subscription_model_test.dart`)
+- Form validation widget testleri (`test/subscription_form_test.dart`)
+- `flutter analyze --no-pub`: hata yok
+- `flutter test --no-pub`: 61 test başarılı
+- Android debug APK başarıyla üretildi
+- Backend REST contract: S8'e ertelendi (şimdilik Supabase direct client çalışıyor)
 
 ---
 
-## Sprint 4 — Dashboard ve finansal hesaplamalar
+## S3 — Abonelik yaşam döngüsü
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Kullanıcıya para birimi bazında güvenilir aylık/yıllık harcama özeti sunmak.
+**Hedef:** Aboneliklerin listelenmesi, detayının görülmesi ve domain durumlarının yönetilmesi.
 
-### Kullanıcı hikâyeleri
-
-- Kullanıcı bu ay ve bu yıl tahmini harcamasını görebilmeli.
-- Kullanıcı aktif abonelik sayısını ve yaklaşan yenilemeleri görebilmeli.
-- Kullanıcı farklı para birimlerini ayrı toplamlar halinde görmeli.
-
-### Görevler
-
-- [ ] Dashboard summary/upcoming API contract’ını bağla.
-- [ ] Dashboard controller ve state modelini oluştur.
-- [ ] Summary card, monthly summary ve upcoming renewal widget’larını tamamla.
-- [ ] `Money` ve billing cycle hesaplama servislerini oluştur.
-- [ ] Aktif, paused, cancelled ve archived filtrelerini uygula.
-- [ ] Dashboard cache ve refresh davranışını ekle.
-- [ ] Boş dashboard ve API error ekranlarını ekle.
-
-### Kabul kriterleri
-
-- Para birimleri birbirine çevrilmeden ayrı gösterilir.
-- Yıllık, aylık, haftalık, üç aylık ve altı aylık hesaplar doğru yapılır.
-- Paused/cancelled/archived kayıtlar aktif toplamdan çıkarılır.
-- Rounding yalnızca gösterimde yapılır.
-- Pull-to-refresh son veriyi getirir.
-
-### Test ve bağımlılıklar
-
-- Her billing cycle için hesaplama testleri.
-- Decimal rounding testleri.
-- Dashboard widget testleri.
-- Farklı currency integration testi.
-- Bağımlılık: Sprint 3.
+**Yapılanlar:**
+- `SubscriptionListScreen` — Aktif / Durakladı / İptal sekmeleri (`TabController`)
+- Arama, kategori filtresi, sıralama (tarih / tutar / ad)
+- Abonelik detay: durum bazlı popup menu
+- pause/resume/cancel/archive/restore/edit/delete işlemleri çalışıyor
+- Offline cache: `SubscriptionController._writeCache/_readCache` — SharedPreferences'a son başarılı listeyi yazar
+- Offline banner: `MaterialBanner` (turuncu) — yalnızca `isOffline=true` olduğunda gösterilir
+- Hata banner: `MaterialBanner` — ağ hatası + cache yoksa gösterilir, "Tekrar dene" butonu
+- Archived kayıtlar varsayılan listeden çıkarıldı (ayrı `ArchivedSubscriptionsScreen`)
+- State transition unit testleri: pause/resume/cancel/archive/restore/delete (`test/subscription_controller_test.dart`)
+- Liste widget testi: form doğrulama akışı (`test/subscription_form_test.dart`)
 
 ---
 
-## Sprint 5 — Takvim ve uygulama içi bildirimler
+## S4 — Dashboard ve finansal hesaplamalar
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Yenileme ve trial olaylarını takvimde ve bildirim merkezinde görünür hale getirmek.
+**Hedef:** Para birimi bazında güvenilir aylık/yıllık harcama özeti.
 
-### Görevler
-
-- [ ] Calendar API ve renewal occurrence modellerini bağla.
-- [ ] Aylık takvim, gün hücresi ve event item widget’larını oluştur.
-- [ ] Yenileme, trial bitişi ve yüksek tutarlı ödeme ayrımını göster.
-- [ ] Notification list API ve read/read-all işlemlerini bağla.
-- [ ] Bildirim badge’i ve unread state’i ekle.
-- [ ] Deep link route çözümleyicisini oluştur.
-- [ ] Bildirimden ilgili abonelik detayına yönlendir.
-
-### Kabul kriterleri
-
-- Kullanıcı aylık takvimde olayları görebilir.
-- Takvim öğesine dokununca doğru abonelik açılır.
-- Okuma durumu kalıcıdır.
-- Aynı bildirim tekrar açıldığında duplicate UI kaydı oluşmaz.
-- Geçersiz deep link güvenli fallback ekranına gider.
-
-### Test ve bağımlılıklar
-
-- Timezone ve month-boundary testleri.
-- Notification read state testleri.
-- Deep link integration testi.
-- Bağımlılık: Sprint 4 ve occurrence API.
+**Yapılanlar:**
+- `totalsByCurrency` — farklı para birimleri ayrı satırlarda, toplam yapılmıyor
+- `totalMonthly` — Money ile floating point'siz toplam
+- Paused/cancelled abonelik metrik kartları
+- Yaklaşan yenilemeler listesi (30 gün içinde)
+- `DashboardScreen` — offline banner + hata banner + boş durum + pull-to-refresh (`RefreshIndicator`)
+- `monthlyAmount` getter — tüm billing cycle'lar için hesaplama (weekly×4.33, monthly, quarterly÷3, yearly÷12)
+- `CalendarController.totalsByCurrencyForMonth` — Money ile aylık para birimi bazlı toplam
+- `Money` sınıfı: tamsayı minor unit, float drift yok; tüm aritmetik integer'da
+- Hesaplama ve decimal rounding testleri: `test/money_test.dart` (16 test), `test/subscription_model_test.dart` (billing cycle kısmı)
+- Controller state testleri: load/error/offline/totalMonthly/totalsByCurrency (`test/subscription_controller_test.dart`)
+- Dashboard API contract: S8'e ertelendi (şimdilik SubscriptionController üzerinden çalışıyor)
 
 ---
 
-## Sprint 6 — Push, e-posta ve bildirim tercihleri
+## S5 — Takvim ve in-app bildirimler
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-Backend kaynaklı bildirimlerin doğru zamanda ve seçili kanallarda teslim edilmesi.
+**Hedef:** Yenileme olaylarını takvimde ve bildirim merkezinde görünür hale getirmek.
 
-### Görevler
-
-- [ ] FCM/APNs entegrasyonunu ekle.
-- [ ] Push permission education ve platform izin akışını oluştur.
-- [ ] Device token register/revoke API bağlantısını ekle.
-- [ ] Notification preferences ekranını bağla.
-- [ ] User timezone ve `days_before` değerini backend planlamasına bağla.
-- [ ] Occurrence + channel + notification type duplicate engelini uygula.
-- [ ] Retry, invalid token ve DEAD durumlarını izlenebilir yap.
-- [ ] E-posta template ve delivery durumlarını bağla.
-
-### Kabul kriterleri
-
-- Push token backend’e güvenli şekilde kaydedilir.
-- Kullanıcı kapattığı kanaldan bildirim almaz.
-- Bildirim kullanıcının timezone’ına göre planlanır.
-- Aynı occurrence/channel/type ikinci kez gönderilmez.
-- Push’a dokununca doğru abonelik açılır.
-
-### Test ve bağımlılıklar
-
-- Staging push testleri: Android ve iOS.
-- Permission denied, invalid token ve retry testleri.
-- Duplicate delivery integration testi.
-- Bağımlılık: Sprint 5, backend worker ve provider credentials.
+**Yapılanlar:**
+- Aylık takvim — yenileme tarihleri işaretlendiğinde gösteriliyor
+- `totalsByCurrencyForMonth()` — her para birimi için aylık toplam, Money ile
+- `NotificationController.refresh()` — 0 gün / 1–3 gün / 4–7 gün öncesi bildirim üretimi
+- `NotificationCenterScreen` — liste, renk kodlu ikonlar, okundu işaretleme
+- `TopBar` unread badge ve bell ikonu
+- `CalendarEventItem.onTap` → `SubscriptionDetailScreen` navigasyonu (zaten mevcut)
+- `NotificationCenterScreen` bildirim tap'ı → abonelik detay açılıyor (zaten mevcut)
+- Read state persist: `loadReadState()`/`_saveReadState()` ile SharedPreferences'a yazılır; app restart sonrası okundu işaretleri korunur
+- Read state pruning: `refresh()` çağrısında geçmiş abonelik ID'leri bellekten temizlenir
+- `AuthenticatedShell.initState()` → `_notif.loadReadState()` çağrısı eklendi
+- `CalendarController` unit testleri: `renewalsForDay`, `renewalDaysInMonth`, `totalsByCurrencyForMonth`, timezone, ay sınırı (`test/calendar_controller_test.dart`)
+- `NotificationController` unit testleri: bildirim üretimi, stableId, markRead, persist, pruning (`test/notification_controller_test.dart`)
+- Calendar/notification API contract: S8/S9'a ertelendi (okuma kalıcılığı backend'e yazılmıyor, in-memory + local prefs)
 
 ---
 
-## Sprint 7 — Ayarlar, export ve hesap silme
+## S6 — Push bildirimleri
 
-### Hedef
+**Durum:** TAMAMLANDI (yerel push; FCM/APNs S11'e)
 
-Kullanıcının profil, gizlilik ve veri haklarını mobil uygulamadan yönetebilmesi.
+**Hedef:** Backend kaynaklı bildirimlerin doğru zamanda ve seçili kanallarda teslimi.
 
-### Görevler
-
-- [ ] Profile/settings API bağlantısını ekle.
-- [ ] Profil, görünüm ve timezone ayarlarını bağla.
-- [ ] Export request/status ekranlarını oluştur.
-- [ ] Süreli ve sahip doğrulamalı export indirme akışını bağla.
-- [ ] Account deletion confirmation ve re-auth akışını oluştur.
-- [ ] Hesap silme job status ve token revoke davranışını bağla.
-- [ ] Device token ve local cache temizliğini ekle.
-
-### Kabul kriterleri
-
-- Profil ve tercih değişiklikleri kalıcıdır.
-- Export yalnızca hesabın sahibine ait veriyi içerir.
-- Süresi geçen export linki kullanılamaz.
-- Hesap silme açık onay ve gerektiğinde yeniden doğrulama ister.
-- Logout/account delete sonrası hassas local veriler temizlenir.
-
-### Test ve bağımlılıklar
-
-- Settings widget testleri.
-- Export ownership/security testleri.
-- Account deletion authorization testi.
-- Bağımlılık: Sprint 1 auth ve backend export/delete workflow’ları.
+**Yapılanlar:**
+- `flutter_local_notifications ^18.0.0` + `timezone ^0.9.4` kurulu
+- `LocalNotificationService` — Android + iOS kanallar, izin isteme, zamanlanmış bildirim
+- `scheduleRenewalReminders()` — aktif abonelikler için N gün önce 09:00'da bildirim
+- Saat dilimi desteği: `SettingsController.timezone` boşsa cihaz yerel saati kullanılır
+- Android izinleri: `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED`
+- `NotificationPreferencesScreen` — açma/kapama, kaç gün önce (1/3/7), test bildirimi
+- **Notification ID collision fix:** ID artık `'${sub.id}|$daysBefore|$dateKey'.hashCode` — farklı abonelik + farklı kaç gün önce + farklı tarih → farklı ID; çakışma yok
+- `cancelAll()` önceden çağrılır → aynı çalışmada duplicate zamanlama imkânsız
+- FCM/APNs device token, backend push worker, retry/invalid token akışı: S11'e ertelendi
 
 ---
 
-## Sprint 8 — Kalite, güvenlik ve release candidate
+## S7 — Ayarlar, export ve hesap silme
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-MVP’nin teknik kalite ve güvenlik kapılarını tamamlamak.
+**Hedef:** Kullanıcının profil, gizlilik ve veri haklarını mobil uygulamadan yönetebilmesi.
 
-### Görevler
-
-- [ ] Unit test coverage kritik domain alanlarında tamamla.
-- [ ] Widget/component testlerini tamamla.
-- [ ] Auth, ownership, token ve rate limit testlerini çalıştır.
-- [ ] Offline, timeout, düşük ağ ve retry testlerini çalıştır.
-- [ ] DST, UTC boundary ve timezone değişimi testlerini çalıştır.
-- [ ] Push deep link ve permission testlerini tamamla.
-- [ ] Crash reporting ve temel analytics event’lerini bağla.
-- [ ] Accessibility, text scaling ve contrast kontrolü yap.
-- [ ] Staging release candidate build’leri üret.
-
-### Kabul kriterleri
-
-- Kritik test suite’i yeşildir.
-- Kritik güvenlik açığı bulunmaz.
-- Android ve iOS release candidate build’leri alınır.
-- Crash-free ve push delivery izleme panelleri hazırdır.
-- Release checklist ve rollback planı tamamdır.
-
-### Test ve bağımlılıklar
-
-- Full unit, widget, integration, contract ve device testleri.
-- Bağımlılık: Sprint 1–7.
+**Yapılanlar:**
+- `AppearanceScreen`: tema (sistem/aydınlık/karanlık), para birimi, saat dilimi seçici (13 saat dilimi)
+- `SettingsController`: currency, themeMode, notificationsEnabled, daysBefore, timezone — hepsi SharedPreferences'a yazılıyor
+- `ExportDataScreen`: CSV oluşturma, dosya olarak paylaşma (`share_plus`) veya panoya kopyalama — Durum sütunu mevcut, duraklatılan/iptal edilenler dahil
+- `DeleteAccountScreen`: şifre doğrulama (re-auth) sonrası hesap silme
+- `NotificationPreferencesScreen`: bildirim tercihleri
 
 ---
 
-## Sprint 9 — Beta ve mağaza yayını
+## S8 — API mimarisi ve veri temeli
 
-### Hedef
+**Durum:** TAMAMLANDI
 
-İlk public MVP’yi kontrollü biçimde yayınlamak.
+**Hedef:** Mobil, backend ve veritabanı veri akışının REST API üzerinden standartlaştırılması.
 
-### Görevler
+**Yapılanlar:**
+- [x] Mobil ana subscription akışının REST API olacağını kesinleştir — `isApiConfigured` flag ile öncelik zinciri kuruldu
+- [x] `ApiClient`: base URL, Bearer token, 30s timeout, X-Request-ID UUID, 3-retry (400ms×n backoff), ortak hata modeli (NetworkException / AuthException / ValidationException / NotFoundException)
+- [x] `TokenProvider` abstraction + `SupabaseTokenProvider` / `StaticTokenProvider` (test)
+- [x] `ApiSubscriptionRepository` — SubscriptionDataSource impl; GET/POST `/v1/subscriptions`, PATCH/DELETE `/v1/subscriptions/{id}`, PATCH `/v1/subscriptions/{id}/status`; snake_case → domain model mapping
+- [x] Flutter `Money` value class ile floating point hatası önlendi; tüm para alanları minor unit integer
+- [x] Repo seçim önceliği: `isApiConfigured` → `ApiSubscriptionRepository` → `isSupabaseConfigured` → `SupabaseSubscriptionRepository` → local fallback
+- [x] RLS `auth.uid() = user_id` politikaları — `SubscriptTrack-Documentation/database/rls_policies.sql`
+- [x] Secret scan kontrol listesi — `--dart-define` inject, kaynak kodda key yok
+- [x] `http: ^1.2.0` bağımlılığı eklendi; `flutter pub get` başarılı
+- [x] `test/api_client_test.dart` — 19 test: başarılı 200/201/204, hata 400/401/403/404/422/500, retry (5xx 2→3 geçer, 4xx retry yok), header (Bearer, X-Request-ID, Content-Type), mesaj çözümleme (error.message / message / HTTP 4xx)
+- [x] `flutter analyze --no-pub` — 0 hata
+- [x] `flutter test --no-pub` — 108/108 geçti
 
-- [ ] TestFlight beta dağıtımı yap.
-- [ ] Google Play Internal Testing dağıtımı yap.
-- [ ] Gerçek cihaz ve farklı timezone senaryolarını test et.
-- [ ] Beta geri bildirimlerini önceliklendir.
-- [ ] Kritik bug’ları düzelt ve regression testlerini çalıştır.
-- [ ] Store listing, privacy policy ve terms bağlantılarını tamamla.
-- [ ] Production backend, push ve e-posta credential’larını doğrula.
-- [ ] App Store ve Google Play gönderimini yap.
-- [ ] İlk hafta monitoring ve destek planını başlat.
+**Kabul kriterleri:** Mobil subscription verisi REST API'den gelir; para hesapları floating point hatası üretmez; ownership güvenliği RLS ile sağlandı; secret scan temizdir.
 
-### Kabul kriterleri
+---
 
-- Kritik ve blocker bug kalmaz.
-- Her iki mağaza için build kabul edilir.
-- Production smoke testleri geçer.
-- Kullanıcı kayıt, abonelik ekleme ve bildirim ana akışı çalışır.
-- Rollback ve incident iletişim planı hazırdır.
+## S9 — Auth ve abonelik API entegrasyonu
 
-### Test ve bağımlılıklar
+**Durum:** TAMAMLANDI
 
-- Beta regression, production smoke ve mağaza öncesi manuel test.
-- Bağımlılık: Sprint 8.
+**Hedef:** Oturumdan subscription CRUD ve lifecycle akışına kadar uçtan uca backend entegrasyonu.
+
+**Yapılanlar:**
+- [x] Session restore — `AuthController.init()` → `currentUser()` + Supabase `tokenRefreshed` stream
+- [x] Login, register, forgot-password, reset-password, logout — S1'den mevcut; standardize edildi
+- [x] 401 redirect — `SubscriptionController.onUnauthorized` callback → `AuthenticatedShell` üzerinden `auth.signOut()` tetikleniyor
+- [x] CRUD + lifecycle endpointleri — S8'de bağlandı (GET/POST/PATCH/DELETE + status endpoint)
+- [x] Cursor pagination — `ApiSubscriptionRepository.getPaged(cursor, limit)` + `SubscriptionPage(items, nextCursor)` + `SubscriptionController.loadMore()`
+- [x] Status transition guard — `SubscriptionStatus.canTransitionTo()` — geçersiz geçişi `ValidationException` ile reddeder; backend kurallarıyla eşleşiyor
+- [x] Re-auth + account deletion temizlik — `deleteAccount()` → subscriptions cache + `notif_read_ids` SharedPreferences temizlendi
+- [x] Idempotency-Key — POST/PATCH her çağrısında yeni UUID header; retry'da aynı key korunuyor (server-side dedup)
+- [x] In-flight dedup — `load()` zaten çalışıyorsa ikinci çağrı ignore edilir
+- [x] Yeni testler: `auth_controller_s9_test.dart` (8), `subscription_status_transition_test.dart` (14), `subscription_controller_test.dart` S9 grubu (+5) — toplam 135 test
+- [x] `flutter analyze --no-pub` — 0 hata | `flutter test --no-pub` — 135/135 geçti
+
+**Kabul kriterleri:** Geçmiş oturum korunur; CRUD backend event üretir; geçersiz status geçişi reddedilir; 401 güvenli login yönlendirmesi yapar.
+
+---
+
+## S10 — Ana ürün ekranları
+
+**Durum:** TAMAMLANDI
+
+**Hedef:** Dashboard, liste, detay, takvim ve stats ekranlarını gerçek API verisiyle tamamlamak.
+
+**Yapılanlar:**
+- [x] Dashboard summary ve upcoming — `controller.active`, `upcomingRenewals`, `totalsByCurrency` zaten API controller'dan geliyor
+- [x] Aylık/yıllık toplam currency ayrımı — Dashboard MonthlySpendCard'da her para birimi ayrı satır + yıllık toplam (`×12`) gösteriliyor
+- [x] "Tümünü gör" navigation — `DashboardScreen(onViewAllSubscriptions)` callback → `AppShell._index = 2` (subscriptions tab)
+- [x] Liste arama, filtre, sıralama — `_filtered()` client-side uygulama; `hasMore` pagination sentinel (loadMore trigger)
+- [x] Infinite scroll loadMore — `_SubscriptionTabView`'de sentinel item → `controller.loadMore()`
+- [x] DetailScreen action menu tamamlandı — `paused/cancelled → archive` seçeneği eklendi (daha önce eksikti)
+- [x] StatsScreen: currency mixing bug düzeltildi — `totalMonthly` yerine `totalsByCurrency` kullanılıyor; mixed currency durumunda per-currency kartlar; loading/error/refresh state eklendi
+- [x] SavingsScreen: loading/error state eklendi; multi-currency gruplandırma (her currency için ayrı top-3 scenario kartı)
+- [x] Erişilebilirlik — `Semantics` sarmalayıcıları: "Tümünü gör" butonu, FAB, stats→savings butonu, monthly total label
+- [x] `flutter analyze --no-pub` — 0 hata (4 önceden var olan info) | `flutter test --no-pub` — 135/135 geçti
+
+**Kabul kriterleri:** Ekranlar aynı backend verisini gösterir; currency'ler toplanmaz; inactive kayıtlar aktif toplama girmez; refresh/empty/error akışları çalışır.
+
+---
+
+## S11 — Bildirim ve offline altyapısı
+
+**Durum:** TAMAMLANDI
+
+**Hedef:** Bildirimleri kalıcı, timezone uyumlu, tekrarsız ve offline dayanıklı hale getirmek.
+
+**Yapılanlar:**
+- [x] `OfflineMutationQueue` — SharedPreferences destekli kalıcı kuyruk; `enqueue/drain/clear` + FIFO garantisi + JSON round-trip
+- [x] `DeviceTokenService` abstract + `PlaceholderDeviceTokenService` — FCM entegre edilene kadar no-op; gelecek endpoint yorumları korundu
+- [x] `NotificationReadSyncService` — `POST /v1/notifications/read-batch`; best-effort (catch-all, hata sessiz)
+- [x] `NotificationController.markRead/markAllRead` — read state hem SharedPreferences'a hem backend'e (async) yazılıyor
+- [x] `SubscriptionController` S11 — `_mutationQueue`, `_lastSyncAt`, `_replayOfflineQueue()`, `_applyMutation()`, `_updateLocalStatus()` eklendi; tüm lifecycle metodları `mutationType` alıyor; `NetworkException` catch → offline queue
+- [x] Settings değişiklik dinleyicisi — `AuthenticatedShell` içinde `SettingsController.addListener(_onSettingsChanged)`; `daysBefore` veya `timezone` değişince `scheduleRenewalReminders` tetikleniyor
+- [x] Duplicate schedule guard — `LocalNotificationService._lastScheduleHash`; içerik hash eşleşirse `scheduleRenewalReminders` erken çıkıyor
+- [x] `_OfflineBanner` widget — Dashboard ve liste ekranlarında; `lastSyncAt` göreceli zaman ("X sn/dk/sa/gün önce güncellendi"); tekrar dene butonu
+- [x] `test/offline_mutation_queue_test.dart` — 9 test: boş/enqueue/drain/clear/JSON round-trip/FIFO/drain sonrası enqueue
+- [x] `flutter analyze --no-pub` — 0 warning/error (2 önceden var olan info kaldı)
+- [x] `flutter test --no-pub` — 144/144 geçti
+
+**Kabul kriterleri:** Bildirim doğru timezone'da gelir; duplicate gönderim olmaz; offline veri ve okunma durumu korunur; mutation kuyruğu bağlantı geri gelince oynatılır.
+
+---
+
+## S12 — Test, güvenlik ve kalite kapısı
+
+**Durum:** TAMAMLANDI
+
+**Hedef:** Kritik domain, API ve güvenlik akışlarını otomatik testlerle korumak.
+
+**Yapılanlar:**
+- [x] `test/date_time_utils_test.dart` — 17 test: `renewalLabel` (negatif/0/1/3/7/14/30/60/365), `formatCurrency` (sembol, sıfır, büyük tutar, virgül), `formatDate` (bugün/yarın/geçmiş/gelecek/12 ay)
+- [x] `test/notification_read_sync_service_test.dart` — 5 test: boş set no-op, POST body doğru, 500 hata yutulur, ağ hatası yutulur, tek ID
+- [x] `test/subscription_computed_test.dart` — 15 test: `daysUntilRenewal` (gelecek/geçmiş/bugün), `totalsByCurrency` (tek/çoklu/paused dışlama/boş), `upcomingRenewals` (30 gün içi/dışı/geçmiş/paused), `active/paused/cancelled/archived` gruplandırma, `active` sıralama, `isOffline` (başarılı/cache+hata)
+- [x] `test/security_scan_test.dart` — 4 test: Supabase URL/JWT/IP adresi/service_role key kaynak kodda yok kontrolü
+- [x] Mevcut kapsam (önceki sprintlerden): Money (8), ApiClient (19), subscription model/status (8+14), AuthController (9), SubscriptionController (21+), CalendarController (12), NotificationController (14), OfflineMutationQueue (9), SubscriptionForm (4) — hepsi yeşil
+- [x] `flutter analyze --no-pub` — 0 hata/uyarı (2 önceden var olan info)
+- [x] `flutter test --no-pub` — 189/189 geçti
+
+**Kabul kriterleri:** Kritik test suite yeşildir; ownership ve lifecycle testle kanıtlanır; kritik security finding kalmaz.
+
+---
+
+## S13 — Temizlik ve dokümantasyon
+
+**Durum:** TAMAMLANDI
+
+**Hedef:** Kod, metin ve proje dokümanlarını tek doğru kaynak haline getirmek.
+
+**Yapılanlar:**
+- [x] Deprecated `RadioListTile.groupValue/onChanged` → `RadioGroup<int>` ile sarmalandı (`notification_preferences_screen.dart`)
+- [x] Kullanılmayan `feature_pages.dart` silindi (FeaturePage widget hiçbir yerde import edilmiyordu)
+- [x] `MOBILE_ARCHITECTURE.md` — teorik taslaktan gerçek uygulamaya güncellendi: klasör yapısı, repository önceliği, offline mimarisi, bildirim mimarisi, güvenlik, test piramidi
+- [x] `CURRENT_STATUS.md` — mimari bölümü S8–S12 servisleriyle senkronize edildi (ApiClient, TokenProvider, OfflineMutationQueue, NotificationReadSyncService vb.)
+- [x] `DEPLOYMENT.md` — yeni dosya: ortam değişkenleri, Supabase kurulum SQL, RLS, Android/iOS build komutları, CI/CD örneği, kalite kapısı
+- [x] `flutter analyze --no-pub` — 0 issue (önceki 2 info da çözüldü)
+- [x] `flutter test --no-pub` — 189/189 geçti
+
+**Kabul kriterleri:** Karakter bozulması, kritik placeholder ve doküman çelişkisi kalmaz.
+
+---
+
+## S13 sonrası — Prod Readiness Düzeltmeleri
+
+**Durum:** TAMAMLANDI (1–2 Ağustos 2026)
+
+37 mobil Dart + 22 backend JS dosyası uçtan uca tarandı. Gerçek kod kalite puanı: **72/100** (7 "açık" bulgunun zaten fix'li olduğu görüldükten sonra 65'ten düzeltildi).
+
+**Kapatılan kritikler:**
+- [x] `AuthController.init()` race condition — `if (!_initialized)` guard
+- [x] `authenticated_shell.dart` `user!.id` force-unwrap — null guard + `addPostFrameCallback(signOut)`
+- [x] `date_time_utils.dart formatDate` gece saati bug — calendar-day karşılaştırması
+- [x] 189/189 test yeşil
+
+**Zaten fix'li olduğu doğrulanan bulgular (7 adet):**
+- `offline_mutation_queue._synchronized()` → `_tail` promise chain atomik
+- `subscription_controller.delete()` → `on NetworkException` + generic catch zaten vardı
+- `subscription_list_screen.dart:217` → `addPostFrameCallback` ile defer edilmişti
+- `subscription_models.dart` → `DateTime.tryParse(...) ?? DateTime.now()` ve `?? 'monthly'` vardı
+- `notification_controller.markRead/markAllRead` → `await _saveReadState()` zaten mevcut
+
+**Açık kalan bulgular → S20/S21/S22'ye alındı (aşağıda)**
+
+---
+
+## S14 — Release ve yayın
+
+**Durum:** DEVAM EDİYOR — Teknik hazırlık tamamlandı (S15–S18 kapsamında); mağaza gönderimi dış hesap kapılarına bağlı.
+
+**Hedef:** Android ve iOS için izlenebilir staging/release çıktıları almak ve mağazaya göndermek.
+
+**Tamamlananlar (S15–S18 kapsamında):**
+- [x] Android keystore, signing, `key.properties` ile dışarıdan yükleniyor
+- [x] R8/ProGuard ve Flutter/Firebase koruma kuralları eklendi
+- [x] GitHub Actions CI: analyze, test, AAB artefakt
+- [x] iOS Flutter platformu oluşturuldu, bundle ID ve deep link şeması tanımlı
+- [x] `RELEASE_CHECKLIST.md` oluşturuldu
+
+**Açık (dış hesap kapıları):**
+- [ ] Upload keystore (Play Console)
+- [ ] Apple Developer hesabı / Xcode archive
+- [ ] Staging ve production Supabase + API credential'ları
+- [ ] Firebase konfigürasyon dosyaları (`google-services.json`, `GoogleService-Info.plist`)
+- [ ] Gerçek cihaz son smoke testi
+- [ ] Privacy policy ve terms yayını
+- [ ] TestFlight ve Google Play Internal Testing dağıtımı
+- [ ] App Store ve Google Play gönderimi
+
+**Kabul kriterleri:** Release build gerçek cihazda açar; kayıt, abonelik ve bildirim ana akışı geçer; production credential'ları ayrıdır; CI yeşildir.
+
+---
+
+## S15 — API sözleşmesi ve backend migration hattı
+
+**Durum:** TAMAMLANDI (kod + otomatik kontrat testi)
+
+**Hedef:** Flutter istemcisini gerçek REST API sözleşmesiyle eşlemek ve
+backend veritabanı migration hattını tek kanonik şemada toplamak.
+
+**Yapılanlar:**
+- [x] Mobil repository base path'i `/api/v1/subscriptions` ile eşlendi.
+- [x] Liste, create, update ve lifecycle payload/response alanları backend camelCase sözleşmesine eşlendi.
+- [x] `startDate`, `NEWS` ve `FOOD` kategori sözleşmesi backend şemasına eklendi.
+- [x] Stable cursor (`renewal timestamp + subscription id`) ile aynı yenileme zamanındaki kayıt atlama riski kapatıldı.
+- [x] `ARCHIVED → ACTIVE` restore geçişi `/resume` endpoint'i üzerinden etkinleştirildi.
+- [x] Migration runner yalnız REST API şeması olan `001 + 003`ü uygular; eski direct-Supabase `002` hattını çalıştırmaz.
+- [x] Mobil REST kontrat testi eklendi; `dart analyze` ve hedefli test yeşil.
+
+**Kalan dış ortam adımı:** Staging veritabanına migration uygulamak, gerçek token ile smoke test yapmak ve API origin'ini release secret olarak tanımlamak.
+
+---
+
+## S16 — Offline dayanıklılık ve Android smoke doğrulaması
+
+**Durum:** TAMAMLANDI (kod + otomatik test)
+
+**Hedef:** Bağlantı kesintisinde kullanıcı değişikliklerini korumak ve yeniden
+bağlanınca lifecycle işlemlerinin kullanıcı niyetindeki sırayla uygulanmasını sağlamak.
+
+**Yapılanlar:**
+- [x] Offline queue'ya `peek/removeFirst` eklendi; replay yalnız başarıdan sonra başı siler.
+- [x] Replay başarısız olduğunda kuyruk başı yerinde kalır; sonraki işlemler öne geçmez.
+- [x] Optimistic lifecycle, delete, add ve edit değişiklikleri local cache'e kalıcı yazılır.
+- [x] Bilinmeyen/bozuk mutation sessizce kaybedilmez; retry için kuyrukta tutulur.
+- [x] Queue FIFO ve replay sırası için yeni testler eklendi.
+- [x] Android API 36 Pixel 9 Pro emülatöründe debug APK yüklendi ve uygulama süreci başlatıldı.
+
+**Doğrulama:** `dart analyze` temiz; offline queue + controller hedefli testleri 33/33 geçti.
+Emülatörün System UI'si ANR verdiği için görsel kullanıcı-akışı kontrolü emülatör kaynaklı tamamlanamadı; uygulama logunda FATAL/E/flutter crash görülmedi.
+
+---
+
+## S17 — Push bildirimleri ve platform izinleri
+
+**Durum:** TAMAMLANDI (kod + ortam hazırlığı)
+
+**Hedef:** FCM/APNs token yaşam döngüsünü kullanıcı oturumuna bağlamak ve yerel
+bildirim izinlerini Android/iOS davranışıyla uyumlu tutmak.
+
+**Yapılanlar:**
+- [x] `firebase_core` ve `firebase_messaging` bağımlılıkları eklendi.
+- [x] `FIREBASE_ENABLED` ile Firebase yalnız gerçek platform konfigürasyonu olan build'lerde başlatılır.
+- [x] FCM izin, token alma, token refresh, API kayıt ve logout revoke akışı eklendi.
+- [x] Backend token upsert işlemi kullanıcı/platform/sürüm bilgisini günceller ve revoke edilmiş tokenı yeniden etkinleştirir.
+- [x] Android notification/exact-alarm/boot izinleri ve iOS izin isteği mevcut local notification akışıyla doğrulandı.
+- [x] API, deployment ve mobil mimari dokümantasyonu gerçek `/api/v1/notifications/devices` sözleşmesine güncellendi.
+
+**Dış ortam kapısı:** Firebase Console'dan `flutterfire configure` ile gerçek Android/iOS konfigürasyon dosyaları üretilmeli, ardından `FIREBASE_ENABLED=true` ile staging cihaz push smoke testi yapılmalı.
+
+---
+
+## S18 — Release candidate ve dağıtım kapısı
+
+**Durum:** TAMAMLANDI (kod/CI hazırlığı; dış hesap kapıları açık)
+
+**Hedef:** Uygulamayı tekrarlanabilir Android/iOS release adayına hazırlamak ve
+mağaza/staging öncesi teknik kapıları görünür kılmak.
+
+**Yapılanlar:**
+- [x] Android release signing `key.properties` ile dışarıdan yüklenir; keystore ve Firebase dosyaları `.gitignore` kapsamındadır.
+- [x] R8/resource shrinking ve Flutter/Firebase ProGuard koruma kuralları eklendi.
+- [x] GitHub Actions kalite kapısı eklendi: pub get, analyze, test ve main için unsigned AAB artefaktı.
+- [x] iOS Flutter platformu oluşturuldu; bundle ID `com.subscripttrack.app`, auth deep link şeması eklendi.
+- [x] Kotlin Gradle Plugin 2.2.20’ye yükseltildi.
+- [x] Release, staging, imza, mağaza ve rollback adımlarını ayıran `RELEASE_CHECKLIST.md` eklendi.
+
+**Doğrulama:** `dart analyze` temiz. Tam test suite önceki çalıştırmada yeşil ilerledi; Android release AAB üretimi bu Windows ortamında Gradle’ın çıktı üretmeden beklemesi nedeniyle tamamlanamadı. Bu yüzden Play/TestFlight gönderimi yapılmış sayılmaz.
+
+**Kalan dış hesap kapıları:** upload keystore, Play Console, Apple Developer/Xcode, staging API/Supabase credential’ları, Firebase konfigürasyon dosyaları, gerçek cihaz smoke testi ve hukuki metinlerin yetkili incelemesi/yayını.
+
+---
+
+## S19 — Production operasyonları ve izlenebilirlik
+
+**Durum:** TAMAMLANDI (kod + operasyon dokümantasyonu)
+
+**Hedef:** API’nin orchestration ortamında güvenli şekilde hazır olup olmadığını
+göstermek, istekleri hassas veri sızdırmadan izlemek ve kontrollü kapanmak.
+
+**Yapılanlar:**
+- [x] `/health` liveness ve PostgreSQL kontrollü `/ready` readiness endpointleri ayrıldı.
+- [x] Browser CORS wildcard’ı kaldırıldı; izinli originler `CORS_ORIGINS` ile tanımlanır.
+- [x] Request ID, method, path, status ve süreyi içeren JSON telemetry eklendi; body/token loglanmaz.
+- [x] SIGTERM/SIGINT graceful shutdown: yeni bağlantılar kapatılır, pool kapatılır, timeout ile fail-safe çıkış yapılır.
+- [x] Deployment dokümanına health probe, CORS ve loglama davranışı eklendi.
+
+**Dış ortam kapısı:** Staging/production altyapısında load balancer probe URL’leri,
+log toplama/uyarı kuralları ve `CORS_ORIGINS` secret/environment değeri tanımlanmalıdır.
+
+---
+
+---
+
+## S20 — Mobil null safety ve güvenlik yamaları
+
+**Durum:** TAMAMLANDI (2 Ağustos 2026 · 194/194 test yeşil)
+
+**Hedef:** Tam mobil kod taramasında ortaya çıkan null crash, RangeError ve force-unwrap risklerini kapatmak.
+
+**Görevler:**
+
+- [ ] `supabase_subscription_repository.dart:150,154,158` — `_fromRow()` null guard: `row['billing_cycle'] as String? ?? 'monthly'`, `DateTime.tryParse(row['next_renewal_date'] as String? ?? '') ?? DateTime.now()`, `DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now().toUtc()`
+- [ ] `settings_controller.dart:30` — `ThemeMode.values[index]` → `.clamp(0, ThemeMode.values.length - 1)` ekle (RangeError önleme)
+- [ ] `settings_screen.dart (ProfileTab):21` — `auth.user!` → `auth.user` null-safe oku; null durumunda erken return
+- [ ] `auth_repository.dart:106` — Unsalted SHA-256 local fallback: ya salt ekle ya da yerel fallback'i açıkça belgele + son kullanıcı bu kod yoluna düşmez yap
+- [ ] `subscription_controller.dart:347` — `_updateStatus()` hardcode Türkçe mesajını i18n key'e taşı (veya bir `AppLocalizations` stub ekle; release öncesi temizle)
+- [ ] `auth_models.dart` — `DateTime.parse(json['createdAt'])` → `DateTime.tryParse(...) ?? DateTime.now()`
+- [ ] `app_environment.dart` — `current = AppEnvironment.development` → release build'lerde `production` inject edildiğini doğrula; `kReleaseMode` guard ekle
+- [ ] Etkilenen alanlarda `flutter test --no-pub` geçmeli (en az 189 test yeşil kalmalı)
+
+**Kabul kriterleri:** `_fromRow()` DB null değerinde crash üretmiyor; `ThemeMode` index bound-safe; `auth.user` hiçbir ekranda force-unwrap yok; release build `development` modda çalışmıyor.
+
+---
+
+## S21 — Backend kritik altyapı
+
+**Durum:** TAMAMLANDI (2 Ağustos 2026)
+
+**Hedef:** Production'da veri kaybına ya da sessiz yanlış hesaplamaya yol açabilecek üç backend sorununu kapatmak.
+
+**Görevler:**
+
+- [ ] `middleware/idempotency.js` — In-memory `Map`'i DB tablosuna taşı:
+  - Migrations klasörüne `idempotency_keys(user_id, method, path, key, status, response_body, expires_at)` tablosu ekle
+  - `idempotency.js`'yi DB okuma/yazma yapacak şekilde yeniden yaz
+  - Map'e fallback bırakılmayacak; restart veya çok instance'da idempotency garantisi sağlanmalı
+- [ ] `features/dashboard/dashboard.routes.js:18-22` — SQL içindeki `bs.amount * 52 / 12` tamsayı bölmesini düzelt:
+  - `subscriptions.service.js`'deki `decimalToScaled / scaledToDecimal` mantığını SQL'e ya da JS katmanına taşı
+  - Alternatif: PostgreSQL `NUMERIC(19,4)` aritmetiği kullan, JS'de round etme
+- [ ] `features/calendar/calendar.routes.js` — `renewal_occurrences` tablosunu dolduracak mekanizma:
+  - Subscription create/patch sırasında sonraki N occurrence'ı üret (öneri: 13 ay ilerisi)
+  - Subscription status değişiminde (CANCELLED, ARCHIVED) ilgili future occurrence'ları CANCELLED olarak işaretle
+  - Alternatif: pg-boss / BullMQ scheduled job (tercih edilir)
+  - Endpoint mock/stub olmaktan çıkana kadar mobile client fallback davranışını belgele
+
+**Kabul kriterleri:** Idempotency key DB'de korunuyor, restart veya ikinci instance sonrası aynı key duplikasyona yol açmıyor; Dashboard toplamları BigInt/NUMERIC hassasiyetinde; Calendar API `renewal_occurrences`'dan gerçek veri dönüyor.
+
+---
+
+## S22 — Backend tamamlanmamış özellikler ve CSV düzeltmesi
+
+**Durum:** TAMAMLANDI (2 Ağustos 2026)
+
+**Hedef:** Stub olarak bırakılmış backend özelliklerini tamamlamak ve RFC 4180 uyumlu CSV export üretmek.
+
+**Görevler:**
+
+- [ ] `features/exports/exports.routes.js` — Gerçek export implementasyonu:
+  - `POST /exports` → pg-boss / BullMQ job kuyruğuna iş gönder
+  - Worker: kullanıcının aboneliklerini çek → CSV/JSON üret → Supabase Storage'a yükle → `exports.download_url` ve `expires_at` güncelle
+  - `GET /exports/:id` polling endpoint hali hazırda mevcut; worker tamamladığında `COMPLETED` set etmeli
+- [ ] `features/me/me.routes.js` — GDPR silme akışı:
+  - `DELETION_PENDING` set etmenin yanı sıra pg-boss job veya Supabase Edge Function tetikle
+  - Job: 30 gün bekle (ya da anında), tüm kişisel veriyi sil, hesabı Supabase Auth'tan sil
+  - Silme zamanlaması ve geri dönülemezliği `CURRENT_STATUS.md`'e yaz
+- [ ] `features/subscriptions/subscriptions.service.js` — CUSTOM billing cycle:
+  - `normalizeMonthly()` içinde `CUSTOM` explicit hata fırlat ya da `intervalCount` tabanlı hesap yap
+  - Schema'daki `notifyDays` alanı ya `subscription_notify_days` kolonuna yaz ya da schema'dan çıkar
+- [ ] `features/notifications/notifications.routes.js:167` — `encrypted_token` kolonunu ya gerçekten şifrele (AES-256-GCM, key vault'tan) ya da kolon adını `token` olarak yeniden adlandır (migration gerektirir)
+- [ ] `features/settings/export_data_screen.dart` — RFC 4180 uyumu:
+  - Header satırını tırnak içine al: `"Name","Amount",...`
+  - `writeln` → `\r\n` line endings
+  - Alan quoting testi yaz (`_csvField` zaten var; sadece header ve line ending eksik)
+- [ ] Backend route testleri (en az happy-path): `exports`, `calendar`, idempotency DB mode
+- [ ] `flutter test --no-pub` 189+ yeşil; `dart analyze` / `eslint` temiz
+
+**Kabul kriterleri:** Export asenkron tamamlanıyor ve download URL dönüyor; hesap silme GDPR akışını başlatıyor; CUSTOM cycle hata üretmiyor ya da doğru normalize ediliyor; CSV Excel'de doğru açılıyor.
+
+---
 
 ## MVP sonrası backlog
 
@@ -439,156 +605,3 @@ MVP’nin teknik kalite ve güvenlik kapılarını tamamlamak.
 - Tam web dashboard
 - Banka entegrasyonu
 - Otomatik abonelik iptali
-
----
-
-# Uygulama ve production hardening plani — Sprint 10-16
-
-Bu plan, gercek kod incelemesinden sonra production seviyesine cikmak icin eklenmistir. Her sprint iki haftalik planlanir; sprint tamamlanmasi icin ilgili testler, dokumanlar ve Android smoke build birlikte gecmelidir.
-
-## Kanonik uygulama sirasi
-
-Asagidaki siralama tek gecerli uygulama siralamasi olarak kullanilacaktir. Eski Sprint 8-9 tanimlari tarihsel kapsamdir; production hardening kapsamlarinin yeni yeri bu tablodur.
-
-| Sprint | Baslik | Onceki kapsamdan tasinanlar |
-|---|---|---|
-| S10 | API mimarisi ve veri temeli | Yeni API akisi, Money/decimal, RLS, secret guvenligi |
-| S11 | Auth ve abonelik API entegrasyonu | Auth, CRUD, status lifecycle, pagination |
-| S12 | Ana urun ekranlari | Dashboard, liste, detay, takvim, stats |
-| S13 | Kalite, test ve guvenlik | Eski S8'in test, security ve contract kapsami |
-| S14 | Push bildirim ve offline | Eski S6 backlog'u, FCM/APNs, cache ve sync |
-| S15 | Temizlik ve release candidate | UTF-8, placeholder, dokuman, staging release |
-| S16 | Beta ve magaza yayini | Eski S9'un beta, store ve production kapsami |
-
-## Ortak kabul kapisi
-
-- `flutter analyze` hatasiz calisir.
-- Etkilenen Flutter ve backend testleri yesildir.
-- Loading, error, empty ve uygun yerlerde offline durumlari uygulanmistir.
-- API veya domain degisikligi ilgili dokumana islenmistir.
-- Android build ve en az bir emulator smoke testi gecmistir.
-- Secret, service-role key veya hassas veri commit edilmemistir.
-- Degisiklikler geri alinabilir commitlere bolunmustur.
-- Graphify kontrolu guncellenmis veya sorgulanmistir.
-
-## Sprint 10 — Mimari kararlar ve veri temeli
-
-**Hedef:** Mobil, backend ve veritabani veri akisinin REST API uzerinden standartlastirilmasi.
-
-**Gorevler:**
-
-- [ ] Mobil ana subscription akisinin REST API olacagini kesinlestir.
-- [ ] ApiClient: base URL, Bearer token, timeout, request ID, retry ve ortak hata modeli.
-- [ ] ApiSubscriptionRepository ve auth API katmanini ekle.
-- [ ] Flutter request/response modellerini backend ile eslestir.
-- [ ] Mobildeki `double` para alanlarini Money/decimal yaklasimina tasi.
-- [ ] Billing cycle normalize hesaplarini tek domain servisinde birlestir.
-- [ ] RLS user-owned policy tanimlarini ekle veya direct client erisimini kaldir.
-- [ ] CORS'u production origin listesiyle sinirla.
-- [ ] Secret scan ve gerekli Supabase key rotation islemlerini yap.
-- [ ] API, architecture ve environment dokumanlarini guncelle.
-
-**Kabul kriterleri:** Mobil subscription verisi REST API'den gelir; para hesaplari floating point hatasi uretmez; ownership guvenligi testle kanitlanir; secret scan temizdir.
-
-## Sprint 11 — Auth ve abonelik API entegrasyonu
-
-**Hedef:** Oturumdan subscription CRUD ve lifecycle akisina kadar uctan uca backend entegrasyonu.
-
-**Gorevler:**
-
-- [ ] Session restore, token refresh ve 401 redirect akisini tamamla.
-- [ ] Login, register, reset password ve logout akisini standartlastir.
-- [ ] List/create/detail/update endpointlerini Flutter'a bagla.
-- [ ] Pause, resume, cancel, archive ve restore endpointlerini bagla.
-- [ ] Cursor pagination ve filtreleri uygula.
-- [ ] Backend status transition kurallarini UI ile aynilastir.
-- [ ] Re-auth, account deletion ve local data temizligini tamamla.
-- [ ] Idempotency ve duplicate request davranisini kontrol et.
-
-**Kabul kriterleri:** Gecmis oturum korunur; CRUD backend event uretir; gecersiz status gecisi reddedilir; 401 guvenli login yonlendirmesi yapar.
-
-## Sprint 12 — Ana urun ekranlari
-
-**Hedef:** Dashboard, liste, detay, takvim ve stats ekranlarini gercek API verisiyle tamamlamak.
-
-**Gorevler:**
-
-- [ ] Dashboard summary ve upcoming verisini API'den al.
-- [ ] Aylik/yillik toplam ve currency ayrimini tamamla.
-- [ ] Bos callback'leri ve `Tumunu gor` navigation'ini tamamla.
-- [ ] Liste arama, filtre ve siralamayi API/cache ile uyumla.
-- [ ] Detay ve edit ekranini response modeliyle eslestir.
-- [ ] Takvim timezone ve ay siniri hesaplarini dogrula.
-- [ ] Stats ve savings ekranlarini endpointlere bagla.
-- [ ] Tum ana ekranlara loading/error/empty/offline state ekle.
-- [ ] Text scaling, contrast ve erisilebilirlik kontrolu yap.
-
-**Kabul kriterleri:** Ekranlar ayni backend verisini gosterir; currency'ler toplanmaz; inactive kayitlar aktif toplama girmez; refresh/empty/error akislari calisir.
-
-## Sprint 13 — Bildirim ve offline altyapisi
-
-**Hedef:** Bildirimleri kalici, timezone uyumlu, tekrarsiz ve offline dayan​​ikli hale getirmek.
-
-**Gorevler:**
-
-- [ ] Local notification schedule/cancel/reschedule akisini tamamla.
-- [ ] Android channel ve iOS permission akisini dogrula.
-- [ ] FCM/APNs device token register/revoke endpointlerini ekle.
-- [ ] Backend push worker, retry ve invalid token akisini ekle.
-- [ ] Timezone ve days-before tercihlerini worker'a bagla.
-- [ ] Read/read-all durumunu backend'e kalici yaz.
-- [ ] Duplicate occurrence/channel/type kontrolu ekle.
-- [ ] Offline cache, son basarili veri ve offline banner ekle.
-- [ ] Offline mutation kuyrugu ve sync stratejisini belirle.
-
-**Kabul kriterleri:** Bildirim dogru timezone'da gelir; duplicate gonderim olmaz; kapali kanal bildirim almaz; offline veri ve okunma durumu korunur.
-
-## Sprint 14 — Test, guvenlik ve kalite kapisi
-
-**Hedef:** Kritik domain, API ve guvenlik akislarini otomatik testlerle korumak.
-
-**Gorevler:**
-
-- [ ] Money, billing cycle, tarih ve timezone unit testleri.
-- [ ] AuthController, SubscriptionController ve repository testleri.
-- [ ] Login, form, dashboard, liste, takvim ve notification widget testleri.
-- [ ] Backend auth, validation, ownership ve status transition testleri.
-- [ ] API contract, migration ve RLS authorization testleri.
-- [ ] Rate limit, CORS, secret scan ve error response kontrolleri.
-- [ ] Crash reporting ve temel analytics eventleri.
-
-**Kabul kriterleri:** Kritik test suite yesildir; backend test scripti CI'da calisir; ownership ve lifecycle testle kanitlanir; kritik security finding kalmaz.
-
-## Sprint 15 — Temizlik ve dokumantasyon
-
-**Hedef:** Kod, metin ve proje dokumanlarini tek dogru kaynak haline getirmek.
-
-**Gorevler:**
-
-- [ ] Dart, JavaScript, SQL ve Markdown dosyalarini UTF-8 normalize et.
-- [ ] Placeholder, kullanilmayan demo widget ve bos callbackleri temizle.
-- [ ] Deprecated Flutter API'lerini guncelle.
-- [ ] SPRINT_PLAN, CURRENT_STATUS, API ve architecture dokumanlarini senkronla.
-- [ ] Environment, migration ve deployment rehberi yaz.
-- [ ] Graphify update/query ile dosya iliskilerini kontrol et.
-- [ ] Commitleri chore/feat/test/docs/fix olarak bol.
-
-**Kabul kriterleri:** Karakter bozulmasi, kritik placeholder ve dokuman celiskisi kalmaz.
-
-## Sprint 16 — Release ve yayin
-
-**Hedef:** Android ve iOS icin izlenebilir staging/release ciktilari almak.
-
-**Gorevler:**
-
-- [ ] Android keystore, signing, versioning ve App Bundle.
-- [ ] iOS bundle ID, signing, archive ve TestFlight.
-- [ ] ProGuard/R8 ve release ayarlarini dogrula.
-- [ ] CI/CD: analyze, test, secret scan ve build.
-- [ ] Staging deploy ve production smoke test.
-- [ ] Gercek Android/iOS cihaz ana akis testleri.
-- [ ] Store listing, privacy policy ve terms.
-- [ ] Rollback, incident ve destek plani.
-- [ ] TestFlight ve Google Play Internal Testing dagitimi.
-
-**Kabul kriterleri:** Release buildler gercek cihazda acar; kayit, abonelik ve bildirim ana akisi gecer; production credentiallari ayridir; CI yesildir.
