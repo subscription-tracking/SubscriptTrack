@@ -1,6 +1,6 @@
 # SubscriptTrack Güncel Durum Raporu
 
-**Rapor zamanı:** 2026-08-02 21:10:26 +03:00  
+**Rapor zamanı:** 2026-08-02 21:10:26 +03:00
 **Kapsam:** `mobile/`, `backend/`, CI, migrationlar, dokümanlar ve Graphify kod grafiği.
 
 ## Yönetici özeti
