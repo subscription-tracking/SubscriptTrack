@@ -37,13 +37,20 @@ class _FakeRepo implements SubscriptionDataSource {
   }) =>
       throw UnimplementedError();
 
-  @override Future<Subscription> update(Subscription u) => throw UnimplementedError();
-  @override Future<void> delete(String u, String id) => throw UnimplementedError();
-  @override Future<void> archive(String u, String id) => throw UnimplementedError();
-  @override Future<void> restore(String u, String id) => throw UnimplementedError();
-  @override Future<void> pause(String u, String id) => throw UnimplementedError();
-  @override Future<void> resume(String u, String id) => throw UnimplementedError();
-  @override Future<void> cancel(String u, String id) => throw UnimplementedError();
+  @override
+  Future<Subscription> update(Subscription u) => throw UnimplementedError();
+  @override
+  Future<void> delete(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> archive(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> restore(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> pause(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> resume(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> cancel(String u, String id) => throw UnimplementedError();
 }
 
 Subscription _sub(
@@ -71,7 +78,8 @@ Subscription _sub(
 
 Future<SubscriptionController> _loadedCtrl(List<Subscription> subs) async {
   SharedPreferences.setMockInitialValues({});
-  final ctrl = SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
+  final ctrl =
+      SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
   await ctrl.load();
   return ctrl;
 }
@@ -132,7 +140,8 @@ void main() {
     test('paused abonelikler dahil edilmez', () async {
       final ctrl = await _loadedCtrl([
         _sub('1', amount: 100, currency: 'TRY'),
-        _sub('2', amount: 200, currency: 'TRY', status: SubscriptionStatus.paused),
+        _sub('2',
+            amount: 200, currency: 'TRY', status: SubscriptionStatus.paused),
       ]);
       expect(ctrl.totalsByCurrency['TRY']?.minorUnits, 10000);
     });
@@ -175,7 +184,8 @@ void main() {
     });
   });
 
-  group('SubscriptionController.active / paused / cancelled / archived (S3)', () {
+  group('SubscriptionController.active / paused / cancelled / archived (S3)',
+      () {
     test('statüye göre doğru gruplar', () async {
       final ctrl = await _loadedCtrl([
         _sub('a', status: SubscriptionStatus.active),
@@ -219,4 +229,3 @@ void main() {
     });
   });
 }
-

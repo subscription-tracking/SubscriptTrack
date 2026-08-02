@@ -20,6 +20,13 @@ mobile/*.iml
 # Android/Gradle
 mobile/android/.gradle/
 mobile/android/local.properties
+mobile/android/key.properties
+mobile/android/app/*.jks
+mobile/android/app/*.keystore
+mobile/android/app/google-services.json
+mobile/ios/Runner/GoogleService-Info.plist
+supabase/.temp/
+backend/supabase/.temp/
 
 # IDE
 .idea/
