@@ -12,6 +12,7 @@ export const CreateSubscriptionSchema = z.object({
   currency: z.string().length(3),
   billingCycle: z.enum(BILLING_CYCLES),
   intervalCount: z.number().int().min(1).optional(),
+  startDate: z.string().datetime().optional(),
   nextRenewalAt: z.string().datetime(),
   timezone: z.string().max(64),
   status: z.enum(['TRIAL', 'ACTIVE']).default('ACTIVE'),

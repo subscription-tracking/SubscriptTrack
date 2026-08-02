@@ -3,7 +3,10 @@ import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
+import { env } from './config/env.js';
+import { pool } from './config/db.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { requestLogger } from './middleware/requestLogger.js';
 import { authenticate } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -19,9 +22,17 @@ import exportsRoutes from './features/exports/exports.routes.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin(origin, callback) {
+    // Native mobile requests do not send Origin. Browser requests must be an
+    // explicitly configured first-party origin.
+    if (!origin || env.corsOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
+  },
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(requestIdMiddleware);
+app.use(requestLogger);
 
 app.use(
   rateLimit({
@@ -33,6 +44,14 @@ app.use(
 );
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/ready', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ready' });
+  } catch {
+    res.status(503).json({ status: 'not_ready' });
+  }
+});
 
 const api = express.Router();
 api.use(authenticate);
