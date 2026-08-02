@@ -6,6 +6,7 @@ __pycache__/
 *.pyd
 .env
 .env.*
+!mobile/.env.example
 *.egg-info/
 dist/
 build/
