@@ -5,8 +5,9 @@ import '../../../core/errors/app_exception.dart';
 import '../domain/auth_models.dart';
 
 /// Supabase Auth tabanlı repository.
-/// EnvironmentConfig.isSupabaseConfigured == true olduğunda AuthController bu sınıfı kullanır.
-/// Token yenileme, session kalıcılığı ve güvenli depolama supabase_flutter tarafından otomatik yönetilir.
+/// EnvironmentConfig.isSupabaseConfigured == true olduğunda AuthController
+/// bu sınıfı kullanır. Token yenileme, session kalıcılığı ve güvenli
+/// depolama supabase_flutter tarafından otomatik yönetilir.
 class SupabaseAuthRepository implements AuthDataSource {
   sb.SupabaseClient get _client => sb.Supabase.instance.client;
 
@@ -61,13 +62,24 @@ class SupabaseAuthRepository implements AuthDataSource {
     await _client.auth.signOut();
   }
 
+  /// Hesabı kalıcı olarak siler.
+  ///
+  /// Kullanıcı silme admin yetkisi gerektirdiğinden sunucu tarafında
+  /// çalışan bir Edge Function üzerinden yapılır.
+  /// Edge Function: backend/supabase/functions/delete-account/index.ts
   @override
   Future<void> deleteAccount(String email) async {
-    // Hesap silme Sprint 7'de backend API ile tamamlanacak.
-    // Şimdilik oturumu sonlandırır; backend DELETION_PENDING durumuna alır.
+    try {
+      await _client.functions.invoke('delete-account');
+    } on sb.FunctionException catch (e) {
+      throw AuthException('Hesap silinemedi: ${e.details}');
+    } catch (e) {
+      throw AuthException(e.toString());
+    }
     await _client.auth.signOut();
   }
 
+  @override
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _client.auth.resetPasswordForEmail(email);
@@ -76,7 +88,20 @@ class SupabaseAuthRepository implements AuthDataSource {
     }
   }
 
-  // ─── Helpers ────────────────────────────────────────────────
+  @override
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _client.auth.updateUser(
+        sb.UserAttributes(password: newPassword),
+      );
+    } on sb.AuthException catch (e) {
+      throw AuthException(_localizeError(e.message));
+    } catch (e) {
+      throw AuthException(e.toString());
+    }
+  }
+
+  // ─── Helpers ────────────────────────────────────────────────────
 
   AppUser _toAppUser(sb.User user) => AppUser(
         id: user.id,

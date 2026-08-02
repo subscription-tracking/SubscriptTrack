@@ -1,3 +1,5 @@
+import '../../../core/domain/money.dart';
+
 enum SubscriptionStatus { active, paused, cancelled, archived }
 
 extension SubscriptionStatusExt on SubscriptionStatus {
@@ -13,6 +15,29 @@ extension SubscriptionStatusExt on SubscriptionStatus {
   static SubscriptionStatus fromKey(String key) =>
       SubscriptionStatus.values.firstWhere((e) => e.key == key,
           orElse: () => SubscriptionStatus.active);
+
+  // Valid backend status transitions (mirrors server-side rules).
+  static const _allowed = <SubscriptionStatus, Set<SubscriptionStatus>>{
+    SubscriptionStatus.active: {
+      SubscriptionStatus.paused,
+      SubscriptionStatus.cancelled,
+      SubscriptionStatus.archived,
+    },
+    SubscriptionStatus.paused: {
+      SubscriptionStatus.active,
+      SubscriptionStatus.cancelled,
+      SubscriptionStatus.archived,
+    },
+    SubscriptionStatus.cancelled: {
+      SubscriptionStatus.archived,
+    },
+    SubscriptionStatus.archived: {
+      SubscriptionStatus.active,
+    },
+  };
+
+  bool canTransitionTo(SubscriptionStatus next) =>
+      _allowed[this]?.contains(next) ?? false;
 }
 
 enum BillingCycle { weekly, monthly, quarterly, yearly }
@@ -92,7 +117,7 @@ class Subscription {
   final String id;
   final String userId;
   final String name;
-  final double amount;
+  final Money amount;
   final String currency;
   final BillingCycle billingCycle;
   final DateTime startDate;
@@ -104,7 +129,7 @@ class Subscription {
 
   bool get isArchived => status == SubscriptionStatus.archived;
 
-  double get monthlyAmount => switch (billingCycle) {
+  Money get monthlyAmount => switch (billingCycle) {
         BillingCycle.weekly => amount * 4.33,
         BillingCycle.monthly => amount,
         BillingCycle.quarterly => amount / 3,
@@ -116,7 +141,7 @@ class Subscription {
 
   Subscription copyWith({
     String? name,
-    double? amount,
+    Money? amount,
     String? currency,
     BillingCycle? billingCycle,
     DateTime? startDate,
@@ -144,7 +169,7 @@ class Subscription {
         'id': id,
         'userId': userId,
         'name': name,
-        'amount': amount,
+        'amount': amount.toJson(),
         'currency': currency,
         'billingCycle': billingCycle.key,
         'startDate': startDate.toIso8601String(),
@@ -165,20 +190,31 @@ class Subscription {
           : SubscriptionStatus.active;
     }
     return Subscription(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      name: json['name'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      id: (json['id'] ?? '') as String,
+      userId: (json['userId'] ?? json['user_id'] ?? '') as String,
+      name: (json['name'] ?? '') as String,
+      amount: Money.fromJson(json['amount']),
       currency: json['currency'] as String? ?? 'TRY',
-      billingCycle: BillingCycleLabel.fromKey(json['billingCycle'] as String),
-      startDate: json['startDate'] != null
-          ? DateTime.parse(json['startDate'] as String)
-          : DateTime.now(),
-      nextRenewalDate: DateTime.parse(json['nextRenewalDate'] as String),
-      category: SubscriptionCategoryLabel.fromKey(json['category'] as String),
+      billingCycle: BillingCycleLabel.fromKey(
+        (json['billingCycle'] ?? json['billing_cycle'] ?? 'monthly') as String,
+      ),
+      startDate: DateTime.tryParse(
+            (json['startDate'] ?? json['start_date'] ?? '') as String,
+          ) ??
+          DateTime.now(),
+      nextRenewalDate: DateTime.tryParse(
+            (json['nextRenewalDate'] ?? json['next_renewal_date'] ?? '') as String,
+          ) ??
+          DateTime.now(),
+      category: SubscriptionCategoryLabel.fromKey(
+        (json['category'] ?? 'other') as String,
+      ),
       notes: json['notes'] as String?,
       status: status,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(
+            (json['createdAt'] ?? json['created_at'] ?? '') as String,
+          ) ??
+          DateTime.now().toUtc(),
     );
   }
 }

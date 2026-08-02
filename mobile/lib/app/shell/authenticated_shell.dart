@@ -16,46 +16,88 @@ class AuthenticatedShell extends StatefulWidget {
 }
 
 class _AuthenticatedShellState extends State<AuthenticatedShell> {
-  late final SubscriptionController _subs;
-  late final NotificationController _notif;
+  SubscriptionController? _subs;
+  NotificationController? _notif;
+
+  // Track last known notification settings to detect changes.
+  int _lastDaysBefore = -1;
+  String _lastTimezone = '__unset__';
 
   @override
   void initState() {
     super.initState();
-    final userId = context.read<AuthController>().user!.id;
-    _subs = SubscriptionController(userId: userId);
+    final auth = context.read<AuthController>();
+    final user = auth.user;
+    if (user == null) {
+      // Router guard should prevent this; force sign-out so the redirect fires.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) auth.signOut();
+      });
+      return;
+    }
+    _subs = SubscriptionController(
+      userId: user.id,
+      onUnauthorized: () => auth.signOut(),
+    );
     _notif = NotificationController();
-    _subs.addListener(_onSubscriptionsChanged);
-    _subs.load();
+    _notif!.loadReadState();
+    _subs!.addListener(_onSubscriptionsChanged);
+    // Listen for settings changes to reschedule notifications.
+    SettingsController.instance.addListener(_onSettingsChanged);
+    _subs!.load();
   }
 
   void _onSubscriptionsChanged() {
-    _notif.refresh(_subs.active);
+    if (_subs == null || _notif == null) return;
+    _notif!.refresh(_subs!.active);
+    _scheduleNotifications();
+  }
 
+  void _onSettingsChanged() {
     final settings = SettingsController.instance;
-    if (settings.notificationsEnabled) {
-      LocalNotificationService.scheduleRenewalReminders(
-        _subs.active,
-        settings.daysBefore,
-        timezone: settings.timezone,
-      );
+    final daysChanged = settings.daysBefore != _lastDaysBefore;
+    final tzChanged = settings.timezone != _lastTimezone;
+    if (daysChanged || tzChanged) {
+      _scheduleNotifications();
     }
+  }
+
+  void _scheduleNotifications() {
+    if (_subs == null) return;
+    final settings = SettingsController.instance;
+    if (!settings.notificationsEnabled) {
+      LocalNotificationService.cancelAll();
+      return;
+    }
+    _lastDaysBefore = settings.daysBefore;
+    _lastTimezone = settings.timezone;
+    LocalNotificationService.scheduleRenewalReminders(
+      _subs!.active,
+      settings.daysBefore,
+      timezone: settings.timezone,
+    );
   }
 
   @override
   void dispose() {
-    _subs.removeListener(_onSubscriptionsChanged);
-    _subs.dispose();
-    _notif.dispose();
+    SettingsController.instance.removeListener(_onSettingsChanged);
+    _subs?.removeListener(_onSubscriptionsChanged);
+    _subs?.dispose();
+    _notif?.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SubscriptionController>.value(value: _subs),
-          ChangeNotifierProvider<NotificationController>.value(value: _notif),
-        ],
-        child: const AppShell(),
-      );
+  Widget build(BuildContext context) {
+    // _subs/_notif are null only if initState bailed out due to missing user.
+    // signOut was already queued; show nothing while the redirect fires.
+    if (_subs == null || _notif == null) return const SizedBox.shrink();
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SubscriptionController>.value(value: _subs!),
+        ChangeNotifierProvider<NotificationController>.value(value: _notif!),
+      ],
+      child: const AppShell(),
+    );
+  }
 }

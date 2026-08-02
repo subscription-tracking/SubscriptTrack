@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/theme/app_theme.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../settings_controller.dart';
@@ -15,55 +16,97 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthController>();
-    final settings = context.watch<SettingsController>();
+    final auth          = context.watch<AuthController>();
+    final settings      = context.watch<SettingsController>();
     final subscriptions = context.read<SubscriptionController>();
-    final user = auth.user;
+    final user          = auth.user;
     if (user == null) return const SizedBox.shrink();
-    final colors = Theme.of(context).colorScheme;
+
+    final initials = _initials(user.email);
 
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
       children: [
-        ListTile(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => ProfileScreen(user: user),
-            ),
-          ),
-          leading: CircleAvatar(
-            backgroundColor: colors.primaryContainer,
-            child: Text(
-              user.email[0].toUpperCase(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: colors.onPrimaryContainer,
+        // ── Avatar + Name ──────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => ProfileScreen(user: user),
+                  ),
+                ),
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          initials,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 28,
+                              ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        color: AppColors.surfaceHigh,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.edit_outlined,
+                          size: 13, color: AppColors.onSurfaceVar),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(
+                user.email.split('@').first,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                user.email,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppColors.onSurfaceVar),
+              ),
+            ],
           ),
-          title: Text(user.email,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: const Text('Profili görüntüle'),
-          trailing: const Icon(Icons.chevron_right),
         ),
-        const Divider(height: 24),
-        _SettingTile(
-          icon: Icons.palette_outlined,
-          label: 'Görünüm ve para birimi',
-          subtitle:
-              '${_themeName(settings.themeMode)} · ${settings.currency}',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => AppearanceScreen(controller: settings),
-            ),
-          ),
-        ),
+        const Divider(height: 1, indent: 0, endIndent: 0),
+
+        // ── Bildirimler ────────────────────────────────────────────────────
+        _SectionLabel('Bildirimler'),
         _SettingTile(
           icon: Icons.notifications_outlined,
-          label: 'Bildirimler',
-          subtitle: settings.notificationsEnabled ? 'Açık' : 'Kapalı',
+          label: 'Bildirim ayarları',
+          value: settings.notificationsEnabled ? 'Açık' : 'Kapalı',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(
@@ -72,48 +115,39 @@ class ProfileTab extends StatelessWidget {
             ),
           ),
         ),
+
+        // ── Görünüm ────────────────────────────────────────────────────────
+        _SectionLabel('Görünüm'),
         _SettingTile(
-          icon: Icons.download_outlined,
-          label: 'Veri dışa aktar',
-          subtitle: 'CSV formatında',
+          icon: Icons.palette_outlined,
+          label: 'Tema ve para birimi',
+          value: '${_themeName(settings.themeMode)} · ${settings.currency}',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (_) => ExportDataScreen(subscriptions: subscriptions),
+              builder: (_) => AppearanceScreen(controller: settings),
             ),
           ),
         ),
-        const Divider(height: 24),
+
+        // ── Veri & Gizlilik ────────────────────────────────────────────────
+        _SectionLabel('Veri & Gizlilik'),
         _SettingTile(
-          icon: Icons.logout,
-          label: 'Çıkış yap',
-          onTap: () async {
-            final confirm = await showDialog<bool>(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('Çıkış yap'),
-                content: const Text('Hesabından çıkmak istiyor musun?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('İptal'),
-                  ),
-                  FilledButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Çıkış yap'),
-                  ),
-                ],
-              ),
-            );
-            if (confirm == true && context.mounted) {
-              context.read<AuthController>().signOut();
-            }
-          },
+          icon: Icons.download_outlined,
+          label: 'Veriyi dışa aktar',
+          value: 'CSV formatında',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) =>
+                  ExportDataScreen(subscriptions: subscriptions),
+            ),
+          ),
         ),
         _SettingTile(
           icon: Icons.delete_forever_outlined,
           label: 'Hesabı sil',
-          color: colors.error,
+          valueColor: AppColors.error,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(
@@ -121,41 +155,173 @@ class ProfileTab extends StatelessWidget {
             ),
           ),
         ),
+
+        // ── Çıkış ──────────────────────────────────────────────────────────
+        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: OutlinedButton(
+            onPressed: () => _confirmSignOut(context, auth),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.error,
+              side: const BorderSide(color: AppColors.error),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.logout, size: 18),
+                SizedBox(width: 8),
+                Text(
+                  'Çıkış Yap',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: Text(
+            'v1.0.0',
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: AppColors.onSurfaceVar),
+          ),
+        ),
       ],
     );
   }
 
-  String _themeName(ThemeMode mode) => switch (mode) {
+  static String _initials(String email) {
+    final parts = email.split('@').first.split('.');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
+  }
+
+  static String _themeName(ThemeMode mode) => switch (mode) {
         ThemeMode.system => 'Sistem',
-        ThemeMode.light => 'Aydınlık',
-        ThemeMode.dark => 'Karanlık',
+        ThemeMode.light  => 'Aydınlık',
+        ThemeMode.dark   => 'Karanlık',
       };
+
+  static Future<void> _confirmSignOut(
+      BuildContext context, AuthController auth) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surfaceHigh,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Çıkış yap'),
+        content: const Text('Hesabından çıkmak istiyor musun?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('İptal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Çıkış yap'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true && context.mounted) {
+      auth.signOut();
+    }
+  }
 }
+
+// ─── Section Label ────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.label);
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+      child: Text(
+        label.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.onSurfaceVar,
+              fontSize: 11,
+              letterSpacing: 1.0,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
+  }
+}
+
+// ─── Setting Tile ─────────────────────────────────────────────────────────────
 
 class _SettingTile extends StatelessWidget {
   const _SettingTile({
     required this.icon,
     required this.label,
     required this.onTap,
-    this.subtitle,
-    this.color,
+    this.value,
+    this.valueColor,
   });
 
   final IconData icon;
   final String label;
-  final String? subtitle;
+  final String? value;
+  final Color? valueColor;
   final VoidCallback onTap;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Theme.of(context).colorScheme.onSurface;
-    return ListTile(
-      leading: Icon(icon, color: c),
-      title: Text(label, style: TextStyle(color: c)),
-      subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
+    final labelColor = valueColor ?? AppColors.onSurface;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: const BoxDecoration(
+            border:
+                Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: labelColor),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: labelColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ),
+              if (value != null) ...[
+                const SizedBox(width: 8),
+                Text(
+                  value!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.onSurfaceVar,
+                      ),
+                ),
+              ],
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right,
+                  size: 18, color: AppColors.onSurfaceVar.withValues(alpha: 0.5)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

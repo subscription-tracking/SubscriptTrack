@@ -6,4 +6,12 @@ abstract class AuthDataSource {
   Future<AppUser> signIn({required String email, required String password});
   Future<void> signOut();
   Future<void> deleteAccount(String email);
+
+  /// Şifre sıfırlama e-postası gönderir.
+  /// Local modda no-op (kullanıcıya sessizce başarılı gösterilir).
+  Future<void> sendPasswordResetEmail(String email);
+
+  /// Mevcut oturumun şifresini değiştirir (password recovery flow).
+  /// Local modda [AuthException] fırlatır.
+  Future<void> updatePassword(String newPassword);
 }

@@ -65,7 +65,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
                   ]),
                 ),
               ],
-              if (subscription.status == SubscriptionStatus.paused)
+              if (subscription.status == SubscriptionStatus.paused) ...[
                 const PopupMenuItem(
                   value: _Action.resume,
                   child: Row(children: [
@@ -74,7 +74,16 @@ class SubscriptionDetailScreen extends StatelessWidget {
                     Text('Devam ettir'),
                   ]),
                 ),
-              if (subscription.status == SubscriptionStatus.cancelled)
+                const PopupMenuItem(
+                  value: _Action.archive,
+                  child: Row(children: [
+                    Icon(Icons.archive_outlined),
+                    SizedBox(width: 12),
+                    Text('Arşivle'),
+                  ]),
+                ),
+              ],
+              if (subscription.status == SubscriptionStatus.cancelled) ...[
                 const PopupMenuItem(
                   value: _Action.resume,
                   child: Row(children: [
@@ -83,6 +92,15 @@ class SubscriptionDetailScreen extends StatelessWidget {
                     Text('Yeniden aktifleştir'),
                   ]),
                 ),
+                const PopupMenuItem(
+                  value: _Action.archive,
+                  child: Row(children: [
+                    Icon(Icons.archive_outlined),
+                    SizedBox(width: 12),
+                    Text('Arşivle'),
+                  ]),
+                ),
+              ],
               PopupMenuItem(
                 value: _Action.delete,
                 child: Row(children: [
@@ -110,7 +128,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
                       style: TextStyle(color: colors.onPrimary.withValues(alpha: .8))),
                   const SizedBox(height: 8),
                   Text(
-                    DateTimeUtils.formatCurrency(subscription.amount,
+                    DateTimeUtils.formatCurrency(subscription.amount.amount,
                         symbol: subscription.currency),
                     style: text.headlineLarge?.copyWith(
                       color: colors.onPrimary,
@@ -140,7 +158,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
             icon: Icons.insights_outlined,
             label: 'Aylık maliyet',
             value: DateTimeUtils.formatCurrency(
-                subscription.monthlyAmount,
+                subscription.monthlyAmount.amount,
                 symbol: subscription.currency),
           ),
           if (subscription.notes != null && subscription.notes!.isNotEmpty)

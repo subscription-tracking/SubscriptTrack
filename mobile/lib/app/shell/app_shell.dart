@@ -17,26 +17,22 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _index = 0;
 
-  static const _titles = [
-    'Ana Sayfa',
-    'Takvim',
-    'Abonelikler',
-    'Profil',
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TopBar(title: _titles[_index]),
+      extendBody: true,
+      appBar: const TopBar(),
       body: switch (_index) {
-        0 => const DashboardScreen(),
-        1 => const CalendarScreen(),
-        2 => const SubscriptionListScreen(),
+        0 => DashboardScreen(
+            onViewAllSubscriptions: () => setState(() => _index = 1),
+          ),
+        1 => const SubscriptionListScreen(),
+        2 => const CalendarScreen(),
         _ => const ProfileTab(),
       },
       bottomNavigationBar: BottomNavigation(
         currentIndex: _index,
-        onChanged: (value) => setState(() => _index = value),
+        onChanged: (v) => setState(() => _index = v),
       ),
     );
   }

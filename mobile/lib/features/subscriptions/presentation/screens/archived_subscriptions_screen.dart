@@ -69,7 +69,7 @@ class ArchivedSubscriptionsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            DateTimeUtils.formatCurrency(sub.amount,
+                            DateTimeUtils.formatCurrency(sub.amount.amount,
                                 symbol: sub.currency),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),

@@ -1,11 +1,12 @@
-import '../../../features/subscriptions/domain/subscription_models.dart';
+import '../domain/money.dart';
+import '../../features/subscriptions/domain/subscription_models.dart';
 
 abstract class SubscriptionDataSource {
   Future<List<Subscription>> getAll(String userId);
   Future<Subscription> create({
     required String userId,
     required String name,
-    required double amount,
+    required Money amount,
     required String currency,
     required BillingCycle billingCycle,
     required DateTime startDate,

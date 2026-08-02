@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/domain/money.dart';
 import '../../domain/subscription_models.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
@@ -28,7 +29,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
     super.initState();
     _data = SubscriptionFormData(
       name: widget.subscription.name,
-      amount: widget.subscription.amount.toStringAsFixed(2),
+      amount: widget.subscription.amount.amount.toStringAsFixed(2),
       currency: widget.subscription.currency,
       billingCycle: widget.subscription.billingCycle,
       startDate: widget.subscription.startDate,
@@ -41,8 +42,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amount =
-        double.tryParse(_data.amount.replaceAll(',', '.')) ?? 0;
+    final amount = Money.parse(_data.amount);
 
     final updated = widget.subscription.copyWith(
       name: _data.name,

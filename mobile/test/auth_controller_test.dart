@@ -29,6 +29,12 @@ class _FakeAuthDataSource implements AuthDataSource {
 
   @override
   Future<void> deleteAccount(String email) async => user = null;
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {}
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
 }
 
 void main() {
