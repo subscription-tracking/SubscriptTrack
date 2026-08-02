@@ -18,7 +18,8 @@ class ProfileTab extends StatelessWidget {
     final auth = context.watch<AuthController>();
     final settings = context.watch<SettingsController>();
     final subscriptions = context.read<SubscriptionController>();
-    final user = auth.user!;
+    final user = auth.user;
+    if (user == null) return const SizedBox.shrink();
     final colors = Theme.of(context).colorScheme;
 
     return ListView(

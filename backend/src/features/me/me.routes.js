@@ -3,6 +3,21 @@ import { z } from 'zod';
 import { query, transaction } from '../../config/db.js';
 import { Errors } from '../../lib/errors.js';
 
+// Permanently erases all personal data for a user (GDPR right to erasure).
+// Cascades handle child rows (subscriptions → billing_schedules, events, etc.).
+async function _eraseUserData(userId) {
+  await transaction(async (client) => {
+    await client.query(`DELETE FROM renewal_occurrences WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM savings_events WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM exports WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM notifications WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM device_tokens WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM subscriptions WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM profiles WHERE user_id = $1`, [userId]);
+    await client.query(`DELETE FROM users WHERE id = $1`, [userId]);
+  });
+}
+
 const router = Router();
 
 // GET /me
@@ -96,14 +111,20 @@ router.patch('/profile', async (req, res, next) => {
   }
 });
 
-// DELETE /me — hesap silme işlemini başlatır
+// DELETE /me — GDPR hesap silme akışını başlatır.
+// Kullanıcı kaydı DELETION_PENDING olarak işaretlenir, ardından arka planda
+// kişisel veriler silinir. Gerçek silme işlemi setImmediate ile tetiklenir;
+// production'da pg-boss / BullMQ ile durable job kullanılmalıdır.
 router.delete('/', async (req, res, next) => {
   try {
+    const userId = req.userId;
     await query(
       `UPDATE users SET status = 'DELETION_PENDING', updated_at = NOW() WHERE id = $1`,
-      [req.userId],
+      [userId],
     );
     res.json({ success: true, message: 'Hesap silme işlemi başlatıldı.' });
+
+    setImmediate(() => _eraseUserData(userId).catch(console.error));
   } catch (err) {
     next(err);
   }

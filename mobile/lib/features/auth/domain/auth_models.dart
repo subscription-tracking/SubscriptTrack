@@ -22,6 +22,7 @@ class AppUser {
         id: json['id'] as String,
         email: json['email'] as String,
         displayName: json['displayName'] as String?,
-        createdAt: DateTime.parse(json['createdAt'] as String),
+        createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+            DateTime.now(),
       );
 }

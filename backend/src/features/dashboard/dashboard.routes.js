@@ -8,17 +8,19 @@ router.get('/summary', async (req, res, next) => {
   try {
     const userId = req.userId;
 
-    // Para birimi bazında toplam — aylık normalize edilmiş
+    // Para birimi bazında toplam — aylık normalize edilmiş.
+    // NUMERIC(19,4) aritmetiği kullanılıyor; tamsayı bölmesinden kaynaklanan
+    // yuvarlama hatalarını önler (ör. 52/12 = 4 yerine 4.3333...).
     const { rows: totals } = await query(
       `SELECT bs.currency,
               SUM(
                 CASE bs.cycle
-                  WHEN 'WEEKLY'   THEN bs.amount * 52 / 12
-                  WHEN 'MONTHLY'  THEN bs.amount
-                  WHEN 'QUARTERLY' THEN bs.amount / 3
-                  WHEN 'BIANNUAL' THEN bs.amount / 6
-                  WHEN 'ANNUAL'   THEN bs.amount / 12
-                  ELSE bs.amount
+                  WHEN 'WEEKLY'    THEN bs.amount::NUMERIC(19,4) * 52 / 12
+                  WHEN 'MONTHLY'   THEN bs.amount::NUMERIC(19,4)
+                  WHEN 'QUARTERLY' THEN bs.amount::NUMERIC(19,4) / 3
+                  WHEN 'BIANNUAL'  THEN bs.amount::NUMERIC(19,4) / 6
+                  WHEN 'ANNUAL'    THEN bs.amount::NUMERIC(19,4) / 12
+                  ELSE             bs.amount::NUMERIC(19,4)
                 END
               ) AS monthly_total
        FROM subscriptions s
@@ -53,18 +55,18 @@ router.get('/summary', async (req, res, next) => {
     res.json({
       monthlyTotals: totals.map((r) => ({
         currency: r.currency,
-        amount: parseFloat(r.monthly_total).toFixed(2),
+        amount: formatDecimal(r.monthly_total, 2),
       })),
       annualTotals: totals.map((r) => ({
         currency: r.currency,
-        amount: (parseFloat(r.monthly_total) * 12).toFixed(2),
+        amount: multiplyDecimal(r.monthly_total, 12, 2),
       })),
       activeSubscriptionCount: parseInt(c.active_count, 10),
       upcomingCount: parseInt(c.upcoming_count, 10),
       trialCount: parseInt(c.trial_count, 10),
       estimatedSavings: savings.map((r) => ({
         currency: r.currency,
-        annualAmount: parseFloat(r.annual_total).toFixed(2),
+        annualAmount: formatDecimal(r.annual_total, 2),
       })),
     });
   } catch (err) {
@@ -108,3 +110,17 @@ router.get('/upcoming', async (req, res, next) => {
 });
 
 export default router;
+
+function formatDecimal(value, scale) {
+  const [whole = '0', fraction = ''] = String(value ?? '0').split('.');
+  return `${whole}.${fraction.padEnd(scale, '0').slice(0, scale)}`;
+}
+
+function multiplyDecimal(value, factor, scale) {
+  const [whole = '0', fraction = ''] = String(value ?? '0').split('.');
+  const negative = whole.startsWith('-');
+  const digits = `${whole.replace('-', '')}${fraction.padEnd(scale, '0').slice(0, scale)}`;
+  const scaled = BigInt(digits || '0') * BigInt(factor);
+  const base = 10n ** BigInt(scale);
+  return `${negative ? '-' : ''}${scaled / base}.${(scaled % base).toString().padStart(scale, '0')}`;
+}
