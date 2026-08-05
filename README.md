@@ -83,27 +83,60 @@ SubscriptTrack/
 ## Kurulum
 
 **Gereksinimler**
-- Flutter SDK ≥ 3.3.0
-- Dart SDK ≥ 3.3.0
-- Android Studio veya Xcode (platform hedefine göre)
+- [Flutter SDK](https://flutter.dev/get-started) ≥ 3.3.0
+- Android Studio (Android) veya Xcode (iOS/macOS)
+- Supabase projesi (ücretsiz — [supabase.com](https://supabase.com))
 
-**Başlatma**
-
-```bash
-cd mobile
-flutter pub get
-flutter run
-```
-
-**Web'de Çalıştırma (Tarayıcı)**
+**1. Repo'yu klonla**
 
 ```bash
-cd mobile
-flutter pub get
-flutter run -d chrome
+git clone https://github.com/kullanici/SubscriptTrack.git
+cd SubscriptTrack/mobile
 ```
 
-Uygulama Chrome'da açılır. Chrome yoksa `flutter devices` ile mevcut hedeflere bakılabilir.
+**2. Ortam değişkenlerini ayarla**
+
+```bash
+cp .env.example .env
+```
+
+`.env` dosyasını aç, Supabase Dashboard → Project Settings → API sayfasından değerleri yapıştır:
+
+```
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_ANON_KEY=eyJxxx...
+```
+
+**3. Bağımlılıkları indir**
+
+```bash
+make setup
+# veya: flutter pub get
+```
+
+---
+
+## Tek komutla çalıştır
+
+| Komut | Ne yapar |
+|---|---|
+| `make web` | Tarayıcıda açar (Supabase bağlantılı) |
+| `make android` | Release APK derler |
+| `make install` | APK derler + USB'li telefona kurar |
+| `make clean` | Build dosyalarını temizler |
+
+**Windows'ta** `make` yoksa Git Bash veya şu komutları doğrudan kullan:
+
+```bash
+# Web
+flutter run -d chrome --dart-define-from-file=.env
+
+# APK derle
+flutter build apk --release --dart-define-from-file=.env
+
+# Telefona kur (USB bağlı)
+adb install -r build/app/outputs/flutter-apk/app-release.apk
+```
 
 ---
 
