@@ -22,19 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: github-pages
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL || '' }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.8'
-          channel: stable
+          channel: 'stable'
       - uses: actions/configure-pages@v5
-      - name: Validate Supabase build configuration
-        run: |
-          test -n "$SUPABASE_URL"
-          test -n "$SUPABASE_ANON_KEY"
       - name: Fetch Flutter dependencies
         working-directory: mobile
         run: flutter pub get
