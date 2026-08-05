@@ -95,6 +95,16 @@ flutter pub get
 flutter run
 ```
 
+**Web'de Çalıştırma (Tarayıcı)**
+
+```bash
+cd mobile
+flutter pub get
+flutter run -d chrome
+```
+
+Uygulama Chrome'da açılır. Chrome yoksa `flutter devices` ile mevcut hedeflere bakılabilir.
+
 ---
 
 ## Dokümantasyon
