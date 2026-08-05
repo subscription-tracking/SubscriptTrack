@@ -139,7 +139,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               SizedBox(
                 width: 80,
                 child: DropdownButtonFormField<String>(
-                  value: widget.data.currency,
+                  initialValue: widget.data.currency,
                   decoration: const InputDecoration(labelText: 'Para'),
                   items: _currencyOptions
                       .map((c) => DropdownMenuItem(
