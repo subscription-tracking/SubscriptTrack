@@ -83,34 +83,27 @@ Kalan açıklar (100'e ulaşmak için): FCM push end-to-end çalışması, durab
 
 - `date_time_utils.dart:formatDate` — calendar-day bazlı karşılaştırmaya geçildi (189 test geçiyor)
 
-### Açık bulgular — tam tarama sonucu (2 Ağustos 2026)
+### Açık bulgular — tam tarama sonucu (2 Ağustos 2026) — Durum: 5 Ağustos 2026
 
-37 mobil Dart + 22 backend JS dosyası eksiksiz tarandı. Toplam 13 açık bulgu.
+37 mobil Dart dosyası tarandı. Tüm mobil bulgular kapatıldı. Backend kaldırıldı (Supabase-only stack).
 
-#### Mobil (S20)
+#### Mobil — Kapatılan bulgular (5 Ağustos 2026 doğrulaması)
 
-| Öncelik | Dosya | Sorun |
-|---------|-------|-------|
-| YÜKSEK | `supabase_subscription_repository.dart:150,154,158` | `_fromRow()` null guard YOK — `billing_cycle`, `next_renewal_date`, `created_at` type-cast direkt; DB null döndürünce crash |
-| YÜKSEK | `auth_repository.dart:106` | SHA-256 no-salt yerel auth fallback (local fallback mod, Supabase user'larını etkilemez) |
-| ORTA | `export_data_screen.dart:19-21` | Header satırı unquoted, `writeln` LF kullanıyor (RFC 4180 CRLF gerektirir) |
-| DÜŞÜK | `settings_controller.dart:30` | `ThemeMode.values[index]` — corrupt SharedPreferences'da RangeError |
-| DÜŞÜK | `settings_screen.dart (ProfileTab):21` | `auth.user!` force-unwrap — AuthenticatedShell guard'ı geç kalırsa null crash |
-| DÜŞÜK | `subscription_controller.dart:347` | `ValidationException` mesajı hardcode Türkçe — i18n sonrası sorun |
-| DÜŞÜK | `auth_models.dart` | `DateTime.parse(json['createdAt'])` — `tryParse` kullanılmalı |
-| S14 | `app_environment.dart` | `current = AppEnvironment.development` hardcoded — release build production set edilmeli |
+| Durum | Dosya | Notlar |
+|-------|-------|--------|
+| ✅ KAPANDI | `supabase_subscription_repository.dart:150,154,158` | `as String? ?? 'monthly'`, `?? ''` null guard'ları mevcut |
+| ✅ KAPANDI | `auth_repository.dart` | Email-salt SHA-256 uygulanmış; local-only mod, production'ı etkilemez |
+| ✅ KAPANDI | `export_data_screen.dart` | `const eol = '\r\n'` + `.map(_csvField)` header'da quote uygulanıyor |
+| ✅ KAPANDI | `settings_controller.dart:30` | `.clamp(0, ThemeMode.values.length - 1)` eklendi |
+| ✅ KAPANDI | `settings_screen.dart (ProfileTab)` | `if (user == null) return const SizedBox.shrink()` guard mevcut |
+| ✅ KAPANDI | `auth_models.dart` | `DateTime.tryParse` kullanılıyor |
 
-#### Backend (S21 + S22)
+#### Kalan açık (düşük öncelik)
 
-| Öncelik | Dosya | Sorun |
-|---------|-------|-------|
-| YÜKSEK | `middleware/idempotency.js` | In-memory `Map` — process restart veya çok instance'da idempotency kırılıyor; bellek sızıntısı riski |
-| YÜKSEK | `features/calendar/calendar.routes.js` | `renewal_occurrences` tablosunu dolduracak job yok — endpoint her zaman boş dönüyor |
-| ORTA | `features/dashboard/dashboard.routes.js:18-22` | SQL'de `bs.amount * 52 / 12` tamsayı bölmesi — yuvarlama hatası; `subscriptions.service.js`'deki BigInt mantığı uygulanmalı |
-| ORTA | `features/exports/exports.routes.js` | Export stub — PENDING kaydı açılıyor ama job kuyruğu tetiklenmiyor; indirilebilir dosya üretilmiyor |
-| DÜŞÜK | `features/me/me.routes.js` | `DELETE /me` sadece `DELETION_PENDING` set ediyor; GDPR silme job'ı tetiklenmiyor |
-| DÜŞÜK | `features/subscriptions/subscriptions.service.js` | `CUSTOM` billing cycle `normalizeMonthly()` içinde MONTHLY'e sessizce düşüyor; `notifyDays` schema'da var ama kaydedilmiyor |
-| DÜŞÜK | `features/notifications/notifications.routes.js` | `encrypted_token` kolonu plaintext token saklıyor; kolon adı yanıltıcı |
+| Dosya | Sorun |
+|-------|-------|
+| `subscription_controller.dart:347` | `ValidationException` mesajı hardcode Türkçe — i18n sonrası ilgili |
+| `app_environment.dart` | `current = AppEnvironment.development` — release build için `--dart-define=APP_ENV=production` gerekiyor |
 
 ---
 
