@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -32,6 +33,7 @@ class LocalNotificationService {
   }
 
   static Future<bool> requestPermission() async {
+    if (kIsWeb) return false;
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android != null) {
@@ -56,6 +58,7 @@ class LocalNotificationService {
     int daysBefore, {
     String timezone = '',
   }) async {
+    if (kIsWeb || !_initialized) return;
     // Deduplicate: skip reschedule if inputs haven't changed.
     final hash = Object.hashAll([
       daysBefore,
@@ -133,6 +136,7 @@ class LocalNotificationService {
     required String body,
     String? payload,
   }) async {
+    if (kIsWeb || !_initialized) return;
     await _plugin.show(
       Object.hash(title, body, payload).abs() % 2147483647,
       title,
@@ -153,5 +157,8 @@ class LocalNotificationService {
     );
   }
 
-  static Future<void> cancelAll() => _plugin.cancelAll();
+  static Future<void> cancelAll() async {
+    if (kIsWeb || !_initialized) return;
+    await _plugin.cancelAll();
+  }
 }

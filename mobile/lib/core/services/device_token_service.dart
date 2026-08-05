@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../config/app_environment.dart';
+
 abstract class DeviceTokenService {
   Future<void> registerToken(String userId);
   Future<void> revokeToken(String userId);
@@ -10,7 +12,8 @@ abstract class DeviceTokenService {
 class SupabaseDeviceTokenService implements DeviceTokenService {
   static const _prefKey = 'device_registration_id';
 
-  SupabaseClient get _client => Supabase.instance.client;
+  SupabaseClient? get _client =>
+      EnvironmentConfig.isSupabaseConfigured ? Supabase.instance.client : null;
 
   @override
   Future<void> registerToken(String userId) async {
@@ -18,8 +21,10 @@ class SupabaseDeviceTokenService implements DeviceTokenService {
     // pushToken is null until firebase_messaging is added — skip silently.
     if (pushToken == null) return;
 
+    final client = _client;
+    if (client == null) return;
     try {
-      final row = await _client
+      final row = await client
           .from('device_tokens')
           .upsert(
             {
@@ -47,8 +52,10 @@ class SupabaseDeviceTokenService implements DeviceTokenService {
     final id = prefs.getString(_prefKey);
     if (id == null) return;
 
+    final client = _client;
+    if (client == null) return;
     try {
-      await _client
+      await client
           .from('device_tokens')
           .delete()
           .eq('id', id)
