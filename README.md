@@ -1,17 +1,38 @@
+<div align="center">
+
+<img src="mobile/assets/images/app_icon.png" alt="SubscriptTrack" width="96" height="96" />
+
 # SubscriptTrack
 
-Dijital aboneliklerinizi tek bir yerden yönetin. Netflix, Spotify, Adobe, ChatGPT — kaç aboneliğiniz olursa olsun, SubscriptTrack yenileme tarihlerini takip eder, yaklaşan ödemeleri bildirir ve iptal ettiğinizde ne kadar tasarruf ettiğinizi gösterir.
+**Tüm aboneliklerini tek yerden yönet.**
+
+Netflix, Spotify, Adobe, ChatGPT — kaç aboneliğin olursa olsun,  
+SubscriptTrack yenileme tarihlerini takip eder, yaklaşan ödemeleri bildirir  
+ve iptal ettiğinde ne kadar tasarruf ettiğini gösterir.
+
+<br/>
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.3%2B-02569B?style=flat-square&logo=flutter)](https://flutter.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web-lightgrey?style=flat-square)](https://flutter.dev)
+[![License](https://img.shields.io/badge/License-Private-red?style=flat-square)](#)
+
+</div>
 
 ---
 
-## Nedir?
+## Neden SubscriptTrack?
 
-Çoğu insan kaç aboneliğe sahip olduğunu bilmez. Ücretsiz denemeler ücretliye dönüşür, kullanılmayan servisler aylarca fatura keser. SubscriptTrack bu sorunu çözer:
+Çoğu insan kaç aboneliğe sahip olduğunu bilmez. Ücretsiz denemeler ücretliye dönüşür, kullanılmayan servisler aylarca fatura keser.
 
-- Tüm aboneliklerinizi görün, yenileme tarihlerini kaçırmayın
-- Trial bitiş tarihleri için özel bildirim alın
-- İptal ettiğinizde aylık ve yıllık tasarrufunuzu görün
-- Banka hesabı veya kart bağlantısı gerektirmez
+| Sorun | SubscriptTrack ile |
+|---|---|
+| Hangi aboneliğim var bilmiyorum | Tümünü listele, fatura döngüsüyle birlikte gör |
+| Trial ne zaman bitiyor hatırlamıyorum | Bitiş günü için özel bildirim al |
+| Ne kadar harcıyorum bilmiyorum | Para birimi bazında aylık/yıllık toplam |
+| İptal ettim ama tasarruf ettim mi? | Anlık tasarruf hesabı, geçmiş kayıtlar |
+
+Banka hesabı veya kart bağlantısı **gerektirmez**.
 
 ---
 
@@ -19,19 +40,19 @@ Dijital aboneliklerinizi tek bir yerden yönetin. Netflix, Spotify, Adobe, ChatG
 
 **Abonelik Yönetimi**
 - İsim, fiyat, para birimi, fatura döngüsü ve yenileme tarihi ile abonelik ekle
-- Haftalık, aylık, 3 aylık, 6 aylık, yıllık ve özel döngü desteği
+- Haftalık · Aylık · 3 Aylık · 6 Aylık · Yıllık · Özel döngü desteği
 - TRY, USD, EUR, GBP ve diğer ISO 4217 para birimleri
 - `TRIAL → ACTIVE → PAUSED → CANCELLED → ARCHIVED` durum akışı
-- Silme yerine arşivleme; geçmiş veriler korunur
+- Silme yerine arşivleme — geçmiş veriler korunur
 
 **Dashboard**
 - Para birimi bazında aylık ve yıllık tahmini toplam
 - Önümüzdeki 7 gündeki yenilemeler
-- Aktif deneme sayısı ve iptallerden doğan tasarruf
+- Aktif deneme sayısı ve iptallerden doğan tasarruf özeti
 
 **Takvim**
 - Aylık takvim görünümü
-- Gün bazında yenileme listesi; normal ödeme, trial bitişi ve yüksek tutarlı yıllık ödeme ayrımı
+- Gün bazında yenileme listesi — normal ödeme, trial bitişi ve yüksek tutarlı yıllık ödeme ayrımı
 
 **Bildirimler**
 - Yenileme ve trial bitişi öncesi push bildirim
@@ -48,84 +69,91 @@ Dijital aboneliklerinizi tek bir yerden yönetin. Netflix, Spotify, Adobe, ChatG
 
 | Katman | Teknoloji |
 |---|---|
-| Mobil | Flutter (Dart) — iOS & Android |
-| Yerel depolama | `shared_preferences`, `flutter_secure_storage` |
-| Mimari | Feature-first, vertical slice |
-| Durum yönetimi | Controller tabanlı |
-| Routing | `app_router` (go_router uyumlu) |
-
----
-
-## Proje Yapısı
-
-```
-SubscriptTrack/
-├── mobile/                          # Flutter uygulaması
-│   ├── lib/
-│   │   ├── app/                     # Uygulama başlangıcı, router, shell, tema
-│   │   ├── core/                    # Ortak altyapı (storage, errors, utils)
-│   │   └── features/                # Feature-first modüller
-│   │       ├── auth/                # Giriş & kayıt
-│   │       ├── subscriptions/       # Abonelik CRUD
-│   │       ├── dashboard/           # Ana ekran
-│   │       ├── calendar/            # Takvim görünümü
-│   │       ├── savings/             # Tasarruf takibi
-│   │       ├── stats/               # İstatistikler
-│   │       ├── settings/            # Kullanıcı ayarları
-│   │       └── onboarding/          # İlk kullanım akışı
-│   └── android/                     # Android platform dosyaları
-├── SubscriptTrack-Documentation/    # Ürün ve mimari dokümanlar
-└── scripts/                         # Yardımcı scriptler
-```
+| Mobil & Web | Flutter (Dart) — tek kod tabanı |
+| Backend | Supabase (PostgreSQL + Auth) |
+| Yerel Depolama | `shared_preferences` — Supabase kapalıyken tam fallback |
+| Güvenli Depolama | `flutter_secure_storage` |
+| Bildirimler | `flutter_local_notifications` (web'de otomatik devre dışı) |
+| Routing | `go_router` — shell-based, deep link uyumlu |
+| Durum Yönetimi | Provider + ChangeNotifier |
+| Mimari | Feature-first vertical slice |
 
 ---
 
 ## Kurulum
 
-**Gereksinimler**
-- [Flutter SDK](https://flutter.dev/get-started) ≥ 3.3.0
-- Android Studio (Android) veya Xcode (iOS/macOS)
-- Supabase projesi (ücretsiz — [supabase.com](https://supabase.com))
+### Gereksinimler
 
-**1. Repo'yu klonla**
+- [Flutter SDK](https://flutter.dev/get-started) **≥ 3.3.0**
+- Android Studio (Android build için) veya Xcode (iOS/macOS için)
+- [Supabase](https://supabase.com) hesabı (ücretsiz plan yeterli)
+
+---
+
+### 1 — Repoyu klonla
 
 ```bash
 git clone https://github.com/kullanici/SubscriptTrack.git
-cd SubscriptTrack/mobile
-```
-
-**2. Ortam değişkenlerini ayarla**
-
-```bash
-cp .env.example .env
-```
-
-`.env` dosyasını aç, Supabase Dashboard → Project Settings → API sayfasından değerleri yapıştır:
-
-```
-SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_ANON_KEY=eyJxxx...
-```
-
-**3. Bağımlılıkları indir**
-
-```bash
-make setup
-# veya: flutter pub get
+cd SubscriptTrack
 ```
 
 ---
 
-## Tek komutla çalıştır
+### 2 — Supabase anahtarlarını ayarla
+
+`.env` dosyası `mobile/` klasörünün **içinde** olmalıdır. Farklı bir konumda olursa uygulama Supabase'e bağlanamaz.
+
+```bash
+cd mobile
+cp .env.example .env
+```
+
+`.env` dosyasını aç ve değerleri gir:
+
+```env
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_ANON_KEY=eyJxxx...
+```
+
+**Değerleri nereden alırsın:**
+[Supabase Dashboard](https://supabase.com/dashboard) → Projen → **Project Settings** → **API**
+- `SUPABASE_URL` → "Project URL"
+- `SUPABASE_ANON_KEY` → "anon public" key
+
+> **Not:** `.env` dosyası `.gitignore`'dadır — Git'e yüklenmez. Her geliştirici kendi `.env`'ini oluşturmalıdır.
+
+---
+
+### 3 — Bağımlılıkları indir
+
+```bash
+make setup
+```
+
+> `make` yoksa (Windows): `flutter pub get`
+
+---
+
+### 4 — Çalıştır
+
+```bash
+make web        # Tarayıcıda aç
+make install    # APK derle + USB'li telefona kur
+```
+
+---
+
+## Komutlar
 
 | Komut | Ne yapar |
 |---|---|
-| `make web` | Tarayıcıda açar (Supabase bağlantılı) |
+| `make setup` | `.env` kontrolü + `flutter pub get` |
+| `make web` | Chrome'da açar (Supabase bağlantılı) |
 | `make android` | Release APK derler |
 | `make install` | APK derler + USB'li telefona kurar |
-| `make clean` | Build dosyalarını temizler |
+| `make clean` | Build çıktılarını temizler |
 
-**Windows'ta** `make` yoksa Git Bash veya şu komutları doğrudan kullan:
+**`make` olmadan (Windows):**
 
 ```bash
 # Web
@@ -140,17 +168,43 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk
 
 ---
 
-## Dokümantasyon
+## Proje Yapısı
 
-Proje içi dokümanlar `SubscriptTrack-Documentation/` klasöründe:
+```
+SubscriptTrack/
+├── mobile/                          # Flutter uygulaması
+│   ├── lib/
+│   │   ├── app/                     # Router, shell, tema
+│   │   ├── core/                    # Ortak altyapı
+│   │   │   ├── config/              # EnvironmentConfig
+│   │   │   ├── services/            # Bildirim, token, sync
+│   │   │   └── storage/             # LocalStorage wrapper
+│   │   └── features/                # Feature-first modüller
+│   │       ├── auth/
+│   │       ├── subscriptions/
+│   │       ├── dashboard/
+│   │       ├── calendar/
+│   │       ├── savings/
+│   │       ├── notifications/
+│   │       └── settings/
+│   ├── android/
+│   ├── web/
+│   ├── .env                         # Gitignore'da — sen oluşturursun
+│   ├── .env.example                 # Şablon
+│   └── Makefile
+├── SubscriptTrack-Documentation/    # Ürün ve mimari dokümanlar
+└── README.md
+```
+
+---
+
+## Dokümantasyon
 
 | Dosya | İçerik |
 |---|---|
 | [PRODUCT.md](SubscriptTrack-Documentation/PRODUCT.md) | Vizyon, MVP kapsamı, kullanıcı hikayeleri |
 | [ARCHITECTURE.md](SubscriptTrack-Documentation/ARCHITECTURE.md) | Sistem mimarisi ve bileşenler |
 | [DATA_MODEL.md](SubscriptTrack-Documentation/DATA_MODEL.md) | Veri modeli ve alan tanımları |
-| [API.md](SubscriptTrack-Documentation/API.md) | REST API sözleşmesi |
-| [DESIGN_SYSTEM.md](SubscriptTrack-Documentation/DESIGN_SYSTEM.md) | Tasarım tokenleri ve bileşenler |
 | [MOBILE_ARCHITECTURE.md](SubscriptTrack-Documentation/MOBILE_ARCHITECTURE.md) | Flutter uygulama mimarisi |
 | [NOTIFICATIONS.md](SubscriptTrack-Documentation/NOTIFICATIONS.md) | Bildirim sistemi |
 | [SECURITY.md](SubscriptTrack-Documentation/SECURITY.md) | Güvenlik kararları |
@@ -158,17 +212,31 @@ Proje içi dokümanlar `SubscriptTrack-Documentation/` klasöründe:
 
 ---
 
-## Yol Haritası
+## Supabase olmadan çalışır mı?
 
-- [ ] Backend API (Supabase / Node.js)
-- [ ] Push bildirim entegrasyonu (FCM / APNs)
-- [ ] Google & Apple ile giriş
-- [ ] Çoklu para birimi desteği ve kur gösterimi
-- [ ] Veri dışa aktarma (CSV/JSON)
-- [ ] iOS sürümü yayını
+Evet. `.env` dosyası yoksa veya boşsa uygulama **yerel modda** açılır:
+
+- Kimlik doğrulama → SHA-256 + SharedPreferences
+- Abonelikler → JSON → SharedPreferences
+- Bildirimler → yerel push (FCM yok)
+
+Veriler yalnızca cihazda kalır. Supabase bağlamak için `.env` dosyasını doldurup uygulamayı yeniden derlemek yeterli.
 
 ---
 
-## Lisans
+## Yol Haritası
 
-Bu proje şu an özel geliştirme aşamasındadır.
+- [ ] iOS sürümü
+- [ ] Google & Apple ile giriş
+- [ ] Çoklu para birimi kur gösterimi
+- [ ] Widget (Ana ekran abonelik özeti)
+- [ ] Veri dışa aktarma (CSV / JSON)
+- [ ] Push bildirim — FCM / APNs tam entegrasyon
+
+---
+
+<div align="center">
+
+Özel geliştirme aşamasında — © 2026 SubscriptTrack
+
+</div>
