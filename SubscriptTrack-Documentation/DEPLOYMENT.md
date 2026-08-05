@@ -33,6 +33,21 @@ Komut satırı eşdeğeri:
 flutter run --dart-define-from-file=.env
 ```
 
+## Web geliştirme önizlemesi
+
+Flutter'ın web hedefi yalnızca geliştirme ve demo önizlemesidir; ürün için web tabanlı abonelik dashboard'u değildir. Kök dizinden `start-web.bat` (Windows) veya `./start-web.sh` (macOS/Linux) çalıştırılabilir. Komutlar `.env` varsa Supabase değerlerini yükler, yoksa yerel modda Chrome'u açar.
+
+GitHub Pages üzerinde Supabase bağlı yayın için: [`GITHUB_PAGES_SUPABASE.md`](GITHUB_PAGES_SUPABASE.md).
+
+Komut satırı eşdeğerleri:
+
+```bash
+cd mobile
+flutter run -d chrome
+# .env yapılandırılmışsa:
+flutter run -d chrome --dart-define-from-file=.env
+```
+
 ## Doğrulama kapısı
 
 ```bash

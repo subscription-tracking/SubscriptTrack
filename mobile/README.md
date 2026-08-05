@@ -1,17 +1,28 @@
 # SubscriptTrack Mobile
 
-Sprint 0 Flutter application shell.
+Flutter uygulamasının iOS ve Android istemcisi ile tarayıcıdaki geliştirme önizlemesi bu klasördedir. Tarayıcı hedefi bir ürün dashboard'u değildir.
 
-## Run
+## Çalıştırma
 
-1. Install Flutter stable and Android Studio.
-2. Run `flutter pub get` from this directory.
-3. Run `flutter doctor` and accept Android SDK licenses.
-4. Start an emulator and run `flutter run`.
+```bash
+flutter pub get
+flutter run
+```
 
-## Environments
+Chrome'da önizleme:
 
-The application currently uses the development shell. Staging and production
-configuration will be introduced with the API integration sprint; secrets must
-not be committed to the repository.
+```bash
+flutter run -d chrome
+```
 
+Kök dizindeki `start-web.bat` veya `start-web.sh` aynı komutu platforma uygun kontrollerle çalıştırır.
+
+## Ortamlar
+
+`SUPABASE_URL` ve `SUPABASE_ANON_KEY` isteğe bağlı olarak `.env` üzerinden `--dart-define-from-file=.env` ile verilir. Bu değerler yoksa uygulama yerel auth ve depolama fallback'iyle açılır. Secret'lar repoya eklenmez.
+
+```bash
+flutter run -d chrome --dart-define-from-file=.env
+```
+
+Detaylı kurulum, mobil başlatma ve doğrulama komutları için kökteki [README](../README.md) dosyasına bakın.
