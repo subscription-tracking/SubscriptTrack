@@ -24,6 +24,27 @@ abstract final class AppColors {
   static const muted = Color(0xFF718096);
 }
 
+abstract final class AppLightColors {
+  static const background = Color(0xFFF4F6FB);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceHigh = Color(0xFFEDF0F7);
+  static const border = Color(0xFFD5DAE8);
+  static const primary = Color(0xFF5558E3);
+  static const onPrimary = Colors.white;
+  static const secondary = Color(0xFF4558D4);
+  static const tertiary = Color(0xFFB45309);
+  static const onBackground = Color(0xFF0F1117);
+  static const onSurface = Color(0xFF0F1117);
+  static const onSurfaceVar = Color(0xFF5B6478);
+  static const error = Color(0xFFC9303A);
+  static const outline = Color(0xFF8792A8);
+
+  static const success = Color(0xFF0D9155);
+  static const warning = Color(0xFFD97706);
+  static const trial = Color(0xFF6B42D4);
+  static const muted = Color(0xFF8792A8);
+}
+
 abstract final class AppTheme {
   static const _scheme = ColorScheme(
     brightness: Brightness.dark,
@@ -166,5 +187,146 @@ abstract final class AppTheme {
     );
   }
 
-  static ThemeData get light => dark;
+  static const _lightScheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: AppLightColors.primary,
+    onPrimary: AppLightColors.onPrimary,
+    primaryContainer: Color(0xFFE8E8FD),
+    onPrimaryContainer: Color(0xFF2D2E9E),
+    secondary: AppLightColors.secondary,
+    onSecondary: Colors.white,
+    secondaryContainer: Color(0xFFE6E9FC),
+    onSecondaryContainer: Color(0xFF1A2AA0),
+    tertiary: AppLightColors.tertiary,
+    onTertiary: Colors.white,
+    tertiaryContainer: Color(0xFFFEF3C7),
+    onTertiaryContainer: Color(0xFF78350F),
+    error: AppLightColors.error,
+    onError: Colors.white,
+    errorContainer: Color(0xFFFEE2E2),
+    onErrorContainer: Color(0xFF7F1D1D),
+    surface: AppLightColors.surface,
+    onSurface: AppLightColors.onSurface,
+    surfaceContainerLowest: AppLightColors.background,
+    surfaceContainerLow: AppLightColors.surfaceHigh,
+    surfaceContainer: AppLightColors.surface,
+    surfaceContainerHigh: AppLightColors.surfaceHigh,
+    surfaceContainerHighest: Color(0xFFE5E9F0),
+    onSurfaceVariant: AppLightColors.onSurfaceVar,
+    outline: AppLightColors.outline,
+    outlineVariant: AppLightColors.border,
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: AppLightColors.onBackground,
+    onInverseSurface: AppLightColors.background,
+    inversePrimary: AppColors.secondary,
+  );
+
+  static ThemeData get light {
+    final base = GoogleFonts.hankenGroteskTextTheme(
+      const TextTheme(
+        displayLarge: TextStyle(color: AppLightColors.onSurface),
+        displayMedium: TextStyle(color: AppLightColors.onSurface),
+        displaySmall: TextStyle(color: AppLightColors.onSurface),
+        headlineLarge: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w800),
+        headlineMedium: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w700),
+        headlineSmall: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w700),
+        titleLarge: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w600),
+        titleSmall: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(color: AppLightColors.onSurface),
+        bodyMedium: TextStyle(color: AppLightColors.onSurface),
+        bodySmall: TextStyle(color: AppLightColors.onSurfaceVar),
+        labelLarge: TextStyle(
+            color: AppLightColors.onSurface, fontWeight: FontWeight.w600),
+        labelMedium: TextStyle(color: AppLightColors.onSurface),
+        labelSmall: TextStyle(color: AppLightColors.onSurfaceVar),
+      ),
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: _lightScheme,
+      scaffoldBackgroundColor: AppLightColors.background,
+      textTheme: base,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppLightColors.background,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+        ),
+      ),
+      cardTheme: const CardThemeData(
+        color: AppLightColors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(color: AppLightColors.border),
+        ),
+      ),
+      navigationBarTheme: const NavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        indicatorColor: Colors.transparent,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppLightColors.surfaceHigh,
+        hintStyle: const TextStyle(color: AppLightColors.onSurfaceVar),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppLightColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppLightColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              const BorderSide(color: AppLightColors.primary, width: 1.5),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppLightColors.surfaceHigh,
+        selectedColor: AppLightColors.primary.withValues(alpha: 0.12),
+        labelStyle: const TextStyle(
+            color: AppLightColors.onSurfaceVar, fontSize: 13),
+        side: const BorderSide(color: AppLightColors.border),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppLightColors.border,
+        thickness: 1,
+      ),
+      listTileTheme: const ListTileThemeData(
+        tileColor: Colors.transparent,
+        iconColor: AppLightColors.onSurfaceVar,
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppLightColors.primary,
+        foregroundColor: AppLightColors.onPrimary,
+        elevation: 0,
+        shape: StadiumBorder(),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppLightColors.primary,
+      ),
+    );
+  }
 }

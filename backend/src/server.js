@@ -2,11 +2,13 @@ import './config/env.js';
 import app from './app.js';
 import { env } from './config/env.js';
 import { pool } from './config/db.js';
+import { startNotificationWorker } from './workers/notification_worker.js';
 
 async function start() {
   try {
     await pool.query('SELECT 1');
     console.log('Database connection OK');
+    const workerInterval = startNotificationWorker();
 
     const server = app.listen(env.port, () => {
       console.log(`SubscriptTrack API running on port ${env.port} [${env.nodeEnv}]`);
@@ -16,6 +18,7 @@ async function start() {
     const shutdown = async (signal) => {
       if (shuttingDown) return;
       shuttingDown = true;
+      clearInterval(workerInterval);
       console.log(JSON.stringify({ level: 'info', event: 'shutdown_started', signal }));
       server.close(async () => {
         await pool.end();
