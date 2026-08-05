@@ -6,7 +6,7 @@ class SubscriptionFormData {
   SubscriptionFormData({
     this.name = '',
     this.amount = '',
-    this.currency = '₺',
+    this.currency = 'TRY',
     this.billingCycle = BillingCycle.monthly,
     DateTime? startDate,
     DateTime? nextRenewalDate,
@@ -61,14 +61,36 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     super.dispose();
   }
 
+  static const _currencyOptions = [
+    ('TRY', '₺'),
+    ('USD', '\$'),
+    ('EUR', '€'),
+    ('GBP', '£'),
+  ];
+
+  void _autoSetNextRenewal() {
+    final s = widget.data.startDate;
+    widget.data.nextRenewalDate = switch (widget.data.billingCycle) {
+      BillingCycle.weekly => s.add(const Duration(days: 7)),
+      BillingCycle.monthly => DateTime(s.year, s.month + 1, s.day),
+      BillingCycle.quarterly => DateTime(s.year, s.month + 3, s.day),
+      BillingCycle.yearly => DateTime(s.year + 1, s.month, s.day),
+    };
+  }
+
   Future<void> _pickStartDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: widget.data.startDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null) setState(() => widget.data.startDate = picked);
+    if (picked != null) {
+      setState(() {
+        widget.data.startDate = picked;
+        _autoSetNextRenewal();
+      });
+    }
   }
 
   Future<void> _pickNextRenewalDate() async {
@@ -115,16 +137,18 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
           Row(
             children: [
               SizedBox(
-                width: 72,
+                width: 80,
                 child: DropdownButtonFormField<String>(
-                  initialValue: widget.data.currency,
+                  value: widget.data.currency,
                   decoration: const InputDecoration(labelText: 'Para'),
-                  items: const ['₺', '\$', '€', '£']
-                      .map((c) =>
-                          DropdownMenuItem(value: c, child: Text(c)))
+                  items: _currencyOptions
+                      .map((c) => DropdownMenuItem(
+                            value: c.$1,
+                            child: Text(c.$2),
+                          ))
                       .toList(),
                   onChanged: (v) =>
-                      setState(() => widget.data.currency = v ?? '₺'),
+                      setState(() => widget.data.currency = v ?? 'TRY'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -160,8 +184,10 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                 .map((c) =>
                     DropdownMenuItem(value: c, child: Text(c.label)))
                 .toList(),
-            onChanged: (v) => setState(
-                () => widget.data.billingCycle = v ?? BillingCycle.monthly),
+            onChanged: (v) => setState(() {
+              widget.data.billingCycle = v ?? BillingCycle.monthly;
+              _autoSetNextRenewal();
+            }),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<SubscriptionCategory>(

@@ -24,13 +24,16 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
   final _formKey = GlobalKey<FormState>();
   late final SubscriptionFormData _data;
 
+  static const _symbolToIso = {'₺': 'TRY', '\$': 'USD', '€': 'EUR', '£': 'GBP'};
+
   @override
   void initState() {
     super.initState();
+    final rawCurrency = widget.subscription.currency.trim();
     _data = SubscriptionFormData(
       name: widget.subscription.name,
       amount: widget.subscription.amount.amount.toStringAsFixed(2),
-      currency: widget.subscription.currency,
+      currency: _symbolToIso[rawCurrency] ?? rawCurrency,
       billingCycle: widget.subscription.billingCycle,
       startDate: widget.subscription.startDate,
       nextRenewalDate: widget.subscription.nextRenewalDate,
