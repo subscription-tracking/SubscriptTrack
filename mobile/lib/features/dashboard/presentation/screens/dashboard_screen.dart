@@ -188,7 +188,7 @@ class _HeroCard extends StatelessWidget {
               : [cs.primaryContainer, cs.secondaryContainer],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
