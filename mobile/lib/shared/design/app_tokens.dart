@@ -15,13 +15,13 @@ abstract final class AppSpacing {
 }
 
 abstract final class AppRadius {
-  static const small = BorderRadius.all(Radius.circular(12));
-  static const medium = BorderRadius.all(Radius.circular(16));
-  static const large = BorderRadius.all(Radius.circular(20));
+  static const small = BorderRadius.all(Radius.circular(14));
+  static const medium = BorderRadius.all(Radius.circular(20));
+  static const large = BorderRadius.all(Radius.circular(24));
   static const pill = BorderRadius.all(Radius.circular(100));
 }
 
 abstract final class AppSizes {
   static const minTouchTarget = 48.0;
-  static const primaryButtonHeight = 52.0;
+  static const primaryButtonHeight = 50.0;
 }
