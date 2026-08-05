@@ -14,9 +14,9 @@ Son güncelleme: 1 Ağustos 2026
 | Değişken | Amaç | Zorunlu |
 |---|---|---|
 | `SUPABASE_URL` | Supabase proje URL'i | Evet |
-| `SUPABASE_ANON_KEY` | Supabase anon anahtarı | Evet |
-| `API_BASE_URL` | REST API origin'i | Evet |
-| `CORS_ORIGINS` | Browser istekleri için izinli originler | Production web için |
+| `SUPABASE_ANON_KEY` | Supabase anon (publishable) anahtarı | Evet |
+
+Her iki değer eksikse uygulama yerel modda çalışır: auth SharedPreferences'a, abonelikler cihaza kaydedilir.
 
 Yerel bildirimler cihazda planlanır; harici push sağlayıcısı veya cihaz token kaydı yoktur.
 

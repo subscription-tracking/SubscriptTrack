@@ -122,11 +122,9 @@ flutter test --no-pub
 ## Proje yapısı
 
 ```text
-mobile/                         Flutter mobil uygulaması ve web önizleme hedefi
-backend/                        API/migration ve backend araçları
-supabase/                       Supabase yapılandırmaları
+mobile/                         Flutter uygulaması (Android · Web önizleme)
 SubscriptTrack-Documentation/   Ürün, domain, API ve mimari dokümantasyonu
-setup.bat / setup.sh            İlk kurulum
+setup.bat / setup.sh            İlk kurulum (Flutter kontrolü + bağımlılıklar)
 start-web.bat / start-web.sh    Chrome'da web önizlemeyi başlatma
 ```
 
