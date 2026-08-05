@@ -24,6 +24,7 @@ class DashboardScreen extends StatelessWidget {
     final upcoming = controller.upcomingRenewals;
     final totals = controller.totalsByCurrency;
 
+    final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
         if (controller.isOffline)
@@ -41,8 +42,8 @@ class DashboardScreen extends StatelessWidget {
           ),
         Expanded(
           child: RefreshIndicator(
-            color: AppColors.primary,
-            backgroundColor: AppColors.surface,
+            color: cs.primary,
+            backgroundColor: cs.surfaceContainer,
             onRefresh: controller.load,
             child: ListView(
               padding: AppSpacing.screenWithBottomNav,
@@ -147,17 +148,13 @@ class _GreetingRow extends StatelessWidget {
               Text(
                 'Merhaba 👋',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.onSurface,
                       fontSize: 20,
                     ),
               ),
               const SizedBox(height: 2),
               Text(
                 dateStr,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: AppColors.onSurfaceVar),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),
@@ -177,17 +174,21 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = cs.brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF24265C), Color(0xFF353A8A)],
+          colors: isDark
+              ? const [Color(0xFF24265C), Color(0xFF353A8A)]
+              : [cs.primaryContainer, cs.secondaryContainer],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +203,7 @@ class _HeroCard extends StatelessWidget {
                     Text(
                       'Bu ay ödenecek',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.onSurfaceVar,
+                            color: cs.onSurfaceVariant,
                             letterSpacing: 0.2,
                           ),
                     ),
@@ -212,7 +213,7 @@ class _HeroCard extends StatelessWidget {
                         '₺0,00',
                         style:
                             Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                  color: AppColors.onSurface,
+                                  color: cs.onSurface,
                                   fontSize: 36,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -228,7 +229,7 @@ class _HeroCard extends StatelessWidget {
                               .textTheme
                               .headlineLarge
                               ?.copyWith(
-                                color: AppColors.onSurface,
+                                color: cs.onSurface,
                                 fontSize: 36,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -244,23 +245,22 @@ class _HeroCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: cs.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(100),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
+                        color: cs.primary.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.trending_up,
-                            color: AppColors.primary, size: 14),
+                        Icon(Icons.trending_up, color: cs.primary, size: 14),
                         const SizedBox(width: 4),
                         Text(
                           'Analiz',
                           style:
                               Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: AppColors.primary,
+                                    color: cs.primary,
                                     fontWeight: FontWeight.w700,
                                   ),
                         ),
@@ -278,7 +278,7 @@ class _HeroCard extends StatelessWidget {
                       '${DateTimeUtils.formatCurrency((e.value * 12).amount, symbol: e.key)}/yıl')
                   .join(' · '),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVar,
+                    color: cs.onSurfaceVariant,
                   ),
             ),
           ],
@@ -331,22 +331,22 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: AppColors.primary),
+          Icon(icon, size: 14, color: cs.primary),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVar,
                     fontSize: 11,
                   ),
               maxLines: 2,
@@ -387,7 +387,7 @@ class _SectionHeader extends StatelessWidget {
             child: Text(
               actionLabel!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -407,11 +407,12 @@ class _RenewalList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         children: renewals.asMap().entries.map((entry) {
@@ -442,6 +443,7 @@ class _RenewalTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final days = subscription.daysUntilRenewal;
     final urgent = days <= 3;
 
@@ -465,8 +467,8 @@ class _RenewalTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: isLast
             ? null
-            : const BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.border)),
+            : BoxDecoration(
+                border: Border(bottom: BorderSide(color: cs.outlineVariant)),
               ),
         child: Row(
           children: [
@@ -490,8 +492,7 @@ class _RenewalTile extends StatelessWidget {
                   Text(
                     DateTimeUtils.renewalLabel(days),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color:
-                              urgent ? AppColors.error : AppColors.onSurfaceVar,
+                          color: urgent ? cs.error : cs.onSurfaceVariant,
                           fontSize: 11,
                         ),
                   ),
@@ -505,7 +506,7 @@ class _RenewalTile extends StatelessWidget {
               ),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
+                    color: cs.onSurface,
                   ),
             ),
           ],
@@ -520,17 +521,18 @@ class _RenewalTile extends StatelessWidget {
 class _EmptyRenewalsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         children: [
-          const Icon(Icons.calendar_month_outlined,
-              size: 36, color: AppColors.onSurfaceVar),
+          Icon(Icons.calendar_month_outlined,
+              size: 36, color: cs.onSurfaceVariant),
           const SizedBox(height: 12),
           Text(
             'Yaklaşan yenileme yok',
@@ -566,10 +568,15 @@ class _CategorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, double> groups = {};
+    final cs = Theme.of(context).colorScheme;
+    final Map<String, ({double amount, String currency})> groups = {};
     for (final sub in active) {
       final g = _group(sub.category);
-      groups[g] = (groups[g] ?? 0) + sub.monthlyAmount.amount;
+      final existing = groups[g];
+      groups[g] = (
+        amount: (existing?.amount ?? 0) + sub.monthlyAmount.amount,
+        currency: existing?.currency ?? sub.currency,
+      );
     }
     if (groups.isEmpty) return const SizedBox.shrink();
 
@@ -582,24 +589,24 @@ class _CategorySection extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: cs.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: cs.outlineVariant),
           ),
           child: Column(
             children: entries.asMap().entries.map((mapEntry) {
               final i = mapEntry.key;
               final cat = mapEntry.value.key;
-              final amount = mapEntry.value.value;
+              final entry = mapEntry.value.value;
               final isLast = i == entries.length - 1;
-              final color = _groupColors[cat] ?? AppColors.secondary;
+              final color = _groupColors[cat] ?? cs.secondary;
 
               return Container(
                 decoration: isLast
                     ? null
-                    : const BoxDecoration(
-                        border:
-                            Border(bottom: BorderSide(color: AppColors.border)),
+                    : BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(color: cs.outlineVariant)),
                       ),
                 child: IntrinsicHeight(
                   child: Row(
@@ -632,13 +639,16 @@ class _CategorySection extends StatelessWidget {
                               ),
                               const Spacer(),
                               Text(
-                                '₺${amount.toStringAsFixed(0)}',
+                                DateTimeUtils.formatCurrency(
+                                  entry.amount,
+                                  symbol: entry.currency,
+                                ),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.onSurface,
+                                      color: cs.onSurface,
                                     ),
                               ),
                             ],
@@ -682,12 +692,15 @@ class _OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = cs.brightness == Brightness.dark;
     final label = lastSyncAt == null
         ? 'Çevrimdışı — önbellek gösteriliyor'
         : 'Çevrimdışı — ${_rel(lastSyncAt!)} önce güncellendi';
     return MaterialBanner(
-      backgroundColor: const Color(0xFF2A1F00),
-      content: Text(label, style: const TextStyle(color: AppColors.tertiary)),
+      backgroundColor:
+          isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
+      content: Text(label, style: TextStyle(color: cs.tertiary)),
       actions: [
         TextButton(onPressed: onRetry, child: const Text('Yenile')),
       ],

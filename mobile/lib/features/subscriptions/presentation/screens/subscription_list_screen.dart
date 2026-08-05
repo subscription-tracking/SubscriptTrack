@@ -104,10 +104,11 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
           ),
           TabBar(
             controller: _tabs,
-            indicatorColor: AppColors.primary,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.onSurfaceVar,
-            dividerColor: AppColors.border,
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor:
+                Theme.of(context).colorScheme.onSurfaceVariant,
+            dividerColor: Theme.of(context).colorScheme.outlineVariant,
             tabs: [
               Tab(text: 'Aktif (${controller.active.length})'),
               Tab(text: 'Duraklatıldı (${controller.paused.length})'),
@@ -204,12 +205,12 @@ class _Header extends StatelessWidget {
               PopupMenuButton<_SortOption>(
                 icon: Icon(Icons.sort,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
-                color: AppColors.surfaceHigh,
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
                 onSelected: onSortChanged,
-                itemBuilder: (_) => [
-                  _sortItem(_SortOption.date, 'Tarihe göre', sortOption),
-                  _sortItem(_SortOption.amount, 'Tutara göre', sortOption),
-                  _sortItem(_SortOption.name, 'İsme göre', sortOption),
+                itemBuilder: (ctx) => [
+                  _sortItem(ctx, _SortOption.date, 'Tarihe göre', sortOption),
+                  _sortItem(ctx, _SortOption.amount, 'Tutara göre', sortOption),
+                  _sortItem(ctx, _SortOption.name, 'İsme göre', sortOption),
                 ],
               ),
               if (onArchiveTap != null)
@@ -230,8 +231,9 @@ class _Header extends StatelessWidget {
             controller: searchController,
             decoration: InputDecoration(
               hintText: 'Abonelik ara...',
-              prefixIcon: const Icon(Icons.search,
-                  color: AppColors.onSurfaceVar, size: 20),
+              prefixIcon: Icon(Icons.search,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear, size: 18),
@@ -270,17 +272,18 @@ class _Header extends StatelessWidget {
   }
 
   PopupMenuItem<_SortOption> _sortItem(
-      _SortOption opt, String label, _SortOption current) {
+      BuildContext context, _SortOption opt, String label, _SortOption current) {
+    final cs = Theme.of(context).colorScheme;
     return PopupMenuItem(
       value: opt,
       child: Row(children: [
         Icon(
           opt == current ? Icons.radio_button_checked : Icons.radio_button_off,
           size: 18,
-          color: opt == current ? AppColors.primary : AppColors.onSurfaceVar,
+          color: opt == current ? cs.primary : cs.onSurfaceVariant,
         ),
         const SizedBox(width: 8),
-        Text(label, style: const TextStyle(color: AppColors.onSurface)),
+        Text(label),
       ]),
     );
   }
@@ -299,6 +302,7 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -306,19 +310,19 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withValues(alpha: 0.15)
-              : AppColors.surfaceHigh,
+              ? cs.primary.withValues(alpha: 0.15)
+              : cs.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
             color: selected
-                ? AppColors.primary.withValues(alpha: 0.4)
-                : AppColors.border,
+                ? cs.primary.withValues(alpha: 0.4)
+                : cs.outlineVariant,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? AppColors.primary : AppColors.onSurfaceVar,
+            color: selected ? cs.primary : cs.onSurfaceVariant,
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
           ),
@@ -367,14 +371,14 @@ class _TabView extends StatelessWidget {
           style: Theme.of(context)
               .textTheme
               .bodyMedium
-              ?.copyWith(color: AppColors.onSurfaceVar),
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     }
 
     return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.surface,
+      color: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       onRefresh: onRefresh,
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
@@ -424,8 +428,9 @@ class _SubscriptionTile extends StatelessWidget {
     final isPaused = subscription.status == SubscriptionStatus.paused;
     final isCancelled = subscription.status == SubscriptionStatus.cancelled;
 
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors.surface,
+      color: cs.surfaceContainer,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -434,7 +439,7 @@ class _SubscriptionTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: cs.outlineVariant),
           ),
           child: Row(
             children: [
@@ -463,7 +468,7 @@ class _SubscriptionTile extends StatelessWidget {
                     Text(
                       subscription.category.label,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.onSurfaceVar,
+                            color: cs.onSurfaceVariant,
                             fontSize: 11,
                           ),
                     ),
@@ -487,8 +492,8 @@ class _SubscriptionTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: isCancelled || isPaused
-                              ? AppColors.onSurfaceVar
-                              : AppColors.primary,
+                              ? cs.onSurfaceVariant
+                              : cs.primary,
                         ),
                   ),
                   const SizedBox(height: 2),
@@ -496,12 +501,11 @@ class _SubscriptionTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (isPaused)
-                        const Icon(Icons.pause_circle_outline,
-                            size: 11, color: AppColors.onSurfaceVar),
+                        Icon(Icons.pause_circle_outline,
+                            size: 11, color: cs.onSurfaceVariant),
                       if (isCancelled)
-                        Icon(Icons.cancel_outlined,
-                            size: 11,
-                            color: AppColors.success.withValues(alpha: 0.7)),
+                        const Icon(Icons.cancel_outlined,
+                            size: 11, color: Color(0xFF16A36A)),
                       const SizedBox(width: 2),
                       Text(
                         isPaused
@@ -511,12 +515,12 @@ class _SubscriptionTile extends StatelessWidget {
                                 : DateTimeUtils.renewalLabel(days),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: isPaused
-                                  ? AppColors.onSurfaceVar
+                                  ? cs.onSurfaceVariant
                                   : isCancelled
-                                      ? AppColors.success.withValues(alpha: 0.7)
+                                      ? const Color(0xFF16A36A)
                                       : urgent
-                                          ? AppColors.error
-                                          : AppColors.onSurfaceVar,
+                                          ? cs.error
+                                          : cs.onSurfaceVariant,
                               fontSize: 10,
                             ),
                       ),
@@ -566,12 +570,15 @@ class _OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = cs.brightness == Brightness.dark;
     final label = lastSyncAt == null
         ? 'Çevrimdışı — önbellek gösteriliyor'
         : 'Çevrimdışı — ${_rel(lastSyncAt!)} önce güncellendi';
     return MaterialBanner(
-      backgroundColor: const Color(0xFF2A1F00),
-      content: Text(label, style: const TextStyle(color: AppColors.tertiary)),
+      backgroundColor:
+          isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
+      content: Text(label, style: TextStyle(color: cs.tertiary)),
       actions: [
         TextButton(onPressed: onRetry, child: const Text('Yenile')),
       ],
