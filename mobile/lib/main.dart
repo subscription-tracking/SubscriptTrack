@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,7 +16,9 @@ void main() async {
     );
   }
 
-  await LocalNotificationService.initialize();
+  if (!kIsWeb) {
+    await LocalNotificationService.initialize();
+  }
 
   runApp(const SubscriptTrackApp());
 }

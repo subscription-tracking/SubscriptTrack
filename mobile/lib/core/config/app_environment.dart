@@ -15,7 +15,8 @@ abstract final class EnvironmentConfig {
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 
-  /// Development-only local auth fallback.
+  /// Local auth fallback — active whenever Supabase is not configured.
+  /// Pass --dart-define=ENABLE_LOCAL_AUTH=false to explicitly disable.
   static const enableLocalAuth =
-      bool.fromEnvironment('ENABLE_LOCAL_AUTH', defaultValue: false);
+      bool.fromEnvironment('ENABLE_LOCAL_AUTH', defaultValue: true);
 }
