@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/app_animated_money.dart';
-import '../../../../shared/widgets/app_bounceable.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../domain/subscription_models.dart';
 import '../subscription_controller.dart';
@@ -158,10 +157,6 @@ class _HeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    final priceStr = DateTimeUtils.formatCurrency(
-      subscription.amount.amount,
-      symbol: subscription.currency,
-    );
 
     return Container(
       height: 270 + topPadding,
@@ -278,9 +273,9 @@ class _HeroHeader extends StatelessWidget {
                             ]),
                           ),
                         ],
-                        PopupMenuItem(
+                        const PopupMenuItem(
                           value: _Action.delete,
-                          child: const Row(children: [
+                          child: Row(children: [
                             Icon(Icons.delete_outline, color: AppColors.error),
                             SizedBox(width: 12),
                             Text('Sil', style: TextStyle(color: AppColors.error)),
