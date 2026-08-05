@@ -93,13 +93,37 @@ Banka hesabı veya kart bağlantısı **gerektirmez**.
 ### 1 — Repoyu klonla
 
 ```bash
-git clone https://github.com/kullanici/SubscriptTrack.git
+git clone https://github.com/Krayirhan/SubscriptTrack.git
 cd SubscriptTrack
 ```
 
 ---
 
-### 2 — Supabase anahtarlarını ayarla
+### 2 — Kurulum scriptini çalıştır
+
+Repo kökünde platforma göre tek komut:
+
+**Mac / Linux:**
+```bash
+chmod +x setup.sh && ./setup.sh
+```
+
+**Windows:**
+```
+setup.bat
+```
+
+Script şunları otomatik yapar:
+- Flutter kurulu mu kontrol eder
+- `mobile/.env` dosyasını oluşturur (`.env.example`'dan kopyalar)
+- Supabase anahtarlarını girmen gerekiyorsa seni uyarır
+- `flutter pub get` ile bağımlılıkları indirir
+
+> İlk çalıştırmada script `.env`'i oluşturup durur — anahtarları gir, sonra tekrar çalıştır.
+
+---
+
+### 3 — Supabase anahtarlarını ayarla
 
 `.env` dosyası `mobile/` klasörünün **içinde** olmalıdır. Farklı bir konumda olursa uygulama Supabase'e bağlanamaz.
 
@@ -121,16 +145,6 @@ SUPABASE_ANON_KEY=eyJxxx...
 - `SUPABASE_ANON_KEY` → "anon public" key
 
 > **Not:** `.env` dosyası `.gitignore`'dadır — Git'e yüklenmez. Her geliştirici kendi `.env`'ini oluşturmalıdır.
-
----
-
-### 3 — Bağımlılıkları indir
-
-```bash
-make setup
-```
-
-> `make` yoksa (Windows): `flutter pub get`
 
 ---
 
