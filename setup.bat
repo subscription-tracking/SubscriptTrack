@@ -27,20 +27,12 @@ for /f "tokens=*" %%v in ('flutter --version 2^>nul ^| findstr /i "Flutter"') do
 :: 2. mobile\ dizinine geç
 cd /d "%~dp0mobile"
 
-:: 3. .env kontrolü
+:: 3. .env kontrolü (isteğe bağlı; yoksa yerel mod)
 if not exist ".env" (
     if exist ".env.example" (
         copy ".env.example" ".env" >nul
         echo.
-        echo  [!] .env dosyasi olusturuldu: mobile\.env
-        echo.
-        echo      Supabase anahtarlarini girmek icin dosyayi ac:
-        echo      https://supabase.com/dashboard - Projen - Project Settings - API
-        echo.
-        echo      Anahtarlari girdikten sonra bu scripti tekrar calistir.
-        echo.
-        pause
-        exit /b 0
+        echo  [!] mobile\.env olusturuldu. Bos birakirsan uygulama yerel modda calisir.
     ) else (
         echo  [HATA] .env.example bulunamadi.
         pause
@@ -49,53 +41,86 @@ if not exist ".env" (
 )
 
 :: .env dolu mu?
-set "URL_EMPTY=1"
+set "URL_OK=0"
 for /f "tokens=2 delims==" %%a in ('findstr /i "^SUPABASE_URL=" .env') do (
     set "VAL=%%a"
     if not "!VAL!"=="" if not "!VAL!"=="https://xxxx.supabase.co" if not "!VAL!"=="https://your-project-ref.supabase.co" (
-        set "URL_EMPTY=0"
+        set "URL_OK=1"
     )
 )
 
-if "!URL_EMPTY!"=="1" (
+if "!URL_OK!"=="0" (
     echo.
-    echo  [!] .env dosyasi dolu degil.
+    echo  [!] mobile\.env doldurmani bekliyor.
     echo.
-    echo      mobile\.env dosyasini ac ve su alanlari doldur:
-    echo      SUPABASE_URL=https://xxxx.supabase.co
-    echo      SUPABASE_ANON_KEY=eyJxxx...
+    echo      SUPABASE_URL ve SUPABASE_ANON_KEY alanlarini doldur.
+    echo      https://supabase.com/dashboard - Projen - Project Settings - API
     echo.
-    echo      Supabase Dashboard - Projen - Project Settings - API
+    echo      Devam ediliyor: yerel modda kullanabilirsin.
     echo.
-    pause
-    exit /b 0
 )
 
-echo  [OK] .env Supabase anahtarlari mevcut
+if "!URL_OK!"=="1" echo  [OK] .env Supabase anahtarlari mevcut
 
 :: 4. Bağımlılıkları indir
 echo.
-echo  flutter pub get calistiriliyor...
+echo  Bagimliliklar indiriliyor...
 echo.
 flutter pub get
 if errorlevel 1 (
     echo.
-    echo  [HATA] flutter pub get basarisiz oldu.
+    echo  [HATA] flutter pub get basarisiz.
     pause
     exit /b 1
 )
 
-:: 5. Başarı
+:: 5. Başarı + seçim
 echo.
 echo  ────────────────────────────────
 echo  Kurulum tamamlandi!
 echo.
-echo  Calistirmak icin (mobile\ klasorunde):
+echo  Simdi ne yapmak istersin?
 echo.
-echo    make web        Tarayicide ac
-echo    make install    APK derle + telefona kur
+echo    1)  Web — Tarayicida ac (Chrome)
+echo    2)  Android — APK derle + telefona kur (USB bagli olmali)
+echo    3)  Cikis
 echo.
-echo  make yoksa (Windows):
-echo    flutter run -d chrome --dart-define-from-file=.env
+set /p CHOICE="  Secim [1/2/3]: "
+
+if "!CHOICE!"=="1" (
+    echo.
+    echo  Web baslatiliyor...
+    echo.
+    if "!URL_OK!"=="1" (
+        flutter run -d chrome --dart-define-from-file=.env
+    ) else (
+        flutter run -d chrome
+    )
+    goto :eof
+)
+
+if "!CHOICE!"=="2" (
+    echo.
+    echo  APK derleniyor...
+    echo.
+    if "!URL_OK!"=="1" (
+        flutter build apk --release --dart-define-from-file=.env
+    ) else (
+        flutter build apk --release
+    )
+    if errorlevel 1 ( echo  [HATA] Build basarisiz. & pause & exit /b 1 )
+    echo.
+    echo  Telefona kuruluyor...
+    adb install -r build\app\outputs\flutter-apk\app-release.apk
+    echo.
+    echo  [OK] Kuruldu!
+    pause
+    goto :eof
+)
+
+echo.
+echo  Istediginde:
+echo    start-web.bat     Web baslat
+echo    make install      APK derle + telefona kur
 echo.
 pause
