@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../shared/widgets/app_animated_money.dart';
+import '../../../../shared/widgets/app_bounceable.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../domain/subscription_models.dart';
 import '../subscription_controller.dart';
@@ -341,13 +343,26 @@ class _HeroHeader extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '${subscription.billingCycle.label} • $priceStr',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.82),
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            '${subscription.billingCycle.label} • ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.82),
+                            ),
+                          ),
+                          AppAnimatedMoney(
+                            amount: subscription.amount.amount,
+                            symbol: subscription.currency,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.82),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

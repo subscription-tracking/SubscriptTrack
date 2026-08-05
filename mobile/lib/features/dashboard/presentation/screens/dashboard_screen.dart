@@ -10,6 +10,8 @@ import '../../../subscriptions/presentation/screens/add_subscription_screen.dart
 import '../../../subscriptions/presentation/screens/subscription_detail_screen.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../../../../shared/design/app_tokens.dart';
+import '../../../../shared/widgets/app_animated_money.dart';
+import '../../../../shared/widgets/app_bounceable.dart';
 import '../../../../shared/widgets/service_identity.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -220,11 +222,9 @@ class _HeroCard extends StatelessWidget {
                       )
                     else
                       ...totals.entries.map(
-                        (e) => Text(
-                          DateTimeUtils.formatCurrency(
-                            e.value.amount,
-                            symbol: e.key,
-                          ),
+                        (e) => AppAnimatedMoney(
+                          amount: e.value.amount,
+                          symbol: e.key,
                           style: Theme.of(context)
                               .textTheme
                               .headlineLarge
@@ -411,8 +411,8 @@ class _RenewalList extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant, width: 0.5),
       ),
       child: Column(
         children: renewals.asMap().entries.map((entry) {
