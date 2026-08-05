@@ -2,16 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/token_provider.dart';
 import '../../../core/services/offline_mutation_queue.dart';
 import '../../../core/storage/local_storage.dart';
-import '../data/api_subscription_repository.dart';
-import '../data/subscription_repository.dart';
 import '../data/supabase_subscription_repository.dart';
 import '../domain/subscription_models.dart';
 
@@ -21,34 +16,18 @@ class SubscriptionController extends ChangeNotifier {
     SubscriptionDataSource? repository,
     this.onUnauthorized,
   })  : _userId = userId,
-        _repo = repository ??
-            (EnvironmentConfig.isApiConfigured
-                ? ApiSubscriptionRepository(
-                    client: ApiClient(
-                        tokenProvider: SupabaseTokenProvider()))
-                : EnvironmentConfig.isSupabaseConfigured
-                    ? SupabaseSubscriptionRepository()
-                    : SubscriptionRepository());
+        _repo = repository ?? SupabaseSubscriptionRepository();
 
-  /// Called when the backend returns 401/403. Use this to trigger sign-out.
   final VoidCallback? onUnauthorized;
 
   final String _userId;
   final SubscriptionDataSource _repo;
-
-  ApiSubscriptionRepository? get _apiRepo {
-    final r = _repo;
-    return r is ApiSubscriptionRepository ? r : null;
-  }
-
   final _mutationQueue = OfflineMutationQueue();
 
   List<Subscription> _items = [];
   bool _loading = false;
   bool _isOffline = false;
   String? _error;
-  String? _nextCursor;
-  bool _hasMore = false;
   DateTime? _lastSyncAt;
 
   List<Subscription> get active =>
@@ -71,7 +50,6 @@ class SubscriptionController extends ChangeNotifier {
   Money get totalMonthly =>
       active.fold(Money.zero, (sum, s) => sum + s.monthlyAmount);
 
-  /// Aktif aboneliklerin para birimine göre aylık toplamları.
   Map<String, Money> get totalsByCurrency {
     final map = <String, Money>{};
     for (final s in active) {
@@ -84,29 +62,19 @@ class SubscriptionController extends ChangeNotifier {
   bool get loading => _loading;
   bool get isOffline => _isOffline;
   String? get error => _error;
-  bool get hasMore => _hasMore;
-  /// UTC timestamp of the last successful data fetch. Null before first load.
   DateTime? get lastSyncAt => _lastSyncAt;
+  // Supabase loads all items at once — no pagination.
+  bool get hasMore => false;
+  Future<void> loadMore() async {}
 
   Future<void> load() async {
-    if (_loading) return; // dedup in-flight
+    if (_loading) return;
     _setLoading(true);
     try {
-      final api = _apiRepo;
-      if (api != null) {
-        final page = await api.getPaged();
-        _items = page.items;
-        _nextCursor = page.nextCursor;
-        _hasMore = page.hasMore;
-      } else {
-        _items = await _repo.getAll(_userId);
-        _nextCursor = null;
-        _hasMore = false;
-      }
+      _items = await _repo.getAll(_userId);
       _isOffline = false;
       _error = null;
       _lastSyncAt = DateTime.now().toUtc();
-      // Replay any mutations queued while offline.
       await _replayOfflineQueue();
       await _writeCache(_items);
     } catch (e) {
@@ -128,8 +96,6 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
-  /// Replays mutations in FIFO order. A failed head stays in place so newer
-  /// actions cannot overtake it and change the intended lifecycle outcome.
   Future<void> _replayOfflineQueue() async {
     var replayedAny = false;
     while (true) {
@@ -140,8 +106,6 @@ class SubscriptionController extends ChangeNotifier {
         await _mutationQueue.removeFirst();
         replayedAny = true;
       } catch (_) {
-        // Keep the failed mutation at the head; retry on a later successful
-        // sync instead of reordering it behind subsequent user actions.
         break;
       }
     }
@@ -153,9 +117,7 @@ class SubscriptionController extends ChangeNotifier {
 
   Future<void> _applyMutation(OfflineMutation mutation) async {
     final id = mutation.payload['id'] as String?;
-    if (id == null) {
-      throw StateError('Offline mutation has no subscription id.');
-    }
+    if (id == null) throw StateError('Offline mutation has no subscription id.');
     switch (mutation.type) {
       case 'pause':
         await _repo.pause(_userId, id);
@@ -183,29 +145,6 @@ class SubscriptionController extends ChangeNotifier {
   void _updateLocalStatus(String id, SubscriptionStatus status) {
     final idx = _items.indexWhere((s) => s.id == id);
     if (idx != -1) _items[idx] = _items[idx].copyWith(status: status);
-  }
-
-  /// Load the next page when using the API repository.
-  Future<void> loadMore() async {
-    final api = _apiRepo;
-    if (_loading || !_hasMore || api == null) return;
-    _setLoading(true);
-    try {
-      final page = await api.getPaged(cursor: _nextCursor);
-      _items = [..._items, ...page.items];
-      _nextCursor = page.nextCursor;
-      _hasMore = page.hasMore;
-      _error = null;
-      await _writeCache(_items);
-    } catch (e) {
-      if (e is AuthException) {
-        onUnauthorized?.call();
-        return;
-      }
-      _error = e.toString();
-    } finally {
-      _setLoading(false);
-    }
   }
 
   Future<void> _writeCache(List<Subscription> items) async {
@@ -304,30 +243,25 @@ class SubscriptionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> archive(String subscriptionId) => _updateStatus(
-        subscriptionId, SubscriptionStatus.archived,
-        () => _repo.archive(_userId, subscriptionId),
-        mutationType: 'archive');
+  Future<void> archive(String id) => _updateStatus(
+      id, SubscriptionStatus.archived, () => _repo.archive(_userId, id),
+      mutationType: 'archive');
 
-  Future<void> restore(String subscriptionId) => _updateStatus(
-        subscriptionId, SubscriptionStatus.active,
-        () => _repo.restore(_userId, subscriptionId),
-        mutationType: 'restore');
+  Future<void> restore(String id) => _updateStatus(
+      id, SubscriptionStatus.active, () => _repo.restore(_userId, id),
+      mutationType: 'restore');
 
-  Future<void> pause(String subscriptionId) => _updateStatus(
-        subscriptionId, SubscriptionStatus.paused,
-        () => _repo.pause(_userId, subscriptionId),
-        mutationType: 'pause');
+  Future<void> pause(String id) => _updateStatus(
+      id, SubscriptionStatus.paused, () => _repo.pause(_userId, id),
+      mutationType: 'pause');
 
-  Future<void> resume(String subscriptionId) => _updateStatus(
-        subscriptionId, SubscriptionStatus.active,
-        () => _repo.resume(_userId, subscriptionId),
-        mutationType: 'resume');
+  Future<void> resume(String id) => _updateStatus(
+      id, SubscriptionStatus.active, () => _repo.resume(_userId, id),
+      mutationType: 'resume');
 
-  Future<void> cancel(String subscriptionId) => _updateStatus(
-        subscriptionId, SubscriptionStatus.cancelled,
-        () => _repo.cancel(_userId, subscriptionId),
-        mutationType: 'cancel');
+  Future<void> cancel(String id) => _updateStatus(
+      id, SubscriptionStatus.cancelled, () => _repo.cancel(_userId, id),
+      mutationType: 'cancel');
 
   void clearError() {
     _error = null;
@@ -342,14 +276,12 @@ class SubscriptionController extends ChangeNotifier {
   }) async {
     final idx = _items.indexWhere((s) => s.id == id);
     if (idx != -1 && !_items[idx].status.canTransitionTo(status)) {
-      // TODO(i18n): replace with localized string key before multi-locale release.
       throw ValidationException(
           'status_transition_unsupported:${_items[idx].status.key}:${status.key}');
     }
     try {
       await repoCall();
     } on NetworkException {
-      // Offline: apply optimistically and queue for later.
       await _mutationQueue.enqueue(OfflineMutation(
         type: mutationType,
         payload: {'id': id},
