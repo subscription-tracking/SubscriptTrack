@@ -13,9 +13,17 @@ class DateTimeUtils {
     return '${date.day} ${_monthName(date.month)} ${date.year}';
   }
 
+  static const _isoToSymbol = {
+    'TRY': '₺',
+    'USD': '\$',
+    'EUR': '€',
+    'GBP': '£',
+  };
+
   static String formatCurrency(double amount, {String symbol = '₺'}) {
+    final displaySymbol = _isoToSymbol[symbol] ?? symbol;
     final formatted = amount.toStringAsFixed(2).replaceAll('.', ',');
-    return '$symbol$formatted';
+    return '$displaySymbol$formatted';
   }
 
   static String _monthName(int month) => const [
