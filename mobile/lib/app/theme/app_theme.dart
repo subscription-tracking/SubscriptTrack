@@ -3,19 +3,25 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract final class AppColors {
-  static const background   = Color(0xFF08091A);
-  static const surface      = Color(0xFF10141F);
-  static const surfaceHigh  = Color(0xFF161C2E);
-  static const border       = Color(0xFF1C2133);
-  static const primary      = Color(0xFF57F1DB);
-  static const onPrimary    = Color(0xFF003731);
-  static const secondary    = Color(0xFFACC7FF);
-  static const tertiary     = Color(0xFFFFD1AA);
-  static const onBackground = Color(0xFFE2E7F0);
-  static const onSurface    = Color(0xFFE2E7F0);
-  static const onSurfaceVar = Color(0xFF8B95A8);
-  static const error        = Color(0xFFF55F5F);
-  static const outline      = Color(0xFF3A4258);
+  static const background = Color(0xFF0F1117);
+  static const surface = Color(0xFF181C25);
+  static const surfaceHigh = Color(0xFF202633);
+  static const border = Color(0xFF2A303C);
+  static const primary = Color(0xFF7377F5);
+  static const onPrimary = Colors.white;
+  static const secondary = Color(0xFFAAB4FF);
+  static const tertiary = Color(0xFFF5A524);
+  static const onBackground = Color(0xFFF5F7FA);
+  static const onSurface = Color(0xFFF5F7FA);
+  static const onSurfaceVar = Color(0xFFA7AFBE);
+  static const error = Color(0xFFE45151);
+  static const outline = Color(0xFF4B5568);
+
+  // Semantic status colors. Do not use brand colors to communicate status.
+  static const success = Color(0xFF16A36A);
+  static const warning = Color(0xFFF5A524);
+  static const trial = Color(0xFF9A72FF);
+  static const muted = Color(0xFF718096);
 }
 
 abstract final class AppTheme {
@@ -57,21 +63,28 @@ abstract final class AppTheme {
   static ThemeData get dark {
     final base = GoogleFonts.hankenGroteskTextTheme(
       const TextTheme(
-        displayLarge:  TextStyle(color: AppColors.onSurface),
+        displayLarge: TextStyle(color: AppColors.onSurface),
         displayMedium: TextStyle(color: AppColors.onSurface),
-        displaySmall:  TextStyle(color: AppColors.onSurface),
-        headlineLarge:  TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w800),
-        headlineMedium: TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w700),
-        headlineSmall:  TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w700),
-        titleLarge:  TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w700),
-        titleMedium: TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w600),
-        titleSmall:  TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w600),
-        bodyLarge:   TextStyle(color: AppColors.onSurface),
-        bodyMedium:  TextStyle(color: AppColors.onSurface),
-        bodySmall:   TextStyle(color: AppColors.onSurfaceVar),
-        labelLarge:  TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w600),
+        displaySmall: TextStyle(color: AppColors.onSurface),
+        headlineLarge:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w800),
+        headlineMedium:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w700),
+        headlineSmall:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w700),
+        titleLarge:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w700),
+        titleMedium:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w600),
+        titleSmall:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(color: AppColors.onSurface),
+        bodyMedium: TextStyle(color: AppColors.onSurface),
+        bodySmall: TextStyle(color: AppColors.onSurfaceVar),
+        labelLarge:
+            TextStyle(color: AppColors.onSurface, fontWeight: FontWeight.w600),
         labelMedium: TextStyle(color: AppColors.onSurface),
-        labelSmall:  TextStyle(color: AppColors.onSurfaceVar),
+        labelSmall: TextStyle(color: AppColors.onSurfaceVar),
       ),
     );
 
@@ -121,12 +134,14 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceHigh,
         selectedColor: AppColors.primary.withValues(alpha: 0.15),
-        labelStyle: const TextStyle(color: AppColors.onSurfaceVar, fontSize: 13),
+        labelStyle:
+            const TextStyle(color: AppColors.onSurfaceVar, fontSize: 13),
         side: const BorderSide(color: AppColors.border),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         padding: const EdgeInsets.symmetric(horizontal: 4),

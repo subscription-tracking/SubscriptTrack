@@ -9,6 +9,8 @@ import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
 import '../../../subscriptions/presentation/screens/subscription_detail_screen.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
+import '../../../../shared/design/app_tokens.dart';
+import '../../../../shared/widgets/service_identity.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key, this.onViewAllSubscriptions});
@@ -18,20 +20,23 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SubscriptionController>();
-    final active     = controller.active;
-    final upcoming   = controller.upcomingRenewals;
-    final totals     = controller.totalsByCurrency;
+    final active = controller.active;
+    final upcoming = controller.upcomingRenewals;
+    final totals = controller.totalsByCurrency;
 
     return Column(
       children: [
         if (controller.isOffline)
-          _OfflineBanner(lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
+          _OfflineBanner(
+              lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
         else if (controller.error != null)
           MaterialBanner(
             content: Text(controller.error!),
             actions: [
-              TextButton(onPressed: controller.clearError, child: const Text('Kapat')),
-              TextButton(onPressed: controller.load, child: const Text('Tekrar dene')),
+              TextButton(
+                  onPressed: controller.clearError, child: const Text('Kapat')),
+              TextButton(
+                  onPressed: controller.load, child: const Text('Tekrar dene')),
             ],
           ),
         Expanded(
@@ -40,7 +45,7 @@ class DashboardScreen extends StatelessWidget {
             backgroundColor: AppColors.surface,
             onRefresh: controller.load,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+              padding: AppSpacing.screenWithBottomNav,
               children: [
                 _GreetingRow(),
                 const SizedBox(height: 20),
@@ -58,9 +63,9 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _StatChipsRow(
-                  weeklyRenewals:
+                  activeCount: active.length,
+                  upcomingCount:
                       upcoming.where((s) => s.daysUntilRenewal <= 7).length,
-                  totals: totals,
                 ),
                 const SizedBox(height: 28),
                 _SectionHeader(
@@ -114,11 +119,24 @@ class DashboardScreen extends StatelessWidget {
 class _GreetingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final now     = DateTime.now();
-    final months  = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
-                     'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-    final days    = ['Pz','Pt','Sa','Ça','Pe','Cu','Ct'];
-    final dateStr = '${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
+    final now = DateTime.now();
+    final months = [
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık'
+    ];
+    final days = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
+    final dateStr =
+        '${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
 
     return Row(
       children: [
@@ -166,7 +184,7 @@ class _HeroCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF111827), Color(0xFF1A2537)],
+          colors: [Color(0xFF24265C), Color(0xFF353A8A)],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
@@ -182,7 +200,7 @@ class _HeroCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Aylık harcama',
+                      'Bu ay ödenecek',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.onSurfaceVar,
                             letterSpacing: 0.2,
@@ -223,8 +241,8 @@ class _HeroCard extends StatelessWidget {
                 GestureDetector(
                   onTap: onAnalysisTap,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(100),
@@ -256,7 +274,8 @@ class _HeroCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               totals.entries
-                  .map((e) => '${DateTimeUtils.formatCurrency((e.value * 12).amount, symbol: e.key)}/yıl')
+                  .map((e) =>
+                      '${DateTimeUtils.formatCurrency((e.value * 12).amount, symbol: e.key)}/yıl')
                   .join(' · '),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.onSurfaceVar,
@@ -272,35 +291,31 @@ class _HeroCard extends StatelessWidget {
 // ─── Stat Chips ──────────────────────────────────────────────────────────────
 
 class _StatChipsRow extends StatelessWidget {
-  const _StatChipsRow({required this.weeklyRenewals, required this.totals});
+  const _StatChipsRow({
+    required this.activeCount,
+    required this.upcomingCount,
+  });
 
-  final int weeklyRenewals;
-  final Map<String, Money> totals;
+  final int activeCount;
+  final int upcomingCount;
 
   @override
   Widget build(BuildContext context) {
-    String annualLabel = '—';
-    if (totals.isNotEmpty) {
-      final e = totals.entries.first;
-      annualLabel = DateTimeUtils.formatCurrency(
-        (e.value * 12).amount,
-        symbol: e.key,
-      );
-    }
+    final annualLabel = '$upcomingCount yenileme bu hafta';
 
     return Row(
       children: [
         Expanded(
           child: _StatChip(
             icon: Icons.refresh_rounded,
-            label: '$weeklyRenewals yenileniyor bu hafta',
+            label: '$activeCount aktif abonelik',
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: _StatChip(
-            icon: Icons.calendar_today_rounded,
-            label: '$annualLabel yıllık',
+            icon: Icons.notifications_active_outlined,
+            label: annualLabel,
           ),
         ),
       ],
@@ -400,8 +415,8 @@ class _RenewalList extends StatelessWidget {
       ),
       child: Column(
         children: renewals.asMap().entries.map((entry) {
-          final i    = entry.key;
-          final sub  = entry.value;
+          final i = entry.key;
+          final sub = entry.value;
           final isLast = i == renewals.length - 1;
           return _RenewalTile(
             subscription: sub,
@@ -427,12 +442,8 @@ class _RenewalTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final days   = subscription.daysUntilRenewal;
+    final days = subscription.daysUntilRenewal;
     final urgent = days <= 3;
-    final color  = _avatarColor(subscription.name);
-    final initial = subscription.name.isNotEmpty
-        ? subscription.name[0].toUpperCase()
-        : '?';
 
     return InkWell(
       borderRadius: isLast
@@ -459,23 +470,10 @@ class _RenewalTile extends StatelessWidget {
               ),
         child: Row(
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  initial,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
+            ServiceIdentity(
+              name: subscription.name,
+              category: subscription.category,
+              size: 36,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -492,7 +490,8 @@ class _RenewalTile extends StatelessWidget {
                   Text(
                     DateTimeUtils.renewalLabel(days),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: urgent ? AppColors.error : AppColors.onSurfaceVar,
+                          color:
+                              urgent ? AppColors.error : AppColors.onSurfaceVar,
                           fontSize: 11,
                         ),
                   ),
@@ -559,10 +558,10 @@ class _CategorySection extends StatelessWidget {
   final List<Subscription> active;
 
   static const _groupColors = {
-    'Eğlence':    Color(0xFFFF6B6B),
-    'Müzik':      Color(0xFF4ECDC4),
+    'Eğlence': Color(0xFFFF6B6B),
+    'Müzik': Color(0xFF4ECDC4),
     'Üretkenlik': Color(0xFFACC7FF),
-    'Araçlar':    Color(0xFFFFD1AA),
+    'Araçlar': Color(0xFFFFD1AA),
   };
 
   @override
@@ -589,17 +588,18 @@ class _CategorySection extends StatelessWidget {
           ),
           child: Column(
             children: entries.asMap().entries.map((mapEntry) {
-              final i      = mapEntry.key;
-              final cat    = mapEntry.value.key;
+              final i = mapEntry.key;
+              final cat = mapEntry.value.key;
               final amount = mapEntry.value.value;
               final isLast = i == entries.length - 1;
-              final color  = _groupColors[cat] ?? AppColors.secondary;
+              final color = _groupColors[cat] ?? AppColors.secondary;
 
               return Container(
                 decoration: isLast
                     ? null
                     : const BoxDecoration(
-                        border: Border(bottom: BorderSide(color: AppColors.border)),
+                        border:
+                            Border(bottom: BorderSide(color: AppColors.border)),
                       ),
                 child: IntrinsicHeight(
                   child: Row(
@@ -698,23 +698,7 @@ class _OfflineBanner extends StatelessWidget {
     final d = DateTime.now().toUtc().difference(utc);
     if (d.inSeconds < 60) return '${d.inSeconds} sn';
     if (d.inMinutes < 60) return '${d.inMinutes} dk';
-    if (d.inHours < 24)   return '${d.inHours} sa';
+    if (d.inHours < 24) return '${d.inHours} sa';
     return '${d.inDays} gün';
   }
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-Color _avatarColor(String name) {
-  const palette = [
-    Color(0xFFFF6B6B),
-    Color(0xFF4ECDC4),
-    Color(0xFFFFD1AA),
-    Color(0xFFACC7FF),
-    Color(0xFF9D8FFF),
-    Color(0xFF57F1DB),
-    Color(0xFFFF9F43),
-  ];
-  final hash = name.codeUnits.fold(0, (a, b) => a + b);
-  return palette[hash % palette.length];
 }

@@ -20,10 +20,10 @@ void main() {
       ),
     );
 
-    expect(find.text('Tekrar hoş geldin 👋'), findsOneWidget);
+    expect(find.text('Merhaba 👋'), findsOneWidget);
     expect(find.text('Ana Sayfa'), findsWidgets);
 
-    await tester.tap(find.text('Takvim').last);
+    await tester.tap(find.bySemanticsLabel('Takvim'));
     await tester.pumpAndSettle();
     expect(find.byType(CalendarScreen), findsOneWidget);
     await tester.binding.setSurfaceSize(null);

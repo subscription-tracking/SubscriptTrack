@@ -33,38 +33,48 @@ class CalendarDayCell extends StatelessWidget {
       textColor = colors.onPrimaryContainer;
     }
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: bgColor,
+    return Semantics(
+      label: '$day${hasRenewal ? ', yenileme var' : ''}',
+      button: isCurrentMonth,
+      selected: isSelected,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isCurrentMonth ? onTap : null,
           borderRadius: BorderRadius.circular(8),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Text(
-              '$day',
-              style: TextStyle(
-                color: textColor,
-                fontWeight:
-                    isToday || isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
+          child: Container(
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
             ),
-            if (hasRenewal)
-              Positioned(
-                bottom: 4,
-                child: Container(
-                  width: 5,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: isSelected ? colors.onPrimary : colors.primary,
-                    shape: BoxShape.circle,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(
+                  '$day',
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: isToday || isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
-              ),
-          ],
+                if (hasRenewal)
+                  Positioned(
+                    bottom: 4,
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: isSelected ? colors.onPrimary : colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
