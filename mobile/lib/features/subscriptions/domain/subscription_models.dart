@@ -136,8 +136,13 @@ class Subscription {
         BillingCycle.yearly => amount / 12,
       };
 
-  int get daysUntilRenewal =>
-      nextRenewalDate.difference(DateTime.now()).inDays;
+  int get daysUntilRenewal {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final renewal = DateTime(
+        nextRenewalDate.year, nextRenewalDate.month, nextRenewalDate.day);
+    return renewal.difference(today).inDays;
+  }
 
   Subscription copyWith({
     String? name,

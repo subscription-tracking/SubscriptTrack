@@ -93,12 +93,26 @@ class AuthRepository implements AuthDataSource {
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
-    // Local modda e-posta gönderilemez; sessizce no-op.
+    // Local dev mode — no email is sent.
+    assert(false, 'sendPasswordResetEmail is a no-op in local auth mode.');
   }
 
   @override
   Future<void> updatePassword(String newPassword) async {
-    throw const AuthException('Şifre güncelleme Supabase gerektiriyor.');
+    if (newPassword.length < 6) {
+      throw const AuthException('Şifre en az 6 karakter olmalı.');
+    }
+    final json = await _storage.readCurrentUser();
+    if (json == null) throw const AuthException('Oturum bulunamadı.');
+    final user = AppUser.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    final credentials = await _loadCredentials();
+    final entry = credentials[user.email];
+    if (entry == null) throw const AuthException('Kullanıcı bulunamadı.');
+    credentials[user.email] = {
+      ...entry,
+      'hash': _hash(newPassword, salt: user.email),
+    };
+    await _saveCredentials(credentials);
   }
 
   // ---- private helpers ----
