@@ -61,26 +61,71 @@ class ServiceIdentity extends StatelessWidget {
   }
 
   static const _knownServices = <String, (IconData, Color)>{
+    // Streaming
     'netflix': (Icons.movie_rounded, Color(0xFFE50914)),
-    'spotify': (Icons.music_note_rounded, Color(0xFF1DB954)),
-    'youtube': (Icons.play_circle_fill_rounded, Color(0xFFFF0033)),
-    'youtube premium': (Icons.play_circle_fill_rounded, Color(0xFFFF0033)),
-    'chatgpt': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
-    'openai': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
-    'adobe': (Icons.design_services_rounded, Color(0xFFFF0000)),
-    'icloud': (Icons.cloud_rounded, Color(0xFF5AA9FF)),
-    'apple music': (Icons.apple_rounded, Color(0xFFFA243C)),
-    'apple tv': (Icons.tv_rounded, Color(0xFF000000)),
-    'google one': (Icons.cloud_queue_rounded, Color(0xFF4285F4)),
-    'amazon prime': (Icons.shopping_bag_rounded, Color(0xFF00A8E1)),
     'disney+': (Icons.videocam_rounded, Color(0xFF113CCF)),
     'disney': (Icons.videocam_rounded, Color(0xFF113CCF)),
     'hbo max': (Icons.live_tv_rounded, Color(0xFF5822B4)),
+    'hbo': (Icons.live_tv_rounded, Color(0xFF5822B4)),
+    'max': (Icons.live_tv_rounded, Color(0xFF002BE7)),
+    'amazon prime': (Icons.shopping_bag_rounded, Color(0xFF00A8E1)),
+    'prime video': (Icons.shopping_bag_rounded, Color(0xFF00A8E1)),
+    'apple tv': (Icons.tv_rounded, Color(0xFFB4B4B4)),
+    'apple tv+': (Icons.tv_rounded, Color(0xFFB4B4B4)),
     'exxen': (Icons.play_arrow_rounded, Color(0xFFFFC000)),
-    'gain': (Icons.movie_creation_rounded, Color(0xFF000000)),
+    'gain': (Icons.movie_creation_rounded, Color(0xFFE63946)),
     'blutv': (Icons.tv_outlined, Color(0xFF0088FF)),
-    'github': (Icons.code_rounded, Color(0xFFF0F6FC)),
+    'mubi': (Icons.theaters_rounded, Color(0xFF0C2F4C)),
+    // Music
+    'spotify': (Icons.music_note_rounded, Color(0xFF1DB954)),
+    'apple music': (Icons.music_note_rounded, Color(0xFFFA243C)),
+    'youtube music': (Icons.music_note_rounded, Color(0xFFFF0000)),
+    'tidal': (Icons.queue_music_rounded, Color(0xFF000000)),
+    'deezer': (Icons.music_video_rounded, Color(0xFFFF5F00)),
+    // Productivity & AI
+    'chatgpt': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
+    'openai': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
+    'claude': (Icons.psychology_rounded, Color(0xFFCC785C)),
+    'notion': (Icons.article_rounded, Color(0xFFE8E8E8)),
+    'obsidian': (Icons.hub_rounded, Color(0xFF7C3AED)),
+    'linear': (Icons.electric_bolt_rounded, Color(0xFF5E6AD2)),
+    'jira': (Icons.view_kanban_rounded, Color(0xFF0052CC)),
+    'slack': (Icons.forum_rounded, Color(0xFF4A154B)),
+    // Creative
+    'adobe': (Icons.design_services_rounded, Color(0xFFFF0000)),
     'figma': (Icons.draw_rounded, Color(0xFFF24E1E)),
+    'canva': (Icons.brush_rounded, Color(0xFF00C4CC)),
+    'sketch': (Icons.design_services_rounded, Color(0xFFFDAD00)),
+    'midjourney': (Icons.auto_fix_high_rounded, Color(0xFF5865F2)),
+    // Cloud & Storage
+    'icloud': (Icons.cloud_rounded, Color(0xFF5AA9FF)),
+    'google one': (Icons.cloud_queue_rounded, Color(0xFF4285F4)),
+    'dropbox': (Icons.cloud_download_rounded, Color(0xFF0061FF)),
+    'onedrive': (Icons.cloud_rounded, Color(0xFF0078D4)),
+    // Developer
+    'github': (Icons.code_rounded, Color(0xFFF0F6FC)),
+    'gitlab': (Icons.code_rounded, Color(0xFFFC6D26)),
+    'vercel': (Icons.rocket_launch_rounded, Color(0xFFE8E8E8)),
+    'netlify': (Icons.cloud_rounded, Color(0xFF00C7B7)),
+    // YouTube
+    'youtube': (Icons.play_circle_fill_rounded, Color(0xFFFF0033)),
+    'youtube premium': (Icons.play_circle_fill_rounded, Color(0xFFFF0033)),
+    // Gaming
+    'xbox game pass': (Icons.sports_esports_rounded, Color(0xFF107C10)),
+    'playstation plus': (Icons.videogame_asset_rounded, Color(0xFF003087)),
+    'ea play': (Icons.sports_esports_rounded, Color(0xFFFF4747)),
+    'nintendo switch online':
+        (Icons.sports_esports_rounded, Color(0xFFE60012)),
+    // Health & Fitness
+    'strava': (Icons.directions_run_rounded, Color(0xFFFC4C02)),
+    'myfitnesspal': (Icons.monitor_heart_rounded, Color(0xFF00B0FF)),
+    // VPN & Security
+    'nordvpn': (Icons.security_rounded, Color(0xFF4687FF)),
+    'expressvpn': (Icons.vpn_lock_rounded, Color(0xFFDA3940)),
+    '1password': (Icons.lock_rounded, Color(0xFF1A8CFF)),
+    'lastpass': (Icons.password_rounded, Color(0xFFD32D27)),
+    // Password & Auth
+    'bitwarden': (Icons.shield_rounded, Color(0xFF175DDC)),
   };
 
   static IconData _categoryIcon(SubscriptionCategory category) =>

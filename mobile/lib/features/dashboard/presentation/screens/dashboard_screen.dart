@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/theme/app_theme.dart';
 import '../../../../core/domain/money.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../stats/presentation/screens/stats_screen.dart';
@@ -11,7 +10,6 @@ import '../../../subscriptions/presentation/screens/subscription_detail_screen.d
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../../../../shared/design/app_tokens.dart';
 import '../../../../shared/widgets/app_animated_money.dart';
-import '../../../../shared/widgets/app_bounceable.dart';
 import '../../../../shared/widgets/service_identity.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -179,6 +177,27 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final isDark = cs.brightness == Brightness.dark;
     return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: isDark
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF7377F5).withValues(alpha: 0.22),
+                  blurRadius: 48,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: cs.primary.withValues(alpha: 0.12),
+                  blurRadius: 32,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+      ),
+      child: Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -186,11 +205,17 @@ class _HeroCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? const [Color(0xFF24265C), Color(0xFF353A8A)]
+              ? const [Color(0xFF1E2160), Color(0xFF2E3490), Color(0xFF24265C)]
               : [cs.primaryContainer, cs.secondaryContainer],
+          stops: isDark ? const [0.0, 0.55, 1.0] : null,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant, width: 0.5),
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFF7377F5).withValues(alpha: 0.25)
+              : cs.outlineVariant,
+          width: 0.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,6 +308,7 @@ class _HeroCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
       ),
     );
   }
@@ -526,14 +552,24 @@ class _EmptyRenewalsCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant, width: 0.5),
       ),
       child: Column(
         children: [
-          Icon(Icons.calendar_month_outlined,
-              size: 36, color: cs.onSurfaceVariant),
-          const SizedBox(height: 12),
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.primary.withValues(alpha: 0.1),
+              border: Border.all(
+                  color: cs.primary.withValues(alpha: 0.2), width: 0.5),
+            ),
+            child: Icon(Icons.check_circle_outline_rounded,
+                size: 26, color: cs.primary),
+          ),
+          const SizedBox(height: 14),
           Text(
             'Yaklaşan yenileme yok',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -542,7 +578,7 @@ class _EmptyRenewalsCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Abonelik eklediğinde yenilemelerin burada görünecek.',
+            'Bu hafta ödeme yok.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
