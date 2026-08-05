@@ -5,6 +5,8 @@ import '../../../../core/utils/date_time_utils.dart';
 import '../../../savings/presentation/screens/savings_screen.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
+import '../../../../shared/design/app_tokens.dart';
+import '../../../../shared/widgets/app_empty_state.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({required this.controller, super.key});
@@ -25,18 +27,14 @@ class StatsScreen extends StatelessWidget {
           if (controller.error != null) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.error_outline, size: 48),
-                  const SizedBox(height: 12),
-                  Text(controller.error!,
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: controller.load,
-                    child: const Text('Tekrar dene'),
-                  ),
-                ]),
+                padding: AppSpacing.screen,
+                child: AppEmptyState(
+                  icon: Icons.error_outline,
+                  title: 'Veriler yüklenemedi',
+                  description: controller.error!,
+                  actionLabel: 'Tekrar dene',
+                  onAction: controller.load,
+                ),
               ),
             );
           }
@@ -45,7 +43,15 @@ class StatsScreen extends StatelessWidget {
 
           if (active.isEmpty) {
             return const Center(
-              child: Text('Henüz abonelik yok.'),
+              child: Padding(
+                padding: AppSpacing.screen,
+                child: AppEmptyState(
+                  icon: Icons.insights_outlined,
+                  title: 'Henüz analiz yok',
+                  description:
+                      'Harcama analizini görmek için ilk aboneliğini ekle.',
+                ),
+              ),
             );
           }
 
@@ -63,7 +69,8 @@ class StatsScreen extends StatelessWidget {
           return RefreshIndicator(
             onRefresh: controller.load,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xxl),
               children: [
                 // Özet kartlar — her para birimi için ayrı satır
                 if (mixedCurrencies)
@@ -222,8 +229,7 @@ class StatsScreen extends StatelessWidget {
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (_) =>
-                            SavingsScreen(controller: controller),
+                        builder: (_) => SavingsScreen(controller: controller),
                       ),
                     ),
                     icon: const Icon(Icons.savings_outlined),

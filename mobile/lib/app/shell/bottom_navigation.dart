@@ -15,15 +15,15 @@ class BottomNavigation extends StatelessWidget {
   final ValueChanged<int> onChanged;
 
   static const _items = [
-    (Icons.home_rounded,          Icons.home_outlined,           'Ana Sayfa'),
-    (Icons.grid_view_rounded,     Icons.grid_view_outlined,      'Abonelikler'),
-    (Icons.calendar_month_rounded,Icons.calendar_month_outlined, 'Takvim'),
-    (Icons.settings_rounded,      Icons.settings_outlined,       'Ayarlar'),
+    (Icons.home_rounded, Icons.home_outlined, 'Ana Sayfa'),
+    (Icons.grid_view_rounded, Icons.grid_view_outlined, 'Abonelikler'),
+    (Icons.calendar_month_rounded, Icons.calendar_month_outlined, 'Takvim'),
+    (Icons.settings_rounded, Icons.settings_outlined, 'Ayarlar'),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final cs     = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final bottom = MediaQuery.of(context).padding.bottom;
 
     return Padding(
@@ -45,44 +45,49 @@ class BottomNavigation extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(_items.length, (i) {
                 final active = i == currentIndex;
-                final item   = _items[i];
-                return GestureDetector(
-                  onTap: () => onChanged(i),
-                  behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: active ? 16 : 18,
-                      vertical: 10,
-                    ),
-                    decoration: active
-                        ? BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.09),
-                            borderRadius: BorderRadius.circular(100),
-                          )
-                        : null,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          active ? item.$1 : item.$2,
-                          color: active ? cs.primary : cs.onSurfaceVariant,
-                          size: 22,
+                final item = _items[i];
+                return Semantics(
+                  label: item.$3,
+                  button: true,
+                  selected: active,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => onChanged(i),
+                      borderRadius: BorderRadius.circular(100),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        constraints: const BoxConstraints(minHeight: 48),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: active ? 16 : 18,
+                          vertical: 10,
                         ),
-                        if (active) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            item.$3,
-                            style: TextStyle(
-                              color: cs.primary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ],
+                        decoration: active
+                            ? BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.09),
+                                borderRadius: BorderRadius.circular(100),
+                              )
+                            : null,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(active ? item.$1 : item.$2,
+                                color:
+                                    active ? cs.primary : cs.onSurfaceVariant,
+                                size: 22),
+                            if (active) ...[
+                              const SizedBox(width: 6),
+                              Text(item.$3,
+                                  style: TextStyle(
+                                      color: cs.primary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.2)),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 );

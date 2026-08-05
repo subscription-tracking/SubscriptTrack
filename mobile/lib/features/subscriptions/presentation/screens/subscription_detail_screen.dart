@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../shared/widgets/service_identity.dart';
+import '../../../../shared/widgets/subscription_status_chip.dart';
 import '../../domain/subscription_models.dart';
 import '../subscription_controller.dart';
 import 'edit_subscription_screen.dart';
@@ -53,7 +55,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
                   child: Row(children: [
                     Icon(Icons.cancel_outlined),
                     SizedBox(width: 12),
-                    Text('İptal et'),
+                    Text('İptal edildi olarak işaretle'),
                   ]),
                 ),
                 const PopupMenuItem(
@@ -124,8 +126,29 @@ class SubscriptionDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      ServiceIdentity(
+                        name: subscription.name,
+                        category: subscription.category,
+                        size: 52,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          subscription.name,
+                          style: text.titleLarge?.copyWith(
+                            color: colors.onPrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                   Text('Tutar',
-                      style: TextStyle(color: colors.onPrimary.withValues(alpha: .8))),
+                      style: TextStyle(
+                          color: colors.onPrimary.withValues(alpha: .8))),
                   const SizedBox(height: 8),
                   Text(
                     DateTimeUtils.formatCurrency(subscription.amount.amount,
@@ -137,12 +160,21 @@ class SubscriptionDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(subscription.billingCycle.label,
-                      style: TextStyle(color: colors.onPrimary.withValues(alpha: .8))),
+                      style: TextStyle(
+                          color: colors.onPrimary.withValues(alpha: .8))),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: SubscriptionStatusChip(
+              status: subscription.status,
+              daysUntilRenewal: subscription.daysUntilRenewal,
+            ),
+          ),
+          const SizedBox(height: 8),
           _InfoRow(
             icon: Icons.calendar_today_outlined,
             label: 'Sonraki yenileme',
@@ -228,10 +260,7 @@ enum _Action { pause, resume, cancel, archive, delete }
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow(
-      {required this.icon,
-      required this.label,
-      required this.value,
-      this.sub});
+      {required this.icon, required this.label, required this.value, this.sub});
 
   final IconData icon;
   final String label;
@@ -255,8 +284,7 @@ class _InfoRow extends StatelessWidget {
                 Text(value,
                     style: const TextStyle(fontWeight: FontWeight.w500)),
                 if (sub != null)
-                  Text(sub!,
-                      style: Theme.of(context).textTheme.bodySmall),
+                  Text(sub!, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

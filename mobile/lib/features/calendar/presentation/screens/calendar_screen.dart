@@ -6,6 +6,7 @@ import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../calendar_controller.dart';
 import '../widgets/calendar_day_cell.dart';
 import '../widgets/calendar_event_item.dart';
+import '../../../../shared/design/app_tokens.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -50,7 +51,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+          padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
           child: Row(
             children: [
               IconButton(
@@ -69,11 +71,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ...monthTotals.entries.map(
                         (e) => Text(
                           '${DateTimeUtils.formatCurrency(e.value.amount, symbol: e.key)} bu ay',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ),
                   ],
@@ -87,7 +90,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: AppSpacing.screen,
           child: Row(
             children: ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz']
                 .map((d) => Expanded(
@@ -104,9 +107,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 .toList(),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: AppSpacing.screen,
           child: _buildGrid(renewalDays),
         ),
         const Divider(height: 24),
@@ -182,12 +185,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
       }
     }
 
-    return GridView.count(
-      crossAxisCount: 7,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1,
-      children: cells,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(1);
+        final minCellHeight = textScale > 1.2 ? 46.0 : 40.0;
+        return GridView.count(
+          crossAxisCount: 7,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          childAspectRatio: constraints.maxWidth / 7 / minCellHeight,
+          children: cells,
+        );
+      },
     );
   }
 

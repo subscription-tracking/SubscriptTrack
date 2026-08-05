@@ -102,7 +102,7 @@ class ProfileTab extends StatelessWidget {
         const Divider(height: 1, indent: 0, endIndent: 0),
 
         // ── Bildirimler ────────────────────────────────────────────────────
-        _SectionLabel('Bildirimler'),
+        const _SectionLabel('Bildirimler'),
         _SettingTile(
           icon: Icons.notifications_outlined,
           label: 'Bildirim ayarları',
@@ -117,7 +117,7 @@ class ProfileTab extends StatelessWidget {
         ),
 
         // ── Görünüm ────────────────────────────────────────────────────────
-        _SectionLabel('Görünüm'),
+        const _SectionLabel('Görünüm'),
         _SettingTile(
           icon: Icons.palette_outlined,
           label: 'Tema ve para birimi',
@@ -131,7 +131,7 @@ class ProfileTab extends StatelessWidget {
         ),
 
         // ── Veri & Gizlilik ────────────────────────────────────────────────
-        _SectionLabel('Veri & Gizlilik'),
+        const _SectionLabel('Veri & Gizlilik'),
         _SettingTile(
           icon: Icons.download_outlined,
           label: 'Veriyi dışa aktar',

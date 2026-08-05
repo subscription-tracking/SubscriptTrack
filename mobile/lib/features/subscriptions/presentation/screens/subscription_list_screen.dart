@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../shared/widgets/app_empty_state.dart';
+import '../../../../shared/widgets/service_identity.dart';
+import '../../../../shared/widgets/subscription_status_chip.dart';
 import '../../domain/subscription_models.dart';
 import '../subscription_controller.dart';
 import 'add_subscription_screen.dart';
@@ -43,14 +46,14 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     final q = _search.text.toLowerCase();
     var list = items.where((s) {
       final matchSearch = q.isEmpty || s.name.toLowerCase().contains(q);
-      final matchCat    = _filterCategory == null || s.category == _filterCategory;
+      final matchCat = _filterCategory == null || s.category == _filterCategory;
       return matchSearch && matchCat;
     }).toList();
 
     list.sort((a, b) => switch (_sort) {
-          _SortOption.date   => a.nextRenewalDate.compareTo(b.nextRenewalDate),
+          _SortOption.date => a.nextRenewalDate.compareTo(b.nextRenewalDate),
           _SortOption.amount => b.monthlyAmount.compareTo(a.monthlyAmount),
-          _SortOption.name   => a.name.compareTo(b.name),
+          _SortOption.name => a.name.compareTo(b.name),
         });
 
     return list;
@@ -68,13 +71,18 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
       body: Column(
         children: [
           if (controller.isOffline)
-            _OfflineBanner(lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
+            _OfflineBanner(
+                lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
           else if (controller.error != null)
             MaterialBanner(
               content: Text(controller.error!),
               actions: [
-                TextButton(onPressed: controller.clearError, child: const Text('Kapat')),
-                TextButton(onPressed: controller.load, child: const Text('Tekrar dene')),
+                TextButton(
+                    onPressed: controller.clearError,
+                    child: const Text('Kapat')),
+                TextButton(
+                    onPressed: controller.load,
+                    child: const Text('Tekrar dene')),
               ],
             ),
           _Header(
@@ -142,14 +150,6 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
           ),
         ],
       ),
-      floatingActionButton: Semantics(
-        label: 'Yeni abonelik ekle',
-        button: true,
-        child: FloatingActionButton(
-          onPressed: () => _openAdd(context, controller),
-          child: const Icon(Icons.add, color: AppColors.onPrimary),
-        ),
-      ),
     );
   }
 
@@ -202,7 +202,8 @@ class _Header extends StatelessWidget {
                 ),
               ),
               PopupMenuButton<_SortOption>(
-                icon: Icon(Icons.sort, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                icon: Icon(Icons.sort,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 color: AppColors.surfaceHigh,
                 onSelected: onSortChanged,
                 itemBuilder: (_) => [
@@ -229,7 +230,8 @@ class _Header extends StatelessWidget {
             controller: searchController,
             decoration: InputDecoration(
               hintText: 'Abonelik ara...',
-              prefixIcon: const Icon(Icons.search, color: AppColors.onSurfaceVar, size: 20),
+              prefixIcon: const Icon(Icons.search,
+                  color: AppColors.onSurfaceVar, size: 20),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear, size: 18),
@@ -308,7 +310,9 @@ class _FilterChip extends StatelessWidget {
               : AppColors.surfaceHigh,
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? AppColors.primary.withValues(alpha: 0.4) : AppColors.border,
+            color: selected
+                ? AppColors.primary.withValues(alpha: 0.4)
+                : AppColors.border,
           ),
         ),
         child: Text(
@@ -415,14 +419,10 @@ class _SubscriptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final days        = subscription.daysUntilRenewal;
-    final urgent      = days <= 3;
-    final isPaused    = subscription.status == SubscriptionStatus.paused;
+    final days = subscription.daysUntilRenewal;
+    final urgent = days <= 3;
+    final isPaused = subscription.status == SubscriptionStatus.paused;
     final isCancelled = subscription.status == SubscriptionStatus.cancelled;
-    final color       = _avatarColor(subscription.name);
-    final initial     = subscription.name.isNotEmpty
-        ? subscription.name[0].toUpperCase()
-        : '?';
 
     return Material(
       color: AppColors.surface,
@@ -438,26 +438,12 @@ class _SubscriptionTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: (isPaused || isCancelled)
-                      ? AppColors.outline.withValues(alpha: 0.3)
-                      : color.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    initial,
-                    style: TextStyle(
-                      color: (isPaused || isCancelled)
-                          ? AppColors.onSurfaceVar
-                          : color,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
+              Opacity(
+                opacity: isPaused || isCancelled ? .55 : 1,
+                child: ServiceIdentity(
+                  name: subscription.name,
+                  category: subscription.category,
+                  size: 42,
                 ),
               ),
               const SizedBox(width: 12),
@@ -469,9 +455,8 @@ class _SubscriptionTile extends StatelessWidget {
                       subscription.name,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
-                            decoration: isCancelled
-                                ? TextDecoration.lineThrough
-                                : null,
+                            decoration:
+                                isCancelled ? TextDecoration.lineThrough : null,
                           ),
                     ),
                     const SizedBox(height: 2),
@@ -481,6 +466,11 @@ class _SubscriptionTile extends StatelessWidget {
                             color: AppColors.onSurfaceVar,
                             fontSize: 11,
                           ),
+                    ),
+                    const SizedBox(height: 6),
+                    SubscriptionStatusChip(
+                      status: subscription.status,
+                      daysUntilRenewal: days,
                     ),
                   ],
                 ),
@@ -510,7 +500,8 @@ class _SubscriptionTile extends StatelessWidget {
                             size: 11, color: AppColors.onSurfaceVar),
                       if (isCancelled)
                         Icon(Icons.cancel_outlined,
-                            size: 11, color: AppColors.error.withValues(alpha: 0.7)),
+                            size: 11,
+                            color: AppColors.success.withValues(alpha: 0.7)),
                       const SizedBox(width: 2),
                       Text(
                         isPaused
@@ -522,7 +513,7 @@ class _SubscriptionTile extends StatelessWidget {
                               color: isPaused
                                   ? AppColors.onSurfaceVar
                                   : isCancelled
-                                      ? AppColors.error.withValues(alpha: 0.7)
+                                      ? AppColors.success.withValues(alpha: 0.7)
                                       : urgent
                                           ? AppColors.error
                                           : AppColors.onSurfaceVar,
@@ -544,8 +535,7 @@ class _SubscriptionTile extends StatelessWidget {
 // ─── Empty State ─────────────────────────────────────────────────────────────
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState(
-      {required this.message, required this.detail, this.onAdd});
+  const _EmptyState({required this.message, required this.detail, this.onAdd});
   final String message;
   final String detail;
   final VoidCallback? onAdd;
@@ -555,43 +545,12 @@ class _EmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.grid_view_rounded,
-                  size: 34, color: AppColors.primary),
-            ),
-            const SizedBox(height: 20),
-            Text(message,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            Text(
-              detail,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: AppColors.onSurfaceVar),
-            ),
-            if (onAdd != null) ...[
-              const SizedBox(height: 28),
-              FilledButton.icon(
-                onPressed: onAdd,
-                icon: const Icon(Icons.add),
-                label: const Text('Abonelik ekle'),
-              ),
-            ],
-          ],
+        child: AppEmptyState(
+          icon: Icons.grid_view_rounded,
+          title: message,
+          description: detail,
+          actionLabel: onAdd == null ? null : 'Abonelik ekle',
+          onAction: onAdd,
         ),
       ),
     );
@@ -623,23 +582,9 @@ class _OfflineBanner extends StatelessWidget {
     final d = DateTime.now().toUtc().difference(utc);
     if (d.inSeconds < 60) return '${d.inSeconds} sn';
     if (d.inMinutes < 60) return '${d.inMinutes} dk';
-    if (d.inHours < 24)   return '${d.inHours} sa';
+    if (d.inHours < 24) return '${d.inHours} sa';
     return '${d.inDays} gün';
   }
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-Color _avatarColor(String name) {
-  const palette = [
-    Color(0xFFFF6B6B),
-    Color(0xFF4ECDC4),
-    Color(0xFFFFD1AA),
-    Color(0xFFACC7FF),
-    Color(0xFF9D8FFF),
-    Color(0xFF57F1DB),
-    Color(0xFFFF9F43),
-  ];
-  final hash = name.codeUnits.fold(0, (a, b) => a + b);
-  return palette[hash % palette.length];
-}

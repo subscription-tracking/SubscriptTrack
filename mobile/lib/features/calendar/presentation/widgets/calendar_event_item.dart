@@ -4,6 +4,7 @@ import '../../../../core/utils/date_time_utils.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/screens/subscription_detail_screen.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
+import '../../../../shared/widgets/service_identity.dart';
 
 class CalendarEventItem extends StatelessWidget {
   const CalendarEventItem({
@@ -31,13 +32,10 @@ class CalendarEventItem extends StatelessWidget {
             ),
           ),
         ),
-        leading: CircleAvatar(
-          backgroundColor: colors.primaryContainer,
-          child: Icon(
-            Icons.event_outlined,
-            color: colors.onPrimaryContainer,
-            size: 20,
-          ),
+        leading: ServiceIdentity(
+          name: subscription.name,
+          category: subscription.category,
+          size: 40,
         ),
         title: Text(
           subscription.name,
