@@ -1,8 +1,6 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
@@ -19,7 +17,6 @@ class ExportDataScreen extends StatelessWidget {
   String _buildCsv() {
     const eol = '\r\n';
     final buf = StringBuffer();
-    // RFC 4180: header row quoted, CRLF line endings.
     buf.write(
       [
         'Ad', 'Tutar', 'Para Birimi', 'Döngü',
@@ -51,11 +48,9 @@ class ExportDataScreen extends StatelessWidget {
 
   Future<void> _shareAsFile(BuildContext context) async {
     final csv = _buildCsv();
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/subscripttrack_export.csv');
-    await file.writeAsString(csv);
-    await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'text/csv')],
+    // Avoid dart:io on web — use share_plus's text share instead.
+    await Share.share(
+      csv,
       subject: 'SubscriptTrack Abonelik Verisi',
     );
   }
@@ -106,14 +101,15 @@ class ExportDataScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: total == 0 ? null : () => _shareAsFile(context),
-                icon: const Icon(Icons.share_outlined),
-                label: const Text('Dosya olarak paylaş'),
-                style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48)),
-              ),
-              const SizedBox(height: 12),
+              if (!kIsWeb)
+                FilledButton.icon(
+                  onPressed: total == 0 ? null : () => _shareAsFile(context),
+                  icon: const Icon(Icons.share_outlined),
+                  label: const Text('Dosya olarak paylaş'),
+                  style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48)),
+                ),
+              if (!kIsWeb) const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: total == 0 ? null : () => _copyToClipboard(context),
                 icon: const Icon(Icons.copy),

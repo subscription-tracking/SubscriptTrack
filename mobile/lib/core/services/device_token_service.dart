@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,7 +25,7 @@ class SupabaseDeviceTokenService implements DeviceTokenService {
             {
               'user_id': userId,
               'token': pushToken,
-              'platform': Platform.isAndroid ? 'android' : 'ios',
+              'platform': defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios',
             },
             onConflict: 'user_id,token',
           )
