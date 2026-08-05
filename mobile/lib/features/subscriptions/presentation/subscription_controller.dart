@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/services/offline_mutation_queue.dart';
 import '../../../core/storage/local_storage.dart';
+import '../data/local_subscription_repository.dart';
 import '../data/supabase_subscription_repository.dart';
 import '../domain/subscription_models.dart';
 
@@ -16,7 +18,10 @@ class SubscriptionController extends ChangeNotifier {
     SubscriptionDataSource? repository,
     this.onUnauthorized,
   })  : _userId = userId,
-        _repo = repository ?? SupabaseSubscriptionRepository();
+        _repo = repository ??
+            (EnvironmentConfig.isSupabaseConfigured
+                ? SupabaseSubscriptionRepository()
+                : LocalSubscriptionRepository());
 
   final VoidCallback? onUnauthorized;
 
