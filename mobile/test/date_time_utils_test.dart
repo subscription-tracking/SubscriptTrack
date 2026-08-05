@@ -50,8 +50,8 @@ void main() {
       expect(DateTimeUtils.formatCurrency(10.0), '₺10,00');
     });
 
-    test('özel sembol USD', () {
-      expect(DateTimeUtils.formatCurrency(9.99, symbol: 'USD'), 'USD9,99');
+    test('özel sembol USD — ISO kodu sembole çevrilir', () {
+      expect(DateTimeUtils.formatCurrency(9.99, symbol: 'USD'), '\$9,99');
     });
 
     test('tam sayı tutarlar virgüllü yazar', () {
