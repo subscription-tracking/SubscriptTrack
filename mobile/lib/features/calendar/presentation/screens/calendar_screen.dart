@@ -47,6 +47,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _selectedDay != null ? cal.renewalsForDay(_selectedDay!) : <dynamic>[];
     final monthTotals =
         cal.totalsByCurrencyForMonth(_focusedMonth.year, _focusedMonth.month);
+    final today = DateTime.now();
+    final urgentDays = <DateTime>{};
+    for (final day in renewalDays) {
+      final diff = day.difference(DateTime(today.year, today.month, today.day)).inDays;
+      if (diff >= 0 && diff <= 3) urgentDays.add(day);
+    }
 
     return Column(
       children: [
@@ -110,19 +116,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         const SizedBox(height: AppSpacing.xs),
         Padding(
           padding: AppSpacing.screen,
-          child: _buildGrid(renewalDays),
+          child: _buildGrid(renewalDays, urgentDays),
         ),
         const Divider(height: 24),
         Expanded(
           child: selectedEvents.isEmpty
-              ? Center(
-                  child: Text(
-                    _selectedDay != null
-                        ? 'Bu gün yenileme yok'
-                        : 'Bir gün seç',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                )
+              ? _EmptyDayState(hasSelection: _selectedDay != null)
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: selectedEvents.length,
@@ -136,7 +135,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildGrid(Set<DateTime> renewalDays) {
+  Widget _buildGrid(Set<DateTime> renewalDays, Set<DateTime> urgentDays) {
     final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     final startOffset = (firstDay.weekday - 1) % 7;
     final daysInMonth =
@@ -144,8 +143,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final prevMonthDays =
         DateTime(_focusedMonth.year, _focusedMonth.month, 0).day;
 
-    final today = DateTime.now();
-    final todayNorm = DateTime(today.year, today.month, today.day);
+    final now = DateTime.now();
+    final todayNorm = DateTime(now.year, now.month, now.day);
     final cells = <Widget>[];
 
     for (var i = startOffset - 1; i >= 0; i--) {
@@ -167,6 +166,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         isToday: date == todayNorm,
         isSelected: _selectedDay != null && date == _selectedDay,
         hasRenewal: renewalDays.contains(date),
+        isUrgent: urgentDays.contains(date),
         onTap: () => setState(() => _selectedDay = date),
       ));
     }
@@ -215,4 +215,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
         'Kasım',
         'Aralık'
       ][month];
+}
+
+class _EmptyDayState extends StatelessWidget {
+  const _EmptyDayState({required this.hasSelection});
+  final bool hasSelection;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.primary.withValues(alpha: 0.08),
+              border: Border.all(
+                  color: cs.primary.withValues(alpha: 0.18), width: 0.5),
+            ),
+            child: Icon(
+              hasSelection
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.touch_app_rounded,
+              size: 24,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            hasSelection ? 'Bu gün yenileme yok' : 'Bir gün seç',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -27,25 +27,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _page = 0;
   String _selectedCurrency = '₺';
 
-  // Info pages (index 0-2) + currency page (index 3)
-  static const _infoPages = [
-    _PageData(
-      icon: Icons.account_balance_wallet_outlined,
+  static const _slides = [
+    _SlideData(
+      icon: Icons.account_balance_wallet_rounded,
       title: 'Aboneliklerini takip et',
       body:
           'Netflix, Spotify, iCloud... Tüm aboneliklerini tek bir yerde topla ve ne kadar harcadığını gör.',
+      accentColor: Color(0xFF7377F5),
+      bgColor: Color(0xFF0C0E2A),
     ),
-    _PageData(
-      icon: Icons.calendar_month_outlined,
+    _SlideData(
+      icon: Icons.calendar_month_rounded,
       title: 'Yenilemeleri kaçırma',
       body:
           'Hangi aboneliğin ne zaman yenileneceğini takvimde gör, sürpriz ödemelerle karşılaşma.',
+      accentColor: Color(0xFF16A36A),
+      bgColor: Color(0xFF071510),
     ),
-    _PageData(
-      icon: Icons.insights_outlined,
+    _SlideData(
+      icon: Icons.insights_rounded,
       title: 'Harcamalarını analiz et',
       body:
           'Kategoriye göre ne kadar harcadığını gör, gereksiz abonelikleri tespit et ve tasarruf et.',
+      accentColor: Color(0xFFF5A524),
+      bgColor: Color(0xFF1A1100),
     ),
   ];
 
@@ -63,84 +68,185 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     widget.onDone();
   }
 
+  Color get _currentAccent => _page < _slides.length
+      ? _slides[_page].accentColor
+      : const Color(0xFF7377F5);
+
+  Color get _currentBg => _page < _slides.length
+      ? _slides[_page].bgColor
+      : const Color(0xFF0C0E2A);
+
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final isLast = _page == _pageCount - 1;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _finish,
-                child: const Text('Atla'),
+      body: Stack(
+        children: [
+          // Animated gradient wash
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(0, -0.6),
+                radius: 1.1,
+                colors: [_currentBg, cs.surface],
               ),
             ),
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                onPageChanged: (i) => setState(() => _page = i),
-                itemCount: _pageCount,
-                itemBuilder: (_, i) => i < _infoPages.length
-                    ? _PageView(data: _infoPages[i])
-                    : _CurrencyPage(
-                        selected: _selectedCurrency,
-                        onSelect: (c) =>
-                            setState(() => _selectedCurrency = c),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 4, 8, 0),
+                    child: TextButton(
+                      onPressed: _finish,
+                      style: TextButton.styleFrom(
+                        foregroundColor:
+                            _currentAccent.withValues(alpha: 0.72),
                       ),
-              ),
-            ),
-            // Dots
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pageCount,
-                (i) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _page == i ? 20 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _page == i
-                        ? colors.primary
-                        : colors.primary.withValues(alpha: .3),
-                    borderRadius: BorderRadius.circular(4),
+                      child: const Text('Atla'),
+                    ),
                   ),
                 ),
-              ),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _controller,
+                    onPageChanged: (i) => setState(() => _page = i),
+                    itemCount: _pageCount,
+                    itemBuilder: (_, i) => i < _slides.length
+                        ? _InfoPage(data: _slides[i])
+                        : _CurrencyPage(
+                            selected: _selectedCurrency,
+                            onSelect: (c) =>
+                                setState(() => _selectedCurrency = c),
+                          ),
+                  ),
+                ),
+                // Progress dots
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _pageCount,
+                    (i) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: _page == i ? 24 : 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: _page == i
+                            ? _currentAccent
+                            : cs.onSurface.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: FilledButton(
+                    onPressed: isLast
+                        ? _finish
+                        : () => _controller.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeInOut,
+                            ),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                      backgroundColor: _currentAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(isLast ? 'Başla' : 'İleri'),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
-            const SizedBox(height: 32),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: FilledButton(
-                onPressed: isLast
-                    ? _finish
-                    : () => _controller.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        ),
-                style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(52)),
-                child: Text(isLast ? 'Başla' : 'İleri'),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _PageData {
-  const _PageData(
-      {required this.icon, required this.title, required this.body});
+class _SlideData {
+  const _SlideData({
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.accentColor,
+    required this.bgColor,
+  });
   final IconData icon;
   final String title;
   final String body;
+  final Color accentColor;
+  final Color bgColor;
+}
+
+class _InfoPage extends StatelessWidget {
+  const _InfoPage({required this.data});
+  final _SlideData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Glowing icon orb
+          Container(
+            width: 136,
+            height: 136,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: data.accentColor.withValues(alpha: 0.1),
+              border: Border.all(
+                color: data.accentColor.withValues(alpha: 0.28),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: data.accentColor.withValues(alpha: 0.28),
+                  blurRadius: 64,
+                  spreadRadius: 8,
+                ),
+              ],
+            ),
+            child: Icon(data.icon, size: 62, color: data.accentColor),
+          ),
+          const SizedBox(height: 48),
+          Text(
+            data.title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            data.body,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.65,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _CurrencyPage extends StatelessWidget {
@@ -158,21 +264,32 @@ class _CurrencyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 120,
-            height: 120,
+            width: 136,
+            height: 136,
             decoration: BoxDecoration(
-              color: colors.primaryContainer,
               shape: BoxShape.circle,
+              color: cs.primary.withValues(alpha: 0.1),
+              border: Border.all(
+                color: cs.primary.withValues(alpha: 0.28),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: cs.primary.withValues(alpha: 0.28),
+                  blurRadius: 64,
+                  spreadRadius: 8,
+                ),
+              ],
             ),
-            child: Icon(Icons.currency_exchange,
-                size: 56, color: colors.onPrimaryContainer),
+            child: Icon(Icons.currency_exchange_rounded,
+                size: 62, color: cs.primary),
           ),
           const SizedBox(height: 40),
           Text(
@@ -180,74 +297,104 @@ class _CurrencyPage extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
+                ?.copyWith(fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Varsayılan para birimini seç. Daha sonra ayarlardan değiştirebilirsin.',
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          ...(_options.map((opt) => Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                color: selected == opt.$1
-                    ? colors.primaryContainer
-                    : colors.surfaceContainerHighest,
-                child: ListTile(
-                  onTap: () => onSelect(opt.$1),
-                  leading: Text(opt.$1,
-                      style: Theme.of(context).textTheme.headlineSmall),
-                  title: Text(opt.$2),
-                  subtitle: Text(opt.$3),
-                  trailing: selected == opt.$1
-                      ? Icon(Icons.check_circle, color: colors.primary)
-                      : null,
+            'Daha sonra ayarlardan değiştirebilirsin.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
                 ),
-              ))),
-        ],
-      ),
-    );
-  }
-}
-
-class _PageView extends StatelessWidget {
-  const _PageView({required this.data});
-  final _PageData data;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: colors.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(data.icon, size: 56, color: colors.onPrimaryContainer),
-          ),
-          const SizedBox(height: 40),
-          Text(
-            data.title,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
-          Text(
-            data.body,
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
+          const SizedBox(height: 28),
+          ...(_options.map((opt) {
+            final isSelected = selected == opt.$1;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => onSelect(opt.$1),
+                  borderRadius: BorderRadius.circular(16),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? cs.primary.withValues(alpha: 0.1)
+                          : cs.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? cs.primary.withValues(alpha: 0.5)
+                            : cs.outlineVariant,
+                        width: isSelected ? 1.5 : 0.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? cs.primary.withValues(alpha: 0.14)
+                                : cs.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              opt.$1,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? cs.primary
+                                    : cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                opt.$2,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: isSelected
+                                          ? cs.onSurface
+                                          : cs.onSurfaceVariant,
+                                    ),
+                              ),
+                              Text(
+                                opt.$3,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isSelected)
+                          Icon(Icons.check_circle_rounded,
+                              color: cs.primary, size: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          })),
         ],
       ),
     );
