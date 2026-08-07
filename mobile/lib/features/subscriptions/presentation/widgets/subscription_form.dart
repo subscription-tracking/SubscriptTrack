@@ -151,19 +151,38 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
   static const _popularPresets = <(String, SubscriptionCategory)>[
+    // Streaming
     ('Netflix', SubscriptionCategory.streaming),
-    ('Spotify', SubscriptionCategory.music),
-    ('ChatGPT', SubscriptionCategory.software),
     ('Disney+', SubscriptionCategory.streaming),
     ('YouTube Premium', SubscriptionCategory.streaming),
-    ('Notion', SubscriptionCategory.software),
-    ('iCloud', SubscriptionCategory.cloud),
-    ('Figma', SubscriptionCategory.software),
-    ('Adobe', SubscriptionCategory.software),
-    ('Xbox Game Pass', SubscriptionCategory.gaming),
-    ('PlayStation Plus', SubscriptionCategory.gaming),
     ('BluTV', SubscriptionCategory.streaming),
     ('Exxen', SubscriptionCategory.streaming),
+    ('Amazon Prime', SubscriptionCategory.streaming),
+    ('Apple TV+', SubscriptionCategory.streaming),
+    ('MUBI', SubscriptionCategory.streaming),
+    // Music
+    ('Spotify', SubscriptionCategory.music),
+    ('Apple Music', SubscriptionCategory.music),
+    ('YouTube Music', SubscriptionCategory.music),
+    ('Tidal', SubscriptionCategory.music),
+    ('Deezer', SubscriptionCategory.music),
+    // AI & Productivity
+    ('ChatGPT', SubscriptionCategory.software),
+    ('Claude', SubscriptionCategory.software),
+    ('Notion', SubscriptionCategory.software),
+    ('Slack', SubscriptionCategory.software),
+    // Creative
+    ('Figma', SubscriptionCategory.software),
+    ('Adobe', SubscriptionCategory.software),
+    ('Canva', SubscriptionCategory.software),
+    // Cloud
+    ('iCloud', SubscriptionCategory.cloud),
+    ('Google One', SubscriptionCategory.cloud),
+    ('Dropbox', SubscriptionCategory.cloud),
+    // Gaming
+    ('Xbox Game Pass', SubscriptionCategory.gaming),
+    ('PlayStation Plus', SubscriptionCategory.gaming),
+    ('EA Play', SubscriptionCategory.gaming),
   ];
 
   @override
@@ -171,37 +190,56 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     final outlineColor =
         Theme.of(context).colorScheme.outline.withValues(alpha: .5);
     final paymentMethods = SettingsController.instance.paymentMethods;
+    final currentName = widget.data.name.trim().toLowerCase();
 
     return Form(
       key: widget.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Popüler Servisler (Tek dokunuşla seçin):',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              'Popüler Servisler',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: .6),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
             ),
           ),
-          const SizedBox(height: 8),
           SizedBox(
-            height: 48,
+            height: 42,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 2),
               itemCount: _popularPresets.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final preset = _popularPresets[index];
-                return ActionChip(
+                final isSelected =
+                    currentName == preset.$1.trim().toLowerCase();
+                return ChoiceChip(
                   avatar: ServiceIdentity(
                     name: preset.$1,
                     category: preset.$2,
-                    size: 24,
+                    size: 22,
                   ),
-                  label: Text(preset.$1),
-                  onPressed: () {
+                  label: Text(
+                    preset.$1,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  onSelected: (_) {
                     setState(() {
                       _name.text = preset.$1;
                       widget.data.name = preset.$1;
@@ -212,7 +250,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               },
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           TextFormField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
