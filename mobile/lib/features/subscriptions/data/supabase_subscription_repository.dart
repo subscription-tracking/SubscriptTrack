@@ -35,6 +35,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
+    String? paymentMethod,
   }) async {
     try {
       final row = await _client
@@ -50,6 +51,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
                 nextRenewalDate.toIso8601String().substring(0, 10),
             'category': category.key,
             'notes': notes?.trim(),
+            'payment_method': paymentMethod?.trim(),
             'status': SubscriptionStatus.active.key,
           })
           .select()
@@ -74,6 +76,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
                 updated.nextRenewalDate.toIso8601String().substring(0, 10),
             'category': updated.category.key,
             'notes': updated.notes,
+            'payment_method': updated.paymentMethod,
             'status': updated.status.key,
           })
           .eq('id', updated.id)
@@ -158,6 +161,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       category: SubscriptionCategoryLabel.fromKey(
           row['category'] as String? ?? 'other'),
       notes: row['notes'] as String?,
+      paymentMethod: row['payment_method'] as String?,
       status: status,
       createdAt:
           DateTime.tryParse(row['created_at'] as String? ?? '') ??

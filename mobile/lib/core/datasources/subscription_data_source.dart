@@ -13,6 +13,7 @@ abstract class SubscriptionDataSource {
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
+    String? paymentMethod,
   });
   Future<Subscription> update(Subscription updated);
   Future<void> delete(String userId, String subscriptionId);

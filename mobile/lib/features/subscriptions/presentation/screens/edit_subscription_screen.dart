@@ -39,6 +39,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       nextRenewalDate: widget.subscription.nextRenewalDate,
       category: widget.subscription.category,
       notes: widget.subscription.notes ?? '',
+      paymentMethod: widget.subscription.paymentMethod,
     );
   }
 
@@ -55,6 +56,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       nextRenewalDate: _data.nextRenewalDate,
       category: _data.category,
       notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),
+      paymentMethod: _data.paymentMethod,
     );
 
     final ok = await widget.controller.edit(updated);

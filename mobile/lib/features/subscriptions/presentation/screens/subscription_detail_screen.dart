@@ -681,22 +681,24 @@ class _PaymentMethodSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Kişisel Kart / Hesabım',
-                      style: TextStyle(
+                      subscription.paymentMethod ?? 'Belirtilmedi',
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: AppColors.onSurface,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      '•••• 4242',
-                      style: TextStyle(
+                      subscription.paymentMethod != null
+                          ? 'Kayıtlı Ödeme Kartı'
+                          : 'Ödeme yöntemi seçilmedi',
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.onSurfaceVar,
                       ),

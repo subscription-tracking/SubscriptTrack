@@ -9,6 +9,7 @@ import 'appearance_screen.dart';
 import 'delete_account_screen.dart';
 import 'export_data_screen.dart';
 import 'notification_preferences_screen.dart';
+import 'payment_methods_screen.dart';
 import 'profile_screen.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -112,6 +113,20 @@ class ProfileTab extends StatelessWidget {
             MaterialPageRoute<void>(
               builder: (_) =>
                   NotificationPreferencesScreen(controller: settings),
+            ),
+          ),
+        ),
+
+        // ── Ödeme Yöntemleri ──────────────────────────────────────────────
+        const _SectionLabel('Ödeme Yöntemleri'),
+        _SettingTile(
+          icon: Icons.credit_card_outlined,
+          label: 'Ödeme yöntemlerim',
+          value: '${settings.paymentMethods.length} kayıtlı kart/yöntem',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => PaymentMethodsScreen(controller: settings),
             ),
           ),
         ),

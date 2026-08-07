@@ -20,6 +20,7 @@ class _StaticRepo implements SubscriptionDataSource {
     required String currency, required BillingCycle billingCycle,
     required DateTime startDate, required DateTime nextRenewalDate,
     required SubscriptionCategory category, String? notes,
+    String? paymentMethod,
   }) => throw UnimplementedError();
 
   @override Future<Subscription> update(Subscription updated) => throw UnimplementedError();
