@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../features/subscriptions/domain/subscription_models.dart';
 
 /// A consistent, premium brand identity widget.
 ///
-/// For known services it fetches the **real brand logo** from the internet
-/// (Google Favicons API → DuckDuckGo Icons fallback) and shows it inside a
-/// tinted container with a specular glow ring.  While the image loads (or if
-/// loading fails / device is offline), it falls back to the curated
-/// Material-icon + brand-colour badge.
+/// For known services it shows the **real Font Awesome brand icon** with the
+/// accurate brand colour inside a tinted container with a specular glow ring.
+/// For unknown services it falls back to a category-specific Material icon or
+/// the first-letter initial.
 class ServiceIdentity extends StatelessWidget {
   const ServiceIdentity({
     required this.name,
@@ -25,29 +25,38 @@ class ServiceIdentity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nameKey = name.trim().toLowerCase();
-    final identity = _knownServices[nameKey];
-    final domain = _knownDomains[nameKey];
-    final icon = identity?.$1 ?? _categoryIcon(category);
-    final color = identity?.$2 ?? _categoryColor(category);
+    final brand = _brandIcons[nameKey];
+    final fallback = _fallbackIcons[nameKey];
+    final color =
+        brand?.$2 ?? fallback?.$2 ?? _categoryColor(category);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
 
-    // Icon / letter fallback — shown while loading or on error.
-    Widget iconFallback() => Center(
-          child: identity == null
-              ? Text(
-                  initial,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                    fontSize: size * 0.42,
-                    letterSpacing: -0.5,
-                  ),
-                )
-              : Icon(icon, color: color, size: size * 0.52),
-        );
-
-    // The pixel size we request from the API (2× for retina).
-    final pxSize = (size * 2).clamp(64, 256).toInt();
+    // Decide the inner content.
+    Widget inner;
+    if (brand != null) {
+      // Known brand → Font Awesome brand icon via FaIcon widget.
+      inner = Center(
+        child: FaIcon(brand.$1, color: color, size: size * 0.48),
+      );
+    } else if (fallback != null) {
+      // Known service but no FA icon → Material Icon.
+      inner = Center(
+        child: Icon(fallback.$1, color: color, size: size * 0.52),
+      );
+    } else {
+      // Unknown → first-letter initial.
+      inner = Center(
+        child: Text(
+          initial,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w800,
+            fontSize: size * 0.42,
+            letterSpacing: -0.5,
+          ),
+        ),
+      );
+    }
 
     return Semantics(
       label: '$name logosu',
@@ -67,89 +76,47 @@ class ServiceIdentity extends StatelessWidget {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(size * 0.36),
-          child: domain != null
-              ? _LogoImage(
-                  domain: domain,
-                  pxSize: pxSize,
-                  size: size,
-                  fallback: iconFallback,
-                )
-              : iconFallback(),
-        ),
+        child: inner,
       ),
     );
   }
 
-  // ─── Domain map ──────────────────────────────────────────────────────
-  static const _knownDomains = <String, String>{
+  // ─── Font Awesome brand icons (FaIconData) ───────────────────────────
+  static const _brandIcons = <String, (FaIconData, Color)>{
     // Streaming
-    'netflix': 'netflix.com',
-    'disney+': 'disneyplus.com',
-    'disney': 'disneyplus.com',
-    'hbo max': 'max.com',
-    'hbo': 'max.com',
-    'max': 'max.com',
-    'amazon prime': 'amazon.com',
-    'prime video': 'primevideo.com',
-    'apple tv': 'apple.com',
-    'apple tv+': 'apple.com',
-    'exxen': 'exxen.com',
-    'gain': 'gain.tv',
-    'blutv': 'blutv.com',
-    'mubi': 'mubi.com',
+    'amazon prime': (FontAwesomeIcons.amazon, Color(0xFF00A8E1)),
+    'prime video': (FontAwesomeIcons.amazon, Color(0xFF00A8E1)),
+    'apple tv': (FontAwesomeIcons.apple, Color(0xFFB4B4B4)),
+    'apple tv+': (FontAwesomeIcons.apple, Color(0xFFB4B4B4)),
+    'youtube': (FontAwesomeIcons.youtube, Color(0xFFFF0033)),
+    'youtube premium': (FontAwesomeIcons.youtube, Color(0xFFFF0033)),
     // Music
-    'spotify': 'spotify.com',
-    'apple music': 'apple.com',
-    'youtube music': 'youtube.com',
-    'youtube': 'youtube.com',
-    'youtube premium': 'youtube.com',
-    'tidal': 'tidal.com',
-    'deezer': 'deezer.com',
-    // Productivity & AI
-    'chatgpt': 'chatgpt.com',
-    'openai': 'openai.com',
-    'claude': 'claude.ai',
-    'notion': 'notion.so',
-    'obsidian': 'obsidian.md',
-    'linear': 'linear.app',
-    'jira': 'atlassian.com',
-    'slack': 'slack.com',
+    'spotify': (FontAwesomeIcons.spotify, Color(0xFF1DB954)),
+    'apple music': (FontAwesomeIcons.itunes, Color(0xFFFA243C)),
+    'youtube music': (FontAwesomeIcons.youtube, Color(0xFFFF0000)),
+    'deezer': (FontAwesomeIcons.deezer, Color(0xFFFF5F00)),
+    // Productivity
+    'jira': (FontAwesomeIcons.jira, Color(0xFF0052CC)),
+    'slack': (FontAwesomeIcons.slack, Color(0xFF4A154B)),
     // Creative
-    'adobe': 'adobe.com',
-    'figma': 'figma.com',
-    'canva': 'canva.com',
-    'sketch': 'sketch.com',
-    'midjourney': 'midjourney.com',
+    'figma': (FontAwesomeIcons.figma, Color(0xFFF24E1E)),
     // Cloud
-    'icloud': 'icloud.com',
-    'google one': 'google.com',
-    'dropbox': 'dropbox.com',
-    'onedrive': 'microsoft.com',
+    'google one': (FontAwesomeIcons.google, Color(0xFF4285F4)),
+    'dropbox': (FontAwesomeIcons.dropbox, Color(0xFF0061FF)),
+    'onedrive': (FontAwesomeIcons.microsoft, Color(0xFF0078D4)),
+    'icloud': (FontAwesomeIcons.apple, Color(0xFF5AA9FF)),
     // Developer
-    'github': 'github.com',
-    'gitlab': 'gitlab.com',
-    'vercel': 'vercel.com',
-    'netlify': 'netlify.com',
+    'github': (FontAwesomeIcons.github, Color(0xFFF0F6FC)),
+    'gitlab': (FontAwesomeIcons.gitlab, Color(0xFFFC6D26)),
     // Gaming
-    'xbox game pass': 'xbox.com',
-    'playstation plus': 'playstation.com',
-    'ea play': 'ea.com',
-    'nintendo switch online': 'nintendo.com',
-    // Health & Fitness
-    'strava': 'strava.com',
-    'myfitnesspal': 'myfitnesspal.com',
-    // VPN & Security
-    'nordvpn': 'nordvpn.com',
-    'expressvpn': 'expressvpn.com',
-    '1password': '1password.com',
-    'lastpass': 'lastpass.com',
-    'bitwarden': 'bitwarden.com',
+    'xbox game pass': (FontAwesomeIcons.xbox, Color(0xFF107C10)),
+    'playstation plus': (FontAwesomeIcons.playstation, Color(0xFF003087)),
+    // Health
+    'strava': (FontAwesomeIcons.strava, Color(0xFFFC4C02)),
   };
 
-  // ─── Icon + colour fallback map ──────────────────────────────────────
-  static const _knownServices = <String, (IconData, Color)>{
+  // ─── Material icon fallback for brands NOT in Font Awesome ───────────
+  static const _fallbackIcons = <String, (IconData, Color)>{
     // Streaming
     'netflix': (Icons.movie_rounded, Color(0xFFE50914)),
     'disney+': (Icons.videocam_rounded, Color(0xFF113CCF)),
@@ -157,79 +124,40 @@ class ServiceIdentity extends StatelessWidget {
     'hbo max': (Icons.live_tv_rounded, Color(0xFF5822B4)),
     'hbo': (Icons.live_tv_rounded, Color(0xFF5822B4)),
     'max': (Icons.live_tv_rounded, Color(0xFF002BE7)),
-    'amazon prime': (Icons.shopping_bag_rounded, Color(0xFF00A8E1)),
-    'prime video': (Icons.shopping_bag_rounded, Color(0xFF00A8E1)),
-    'apple tv': (Icons.tv_rounded, Color(0xFFB4B4B4)),
-    'apple tv+': (Icons.tv_rounded, Color(0xFFB4B4B4)),
     'exxen': (Icons.play_arrow_rounded, Color(0xFFFFC000)),
     'gain': (Icons.movie_creation_rounded, Color(0xFFE63946)),
     'blutv': (Icons.tv_outlined, Color(0xFF0088FF)),
     'mubi': (Icons.theaters_rounded, Color(0xFF0C2F4C)),
     // Music
-    'spotify': (Icons.music_note_rounded, Color(0xFF1DB954)),
-    'apple music': (Icons.music_note_rounded, Color(0xFFFA243C)),
-    'youtube music': (Icons.music_note_rounded, Color(0xFFFF0000)),
     'tidal': (Icons.queue_music_rounded, Color(0xFF000000)),
-    'deezer': (Icons.music_video_rounded, Color(0xFFFF5F00)),
-    // Productivity & AI
+    // AI
     'chatgpt': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
     'openai': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
     'claude': (Icons.psychology_rounded, Color(0xFFCC785C)),
     'notion': (Icons.article_rounded, Color(0xFFE8E8E8)),
     'obsidian': (Icons.hub_rounded, Color(0xFF7C3AED)),
     'linear': (Icons.electric_bolt_rounded, Color(0xFF5E6AD2)),
-    'jira': (Icons.view_kanban_rounded, Color(0xFF0052CC)),
-    'slack': (Icons.forum_rounded, Color(0xFF4A154B)),
+    'midjourney': (Icons.auto_fix_high_rounded, Color(0xFF5865F2)),
     // Creative
     'adobe': (Icons.design_services_rounded, Color(0xFFFF0000)),
-    'figma': (Icons.draw_rounded, Color(0xFFF24E1E)),
     'canva': (Icons.brush_rounded, Color(0xFF00C4CC)),
     'sketch': (Icons.design_services_rounded, Color(0xFFFDAD00)),
-    'midjourney': (Icons.auto_fix_high_rounded, Color(0xFF5865F2)),
-    // Cloud & Storage
-    'icloud': (Icons.cloud_rounded, Color(0xFF5AA9FF)),
-    'google one': (Icons.cloud_queue_rounded, Color(0xFF4285F4)),
-    'dropbox': (Icons.cloud_download_rounded, Color(0xFF0061FF)),
-    'onedrive': (Icons.cloud_rounded, Color(0xFF0078D4)),
     // Developer
-    'github': (Icons.code_rounded, Color(0xFFF0F6FC)),
-    'gitlab': (Icons.code_rounded, Color(0xFFFC6D26)),
     'vercel': (Icons.rocket_launch_rounded, Color(0xFFE8E8E8)),
     'netlify': (Icons.cloud_rounded, Color(0xFF00C7B7)),
-    // YouTube
-    'youtube': (Icons.play_circle_fill_rounded, Color(0xFFFF0033)),
-    'youtube premium': (Icons.play_circle_fill_rounded, Color(0xFFFF0033)),
     // Gaming
-    'xbox game pass': (Icons.sports_esports_rounded, Color(0xFF107C10)),
-    'playstation plus': (Icons.videogame_asset_rounded, Color(0xFF003087)),
     'ea play': (Icons.sports_esports_rounded, Color(0xFFFF4747)),
     'nintendo switch online':
         (Icons.sports_esports_rounded, Color(0xFFE60012)),
-    // Health & Fitness
-    'strava': (Icons.directions_run_rounded, Color(0xFFFC4C02)),
+    // Health
     'myfitnesspal': (Icons.monitor_heart_rounded, Color(0xFF00B0FF)),
     // VPN & Security
     'nordvpn': (Icons.security_rounded, Color(0xFF4687FF)),
     'expressvpn': (Icons.vpn_lock_rounded, Color(0xFFDA3940)),
     '1password': (Icons.lock_rounded, Color(0xFF1A8CFF)),
     'lastpass': (Icons.password_rounded, Color(0xFFD32D27)),
-    // Password & Auth
     'bitwarden': (Icons.shield_rounded, Color(0xFF175DDC)),
   };
-
-  static IconData _categoryIcon(SubscriptionCategory category) =>
-      switch (category) {
-        SubscriptionCategory.streaming => Icons.movie_outlined,
-        SubscriptionCategory.music => Icons.music_note_outlined,
-        SubscriptionCategory.gaming => Icons.sports_esports_outlined,
-        SubscriptionCategory.software => Icons.code_rounded,
-        SubscriptionCategory.cloud => Icons.cloud_outlined,
-        SubscriptionCategory.fitness => Icons.favorite_outline,
-        SubscriptionCategory.news => Icons.newspaper_outlined,
-        SubscriptionCategory.food => Icons.restaurant_outlined,
-        SubscriptionCategory.education => Icons.school_outlined,
-        SubscriptionCategory.other => Icons.apps_rounded,
-      };
 
   static Color _categoryColor(SubscriptionCategory category) =>
       switch (category) {
@@ -244,55 +172,4 @@ class ServiceIdentity extends StatelessWidget {
         SubscriptionCategory.education => const Color(0xFF38BDF8),
         SubscriptionCategory.other => AppColors.muted,
       };
-}
-
-/// Internal widget that tries Google Favicons → DuckDuckGo Icons → fallback.
-class _LogoImage extends StatelessWidget {
-  const _LogoImage({
-    required this.domain,
-    required this.pxSize,
-    required this.size,
-    required this.fallback,
-  });
-
-  final String domain;
-  final int pxSize;
-  final double size;
-  final Widget Function() fallback;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.network(
-      'https://www.google.com/s2/favicons?domain=$domain&sz=$pxSize',
-      width: size,
-      height: size,
-      fit: BoxFit.contain,
-      // Show the icon fallback until the first frame of the image is decoded.
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded || frame != null) {
-          return Padding(
-            padding: EdgeInsets.all(size * 0.12),
-            child: child,
-          );
-        }
-        return fallback();
-      },
-      errorBuilder: (_, __, ___) => Image.network(
-        'https://icons.duckduckgo.com/ip3/$domain.ico',
-        width: size,
-        height: size,
-        fit: BoxFit.contain,
-        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-          if (wasSynchronouslyLoaded || frame != null) {
-            return Padding(
-              padding: EdgeInsets.all(size * 0.12),
-              child: child,
-            );
-          }
-          return fallback();
-        },
-        errorBuilder: (_, __, ___) => fallback(),
-      ),
-    );
-  }
 }
