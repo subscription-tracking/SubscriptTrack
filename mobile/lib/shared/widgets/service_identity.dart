@@ -21,24 +21,9 @@ class ServiceIdentity extends StatelessWidget {
   Widget build(BuildContext context) {
     final nameKey = name.trim().toLowerCase();
     final identity = _knownServices[nameKey];
-    final domain = _knownDomains[nameKey];
     final icon = identity?.$1 ?? _categoryIcon(category);
     final color = identity?.$2 ?? _categoryColor(category);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
-
-    Widget fallbackChild = Center(
-      child: identity == null
-          ? Text(
-              initial,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w800,
-                fontSize: size * 0.42,
-                letterSpacing: -0.5,
-              ),
-            )
-          : Icon(icon, color: color, size: size * 0.52),
-    );
 
     return Semantics(
       label: '$name logosu',
@@ -58,85 +43,22 @@ class ServiceIdentity extends StatelessWidget {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(size * 0.36),
-          child: domain != null
-              ? Image.network(
-                  'https://unavatar.io/$domain',
-                  width: size,
-                  height: size,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Image.network(
-                    'https://logo.clearbit.com/$domain',
-                    width: size,
-                    height: size,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        fallbackChild,
+        child: Center(
+          child: identity == null
+              ? Text(
+                  initial,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w800,
+                    fontSize: size * 0.42,
+                    letterSpacing: -0.5,
                   ),
                 )
-              : fallbackChild,
+              : Icon(icon, color: color, size: size * 0.52),
         ),
       ),
     );
   }
-
-  static const _knownDomains = <String, String>{
-    'netflix': 'netflix.com',
-    'spotify': 'spotify.com',
-    'disney+': 'disneyplus.com',
-    'disney': 'disneyplus.com',
-    'hbo max': 'max.com',
-    'hbo': 'max.com',
-    'max': 'max.com',
-    'amazon prime': 'primevideo.com',
-    'prime video': 'primevideo.com',
-    'apple tv': 'tv.apple.com',
-    'apple tv+': 'tv.apple.com',
-    'exxen': 'exxen.com',
-    'gain': 'gain.tv',
-    'blutv': 'blutv.com',
-    'mubi': 'mubi.com',
-    'apple music': 'music.apple.com',
-    'youtube music': 'music.youtube.com',
-    'youtube': 'youtube.com',
-    'youtube premium': 'youtube.com',
-    'tidal': 'tidal.com',
-    'deezer': 'deezer.com',
-    'chatgpt': 'chatgpt.com',
-    'openai': 'openai.com',
-    'claude': 'claude.ai',
-    'notion': 'notion.so',
-    'obsidian': 'obsidian.md',
-    'linear': 'linear.app',
-    'jira': 'atlassian.com',
-    'slack': 'slack.com',
-    'adobe': 'adobe.com',
-    'figma': 'figma.com',
-    'canva': 'canva.com',
-    'sketch': 'sketch.com',
-    'midjourney': 'midjourney.com',
-    'icloud': 'icloud.com',
-    'google one': 'one.google.com',
-    'dropbox': 'dropbox.com',
-    'onedrive': 'onedrive.live.com',
-    'github': 'github.com',
-    'gitlab': 'gitlab.com',
-    'vercel': 'vercel.com',
-    'netlify': 'netlify.com',
-    'xbox game pass': 'xbox.com',
-    'playstation plus': 'playstation.com',
-    'ea play': 'ea.com',
-    'nintendo switch online': 'nintendo.com',
-    'strava': 'strava.com',
-    'myfitnesspal': 'myfitnesspal.com',
-    'nordvpn': 'nordvpn.com',
-    'expressvpn': 'expressvpn.com',
-    '1password': '1password.com',
-    'lastpass': 'lastpass.com',
-    'bitwarden': 'bitwarden.com',
-  };
 
   static const _knownServices = <String, (IconData, Color)>{
     // Streaming
