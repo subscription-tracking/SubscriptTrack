@@ -50,8 +50,8 @@ Bu paket framework bağımsız yazılmıştır. Aşağıdaki teknoloji kararlar�
 
 - Mobil framework: Flutter / React Native / native platformlar
 - Backend: Spring Boot / Supabase / başka bir REST backend
-- Kimlik sağlayıcı: Backend tabanlı OAuth / Supabase Auth / Firebase Auth
-- Push altyapısı: FCM + APNs
+- Kimlik sağlayıcı: Supabase Auth
+- Push altyapısı: flutter_local_notifications (cihaz üzeri zamanlama)
 - Analytics ve crash reporting sağlayıcıları
 
 Dokümanlardaki `Önerilen` ifadeleri kabul edilmiş karar değil, başlangıç önerisidir.

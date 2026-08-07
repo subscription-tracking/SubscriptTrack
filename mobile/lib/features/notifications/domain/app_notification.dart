@@ -16,6 +16,7 @@ class AppNotification {
     required this.type,
     required this.createdAt,
     this.subscriptionId,
+    this.readAtRemote = false,
   });
 
   final String id;
@@ -24,4 +25,6 @@ class AppNotification {
   final NotificationType type;
   final DateTime createdAt;
   final String? subscriptionId;
+  // True when read_at is set in the notifications table.
+  final bool readAtRemote;
 }

@@ -21,9 +21,7 @@ flowchart LR
     M -->|HTTPS REST/JSON| B[Backend API]
     B --> DB[(PostgreSQL)]
     B --> Q[Job / Queue]
-    Q --> P[Push Provider: FCM/APNs]
     Q --> E[E-posta Sağlayıcısı]
-    P --> M
     W[Web Sitesi] --> B
     A[Admin/Operasyon Aracı] --> B
 ```
@@ -118,17 +116,13 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Job as Scheduler
+    participant Job as Scheduler (pg_cron)
     participant DB as PostgreSQL
-    participant Worker as Notification Worker
-    participant Push as FCM/APNs
     participant App as Mobile App
     Job->>DB: Yaklaşan yenilemeleri bul
-    Job->>DB: Unique outbox kaydı oluştur
-    Worker->>DB: Bekleyen teslimatı al
-    Worker->>Push: Push gönder
-    Push-->>App: Bildirim
-    Worker->>DB: Teslimat sonucunu kaydet
+    Job->>DB: Unique notification kaydı oluştur
+    App->>DB: Bildirimleri çek (polling)
+    App->>App: Yerel push zamanlama (flutter_local_notifications)
 ```
 
 ## 6. API sınırı
