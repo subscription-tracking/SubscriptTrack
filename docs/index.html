@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubscriptTrack — Subscription Manager</title>
+  <meta name="description" content="Track every subscription, get notified before renewals, and see what you're saving when you cancel. Free, open source, Flutter + Supabase.">
+  <meta property="og:title" content="SubscriptTrack">
+  <meta property="og:description" content="Every subscription. Always visible.">
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --bg:       #F1F4FF;
+      --surface:  #FFFFFF;
+      --card:     #FFFFFF;
+      --ink:      #0B0F20;
+      --ink-2:    #3A4268;
+      --muted:    #717FA8;
+      --accent:   #5559F0;
+      --teal:     #1CD4C9;
+      --ag:       rgba(85,89,240,.12);
+      --border:   rgba(85,89,240,.14);
+      --shadow:   0 4px 24px rgba(11,15,40,.08);
+      --r:        14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:      #07091A;
+        --surface: #0E1228;
+        --card:    #131830;
+        --ink:     #DEE4FF;
+        --ink-2:   #8B96C4;
+        --muted:   #525E84;
+        --ag:      rgba(85,89,240,.2);
+        --border:  rgba(85,89,240,.2);
+        --shadow:  0 4px 40px rgba(0,0,0,.5);
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg:#07091A;--surface:#0E1228;--card:#131830;
+      --ink:#DEE4FF;--ink-2:#8B96C4;--muted:#525E84;
+      --ag:rgba(85,89,240,.2);--border:rgba(85,89,240,.2);
+      --shadow:0 4px 40px rgba(0,0,0,.5);
+    }
+    :root[data-theme="light"] {
+      --bg:#F1F4FF;--surface:#FFFFFF;--card:#FFFFFF;
+      --ink:#0B0F20;--ink-2:#3A4268;--muted:#717FA8;
+      --ag:rgba(85,89,240,.12);--border:rgba(85,89,240,.14);
+      --shadow:0 4px 24px rgba(11,15,40,.08);
+    }
+
+    /* ── Reset ── */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+      background:var(--bg);color:var(--ink);line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit}
+
+    /* ── Helpers ── */
+    .container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+    /* ── Nav ── */
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:color-mix(in srgb,var(--bg) 85%,transparent);
+      backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-inner{
+      display:flex;align-items:center;justify-content:space-between;height:62px;
+    }
+    .logo{
+      display:flex;align-items:center;gap:10px;
+      font-weight:700;font-size:.95rem;color:var(--ink);text-decoration:none;
+    }
+    .logo-mark{
+      width:32px;height:32px;border-radius:9px;
+      background:linear-gradient(135deg,var(--accent),var(--teal));
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:15px;
+    }
+    .nav-right{display:flex;align-items:center;gap:16px}
+    .nav-link{
+      color:var(--ink-2);text-decoration:none;font-size:.88rem;
+      transition:color .15s;
+    }
+    .nav-link:hover{color:var(--accent)}
+    .btn-gh{
+      display:flex;align-items:center;gap:6px;
+      padding:7px 15px;border-radius:8px;
+      background:var(--card);border:1px solid var(--border);
+      color:var(--ink);font-size:.82rem;font-weight:500;
+      text-decoration:none;transition:border-color .15s,color .15s;
+    }
+    .btn-gh:hover{border-color:var(--accent);color:var(--accent)}
+    @media(max-width:600px){.hide-sm{display:none}}
+
+    /* ── Hero ── */
+    .hero{
+      padding:80px 0 64px;
+      display:grid;
+      grid-template-columns:1fr 280px;
+      gap:64px;align-items:center;
+    }
+    @media(max-width:780px){
+      .hero{grid-template-columns:1fr;padding:48px 0 40px;gap:48px}
+      .phone-wrap{order:-1;display:flex;justify-content:center}
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 12px;border-radius:100px;
+      background:var(--ag);border:1px solid var(--border);
+      color:var(--accent);font-size:.75rem;font-weight:700;
+      letter-spacing:.04em;margin-bottom:22px;
+    }
+    .badge-dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--teal);display:inline-block;
+    }
+    h1{
+      font-size:clamp(2rem,4.5vw,3.2rem);
+      font-weight:900;line-height:1.08;
+      letter-spacing:-.025em;
+      text-wrap:balance;margin-bottom:20px;
+    }
+    h1 em{
+      font-style:normal;
+      background:linear-gradient(120deg,var(--accent),var(--teal));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .hero-sub{
+      font-size:1.05rem;color:var(--ink-2);max-width:460px;
+      margin-bottom:36px;line-height:1.75;
+    }
+    .hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+    .btn-primary{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:13px 24px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),#7B5CF8);
+      color:#fff;font-weight:600;font-size:.92rem;
+      text-decoration:none;transition:opacity .15s,transform .15s;
+      box-shadow:0 4px 20px rgba(85,89,240,.35);
+    }
+    .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-outline{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:13px 24px;border-radius:12px;
+      background:var(--card);border:1px solid var(--border);
+      color:var(--ink);font-weight:500;font-size:.92rem;
+      text-decoration:none;transition:border-color .15s,color .15s;
+    }
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* ── Phone mockup ── */
+    .phone-wrap{position:relative}
+    .aurora{
+      position:absolute;inset:-50px;pointer-events:none;z-index:0;
+      background:
+        radial-gradient(ellipse at 55% 35%,rgba(85,89,240,.3) 0%,transparent 60%),
+        radial-gradient(ellipse at 30% 75%,rgba(28,212,201,.22) 0%,transparent 55%);
+      filter:blur(44px);
+      animation:ashift 9s ease-in-out infinite alternate;
+    }
+    @keyframes ashift{
+      from{transform:scale(1) rotate(0deg);opacity:.8}
+      to{transform:scale(1.06) rotate(4deg);opacity:1}
+    }
+    @media(prefers-reduced-motion:reduce){.aurora{animation:none}}
+    .phone{
+      position:relative;z-index:1;
+      width:248px;
+      background:var(--surface);
+      border-radius:38px;
+      border:6px solid color-mix(in srgb,var(--ink) 14%,transparent);
+      box-shadow:var(--shadow),0 0 0 1px var(--border);
+      overflow:hidden;
+    }
+    .notch{
+      width:72px;height:20px;background:var(--surface);
+      margin:0 auto;border-radius:0 0 12px 12px;
+    }
+    .ps{padding:0 0 16px}
+    .ps-head{
+      padding:10px 14px 12px;
+      display:flex;justify-content:space-between;align-items:flex-start;
+    }
+    .ps-lbl{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .ps-total{font-size:1.25rem;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:2px}
+    .ps-sub-lbl{font-size:.55rem;color:var(--muted)}
+    .ps-chip{
+      padding:3px 9px;border-radius:20px;font-size:.58rem;font-weight:700;
+      background:var(--ag);color:var(--accent);
+    }
+    .div{height:1px;background:var(--border);margin:6px 14px}
+    .sec-lbl{
+      padding:4px 14px 5px;
+      font-size:.58rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.07em;
+    }
+    .row{display:flex;align-items:center;gap:8px;padding:6px 14px}
+    .ico{
+      width:30px;height:30px;border-radius:7px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;color:#fff;
+    }
+    .ri{flex:1;min-width:0}
+    .rn{font-size:.7rem;font-weight:600;color:var(--ink)}
+    .rd{font-size:.55rem;color:var(--muted);margin-top:1px}
+    .rp{font-size:.7rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+    .tag{
+      display:inline-block;padding:1px 5px;border-radius:100px;
+      font-size:.52rem;font-weight:700;
+    }
+    .t-red{background:rgba(239,68,68,.13);color:#EF4444}
+    .t-amber{background:rgba(245,158,11,.13);color:#F59E0B}
+    .t-green{background:rgba(34,197,94,.13);color:#22C55E}
+
+    /* ── Features ── */
+    .features{padding:80px 0}
+    .sec-eyebrow{font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .sec-title{
+      font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;
+      letter-spacing:-.02em;line-height:1.2;text-wrap:balance;margin-bottom:10px;
+    }
+    .sec-body{font-size:.97rem;color:var(--ink-2);max-width:500px;margin-bottom:48px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media(max-width:780px){.grid-3{grid-template-columns:1fr}}
+    .fcard{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:var(--r);padding:26px 22px;
+      transition:border-color .2s,transform .2s;
+    }
+    .fcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .ficon{
+      width:42px;height:42px;border-radius:11px;
+      background:var(--ag);display:flex;align-items:center;
+      justify-content:center;font-size:19px;margin-bottom:14px;
+    }
+    .ftitle{font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:7px}
+    .fbody{font-size:.84rem;color:var(--ink-2);line-height:1.65}
+
+    /* ── Tech strip ── */
+    .tech{
+      border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+      padding:36px 0;
+    }
+    .tech-inner{display:flex;justify-content:space-around;flex-wrap:wrap;gap:28px}
+    .titem{text-align:center}
+    .tval{
+      font-size:1.5rem;font-weight:800;
+      background:linear-gradient(120deg,var(--accent),var(--teal));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .tlbl{font-size:.75rem;color:var(--muted);margin-top:4px}
+
+    /* ── CTA ── */
+    .cta-wrap{padding:96px 0}
+    .cta-box{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:22px;padding:60px 48px;
+      text-align:center;position:relative;overflow:hidden;
+    }
+    @media(max-width:600px){.cta-box{padding:40px 24px}}
+    .cta-glow{
+      position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(ellipse at 50% 110%,var(--ag) 0%,transparent 60%);
+    }
+    .cta-title{
+      font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;
+      letter-spacing:-.02em;text-wrap:balance;margin-bottom:14px;
+    }
+    .cta-sub{color:var(--ink-2);margin-bottom:30px;font-size:.97rem}
+    .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+    /* ── Footer ── */
+    footer{border-top:1px solid var(--border);padding:28px 0}
+    .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+    .foot-l{font-size:.82rem;color:var(--muted)}
+    .foot-links{display:flex;gap:18px}
+    .foot-links a{font-size:.82rem;color:var(--muted);text-decoration:none;transition:color .15s}
+    .foot-links a:hover{color:var(--accent)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="2" width="5" height="5" rx="1.5" fill="white" opacity=".9"/>
+            <rect x="9" y="2" width="5" height="5" rx="1.5" fill="white" opacity=".7"/>
+            <rect x="2" y="9" width="5" height="5" rx="1.5" fill="white" opacity=".7"/>
+            <rect x="9" y="9" width="5" height="5" rx="1.5" fill="white" opacity=".5"/>
+          </svg>
+        </div>
+        SubscriptTrack
+      </a>
+      <div class="nav-right">
+        <a href="#features" class="nav-link hide-sm">Features</a>
+        <a href="https://github.com/subscription-tracking/SubscriptTrack" class="btn-gh" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- Hero -->
+  <section>
+    <div class="container">
+      <div class="hero">
+        <div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            Open Source · Flutter + Supabase
+          </div>
+          <h1>Never miss<br>a renewal.<br><em>Never overpay.</em></h1>
+          <p class="hero-sub">SubscriptTrack keeps your entire subscription stack visible — smart reminders before every charge, savings tracking when you cut what you don't need.</p>
+          <div class="hero-ctas">
+            <a href="https://github.com/subscription-tracking/SubscriptTrack" class="btn-primary" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+              View on GitHub
+            </a>
+            <a href="#features" class="btn-outline">See Features</a>
+          </div>
+        </div>
+        <div class="phone-wrap">
+          <div class="aurora"></div>
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="ps">
+              <div class="ps-head">
+                <div>
+                  <div class="ps-lbl">Monthly total</div>
+                  <div class="ps-total">$127.94</div>
+                  <div class="ps-sub-lbl">6 active subscriptions</div>
+                </div>
+                <div class="ps-chip">↑ 3 due soon</div>
+              </div>
+              <div class="div"></div>
+              <div class="sec-lbl">Upcoming Renewals</div>
+              <div class="row">
+                <div class="ico" style="background:linear-gradient(135deg,#141414,#2c2c2c)">▶</div>
+                <div class="ri">
+                  <div class="rn">Netflix</div>
+                  <div class="rd"><span class="tag t-red">Today</span></div>
+                </div>
+                <div class="rp">$15.99</div>
+              </div>
+              <div class="row">
+                <div class="ico" style="background:linear-gradient(135deg,#1ed760,#148a3f)">♪</div>
+                <div class="ri">
+                  <div class="rn">Spotify</div>
+                  <div class="rd"><span class="tag t-amber">2 days</span></div>
+                </div>
+                <div class="rp">$9.99</div>
+              </div>
+              <div class="row">
+                <div class="ico" style="background:linear-gradient(135deg,#0071F7,#00B2FF)">☁</div>
+                <div class="ri">
+                  <div class="rn">iCloud+</div>
+                  <div class="rd"><span class="tag t-green">14 days</span></div>
+                </div>
+                <div class="rp">$2.99</div>
+              </div>
+              <div class="div"></div>
+              <div class="sec-lbl">Active</div>
+              <div class="row">
+                <div class="ico" style="background:linear-gradient(135deg,#FF4B2B,#FF416C)">A</div>
+                <div class="ri">
+                  <div class="rn">Adobe CC</div>
+                  <div class="rd">Monthly · Auto</div>
+                </div>
+                <div class="rp">$54.99</div>
+              </div>
+              <div class="row">
+                <div class="ico" style="background:linear-gradient(135deg,#6B48FF,#A855F7)">◈</div>
+                <div class="ri">
+                  <div class="rn">Figma Pro</div>
+                  <div class="rd">Monthly · Auto</div>
+                </div>
+                <div class="rp">$12.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="sec-eyebrow">Features</div>
+      <h2 class="sec-title">Everything to stay on top of your subscriptions</h2>
+      <p class="sec-body">Built with Flutter for iOS and Android. Backed by Supabase for real-time sync and your own database.</p>
+      <div class="grid-3">
+        <div class="fcard">
+          <div class="ficon">📋</div>
+          <div class="ftitle">Full subscription stack</div>
+          <p class="fbody">Track every service in one place — name, price, billing cycle, start date, next renewal. Multi-currency support built in.</p>
+        </div>
+        <div class="fcard">
+          <div class="ficon">🔔</div>
+          <div class="ftitle">Renewal reminders</div>
+          <p class="fbody">Get notified today, 3 days, or 7 days before each charge. Configurable per your preference. No surprise renewals.</p>
+        </div>
+        <div class="fcard">
+          <div class="ficon">💰</div>
+          <div class="ftitle">Savings tracking</div>
+          <p class="fbody">Every time you cancel or pause a subscription, SubscriptTrack records the monthly and annual savings so you can see the impact.</p>
+        </div>
+        <div class="fcard">
+          <div class="ficon">📊</div>
+          <div class="ftitle">Spending analytics</div>
+          <p class="fbody">Total monthly spend, breakdowns by currency, and a list of renewals coming up in the next 30 days — always in view.</p>
+        </div>
+        <div class="fcard">
+          <div class="ficon">🔒</div>
+          <div class="ftitle">Private by default</div>
+          <p class="fbody">Your data lives in your own Supabase project with Row Level Security. Nobody can see your subscriptions — not even us.</p>
+        </div>
+        <div class="fcard">
+          <div class="ficon">📡</div>
+          <div class="ftitle">Works offline</div>
+          <p class="fbody">Add and update subscriptions without a connection. Changes sync automatically when you're back online.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech strip -->
+  <section class="tech">
+    <div class="container">
+      <div class="tech-inner">
+        <div class="titem">
+          <div class="tval">Flutter</div>
+          <div class="tlbl">iOS &amp; Android, one codebase</div>
+        </div>
+        <div class="titem">
+          <div class="tval">Supabase</div>
+          <div class="tlbl">Your data, your database</div>
+        </div>
+        <div class="titem">
+          <div class="tval">100%</div>
+          <div class="tlbl">Open source, MIT licensed</div>
+        </div>
+        <div class="titem">
+          <div class="tval">RLS</div>
+          <div class="tlbl">Row-level security everywhere</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-wrap">
+    <div class="container">
+      <div class="cta-box">
+        <div class="cta-glow"></div>
+        <h2 class="cta-title">Start tracking your subscriptions today</h2>
+        <p class="cta-sub">Free, open source, and self-hostable. Clone the repo and deploy in minutes.</p>
+        <div class="cta-btns">
+          <a href="https://github.com/subscription-tracking/SubscriptTrack" class="btn-primary" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            Get the source
+          </a>
+          <a href="https://github.com/subscription-tracking/SubscriptTrack/blob/main/README.md" class="btn-outline" target="_blank" rel="noopener">Read the docs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot">
+      <div class="foot-l">© 2026 SubscriptTrack · MIT License</div>
+      <div class="foot-links">
+        <a href="https://github.com/subscription-tracking/SubscriptTrack" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/subscription-tracking/SubscriptTrack/issues" target="_blank" rel="noopener">Issues</a>
+        <a href="https://github.com/subscription-tracking/SubscriptTrack/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
