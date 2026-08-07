@@ -10,11 +10,12 @@ Yalnızca cihaz üzerinde planlanan bildirimler cihaz değişimi, uygulama silme
 
 ## Karar
 
-Yenileme/trial bildirimleri backend tarafından occurrence ve delivery kayıtları üzerinden planlanır. Mobil push için FCM/APNs kullanılır. Yerel bildirim yalnızca yardımcı kullanım için değerlendirilebilir.
+Yenileme bildirimleri backend tarafından `renewal_occurrences` ve `notifications` tabloları üzerinden pg_cron ile planlanır. Kullanıcıya görünen bildirimler `flutter_local_notifications` ile cihaz üzerinde zamanlanır. Uzak push (FCM/APNs) kullanılmaz.
 
 ## Sonuçlar
 
-- Device token yönetimi gerekir.
+- Backend `renewal_occurrences` tablosunu doldurur; pg_cron bu tablodan `notifications` üretir.
+- Mobil uygulama `flutter_local_notifications` ile 09:00'da yerel push zamanlar.
+- Duplicate guard: hash değişmezse schedule atlanır.
 - Duplicate delivery unique constraint ile engellenir.
-- Worker ve retry mekanizması gerekir.
-- Bildirim operasyonları gözlemlenebilir olur.
+- Cihaz token yönetimi gerekmez.

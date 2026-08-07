@@ -48,6 +48,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
     _subs!.addListener(_onSubscriptionsChanged);
     SettingsController.instance.addListener(_onSettingsChanged);
     _subs!.load();
+    _notif!.load(user.id);
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _registerDeviceToken());
   }
@@ -62,6 +63,8 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
     if (_subs == null || _notif == null) return;
     _notif!.refresh(_subs!.active);
     _scheduleNotifications();
+    final uid = _userId;
+    if (uid != null) _notif!.load(uid);
   }
 
   void _onSettingsChanged() {

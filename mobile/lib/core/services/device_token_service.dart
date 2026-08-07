@@ -18,7 +18,6 @@ class SupabaseDeviceTokenService implements DeviceTokenService {
   @override
   Future<void> registerToken(String userId) async {
     final pushToken = await _getPushToken();
-    // pushToken is null until firebase_messaging is added — skip silently.
     if (pushToken == null) return;
 
     final client = _client;
@@ -66,6 +65,7 @@ class SupabaseDeviceTokenService implements DeviceTokenService {
     }
   }
 
-  /// Returns null until firebase_messaging is added to the project.
+  /// Push token acquisition is not yet implemented.
+  /// flutter_local_notifications handles all user-visible reminders instead.
   Future<String?> _getPushToken() async => null;
 }

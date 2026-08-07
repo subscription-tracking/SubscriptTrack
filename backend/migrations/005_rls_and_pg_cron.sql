@@ -66,6 +66,13 @@ END $$;
 -- ── pg_cron: hourly notification producer ─────────────────────────────────────
 -- Replaces notification_worker.js. Runs inside the DB — no external process needed.
 -- Dedup key: one notification per (occurrence_id, type).
+--
+-- NOTE: This job has two bugs fixed in 006_renewal_occurrences_trigger.sql:
+--   1. renewal_occurrences was never populated (no trigger), so this query always
+--      returned 0 rows.
+--   2. status filter uses 'pending' (lowercase) but rows store 'PENDING' — case
+--      mismatch means the query returns 0 rows even when the table is populated.
+-- Run 006 to replace this job with a corrected version.
 
 SELECT cron.schedule(
   'notification-producer',

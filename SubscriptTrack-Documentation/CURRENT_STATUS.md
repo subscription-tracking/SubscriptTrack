@@ -25,7 +25,7 @@ Son güncelleme: 2 Ağustos 2026 (S0–S19 tamamlandı · tam kod taraması yap�
 | S3 | Abonelik yaşam döngüsü | TAMAMLANDI |
 | S4 | Dashboard ve finansal hesaplamalar | TAMAMLANDI |
 | S5 | Takvim ve in-app bildirimler | TAMAMLANDI |
-| S6 | Push bildirimleri | TAMAMLANDI (yerel; FCM S11'e) |
+| S6 | Push bildirimleri | TAMAMLANDI (yerel — flutter_local_notifications) |
 | S7 | Ayarlar, export, hesap silme | TAMAMLANDI |
 | S8 | API mimarisi ve veri temeli | TAMAMLANDI |
 | S9 | Auth ve abonelik API entegrasyonu | TAMAMLANDI |
@@ -60,7 +60,7 @@ Kod kalite puanı: **80/100** (S20–S22 öncesi 72, 13 bulgu kapatıldıktan so
 | UX | %10 | 76 | 7.60 |
 | **Toplam** | | | **80.35 → 80** |
 
-Kalan açıklar (100'e ulaşmak için): FCM push end-to-end çalışması, durable job queue (GDPR/export), iOS test, mağaza gönderimi, entegrasyon testleri.
+Kalan açıklar (100'e ulaşmak için): durable job queue (GDPR/export), iOS test, mağaza gönderimi, entegrasyon testleri.
 
 ### Kapatılan kritikler (S13 sonrası fix)
 
@@ -162,7 +162,7 @@ Kalan açıklar (100'e ulaşmak için): FCM push end-to-end çalışması, durab
 
 ### Offline altyapı ve bildirim güçlendirme (S11)
 - `OfflineMutationQueue` — SharedPreferences'a kalıcı kuyruk; enqueue/drain/clear + FIFO + JSON round-trip
-- `DeviceTokenService` abstract + `PlaceholderDeviceTokenService` — FCM entegre edilene kadar no-op
+- `DeviceTokenService` abstract + `SupabaseDeviceTokenService` — push token yönetimi (şu an kullanılmıyor)
 - `NotificationReadSyncService` — okundu durumu `POST /v1/notifications/read-batch` ile backend'e best-effort sync
 - `NotificationController.markRead/markAllRead` — hem local SharedPreferences'a hem backend'e yazıyor
 - `SubscriptionController` — `_lastSyncAt`, `_replayOfflineQueue`, `_applyMutation`, `_updateLocalStatus`; `NetworkException` → mutation kuyruğuna
@@ -199,7 +199,7 @@ lib/
                     token_provider.dart (abstract + SupabaseTokenProvider)
     services/       local_notification_service.dart (flutter_local_notifications, hash guard)
                     offline_mutation_queue.dart (SharedPreferences kuyruk)
-                    device_token_service.dart (FCM placeholder)
+                    device_token_service.dart (push token — şu an kullanılmıyor)
                     notification_read_sync_service.dart (POST /v1/notifications/read-batch)
     storage/        local_storage.dart, secure_storage.dart
     utils/          date_time_utils.dart
@@ -297,7 +297,7 @@ subscripttrack://auth-callback
 
 ### S6 kapandı ✅
 - Notification ID collision fix (composite key), `cancelAll()` ile duplicate schedule engeli
-- FCM/APNs device token, backend push worker → S11'e ertelendi
+- Uzak push (APNs/token yönetimi) kapsam dışı — yerel bildirimler yeterli
 
 ---
 
@@ -309,7 +309,7 @@ subscripttrack://auth-callback
 | ~~Direct Supabase → REST API standardizasyonu~~ | ✅ S8'de tamamlandı |
 | ~~RLS user-owned policy kapsamı doğrulama~~ | ✅ S8'de tamamlandı |
 | ~~Backend ve API contract testleri yok~~ | ✅ S12'de tamamlandı |
-| ~~FCM/APNs device token + backend push worker~~ | ✅ S11'de altyapı kuruldu (FCM S14'e) |
+| ~~FCM/APNs device token + backend push worker~~ | Kapsam dışı — yerel push yeterli |
 | ~~AuthController race condition (Future.wait stream'i eziyor)~~ | ✅ 1 Ağustos 2026 kapatıldı |
 | ~~authenticated_shell.dart user! force-unwrap~~ | ✅ 1 Ağustos 2026 kapatıldı |
 | Mobil null safety + güvenlik (7 madde) | → **S20** |
@@ -327,6 +327,6 @@ subscripttrack://auth-callback
 - S3: TAMAMLANDI
 - S4: TAMAMLANDI
 - S5: TAMAMLANDI
-- S6: TAMAMLANDI (yerel push; FCM/APNs S11'e ertelendi)
+- S6: TAMAMLANDI (yerel push — flutter_local_notifications)
 - S7: TAMAMLANDI (S2–S6 öncesinde tamamlandı; bağımlılık gerektirmeyen ayarlar/export/hesap silme kapsamı)
 - Sonraki sprintlere geçiş: mevcut sprintin kabul kriterleri ve testleri geçmeden yapılmayacak

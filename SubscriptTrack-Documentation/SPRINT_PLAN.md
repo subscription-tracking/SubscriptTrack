@@ -33,7 +33,7 @@ Son güncelleme: 2 Ağustos 2026
 | S3 | Abonelik yaşam döngüsü | TAMAMLANDI |
 | S4 | Dashboard ve finansal hesaplamalar | TAMAMLANDI |
 | S5 | Takvim ve in-app bildirimler | TAMAMLANDI |
-| S6 | Push bildirimleri | TAMAMLANDI (yerel; FCM S11'e) |
+| S6 | Push bildirimleri | TAMAMLANDI (yerel — flutter_local_notifications) |
 | S7 | Ayarlar, export, hesap silme | TAMAMLANDI |
 | S8 | API mimarisi ve veri temeli | TAMAMLANDI |
 | S9 | Auth ve abonelik API entegrasyonu | TAMAMLANDI |
@@ -204,9 +204,9 @@ Son güncelleme: 2 Ağustos 2026
 
 ## S6 — Push bildirimleri
 
-**Durum:** TAMAMLANDI (yerel push; FCM/APNs S11'e)
+**Durum:** TAMAMLANDI
 
-**Hedef:** Backend kaynaklı bildirimlerin doğru zamanda ve seçili kanallarda teslimi.
+**Hedef:** Bildirimlerin doğru zamanda cihazda teslimi.
 
 **Yapılanlar:**
 - `flutter_local_notifications ^18.0.0` + `timezone ^0.9.4` kurulu
@@ -217,7 +217,6 @@ Son güncelleme: 2 Ağustos 2026
 - `NotificationPreferencesScreen` — açma/kapama, kaç gün önce (1/3/7), test bildirimi
 - **Notification ID collision fix:** ID artık `'${sub.id}|$daysBefore|$dateKey'.hashCode` — farklı abonelik + farklı kaç gün önce + farklı tarih → farklı ID; çakışma yok
 - `cancelAll()` önceden çağrılır → aynı çalışmada duplicate zamanlama imkânsız
-- FCM/APNs device token, backend push worker, retry/invalid token akışı: S11'e ertelendi
 
 ---
 
@@ -313,7 +312,7 @@ Son güncelleme: 2 Ağustos 2026
 
 **Yapılanlar:**
 - [x] `OfflineMutationQueue` — SharedPreferences destekli kalıcı kuyruk; `enqueue/drain/clear` + FIFO garantisi + JSON round-trip
-- [x] `DeviceTokenService` abstract + `PlaceholderDeviceTokenService` — FCM entegre edilene kadar no-op; gelecek endpoint yorumları korundu
+- [x] `DeviceTokenService` abstract + `SupabaseDeviceTokenService` — push token altyapısı (şu an kullanılmıyor)
 - [x] `NotificationReadSyncService` — `POST /v1/notifications/read-batch`; best-effort (catch-all, hata sessiz)
 - [x] `NotificationController.markRead/markAllRead` — read state hem SharedPreferences'a hem backend'e (async) yazılıyor
 - [x] `SubscriptionController` S11 — `_mutationQueue`, `_lastSyncAt`, `_replayOfflineQueue()`, `_applyMutation()`, `_updateLocalStatus()` eklendi; tüm lifecycle metodları `mutationType` alıyor; `NetworkException` catch → offline queue
@@ -397,7 +396,7 @@ Son güncelleme: 2 Ağustos 2026
 
 **Tamamlananlar (S15–S18 kapsamında):**
 - [x] Android keystore, signing, `key.properties` ile dışarıdan yükleniyor
-- [x] R8/ProGuard ve Flutter/Firebase koruma kuralları eklendi
+- [x] R8/ProGuard ve Flutter koruma kuralları eklendi
 - [x] GitHub Actions CI: analyze, test, AAB artefakt
 - [x] iOS Flutter platformu oluşturuldu, bundle ID ve deep link şeması tanımlı
 - [x] `RELEASE_CHECKLIST.md` oluşturuldu
@@ -406,7 +405,6 @@ Son güncelleme: 2 Ağustos 2026
 - [ ] Upload keystore (Play Console)
 - [ ] Apple Developer hesabı / Xcode archive
 - [ ] Staging ve production Supabase + API credential'ları
-- [ ] Firebase konfigürasyon dosyaları (`google-services.json`, `GoogleService-Info.plist`)
 - [ ] Gerçek cihaz son smoke testi
 - [ ] Privacy policy ve terms yayını
 - [ ] TestFlight ve Google Play Internal Testing dağıtımı
@@ -458,20 +456,14 @@ Emülatörün System UI'si ANR verdiği için görsel kullanıcı-akışı kontr
 
 ## S17 — Push bildirimleri ve platform izinleri
 
-**Durum:** TAMAMLANDI (kod + ortam hazırlığı)
+**Durum:** TAMAMLANDI
 
-**Hedef:** FCM/APNs token yaşam döngüsünü kullanıcı oturumuna bağlamak ve yerel
-bildirim izinlerini Android/iOS davranışıyla uyumlu tutmak.
+**Hedef:** Yerel bildirim izinlerini Android/iOS davranışıyla uyumlu tutmak.
 
 **Yapılanlar:**
-- [x] `firebase_core` ve `firebase_messaging` bağımlılıkları eklendi.
-- [x] `FIREBASE_ENABLED` ile Firebase yalnız gerçek platform konfigürasyonu olan build'lerde başlatılır.
-- [x] FCM izin, token alma, token refresh, API kayıt ve logout revoke akışı eklendi.
-- [x] Backend token upsert işlemi kullanıcı/platform/sürüm bilgisini günceller ve revoke edilmiş tokenı yeniden etkinleştirir.
-- [x] Android notification/exact-alarm/boot izinleri ve iOS izin isteği mevcut local notification akışıyla doğrulandı.
-- [x] API, deployment ve mobil mimari dokümantasyonu gerçek `/api/v1/notifications/devices` sözleşmesine güncellendi.
-
-**Dış ortam kapısı:** Firebase Console'dan `flutterfire configure` ile gerçek Android/iOS konfigürasyon dosyaları üretilmeli, ardından `FIREBASE_ENABLED=true` ile staging cihaz push smoke testi yapılmalı.
+- [x] Android notification/exact-alarm/boot izinleri ve iOS izin isteği yerel bildirim akışıyla doğrulandı.
+- [x] `LocalNotificationService` — platform izin isteği, kanal yapılandırması ve zamanlanmış bildirim tam çalışıyor.
+- [x] `DeviceTokenService` altyapısı mevcut (kullanılmıyor — uzak push kapsam dışı).
 
 ---
 
@@ -483,8 +475,8 @@ bildirim izinlerini Android/iOS davranışıyla uyumlu tutmak.
 mağaza/staging öncesi teknik kapıları görünür kılmak.
 
 **Yapılanlar:**
-- [x] Android release signing `key.properties` ile dışarıdan yüklenir; keystore ve Firebase dosyaları `.gitignore` kapsamındadır.
-- [x] R8/resource shrinking ve Flutter/Firebase ProGuard koruma kuralları eklendi.
+- [x] Android release signing `key.properties` ile dışarıdan yüklenir; keystore `.gitignore` kapsamındadır.
+- [x] R8/resource shrinking ve Flutter ProGuard koruma kuralları eklendi.
 - [x] GitHub Actions kalite kapısı eklendi: pub get, analyze, test ve main için unsigned AAB artefaktı.
 - [x] iOS Flutter platformu oluşturuldu; bundle ID `com.subscripttrack.app`, auth deep link şeması eklendi.
 - [x] Kotlin Gradle Plugin 2.2.20’ye yükseltildi.
@@ -492,7 +484,7 @@ mağaza/staging öncesi teknik kapıları görünür kılmak.
 
 **Doğrulama:** `dart analyze` temiz. Tam test suite önceki çalıştırmada yeşil ilerledi; Android release AAB üretimi bu Windows ortamında Gradle’ın çıktı üretmeden beklemesi nedeniyle tamamlanamadı. Bu yüzden Play/TestFlight gönderimi yapılmış sayılmaz.
 
-**Kalan dış hesap kapıları:** upload keystore, Play Console, Apple Developer/Xcode, staging API/Supabase credential’ları, Firebase konfigürasyon dosyaları, gerçek cihaz smoke testi ve hukuki metinlerin yetkili incelemesi/yayını.
+**Kalan dış hesap kapıları:** upload keystore, Play Console, Apple Developer/Xcode, staging API/Supabase credential’ları, gerçek cihaz smoke testi ve hukuki metinlerin yetkili incelemesi/yayını.
 
 ---
 

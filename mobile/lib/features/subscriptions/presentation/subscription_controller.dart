@@ -11,6 +11,7 @@ import '../../../core/storage/local_storage.dart';
 import '../data/local_subscription_repository.dart';
 import '../data/supabase_subscription_repository.dart';
 import '../domain/subscription_models.dart';
+import '../../savings/data/savings_repository.dart';
 
 class SubscriptionController extends ChangeNotifier {
   SubscriptionController({
@@ -28,6 +29,7 @@ class SubscriptionController extends ChangeNotifier {
   final String _userId;
   final SubscriptionDataSource _repo;
   final _mutationQueue = OfflineMutationQueue();
+  final _savingsRepo = SavingsRepository();
 
   List<Subscription> _items = [];
   bool _loading = false;
@@ -256,17 +258,50 @@ class SubscriptionController extends ChangeNotifier {
       id, SubscriptionStatus.active, () => _repo.restore(_userId, id),
       mutationType: 'restore');
 
-  Future<void> pause(String id) => _updateStatus(
+  Future<void> pause(String id) {
+    final sub = _findById(id);
+    return _updateStatus(
       id, SubscriptionStatus.paused, () => _repo.pause(_userId, id),
-      mutationType: 'pause');
+      mutationType: 'pause',
+      onSuccess: sub == null
+          ? null
+          : () => _savingsRepo.record(
+                userId: _userId,
+                subscriptionId: id,
+                eventType: 'PAUSED',
+                monthlyAmount: sub.monthlyAmount.amount,
+                annualAmount: (sub.monthlyAmount * 12).amount,
+                currency: sub.currency,
+              ),
+    );
+  }
 
   Future<void> resume(String id) => _updateStatus(
       id, SubscriptionStatus.active, () => _repo.resume(_userId, id),
       mutationType: 'resume');
 
-  Future<void> cancel(String id) => _updateStatus(
+  Future<void> cancel(String id) {
+    final sub = _findById(id);
+    return _updateStatus(
       id, SubscriptionStatus.cancelled, () => _repo.cancel(_userId, id),
-      mutationType: 'cancel');
+      mutationType: 'cancel',
+      onSuccess: sub == null
+          ? null
+          : () => _savingsRepo.record(
+                userId: _userId,
+                subscriptionId: id,
+                eventType: 'CANCELLED',
+                monthlyAmount: sub.monthlyAmount.amount,
+                annualAmount: (sub.monthlyAmount * 12).amount,
+                currency: sub.currency,
+              ),
+    );
+  }
+
+  Subscription? _findById(String id) {
+    final idx = _items.indexWhere((s) => s.id == id);
+    return idx != -1 ? _items[idx] : null;
+  }
 
   void clearError() {
     _error = null;
@@ -278,14 +313,17 @@ class SubscriptionController extends ChangeNotifier {
     SubscriptionStatus status,
     Future<void> Function() repoCall, {
     required String mutationType,
+    Future<void> Function()? onSuccess,
   }) async {
     final idx = _items.indexWhere((s) => s.id == id);
     if (idx != -1 && !_items[idx].status.canTransitionTo(status)) {
       throw ValidationException(
           'status_transition_unsupported:${_items[idx].status.key}:${status.key}');
     }
+    var succeeded = false;
     try {
       await repoCall();
+      succeeded = true;
     } on NetworkException {
       await _mutationQueue.enqueue(OfflineMutation(
         type: mutationType,
@@ -293,6 +331,8 @@ class SubscriptionController extends ChangeNotifier {
         enqueuedAt: DateTime.now().toUtc(),
       ));
     }
+    // Record side-effects only when the server call succeeded (not queued offline).
+    if (succeeded && onSuccess != null) await onSuccess();
     if (idx != -1) _items[idx] = _items[idx].copyWith(status: status);
     await _writeCache(_items);
     notifyListeners();

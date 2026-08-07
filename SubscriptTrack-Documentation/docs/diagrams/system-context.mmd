@@ -2,9 +2,8 @@ flowchart LR
     U[Kullanıcı] --> M[iOS / Android Mobil Uygulama]
     M -->|HTTPS REST/JSON| B[Backend API]
     B --> DB[(PostgreSQL)]
-    B --> Q[Job / Queue]
-    Q --> P[Push Provider: FCM/APNs]
+    B --> Q[pg_cron / Job]
     Q --> E[E-posta Sağlayıcısı]
-    P --> M
+    M -->|Yerel zamanlama| N[flutter_local_notifications]
     W[Web Sitesi] --> B
     A[Admin/Operasyon Aracı] --> B

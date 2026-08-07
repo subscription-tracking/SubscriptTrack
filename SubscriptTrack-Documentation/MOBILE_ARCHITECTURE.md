@@ -36,7 +36,7 @@ mobile/lib/
 │   │                    token_provider.dart       — abstract + SupabaseTokenProvider
 │   ├── services/        local_notification_service.dart   — flutter_local_notifications, timezone
 │   │                    offline_mutation_queue.dart        — SharedPreferences kuyruk
-│   │                    device_token_service.dart          — FCM placeholder
+│   │                    device_token_service.dart          — push token (kullanılmıyor)
 │   │                    notification_read_sync_service.dart — POST /v1/notifications/read-batch
 │   ├── storage/         local_storage.dart        — abonelik JSON cache (SharedPreferences)
 │   │                    secure_storage.dart       — hassas veri (flutter_secure_storage)
@@ -136,9 +136,7 @@ load() başarılı
 - **Yerel push:** `flutter_local_notifications` — `scheduleRenewalReminders()` N gün önce 09:00
 - **Duplicate guard:** `Object.hashAll(subs + daysBefore + timezone)` — hash değişmezse schedule atlanır
 - **Settings listener:** `daysBefore` veya `timezone` değişince otomatik yeniden zamanlama
-- **FCM/APNs:** `FcmDeviceTokenService` — izin ister, tokenı API'ye kaydeder,
-  token refresh'i yeniden kaydeder ve logout'ta revoke eder. Firebase'siz build'lerde
-  `PlaceholderDeviceTokenService` kullanılır.
+- **Push yöntemi:** Yalnızca `flutter_local_notifications` ile cihaz üzeri zamanlama. Uzak push altyapısı kullanılmaz.
 - **Read sync:** `NotificationReadSyncService` → `POST /v1/notifications/read-batch` (best-effort)
 
 ---
