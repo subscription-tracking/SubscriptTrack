@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../settings/presentation/settings_controller.dart';
+import '../../../../shared/widgets/service_identity.dart';
 import '../../domain/subscription_models.dart';
 
 class SubscriptionFormData {
@@ -149,6 +150,22 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
+  static const _popularPresets = <(String, SubscriptionCategory)>[
+    ('Netflix', SubscriptionCategory.streaming),
+    ('Spotify', SubscriptionCategory.music),
+    ('ChatGPT', SubscriptionCategory.software),
+    ('Disney+', SubscriptionCategory.streaming),
+    ('YouTube Premium', SubscriptionCategory.streaming),
+    ('Notion', SubscriptionCategory.software),
+    ('iCloud', SubscriptionCategory.cloud),
+    ('Figma', SubscriptionCategory.software),
+    ('Adobe', SubscriptionCategory.software),
+    ('Xbox Game Pass', SubscriptionCategory.gaming),
+    ('PlayStation Plus', SubscriptionCategory.gaming),
+    ('BluTV', SubscriptionCategory.streaming),
+    ('Exxen', SubscriptionCategory.streaming),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final outlineColor =
@@ -160,6 +177,42 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const Text(
+            'Popüler Servisler (Tek dokunuşla seçin):',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 48,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _popularPresets.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final preset = _popularPresets[index];
+                return ActionChip(
+                  avatar: ServiceIdentity(
+                    name: preset.$1,
+                    category: preset.$2,
+                    size: 24,
+                  ),
+                  label: Text(preset.$1),
+                  onPressed: () {
+                    setState(() {
+                      _name.text = preset.$1;
+                      widget.data.name = preset.$1;
+                      widget.data.category = preset.$2;
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
