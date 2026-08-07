@@ -298,7 +298,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String?>(
-            value: paymentMethods.contains(widget.data.paymentMethod)
+            initialValue: paymentMethods.contains(widget.data.paymentMethod)
                 ? widget.data.paymentMethod
                 : null,
             decoration: const InputDecoration(
