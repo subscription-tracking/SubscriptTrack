@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_theme.dart';
 import '../../features/subscriptions/domain/subscription_models.dart';
 
-/// A consistent, premium brand identity widget with custom brand artwork badges,
-/// specular glow rings, and crisp typography fallback.
+/// A consistent, premium brand identity widget.
+///
+/// For known services it fetches the **real brand logo** from the internet
+/// (Google Favicons API → DuckDuckGo Icons fallback) and shows it inside a
+/// tinted container with a specular glow ring.  While the image loads (or if
+/// loading fails / device is offline), it falls back to the curated
+/// Material-icon + brand-colour badge.
 class ServiceIdentity extends StatelessWidget {
   const ServiceIdentity({
     required this.name,
@@ -21,9 +26,28 @@ class ServiceIdentity extends StatelessWidget {
   Widget build(BuildContext context) {
     final nameKey = name.trim().toLowerCase();
     final identity = _knownServices[nameKey];
+    final domain = _knownDomains[nameKey];
     final icon = identity?.$1 ?? _categoryIcon(category);
     final color = identity?.$2 ?? _categoryColor(category);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
+
+    // Icon / letter fallback — shown while loading or on error.
+    Widget iconFallback() => Center(
+          child: identity == null
+              ? Text(
+                  initial,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w800,
+                    fontSize: size * 0.42,
+                    letterSpacing: -0.5,
+                  ),
+                )
+              : Icon(icon, color: color, size: size * 0.52),
+        );
+
+    // The pixel size we request from the API (2× for retina).
+    final pxSize = (size * 2).clamp(64, 256).toInt();
 
     return Semantics(
       label: '$name logosu',
@@ -43,23 +67,88 @@ class ServiceIdentity extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(
-          child: identity == null
-              ? Text(
-                  initial,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                    fontSize: size * 0.42,
-                    letterSpacing: -0.5,
-                  ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size * 0.36),
+          child: domain != null
+              ? _LogoImage(
+                  domain: domain,
+                  pxSize: pxSize,
+                  size: size,
+                  fallback: iconFallback,
                 )
-              : Icon(icon, color: color, size: size * 0.52),
+              : iconFallback(),
         ),
       ),
     );
   }
 
+  // ─── Domain map ──────────────────────────────────────────────────────
+  static const _knownDomains = <String, String>{
+    // Streaming
+    'netflix': 'netflix.com',
+    'disney+': 'disneyplus.com',
+    'disney': 'disneyplus.com',
+    'hbo max': 'max.com',
+    'hbo': 'max.com',
+    'max': 'max.com',
+    'amazon prime': 'amazon.com',
+    'prime video': 'primevideo.com',
+    'apple tv': 'apple.com',
+    'apple tv+': 'apple.com',
+    'exxen': 'exxen.com',
+    'gain': 'gain.tv',
+    'blutv': 'blutv.com',
+    'mubi': 'mubi.com',
+    // Music
+    'spotify': 'spotify.com',
+    'apple music': 'apple.com',
+    'youtube music': 'youtube.com',
+    'youtube': 'youtube.com',
+    'youtube premium': 'youtube.com',
+    'tidal': 'tidal.com',
+    'deezer': 'deezer.com',
+    // Productivity & AI
+    'chatgpt': 'chatgpt.com',
+    'openai': 'openai.com',
+    'claude': 'claude.ai',
+    'notion': 'notion.so',
+    'obsidian': 'obsidian.md',
+    'linear': 'linear.app',
+    'jira': 'atlassian.com',
+    'slack': 'slack.com',
+    // Creative
+    'adobe': 'adobe.com',
+    'figma': 'figma.com',
+    'canva': 'canva.com',
+    'sketch': 'sketch.com',
+    'midjourney': 'midjourney.com',
+    // Cloud
+    'icloud': 'icloud.com',
+    'google one': 'google.com',
+    'dropbox': 'dropbox.com',
+    'onedrive': 'microsoft.com',
+    // Developer
+    'github': 'github.com',
+    'gitlab': 'gitlab.com',
+    'vercel': 'vercel.com',
+    'netlify': 'netlify.com',
+    // Gaming
+    'xbox game pass': 'xbox.com',
+    'playstation plus': 'playstation.com',
+    'ea play': 'ea.com',
+    'nintendo switch online': 'nintendo.com',
+    // Health & Fitness
+    'strava': 'strava.com',
+    'myfitnesspal': 'myfitnesspal.com',
+    // VPN & Security
+    'nordvpn': 'nordvpn.com',
+    'expressvpn': 'expressvpn.com',
+    '1password': '1password.com',
+    'lastpass': 'lastpass.com',
+    'bitwarden': 'bitwarden.com',
+  };
+
+  // ─── Icon + colour fallback map ──────────────────────────────────────
   static const _knownServices = <String, (IconData, Color)>{
     // Streaming
     'netflix': (Icons.movie_rounded, Color(0xFFE50914)),
@@ -155,4 +244,55 @@ class ServiceIdentity extends StatelessWidget {
         SubscriptionCategory.education => const Color(0xFF38BDF8),
         SubscriptionCategory.other => AppColors.muted,
       };
+}
+
+/// Internal widget that tries Google Favicons → DuckDuckGo Icons → fallback.
+class _LogoImage extends StatelessWidget {
+  const _LogoImage({
+    required this.domain,
+    required this.pxSize,
+    required this.size,
+    required this.fallback,
+  });
+
+  final String domain;
+  final int pxSize;
+  final double size;
+  final Widget Function() fallback;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      'https://www.google.com/s2/favicons?domain=$domain&sz=$pxSize',
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      // Show the icon fallback until the first frame of the image is decoded.
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        if (wasSynchronouslyLoaded || frame != null) {
+          return Padding(
+            padding: EdgeInsets.all(size * 0.12),
+            child: child,
+          );
+        }
+        return fallback();
+      },
+      errorBuilder: (_, __, ___) => Image.network(
+        'https://icons.duckduckgo.com/ip3/$domain.ico',
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded || frame != null) {
+            return Padding(
+              padding: EdgeInsets.all(size * 0.12),
+              child: child,
+            );
+          }
+          return fallback();
+        },
+        errorBuilder: (_, __, ___) => fallback(),
+      ),
+    );
+  }
 }
