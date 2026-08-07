@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../settings/presentation/settings_controller.dart';
 import '../../domain/subscription_models.dart';
 
 class SubscriptionFormData {
@@ -12,6 +13,7 @@ class SubscriptionFormData {
     DateTime? nextRenewalDate,
     this.category = SubscriptionCategory.other,
     this.notes = '',
+    this.paymentMethod,
   })  : startDate = startDate ?? DateTime.now(),
         nextRenewalDate =
             nextRenewalDate ?? DateTime.now().add(const Duration(days: 30));
@@ -24,6 +26,7 @@ class SubscriptionFormData {
   DateTime nextRenewalDate;
   SubscriptionCategory category;
   String notes;
+  String? paymentMethod;
 }
 
 class SubscriptionForm extends StatefulWidget {
@@ -108,12 +111,49 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     if (picked != null) setState(() => widget.data.nextRenewalDate = picked);
   }
 
+  void _showQuickAddPaymentMethod() {
+    final textController = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Yeni Ödeme Yöntemi Ekle'),
+        content: TextField(
+          controller: textController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            hintText: 'Örn. Garanti Bonus ****1234',
+            labelText: 'Kart / Yöntem Adı',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final val = textController.text.trim();
+              if (val.isNotEmpty) {
+                SettingsController.instance.addPaymentMethod(val);
+                setState(() => widget.data.paymentMethod = val);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Ekle'),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
   @override
   Widget build(BuildContext context) {
     final outlineColor =
         Theme.of(context).colorScheme.outline.withValues(alpha: .5);
+    final paymentMethods = SettingsController.instance.paymentMethods;
 
     return Form(
       key: widget.formKey,
@@ -202,6 +242,46 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                 .toList(),
             onChanged: (v) => setState(
                 () => widget.data.category = v ?? SubscriptionCategory.other),
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String?>(
+            value: paymentMethods.contains(widget.data.paymentMethod)
+                ? widget.data.paymentMethod
+                : null,
+            decoration: const InputDecoration(
+              labelText: 'Ödeme Yöntemi / Kart (opsiyonel)',
+              prefixIcon: Icon(Icons.credit_card_outlined),
+            ),
+            items: [
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('Seçilmedi'),
+              ),
+              ...paymentMethods.map(
+                (pm) => DropdownMenuItem<String?>(
+                  value: pm,
+                  child: Text(pm),
+                ),
+              ),
+              const DropdownMenuItem<String?>(
+                value: '__ADD_NEW__',
+                child: Row(
+                  children: [
+                    Icon(Icons.add, size: 18),
+                    SizedBox(width: 6),
+                    Text('+ Yeni Kart Ekle...',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            ],
+            onChanged: (v) {
+              if (v == '__ADD_NEW__') {
+                _showQuickAddPaymentMethod();
+              } else {
+                setState(() => widget.data.paymentMethod = v);
+              }
+            },
           ),
           const SizedBox(height: 16),
           _DateTile(

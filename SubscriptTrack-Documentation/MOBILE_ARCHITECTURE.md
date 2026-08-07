@@ -64,8 +64,8 @@ mobile/lib/
     ├── stats/           StatsScreen — per-currency category breakdown, RefreshIndicator
     ├── savings/         SavingsScreen — multi-currency top-3 scenario kartlar
     ├── onboarding/      OnboardingScreen — 4 sayfa, ilk açılışta
-    └── settings/        SettingsController — theme, currency, timezone, daysBefore, notifications
-                         AppearanceScreen, NotificationPreferencesScreen
+    └── settings/        SettingsController — theme, currency, timezone, daysBefore, notifications, paymentMethods
+                         AppearanceScreen, NotificationPreferencesScreen, PaymentMethodsScreen
                          ExportDataScreen (CSV), DeleteAccountScreen
 ```
 

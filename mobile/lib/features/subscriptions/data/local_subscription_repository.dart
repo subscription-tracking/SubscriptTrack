@@ -42,6 +42,7 @@ class LocalSubscriptionRepository implements SubscriptionDataSource {
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
+    String? paymentMethod,
   }) async {
     final items = await _readAll(userId);
     final sub = Subscription(
@@ -55,6 +56,7 @@ class LocalSubscriptionRepository implements SubscriptionDataSource {
       nextRenewalDate: nextRenewalDate,
       category: category,
       notes: notes?.trim(),
+      paymentMethod: paymentMethod?.trim(),
       status: SubscriptionStatus.active,
       createdAt: DateTime.now().toUtc(),
     );

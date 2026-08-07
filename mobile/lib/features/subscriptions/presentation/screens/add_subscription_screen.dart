@@ -31,6 +31,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       nextRenewalDate: _data.nextRenewalDate,
       category: _data.category,
       notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),
+      paymentMethod: _data.paymentMethod,
     );
 
     if (!mounted) return;

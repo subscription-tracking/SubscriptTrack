@@ -10,12 +10,14 @@ class SettingsController extends ChangeNotifier {
   static const _keyNotifications = 'settings_notifications';
   static const _keyDaysBefore = 'settings_days_before';
   static const _keyTimezone = 'settings_timezone';
+  static const _keyPaymentMethods = 'settings_payment_methods';
 
   String _currency = '₺';
   ThemeMode _themeMode = ThemeMode.system;
   bool _notificationsEnabled = true;
   int _daysBefore = 3;
   String _timezone = '';
+  List<String> _paymentMethods = ['Kredi Kartı', 'Banka Kartı', 'Papara'];
 
   String get currency => _currency;
   ThemeMode get themeMode => _themeMode;
@@ -23,6 +25,7 @@ class SettingsController extends ChangeNotifier {
   int get daysBefore => _daysBefore;
   /// Boş string = cihaz yerel saat dilimi kullan.
   String get timezone => _timezone;
+  List<String> get paymentMethods => List.unmodifiable(_paymentMethods);
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,6 +35,8 @@ class SettingsController extends ChangeNotifier {
     _notificationsEnabled = prefs.getBool(_keyNotifications) ?? true;
     _daysBefore = prefs.getInt(_keyDaysBefore) ?? 3;
     _timezone = prefs.getString(_keyTimezone) ?? '';
+    _paymentMethods = prefs.getStringList(_keyPaymentMethods) ??
+        ['Kredi Kartı', 'Banka Kartı', 'Papara'];
     notifyListeners();
   }
 
@@ -67,6 +72,31 @@ class SettingsController extends ChangeNotifier {
     _timezone = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyTimezone, value);
+    notifyListeners();
+  }
+
+  Future<void> addPaymentMethod(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty || _paymentMethods.contains(trimmed)) return;
+    _paymentMethods = [..._paymentMethods, trimmed];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_keyPaymentMethods, _paymentMethods);
+    notifyListeners();
+  }
+
+  Future<void> removePaymentMethod(String name) async {
+    _paymentMethods = _paymentMethods.where((e) => e != name).toList();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_keyPaymentMethods, _paymentMethods);
+    notifyListeners();
+  }
+
+  Future<void> renamePaymentMethod(String oldName, String newName) async {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty || !_paymentMethods.contains(oldName)) return;
+    _paymentMethods = _paymentMethods.map((e) => e == oldName ? trimmed : e).toList();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_keyPaymentMethods, _paymentMethods);
     notifyListeners();
   }
 }

@@ -42,6 +42,7 @@ class _FakeRepo implements SubscriptionDataSource {
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
+    String? paymentMethod,
   }) async {
     if (failNextCall) {
       failNextCall = false;
@@ -58,6 +59,7 @@ class _FakeRepo implements SubscriptionDataSource {
       nextRenewalDate: nextRenewalDate,
       category: category,
       notes: notes,
+      paymentMethod: paymentMethod,
       createdAt: DateTime.now(),
     );
     _data.add(sub);

@@ -11,6 +11,7 @@ Subscription _makeSubscription({
   BillingCycle billingCycle = BillingCycle.monthly,
   SubscriptionStatus status = SubscriptionStatus.active,
   String? notes,
+  String? paymentMethod,
 }) =>
     Subscription(
       id: id,
@@ -23,6 +24,7 @@ Subscription _makeSubscription({
       nextRenewalDate: DateTime(2026, 8, 1),
       category: SubscriptionCategory.streaming,
       notes: notes,
+      paymentMethod: paymentMethod,
       status: status,
       createdAt: DateTime(2025, 1, 1),
     );
@@ -44,6 +46,13 @@ void main() {
       expect(roundTripped.category, sub.category);
       expect(roundTripped.status, sub.status);
       expect(roundTripped.notes, sub.notes);
+      expect(roundTripped.paymentMethod, sub.paymentMethod);
+    });
+
+    test('ödeme yöntemi / kart adı korunur', () {
+      final sub = _makeSubscription(paymentMethod: 'Garanti Bonus');
+      final rt = Subscription.fromJson(sub.toJson());
+      expect(rt.paymentMethod, 'Garanti Bonus');
     });
 
     test('duraklatılmış durum korunur', () {

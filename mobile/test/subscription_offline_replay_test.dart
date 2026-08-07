@@ -29,6 +29,7 @@ class _ReplayRepo implements SubscriptionDataSource {
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
+    String? paymentMethod,
   }) => throw UnimplementedError();
 
   @override

@@ -89,7 +89,7 @@ Opsiyonel alanlar:
 - Website ve hesap yönetim bağlantısı
 - İptal bağlantısı
 - Not
-- Ödeme yöntemi etiketi
+- Ödeme yöntemi etiketi / kullanıcının tanımladığı kart takma adı (Ayarlar menüsünden veya form içinden tanımlanıp dropdown ile seçilebilir)
 - Özel bildirim günü
 
 Durumlar:

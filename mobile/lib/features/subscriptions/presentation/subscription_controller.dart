@@ -184,6 +184,7 @@ class SubscriptionController extends ChangeNotifier {
     required DateTime nextRenewalDate,
     required SubscriptionCategory category,
     String? notes,
+    String? paymentMethod,
   }) async {
     _setLoading(true);
     try {
@@ -197,6 +198,7 @@ class SubscriptionController extends ChangeNotifier {
         nextRenewalDate: nextRenewalDate,
         category: category,
         notes: notes,
+        paymentMethod: paymentMethod,
       );
       _items.add(sub);
       _error = null;

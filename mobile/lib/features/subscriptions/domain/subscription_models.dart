@@ -110,6 +110,7 @@ class Subscription {
     required this.nextRenewalDate,
     required this.category,
     this.notes,
+    this.paymentMethod,
     this.status = SubscriptionStatus.active,
     required this.createdAt,
   });
@@ -124,6 +125,7 @@ class Subscription {
   final DateTime nextRenewalDate;
   final SubscriptionCategory category;
   final String? notes;
+  final String? paymentMethod;
   final SubscriptionStatus status;
   final DateTime createdAt;
 
@@ -153,6 +155,7 @@ class Subscription {
     DateTime? nextRenewalDate,
     SubscriptionCategory? category,
     String? notes,
+    String? paymentMethod,
     SubscriptionStatus? status,
   }) =>
       Subscription(
@@ -166,6 +169,7 @@ class Subscription {
         nextRenewalDate: nextRenewalDate ?? this.nextRenewalDate,
         category: category ?? this.category,
         notes: notes ?? this.notes,
+        paymentMethod: paymentMethod ?? this.paymentMethod,
         status: status ?? this.status,
         createdAt: createdAt,
       );
@@ -181,6 +185,7 @@ class Subscription {
         'nextRenewalDate': nextRenewalDate.toIso8601String(),
         'category': category.key,
         'notes': notes,
+        'paymentMethod': paymentMethod,
         'status': status.key,
         'createdAt': createdAt.toIso8601String(),
       };
@@ -215,6 +220,8 @@ class Subscription {
         (json['category'] ?? 'other') as String,
       ),
       notes: json['notes'] as String?,
+      paymentMethod:
+          (json['paymentMethod'] ?? json['payment_method']) as String?,
       status: status,
       createdAt: DateTime.tryParse(
             (json['createdAt'] ?? json['created_at'] ?? '') as String,
