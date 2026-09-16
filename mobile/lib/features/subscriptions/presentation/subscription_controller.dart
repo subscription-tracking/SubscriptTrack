@@ -88,6 +88,31 @@ class SubscriptionController extends ChangeNotifier {
   int get pendingMutationCount => _pendingMutationCount;
   List<SavingsEvent> get savingsEvents => List.unmodifiable(_savingsEvents);
   List<PaymentEvent> get paymentEvents => List.unmodifiable(_paymentEvents);
+
+  Future<bool> recordPayment({
+    required String subscriptionId,
+    required double amount,
+    required String currency,
+    DateTime? paidAt,
+  }) async {
+    try {
+      final event = await _paymentEventsRepo.record(
+        userId: _userId,
+        subscriptionId: subscriptionId,
+        amount: amount,
+        currency: currency,
+        paidAt: paidAt ?? DateTime.now(),
+      );
+      _paymentEvents = [event, ..._paymentEvents];
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
   Map<String, Money> get savingsByCurrency {
     final result = <String, Money>{};
     for (final event in _savingsEvents) {

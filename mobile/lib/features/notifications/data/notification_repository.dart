@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_environment.dart';
+import '../../../core/errors/app_exception.dart';
 import '../domain/app_notification.dart';
 
 class NotificationRepository {
@@ -22,8 +23,8 @@ class NotificationRepository {
           .order('created_at', ascending: false)
           .limit(50);
       return rows.map(_fromRow).whereType<AppNotification>().toList();
-    } catch (_) {
-      return [];
+    } on PostgrestException catch (e) {
+      throw NetworkException(e.message);
     }
   }
 
