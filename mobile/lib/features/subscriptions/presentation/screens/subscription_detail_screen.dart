@@ -784,12 +784,25 @@ class _PaymentHistorySection extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: payments.length > 2
+              onPressed: payments.isNotEmpty
                   ? () => showDialog<void>(
                         context: context,
                         builder: (_) => AlertDialog(
                           title: const Text('Geçmiş ödemeler'),
-                          content: Text('${payments.length} gerçek ödeme kaydı bulundu.'),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: payments.length,
+                              itemBuilder: (_, i) => ListTile(
+                                title: Text(DateTimeUtils.formatDate(payments[i].paidAt)),
+                                trailing: Text(DateTimeUtils.formatCurrency(
+                                  payments[i].amount,
+                                  symbol: payments[i].currency,
+                                )),
+                              ),
+                            ),
+                          ),
                         ),
                       )
                   : null,

@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_environment.dart';
+import '../../../core/errors/app_exception.dart';
 
 class SavingsEvent {
   const SavingsEvent(
@@ -39,8 +40,8 @@ class SavingsRepository {
         'annual_amount': annualAmount,
         'currency': currency,
       });
-    } catch (_) {
-      // Best-effort — a missed savings event is not critical.
+    } on PostgrestException catch (e) {
+      throw NetworkException(e.message);
     }
   }
 
@@ -65,8 +66,8 @@ class SavingsRepository {
                         DateTime.now().toUtc(),
               ))
           .toList();
-    } catch (_) {
-      return [];
+    } on PostgrestException catch (e) {
+      throw NetworkException(e.message);
     }
   }
 }
