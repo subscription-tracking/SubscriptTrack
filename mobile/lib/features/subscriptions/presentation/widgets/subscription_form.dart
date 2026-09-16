@@ -4,6 +4,8 @@ import '../../../settings/presentation/settings_controller.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../domain/subscription_models.dart';
 
+enum InitialPaymentStatus { paid, unpaid, deferred }
+
 class SubscriptionFormData {
   SubscriptionFormData({
     this.name = '',
@@ -18,7 +20,11 @@ class SubscriptionFormData {
     this.isTrial = false,
     this.trialEndDate,
     this.trialPriceAfter = '',
+    this.initialPaymentStatus = InitialPaymentStatus.unpaid,
+    DateTime? initialPaymentDate,
+    this.deferredPaymentDate,
   })  : startDate = startDate ?? DateTime.now(),
+        initialPaymentDate = initialPaymentDate ?? DateTime.now(),
         nextRenewalDate =
             nextRenewalDate ?? DateTime.now().add(const Duration(days: 30));
 
@@ -34,6 +40,9 @@ class SubscriptionFormData {
   bool isTrial;
   DateTime? trialEndDate;
   String trialPriceAfter;
+  InitialPaymentStatus initialPaymentStatus;
+  DateTime initialPaymentDate;
+  DateTime? deferredPaymentDate;
 }
 
 class SubscriptionForm extends StatefulWidget {
@@ -116,6 +125,26 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
     if (picked != null) setState(() => widget.data.nextRenewalDate = picked);
+  }
+
+  Future<void> _pickInitialPaymentDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: widget.data.initialPaymentDate,
+      firstDate: widget.data.startDate,
+      lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
+    );
+    if (picked != null) setState(() => widget.data.initialPaymentDate = picked);
+  }
+
+  Future<void> _pickDeferredPaymentDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: widget.data.deferredPaymentDate ?? widget.data.nextRenewalDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
+    );
+    if (picked != null) setState(() => widget.data.deferredPaymentDate = picked);
   }
 
   Future<void> _pickTrialEndDate() async {
@@ -428,6 +457,39 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               }
             },
           ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<InitialPaymentStatus>(
+            initialValue: widget.data.initialPaymentStatus,
+            decoration: const InputDecoration(
+              labelText: 'İlk ödeme durumu',
+              prefixIcon: Icon(Icons.fact_check_outlined),
+            ),
+            items: const [
+              DropdownMenuItem(value: InitialPaymentStatus.paid, child: Text('Ödendi')),
+              DropdownMenuItem(value: InitialPaymentStatus.unpaid, child: Text('Ödenmedi')),
+              DropdownMenuItem(value: InitialPaymentStatus.deferred, child: Text('Ertelendi')),
+            ],
+            onChanged: (v) => setState(() => widget.data.initialPaymentStatus = v ?? InitialPaymentStatus.unpaid),
+          ),
+          const SizedBox(height: 8),
+          if (widget.data.initialPaymentStatus == InitialPaymentStatus.paid)
+            _DateTile(
+              icon: Icons.event_available_outlined,
+              label: 'Ödeme tarihi',
+              value: _formatDate(widget.data.initialPaymentDate),
+              onTap: _pickInitialPaymentDate,
+              outlineColor: outlineColor,
+            ),
+          if (widget.data.initialPaymentStatus == InitialPaymentStatus.deferred)
+            _DateTile(
+              icon: Icons.event_repeat_outlined,
+              label: 'Ertelenen ödeme tarihi',
+              value: widget.data.deferredPaymentDate == null
+                  ? 'Tarih seç'
+                  : _formatDate(widget.data.deferredPaymentDate!),
+              onTap: _pickDeferredPaymentDate,
+              outlineColor: outlineColor,
+            ),
           const SizedBox(height: 16),
           _DateTile(
             icon: Icons.play_arrow_outlined,

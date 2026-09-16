@@ -39,6 +39,18 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
 
     if (!mounted) return;
     if (ok) {
+      if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
+        final created = widget.controller.allItems.firstWhere(
+          (s) => s.name == _data.name,
+        );
+        await widget.controller.recordPayment(
+          subscriptionId: created.id,
+          amount: amount.amount,
+          currency: _data.currency,
+          paidAt: _data.initialPaymentDate,
+        );
+        if (!mounted) return;
+      }
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
