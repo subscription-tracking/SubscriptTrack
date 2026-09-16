@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../../core/datasources/auth_data_source.dart';
@@ -97,7 +98,13 @@ class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource {
   @override
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      await _client.auth.resetPasswordForEmail(email);
+      // Native builds return through the app deep link; the web build must
+      // return to the currently deployed Pages origin instead of Supabase's
+      // default Site URL (which may still be localhost).
+      final redirectTo = kIsWeb
+          ? Uri.base.origin + Uri.base.path
+          : 'subscripttrack://auth-callback';
+      await _client.auth.resetPasswordForEmail(email, redirectTo: redirectTo);
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
     }
