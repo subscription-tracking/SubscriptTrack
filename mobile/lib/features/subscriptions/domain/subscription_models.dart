@@ -164,6 +164,22 @@ class Subscription {
     return renewal.difference(today).inDays;
   }
 
+  /// Future renewal projections for planning only. These are not payments.
+  List<DateTime> projectedRenewals({int count = 12}) {
+    final dates = <DateTime>[];
+    var current = nextRenewalDate;
+    for (var i = 0; i < count; i++) {
+      dates.add(current);
+      current = switch (billingCycle) {
+        BillingCycle.weekly => current.add(const Duration(days: 7)),
+        BillingCycle.monthly => DateTime(current.year, current.month + 1, current.day),
+        BillingCycle.quarterly => DateTime(current.year, current.month + 3, current.day),
+        BillingCycle.yearly => DateTime(current.year + 1, current.month, current.day),
+      };
+    }
+    return dates;
+  }
+
   Subscription copyWith({
     String? name,
     Money? amount,
