@@ -22,13 +22,31 @@ class DateTimeUtils {
 
   static String formatCurrency(double amount, {String symbol = '₺'}) {
     final displaySymbol = _isoToSymbol[symbol] ?? symbol;
-    final formatted = amount.toStringAsFixed(2).replaceAll('.', ',');
+    final fixed = amount.toStringAsFixed(2);
+    final parts = fixed.split('.');
+    final integer = parts.first;
+    final grouped = integer.replaceAllMapped(
+      RegExp(r'(?<=\d)(?=(\d{3})+(?!\d))'),
+      (_) => '.',
+    );
+    final formatted = '$grouped,${parts.last}';
     return '$displaySymbol$formatted';
   }
 
   static String _monthName(int month) => const [
-        '', 'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz',
-        'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'
+        '',
+        'Oca',
+        'Şub',
+        'Mar',
+        'Nis',
+        'May',
+        'Haz',
+        'Tem',
+        'Ağu',
+        'Eyl',
+        'Eki',
+        'Kas',
+        'Ara'
       ][month];
 
   static String renewalLabel(int days) {

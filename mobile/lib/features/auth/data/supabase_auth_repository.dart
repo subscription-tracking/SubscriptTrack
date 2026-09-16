@@ -8,7 +8,7 @@ import '../domain/auth_models.dart';
 /// EnvironmentConfig.isSupabaseConfigured == true olduğunda AuthController
 /// bu sınıfı kullanır. Token yenileme, session kalıcılığı ve güvenli
 /// depolama supabase_flutter tarafından otomatik yönetilir.
-class SupabaseAuthRepository implements AuthDataSource {
+class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource {
   sb.SupabaseClient get _client => sb.Supabase.instance.client;
 
   @override
@@ -54,6 +54,21 @@ class SupabaseAuthRepository implements AuthDataSource {
       throw AuthException(_localizeError(e.message));
     } catch (e) {
       throw AuthException(e.toString());
+    }
+  }
+
+  @override
+  Future<bool> signInWithProvider(String provider) async {
+    final oauth = switch (provider.toLowerCase()) {
+      'google' => sb.OAuthProvider.google,
+      'apple' => sb.OAuthProvider.apple,
+      _ => throw const AuthException('Desteklenmeyen giriş sağlayıcısı.'),
+    };
+    try {
+      return await _client.auth
+          .signInWithOAuth(oauth, redirectTo: 'subscripttrack://auth-callback');
+    } on sb.AuthException catch (e) {
+      throw AuthException(_localizeError(e.message));
     }
   }
 

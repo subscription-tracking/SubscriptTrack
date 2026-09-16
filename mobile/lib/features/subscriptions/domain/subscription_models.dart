@@ -1,23 +1,30 @@
 import '../../../core/domain/money.dart';
 
-enum SubscriptionStatus { active, paused, cancelled, archived }
+enum SubscriptionStatus { trial, active, paused, cancelled, expired, archived }
 
 extension SubscriptionStatusExt on SubscriptionStatus {
   String get label => switch (this) {
+        SubscriptionStatus.trial => 'Deneme',
         SubscriptionStatus.active => 'Aktif',
         SubscriptionStatus.paused => 'Duraklatıldı',
         SubscriptionStatus.cancelled => 'İptal edildi',
+        SubscriptionStatus.expired => 'Süresi doldu',
         SubscriptionStatus.archived => 'Arşivlendi',
       };
 
   String get key => name;
 
-  static SubscriptionStatus fromKey(String key) =>
-      SubscriptionStatus.values.firstWhere((e) => e.key == key,
-          orElse: () => SubscriptionStatus.active);
+  static SubscriptionStatus fromKey(String key) => SubscriptionStatus.values
+      .firstWhere((e) => e.key == key, orElse: () => SubscriptionStatus.active);
 
   // Valid backend status transitions (mirrors server-side rules).
   static const _allowed = <SubscriptionStatus, Set<SubscriptionStatus>>{
+    SubscriptionStatus.trial: {
+      SubscriptionStatus.active,
+      SubscriptionStatus.cancelled,
+      SubscriptionStatus.expired,
+      SubscriptionStatus.archived,
+    },
     SubscriptionStatus.active: {
       SubscriptionStatus.paused,
       SubscriptionStatus.cancelled,
@@ -29,6 +36,11 @@ extension SubscriptionStatusExt on SubscriptionStatus {
       SubscriptionStatus.archived,
     },
     SubscriptionStatus.cancelled: {
+      SubscriptionStatus.expired,
+      SubscriptionStatus.archived,
+    },
+    SubscriptionStatus.expired: {
+      SubscriptionStatus.active,
       SubscriptionStatus.archived,
     },
     SubscriptionStatus.archived: {
@@ -59,9 +71,8 @@ extension BillingCycleLabel on BillingCycle {
 
   String get key => name;
 
-  static BillingCycle fromKey(String key) =>
-      BillingCycle.values.firstWhere((e) => e.key == key,
-          orElse: () => BillingCycle.monthly);
+  static BillingCycle fromKey(String key) => BillingCycle.values
+      .firstWhere((e) => e.key == key, orElse: () => BillingCycle.monthly);
 }
 
 enum SubscriptionCategory {
@@ -111,6 +122,8 @@ class Subscription {
     required this.category,
     this.notes,
     this.paymentMethod,
+    this.trialEndDate,
+    this.trialPriceAfter,
     this.status = SubscriptionStatus.active,
     required this.createdAt,
   });
@@ -126,8 +139,13 @@ class Subscription {
   final SubscriptionCategory category;
   final String? notes;
   final String? paymentMethod;
+  final DateTime? trialEndDate;
+  final Money? trialPriceAfter;
   final SubscriptionStatus status;
   final DateTime createdAt;
+
+  bool get isTrial => status == SubscriptionStatus.trial;
+  bool get isExpired => status == SubscriptionStatus.expired;
 
   bool get isArchived => status == SubscriptionStatus.archived;
 
@@ -156,6 +174,8 @@ class Subscription {
     SubscriptionCategory? category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
     SubscriptionStatus? status,
   }) =>
       Subscription(
@@ -170,6 +190,8 @@ class Subscription {
         category: category ?? this.category,
         notes: notes ?? this.notes,
         paymentMethod: paymentMethod ?? this.paymentMethod,
+        trialEndDate: trialEndDate ?? this.trialEndDate,
+        trialPriceAfter: trialPriceAfter ?? this.trialPriceAfter,
         status: status ?? this.status,
         createdAt: createdAt,
       );
@@ -186,6 +208,8 @@ class Subscription {
         'category': category.key,
         'notes': notes,
         'paymentMethod': paymentMethod,
+        'trialEndDate': trialEndDate?.toIso8601String(),
+        'trialPriceAfter': trialPriceAfter?.toJson(),
         'status': status.key,
         'createdAt': createdAt.toIso8601String(),
       };
@@ -213,7 +237,8 @@ class Subscription {
           ) ??
           DateTime.now(),
       nextRenewalDate: DateTime.tryParse(
-            (json['nextRenewalDate'] ?? json['next_renewal_date'] ?? '') as String,
+            (json['nextRenewalDate'] ?? json['next_renewal_date'] ?? '')
+                as String,
           ) ??
           DateTime.now(),
       category: SubscriptionCategoryLabel.fromKey(
@@ -222,6 +247,14 @@ class Subscription {
       notes: json['notes'] as String?,
       paymentMethod:
           (json['paymentMethod'] ?? json['payment_method']) as String?,
+      trialEndDate: DateTime.tryParse(
+        (json['trialEndDate'] ?? json['trial_end_date'] ?? '') as String,
+      ),
+      trialPriceAfter:
+          (json['trialPriceAfter'] ?? json['trial_price_after']) == null
+              ? null
+              : Money.fromJson(
+                  json['trialPriceAfter'] ?? json['trial_price_after']),
       status: status,
       createdAt: DateTime.tryParse(
             (json['createdAt'] ?? json['created_at'] ?? '') as String,

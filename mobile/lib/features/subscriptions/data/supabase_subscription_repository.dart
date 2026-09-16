@@ -36,6 +36,8 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
   }) async {
     try {
       final row = await _client
@@ -52,7 +54,11 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
             'category': category.key,
             'notes': notes?.trim(),
             'payment_method': paymentMethod?.trim(),
-            'status': SubscriptionStatus.active.key,
+            'status': trialEndDate == null
+                ? SubscriptionStatus.active.key
+                : SubscriptionStatus.trial.key,
+            'trial_end_date': trialEndDate?.toIso8601String().substring(0, 10),
+            'trial_price_after': trialPriceAfter?.toJson(),
           })
           .select()
           .single();
@@ -78,6 +84,9 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
             'notes': updated.notes,
             'payment_method': updated.paymentMethod,
             'status': updated.status.key,
+            'trial_end_date':
+                updated.trialEndDate?.toIso8601String().substring(0, 10),
+            'trial_price_after': updated.trialPriceAfter?.toJson(),
           })
           .eq('id', updated.id)
           .eq('user_id', updated.userId)
@@ -162,10 +171,13 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           row['category'] as String? ?? 'other'),
       notes: row['notes'] as String?,
       paymentMethod: row['payment_method'] as String?,
+      trialEndDate: DateTime.tryParse(row['trial_end_date'] as String? ?? ''),
+      trialPriceAfter: row['trial_price_after'] == null
+          ? null
+          : Money.fromJson(row['trial_price_after']),
       status: status,
-      createdAt:
-          DateTime.tryParse(row['created_at'] as String? ?? '') ??
-              DateTime.now().toUtc(),
+      createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ??
+          DateTime.now().toUtc(),
     );
   }
 }

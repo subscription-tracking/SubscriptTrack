@@ -63,7 +63,7 @@ void main() {
     });
 
     test('büyük tutar', () {
-      expect(DateTimeUtils.formatCurrency(1234.56), '₺1234,56');
+      expect(DateTimeUtils.formatCurrency(1234.56), '₺1.234,56');
     });
 
     test('ondalık nokta yerine virgül kullanır', () {

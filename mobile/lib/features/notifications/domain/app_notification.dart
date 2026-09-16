@@ -1,10 +1,20 @@
-enum NotificationType { renewalToday, renewalSoon, renewalUpcoming }
+enum NotificationType {
+  renewalToday,
+  renewalSoon,
+  renewalUpcoming,
+  trialToday,
+  trialSoon,
+  trialUpcoming,
+}
 
 extension NotificationTypeExt on NotificationType {
   String get icon => switch (this) {
         NotificationType.renewalToday => '🔴',
         NotificationType.renewalSoon => '🟡',
         NotificationType.renewalUpcoming => '🔵',
+        NotificationType.trialToday => '🟣',
+        NotificationType.trialSoon => '🟣',
+        NotificationType.trialUpcoming => '🟣',
       };
 }
 

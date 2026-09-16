@@ -30,10 +30,14 @@ class _ReplayRepo implements SubscriptionDataSource {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
-  }) => throw UnimplementedError();
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
+  }) =>
+      throw UnimplementedError();
 
   @override
-  Future<Subscription> update(Subscription updated) => throw UnimplementedError();
+  Future<Subscription> update(Subscription updated) =>
+      throw UnimplementedError();
 
   @override
   Future<void> delete(String userId, String subscriptionId) async =>
@@ -91,9 +95,11 @@ Subscription _subscription() => Subscription(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('offline replay retains a failed head and preserves lifecycle order', () async {
+  test('offline replay retains a failed head and preserves lifecycle order',
+      () async {
     final repo = _ReplayRepo([_subscription()]);
-    final controller = SubscriptionController(userId: 'user-1', repository: repo);
+    final controller =
+        SubscriptionController(userId: 'user-1', repository: repo);
     await controller.load();
 
     // First two calls are the offline user actions; third is the first replay.

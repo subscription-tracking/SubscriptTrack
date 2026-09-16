@@ -12,6 +12,7 @@ import '../data/local_subscription_repository.dart';
 import '../data/supabase_subscription_repository.dart';
 import '../domain/subscription_models.dart';
 import '../../savings/data/savings_repository.dart';
+import '../../stats/data/payment_events_repository.dart';
 
 class SubscriptionController extends ChangeNotifier {
   SubscriptionController({
@@ -30,16 +31,25 @@ class SubscriptionController extends ChangeNotifier {
   final SubscriptionDataSource _repo;
   final _mutationQueue = OfflineMutationQueue();
   final _savingsRepo = SavingsRepository();
+  final _paymentEventsRepo = PaymentEventsRepository();
 
   List<Subscription> _items = [];
   bool _loading = false;
   bool _isOffline = false;
   String? _error;
   DateTime? _lastSyncAt;
+  int _pendingMutationCount = 0;
+  List<SavingsEvent> _savingsEvents = [];
+  List<PaymentEvent> _paymentEvents = [];
 
   List<Subscription> get active =>
       _items.where((s) => s.status == SubscriptionStatus.active).toList()
         ..sort((a, b) => a.nextRenewalDate.compareTo(b.nextRenewalDate));
+
+  List<Subscription> get trials =>
+      _items.where((s) => s.status == SubscriptionStatus.trial).toList()
+        ..sort((a, b) => (a.trialEndDate ?? a.nextRenewalDate)
+            .compareTo(b.trialEndDate ?? b.nextRenewalDate));
 
   List<Subscription> get paused =>
       _items.where((s) => s.status == SubscriptionStatus.paused).toList();
@@ -47,8 +57,13 @@ class SubscriptionController extends ChangeNotifier {
   List<Subscription> get cancelled =>
       _items.where((s) => s.status == SubscriptionStatus.cancelled).toList();
 
+  List<Subscription> get expired =>
+      _items.where((s) => s.status == SubscriptionStatus.expired).toList();
+
   List<Subscription> get archived =>
       _items.where((s) => s.status == SubscriptionStatus.archived).toList();
+
+  List<Subscription> get allItems => List.unmodifiable(_items);
 
   List<Subscription> get upcomingRenewals => active
       .where((s) => s.daysUntilRenewal >= 0 && s.daysUntilRenewal <= 30)
@@ -70,6 +85,20 @@ class SubscriptionController extends ChangeNotifier {
   bool get isOffline => _isOffline;
   String? get error => _error;
   DateTime? get lastSyncAt => _lastSyncAt;
+  int get pendingMutationCount => _pendingMutationCount;
+  List<SavingsEvent> get savingsEvents => List.unmodifiable(_savingsEvents);
+  List<PaymentEvent> get paymentEvents => List.unmodifiable(_paymentEvents);
+  Map<String, Money> get savingsByCurrency {
+    final result = <String, Money>{};
+    for (final event in _savingsEvents) {
+      final current = result[event.currency];
+      result[event.currency] = current == null
+          ? Money.parse(event.annualAmount.toStringAsFixed(2))
+          : current + Money.parse(event.annualAmount.toStringAsFixed(2));
+    }
+    return result;
+  }
+
   // Supabase loads all items at once — no pagination.
   bool get hasMore => false;
   Future<void> loadMore() async {}
@@ -77,8 +106,13 @@ class SubscriptionController extends ChangeNotifier {
   Future<void> load() async {
     if (_loading) return;
     _setLoading(true);
+    _pendingMutationCount = await _mutationQueue.length;
+    notifyListeners();
     try {
       _items = await _repo.getAll(_userId);
+      _savingsEvents = await _savingsRepo.fetch(_userId);
+      _paymentEvents = await _paymentEventsRepo.fetch(_userId);
+      await _expireEndedTrials();
       _isOffline = false;
       _error = null;
       _lastSyncAt = DateTime.now().toUtc();
@@ -99,6 +133,7 @@ class SubscriptionController extends ChangeNotifier {
         _error = e.toString();
       }
     } finally {
+      _pendingMutationCount = await _mutationQueue.length;
       _setLoading(false);
     }
   }
@@ -122,9 +157,38 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
+  Future<void> _expireEndedTrials() async {
+    final today = DateTime.now();
+    final ended = _items.where((s) {
+      final end = s.trialEndDate;
+      return s.status == SubscriptionStatus.trial &&
+          end != null &&
+          DateTime(end.year, end.month, end.day)
+              .isBefore(DateTime(today.year, today.month, today.day));
+    }).toList();
+    for (final subscription in ended) {
+      final expired = subscription.copyWith(status: SubscriptionStatus.expired);
+      final index = _items.indexWhere((s) => s.id == subscription.id);
+      if (index != -1) _items[index] = expired;
+      try {
+        await _repo.update(expired);
+      } on NetworkException {
+        await _mutationQueue.enqueue(OfflineMutation(
+          type: 'expire',
+          payload: {'id': subscription.id},
+          enqueuedAt: DateTime.now().toUtc(),
+        ));
+      } catch (_) {
+        // Keep the local state expired; the next sync can reconcile the server.
+      }
+    }
+  }
+
   Future<void> _applyMutation(OfflineMutation mutation) async {
     final id = mutation.payload['id'] as String?;
-    if (id == null) throw StateError('Offline mutation has no subscription id.');
+    if (id == null) {
+      throw StateError('Offline mutation has no subscription id.');
+    }
     switch (mutation.type) {
       case 'pause':
         await _repo.pause(_userId, id);
@@ -185,6 +249,8 @@ class SubscriptionController extends ChangeNotifier {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
   }) async {
     _setLoading(true);
     try {
@@ -199,6 +265,8 @@ class SubscriptionController extends ChangeNotifier {
         category: category,
         notes: notes,
         paymentMethod: paymentMethod,
+        trialEndDate: trialEndDate,
+        trialPriceAfter: trialPriceAfter,
       );
       _items.add(sub);
       _error = null;
@@ -263,7 +331,9 @@ class SubscriptionController extends ChangeNotifier {
   Future<void> pause(String id) {
     final sub = _findById(id);
     return _updateStatus(
-      id, SubscriptionStatus.paused, () => _repo.pause(_userId, id),
+      id,
+      SubscriptionStatus.paused,
+      () => _repo.pause(_userId, id),
       mutationType: 'pause',
       onSuccess: sub == null
           ? null
@@ -285,7 +355,9 @@ class SubscriptionController extends ChangeNotifier {
   Future<void> cancel(String id) {
     final sub = _findById(id);
     return _updateStatus(
-      id, SubscriptionStatus.cancelled, () => _repo.cancel(_userId, id),
+      id,
+      SubscriptionStatus.cancelled,
+      () => _repo.cancel(_userId, id),
       mutationType: 'cancel',
       onSuccess: sub == null
           ? null

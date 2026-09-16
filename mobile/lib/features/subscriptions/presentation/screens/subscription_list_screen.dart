@@ -10,6 +10,7 @@ import '../subscription_controller.dart';
 import 'add_subscription_screen.dart';
 import 'archived_subscriptions_screen.dart';
 import 'subscription_detail_screen.dart';
+import 'csv_import_screen.dart';
 
 enum _SortOption { date, amount, name }
 
@@ -30,7 +31,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 3, vsync: this);
+    _tabs = TabController(length: 5, vsync: this);
     _search.addListener(() => setState(() {}));
   }
 
@@ -100,6 +101,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                             ArchivedSubscriptionsScreen(controller: controller),
                       ),
                     ),
+            onImportTap: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                    builder: (_) => CsvImportScreen(controller: controller))),
           ),
           TabBar(
             controller: _tabs,
@@ -109,15 +114,28 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                 Theme.of(context).colorScheme.onSurfaceVariant,
             dividerColor: Theme.of(context).colorScheme.outlineVariant,
             tabs: [
+              Tab(text: 'Deneme (${controller.trials.length})'),
               Tab(text: 'Aktif (${controller.active.length})'),
               Tab(text: 'Duraklatıldı (${controller.paused.length})'),
               Tab(text: 'İptal (${controller.cancelled.length})'),
+              Tab(text: 'Süresi doldu (${controller.expired.length})'),
             ],
           ),
           Expanded(
             child: TabBarView(
               controller: _tabs,
               children: [
+                _TabView(
+                  items: _filtered(controller.trials),
+                  allEmpty: controller.trials.isEmpty,
+                  emptyMessage: 'Deneme aboneliği yok',
+                  emptyDetail:
+                      'Ücretsiz denemelerini burada takip edebilirsin.',
+                  controller: controller,
+                  onRefresh: controller.load,
+                  onAdd: () => _openAdd(context, controller),
+                  showAddButton: true,
+                ),
                 _TabView(
                   items: _filtered(controller.active),
                   allEmpty: controller.active.isEmpty,
@@ -142,6 +160,14 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   allEmpty: controller.cancelled.isEmpty,
                   emptyMessage: 'İptal edilmiş abonelik yok',
                   emptyDetail: 'İptal ettiğin abonelikler burada görünür.',
+                  controller: controller,
+                  onRefresh: controller.load,
+                ),
+                _TabView(
+                  items: _filtered(controller.expired),
+                  allEmpty: controller.expired.isEmpty,
+                  emptyMessage: 'Süresi dolmuş abonelik yok',
+                  emptyDetail: 'Süresi dolan abonelikler burada görünür.',
                   controller: controller,
                   onRefresh: controller.load,
                 ),
@@ -174,6 +200,7 @@ class _Header extends StatelessWidget {
     required this.onCategoryChanged,
     required this.onSortChanged,
     this.onArchiveTap,
+    required this.onImportTap,
   });
 
   final SubscriptionController controller;
@@ -183,6 +210,7 @@ class _Header extends StatelessWidget {
   final ValueChanged<SubscriptionCategory?> onCategoryChanged;
   final ValueChanged<_SortOption> onSortChanged;
   final VoidCallback? onArchiveTap;
+  final VoidCallback onImportTap;
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +240,10 @@ class _Header extends StatelessWidget {
                   _sortItem(ctx, _SortOption.name, 'İsme göre', sortOption),
                 ],
               ),
+              IconButton(
+                  icon: const Icon(Icons.upload_file_outlined),
+                  onPressed: onImportTap,
+                  tooltip: 'CSV içe aktar'),
               if (onArchiveTap != null)
                 Badge(
                   label: Text('${controller.archived.length}'),
@@ -270,8 +302,8 @@ class _Header extends StatelessWidget {
     );
   }
 
-  PopupMenuItem<_SortOption> _sortItem(
-      BuildContext context, _SortOption opt, String label, _SortOption current) {
+  PopupMenuItem<_SortOption> _sortItem(BuildContext context, _SortOption opt,
+      String label, _SortOption current) {
     final cs = Theme.of(context).colorScheme;
     return PopupMenuItem(
       value: opt,
@@ -575,8 +607,7 @@ class _OfflineBanner extends StatelessWidget {
         ? 'Çevrimdışı — önbellek gösteriliyor'
         : 'Çevrimdışı — ${_rel(lastSyncAt!)} önce güncellendi';
     return MaterialBanner(
-      backgroundColor:
-          isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
+      backgroundColor: isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
       content: Text(label, style: TextStyle(color: cs.tertiary)),
       actions: [
         TextButton(onPressed: onRetry, child: const Text('Yenile')),

@@ -16,20 +16,36 @@ class _StaticRepo implements SubscriptionDataSource {
 
   @override
   Future<Subscription> create({
-    required String userId, required String name, required Money amount,
-    required String currency, required BillingCycle billingCycle,
-    required DateTime startDate, required DateTime nextRenewalDate,
-    required SubscriptionCategory category, String? notes,
+    required String userId,
+    required String name,
+    required Money amount,
+    required String currency,
+    required BillingCycle billingCycle,
+    required DateTime startDate,
+    required DateTime nextRenewalDate,
+    required SubscriptionCategory category,
+    String? notes,
     String? paymentMethod,
-  }) => throw UnimplementedError();
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
+  }) =>
+      throw UnimplementedError();
 
-  @override Future<Subscription> update(Subscription updated) => throw UnimplementedError();
-  @override Future<void> delete(String u, String id) => throw UnimplementedError();
-  @override Future<void> archive(String u, String id) => throw UnimplementedError();
-  @override Future<void> restore(String u, String id) => throw UnimplementedError();
-  @override Future<void> pause(String u, String id) => throw UnimplementedError();
-  @override Future<void> resume(String u, String id) => throw UnimplementedError();
-  @override Future<void> cancel(String u, String id) => throw UnimplementedError();
+  @override
+  Future<Subscription> update(Subscription updated) =>
+      throw UnimplementedError();
+  @override
+  Future<void> delete(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> archive(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> restore(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> pause(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> resume(String u, String id) => throw UnimplementedError();
+  @override
+  Future<void> cancel(String u, String id) => throw UnimplementedError();
 }
 
 // --- yardımcı -------------------------------------------------------
@@ -58,7 +74,8 @@ Subscription _sub(
 
 Future<CalendarController> _ctrl(List<Subscription> subs) async {
   SharedPreferences.setMockInitialValues({});
-  final subsCtrl = SubscriptionController(userId: 'u1', repository: _StaticRepo(subs));
+  final subsCtrl =
+      SubscriptionController(userId: 'u1', repository: _StaticRepo(subs));
   await subsCtrl.load();
   return CalendarController(subscriptions: subsCtrl);
 }
@@ -125,7 +142,7 @@ void main() {
     test('ay sınırı — son ve ilk günler doğru ayrılır', () async {
       final cal = await _ctrl([
         _sub('1', DateTime(2026, 7, 31)), // Temmuz son günü
-        _sub('2', DateTime(2026, 8, 1)),  // Ağustos ilk günü
+        _sub('2', DateTime(2026, 8, 1)), // Ağustos ilk günü
       ]);
       expect(cal.renewalDaysInMonth(2026, 7).length, 1);
       expect(cal.renewalDaysInMonth(2026, 8).length, 1);

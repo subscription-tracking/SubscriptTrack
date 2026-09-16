@@ -156,6 +156,11 @@ class StatsScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
+                if (controller.paymentEvents.isNotEmpty) ...[
+                  _PaymentTrend(controller: controller),
+                  const SizedBox(height: 24),
+                ],
+
                 // Kategori dağılımı
                 Text('Kategoriye göre',
                     style: Theme.of(context).textTheme.titleMedium),
@@ -301,6 +306,74 @@ class _StatCard extends StatelessWidget {
         ]),
       ),
     );
+  }
+}
+
+class _PaymentTrend extends StatelessWidget {
+  const _PaymentTrend({required this.controller});
+  final SubscriptionController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final currencies =
+        controller.paymentEvents.map((e) => e.currency).toSet().toList();
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text('Son 6 ay ödeme trendi',
+          style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 12),
+      ...currencies.map((currency) {
+        final values = List<double>.generate(6, (i) {
+          final month = DateTime(now.year, now.month - (5 - i));
+          return controller.paymentEvents.where((e) {
+            final d = e.paidAt.toLocal();
+            return e.currency == currency &&
+                d.year == month.year &&
+                d.month == month.month;
+          }).fold(0.0, (sum, e) => sum + e.amount);
+        });
+        final max = values.fold(0.0, (a, b) => a > b ? a : b);
+        return Card(
+            child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(currency,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: values.asMap().entries.map((entry) {
+                            final height = max == 0
+                                ? 4.0
+                                : (entry.value / max * 72).clamp(4.0, 72.0);
+                            final month =
+                                DateTime(now.year, now.month - (5 - entry.key));
+                            return Expanded(
+                                child: Column(children: [
+                              SizedBox(
+                                  height: 78,
+                                  child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                          height: height,
+                                          width: 18,
+                                          decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              borderRadius:
+                                                  BorderRadius.circular(4))))),
+                              const SizedBox(height: 4),
+                              Text('${month.month}.',
+                                  style:
+                                      Theme.of(context).textTheme.labelSmall),
+                            ]));
+                          }).toList()),
+                    ])));
+      }),
+    ]);
   }
 }
 

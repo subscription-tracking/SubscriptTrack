@@ -32,6 +32,9 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       category: _data.category,
       notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),
       paymentMethod: _data.paymentMethod,
+      trialEndDate: _data.isTrial ? _data.trialEndDate : null,
+      trialPriceAfter:
+          _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
     );
 
     if (!mounted) return;

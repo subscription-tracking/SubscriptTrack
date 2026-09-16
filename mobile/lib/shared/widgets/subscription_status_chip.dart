@@ -42,6 +42,7 @@ class SubscriptionStatusChip extends StatelessWidget {
       }
     }
     return switch (status) {
+      SubscriptionStatus.trial => (label: 'Deneme', color: AppColors.trial),
       SubscriptionStatus.active => (label: 'Aktif', color: AppColors.primary),
       SubscriptionStatus.paused => (
           label: 'Duraklatıldı',
@@ -54,6 +55,10 @@ class SubscriptionStatusChip extends StatelessWidget {
       SubscriptionStatus.archived => (
           label: 'Arşivlendi',
           color: AppColors.muted
+        ),
+      SubscriptionStatus.expired => (
+          label: 'Süresi doldu',
+          color: AppColors.error
         ),
     };
   }

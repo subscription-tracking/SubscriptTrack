@@ -54,8 +54,8 @@ class NotificationCenterScreen extends StatelessWidget {
                 Subscription? sub;
                 if (n.subscriptionId != null) {
                   try {
-                    sub = subs.active.firstWhere(
-                        (s) => s.id == n.subscriptionId);
+                    sub = subs.allItems
+                        .firstWhere((s) => s.id == n.subscriptionId);
                   } catch (_) {}
                 }
 
@@ -83,14 +83,13 @@ class NotificationCenterScreen extends StatelessWidget {
                             : n.type == NotificationType.renewalSoon
                                 ? colors.tertiaryContainer
                                 : colors.primaryContainer,
-                    child: Text(n.type.icon,
-                        style: const TextStyle(fontSize: 18)),
+                    child:
+                        Text(n.type.icon, style: const TextStyle(fontSize: 18)),
                   ),
                   title: Text(
                     n.title,
                     style: TextStyle(
-                      fontWeight:
-                          read ? FontWeight.normal : FontWeight.w600,
+                      fontWeight: read ? FontWeight.normal : FontWeight.w600,
                       color: read ? colors.onSurfaceVariant : null,
                     ),
                   ),

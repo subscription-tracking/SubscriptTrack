@@ -51,8 +51,8 @@ class AuthController extends ChangeNotifier {
 
   Future<bool> init() async {
     if (EnvironmentConfig.isSupabaseConfigured) {
-      _authSubscription = sb.Supabase.instance.client.auth.onAuthStateChange
-          .listen((data) {
+      _authSubscription =
+          sb.Supabase.instance.client.auth.onAuthStateChange.listen((data) {
         switch (data.event) {
           case sb.AuthChangeEvent.passwordRecovery:
             _passwordRecoveryMode = true;
@@ -64,8 +64,8 @@ class AuthController extends ChangeNotifier {
                 : AppUser(
                     id: data.session!.user.id,
                     email: data.session!.user.email ?? '',
-                    displayName: data.session!.user.userMetadata?['display_name']
-                        as String?,
+                    displayName: data
+                        .session!.user.userMetadata?['display_name'] as String?,
                     createdAt: DateTime.parse(data.session!.user.createdAt),
                   );
             notifyListeners();
@@ -75,8 +75,8 @@ class AuthController extends ChangeNotifier {
               _user = AppUser(
                 id: data.session!.user.id,
                 email: data.session!.user.email ?? '',
-                displayName: data.session!.user.userMetadata?['display_name']
-                    as String?,
+                displayName:
+                    data.session!.user.userMetadata?['display_name'] as String?,
                 createdAt: DateTime.parse(data.session!.user.createdAt),
               );
               _status = AuthStatus.authenticated;
@@ -108,9 +108,8 @@ class AuthController extends ChangeNotifier {
     // valid authenticated state with a stale Future.wait result.
     if (!_initialized) {
       _user = results[0] as AppUser?;
-      _status = _user != null
-          ? AuthStatus.authenticated
-          : AuthStatus.unauthenticated;
+      _status =
+          _user != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
       _initialized = true;
     }
     notifyListeners();
@@ -144,6 +143,27 @@ class AuthController extends ChangeNotifier {
       _status = AuthStatus.authenticated;
       _error = null;
       return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> signInWithProvider(String provider) async {
+    final social =
+        _repo is SocialAuthDataSource ? _repo as SocialAuthDataSource : null;
+    if (social == null) {
+      _error = 'Sosyal giriş yalnızca Supabase modunda kullanılabilir.';
+      notifyListeners();
+      return false;
+    }
+    _setLoading(true);
+    try {
+      final started = await social.signInWithProvider(provider);
+      _error = null;
+      return started;
     } catch (e) {
       _error = e.toString();
       return false;

@@ -22,14 +22,18 @@ class DashboardScreen extends StatelessWidget {
     final controller = context.watch<SubscriptionController>();
     final active = controller.active;
     final upcoming = controller.upcomingRenewals;
+    final trials = controller.trials;
     final totals = controller.totalsByCurrency;
+    final monthChangeLabel = _monthChangeLabel(controller);
 
     final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
         if (controller.isOffline)
           _OfflineBanner(
-              lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
+              lastSyncAt: controller.lastSyncAt,
+              pendingCount: controller.pendingMutationCount,
+              onRetry: controller.load)
         else if (controller.error != null)
           MaterialBanner(
             content: Text(controller.error!),
@@ -52,6 +56,7 @@ class DashboardScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 _HeroCard(
                   totals: totals,
+                  monthChangeLabel: monthChangeLabel,
                   onAnalysisTap: active.isEmpty
                       ? null
                       : () => Navigator.push(
@@ -67,14 +72,26 @@ class DashboardScreen extends StatelessWidget {
                   activeCount: active.length,
                   upcomingCount:
                       upcoming.where((s) => s.daysUntilRenewal <= 7).length,
+                  annualLabel: totals.isEmpty
+                      ? '₺0 yıllık'
+                      : '${DateTimeUtils.formatCurrency(totals.entries.first.value.amount * 12, symbol: totals.entries.first.key)} / yıl',
                 ),
                 const SizedBox(height: 28),
+                if (trials.isNotEmpty) ...[
+                  _SectionHeader(
+                    title: 'Trial uyarıları',
+                    actionLabel: trials.length > 3 ? 'Tümünü gör' : null,
+                    onAction: onViewAllSubscriptions,
+                  ),
+                  const SizedBox(height: 12),
+                  _TrialList(
+                      trials: trials.take(3).toList(), controller: controller),
+                  const SizedBox(height: 28),
+                ],
                 _SectionHeader(
-                  title: 'Yaklaşan Yenilemeler',
+                  title: 'Yaklaşan ödemeler',
                   actionLabel:
-                      upcoming.isNotEmpty && onViewAllSubscriptions != null
-                          ? 'Tümünü gör'
-                          : null,
+                      onViewAllSubscriptions != null ? 'Tümünü gör' : null,
                   onAction: onViewAllSubscriptions,
                 ),
                 const SizedBox(height: 12),
@@ -88,9 +105,25 @@ class DashboardScreen extends StatelessWidget {
                 if (active.isNotEmpty) ...[
                   const SizedBox(height: 28),
                   _CategorySection(active: active),
+                  const SizedBox(height: 28),
+                  _HealthInsights(active: active, controller: controller),
+                ],
+                if (controller.savingsEvents.isNotEmpty) ...[
+                  const SizedBox(height: 28),
+                  _SavingsSummary(controller: controller),
                 ],
                 if (active.isEmpty) ...[
                   const SizedBox(height: 24),
+                  _EmptyDashboardIntro(
+                    onAdd: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            AddSubscriptionScreen(controller: controller),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
@@ -148,7 +181,8 @@ class _GreetingRow extends StatelessWidget {
               Text(
                 'Merhaba 👋',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: 20,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
                     ),
               ),
               const SizedBox(height: 2),
@@ -167,9 +201,11 @@ class _GreetingRow extends StatelessWidget {
 // ─── Hero Card ───────────────────────────────────────────────────────────────
 
 class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.totals, this.onAnalysisTap});
+  const _HeroCard(
+      {required this.totals, this.monthChangeLabel, this.onAnalysisTap});
 
   final Map<String, Money> totals;
+  final String? monthChangeLabel;
   final VoidCallback? onAnalysisTap;
 
   @override
@@ -177,38 +213,10 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final isDark = cs.brightness == Brightness.dark;
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: isDark
-            ? [
-                BoxShadow(
-                  color: const Color(0xFF7377F5).withValues(alpha: 0.22),
-                  blurRadius: 48,
-                  spreadRadius: -4,
-                  offset: const Offset(0, 8),
-                ),
-              ]
-            : [
-                BoxShadow(
-                  color: cs.primary.withValues(alpha: 0.12),
-                  blurRadius: 32,
-                  spreadRadius: -4,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-      ),
-      child: Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? const [Color(0xFF1E2160), Color(0xFF2E3490), Color(0xFF24265C)]
-              : [cs.primaryContainer, cs.secondaryContainer],
-          stops: isDark ? const [0.0, 0.55, 1.0] : null,
-        ),
+        color: isDark ? const Color(0xFF252A72) : cs.primaryContainer,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDark
@@ -295,6 +303,15 @@ class _HeroCard extends StatelessWidget {
                 ),
             ],
           ),
+          if (onAnalysisTap != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Abonelik maliyetini ve yıllık etkisini incele',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+            ),
+          ],
           if (totals.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
@@ -307,11 +324,42 @@ class _HeroCard extends StatelessWidget {
                   ),
             ),
           ],
+          if (monthChangeLabel != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              monthChangeLabel!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: monthChangeLabel!.contains('daha')
+                        ? const Color(0xFF43D69B)
+                        : cs.onSurfaceVariant,
+                  ),
+            ),
+          ],
         ],
-      ),
       ),
     );
   }
+}
+
+String? _monthChangeLabel(SubscriptionController controller) {
+  final events = controller.paymentEvents;
+  if (events.isEmpty) return null;
+  final now = DateTime.now();
+  final previous = DateTime(now.year, now.month - 1);
+  final currency = events.first.currency;
+  double totalFor(DateTime month) => events.where((event) {
+        final date = event.paidAt.toLocal();
+        return event.currency == currency &&
+            date.year == month.year &&
+            date.month == month.month;
+      }).fold(0, (sum, event) => sum + event.amount);
+  final currentTotal = totalFor(now);
+  final previousTotal = totalFor(previous);
+  if (previousTotal == 0) return null;
+  final percent =
+      ((currentTotal - previousTotal) / previousTotal * 100).round();
+  final direction = percent <= 0 ? 'daha az' : 'daha fazla';
+  return 'Geçen aya göre %${percent.abs()} $direction';
 }
 
 // ─── Stat Chips ──────────────────────────────────────────────────────────────
@@ -320,15 +368,15 @@ class _StatChipsRow extends StatelessWidget {
   const _StatChipsRow({
     required this.activeCount,
     required this.upcomingCount,
+    required this.annualLabel,
   });
 
   final int activeCount;
   final int upcomingCount;
+  final String annualLabel;
 
   @override
   Widget build(BuildContext context) {
-    final annualLabel = '$upcomingCount yenileme bu hafta';
-
     return Row(
       children: [
         Expanded(
@@ -341,6 +389,13 @@ class _StatChipsRow extends StatelessWidget {
         Expanded(
           child: _StatChip(
             icon: Icons.notifications_active_outlined,
+            label: '$upcomingCount yenileme bu hafta',
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _StatChip(
+            icon: Icons.bar_chart_rounded,
             label: annualLabel,
           ),
         ),
@@ -403,7 +458,7 @@ class _SectionHeader extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontSize: 16,
+                  fontSize: 20,
                 ),
           ),
         ),
@@ -516,7 +571,7 @@ class _RenewalTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    DateTimeUtils.renewalLabel(days),
+                    '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · ${days < 0 ? 'geçti' : '$days gün kaldı'}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: urgent ? cs.error : cs.onSurfaceVariant,
                           fontSize: 11,
@@ -535,6 +590,8 @@ class _RenewalTile extends StatelessWidget {
                     color: cs.onSurface,
                   ),
             ),
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -588,6 +645,229 @@ class _EmptyRenewalsCard extends StatelessWidget {
   }
 }
 
+class _HealthInsights extends StatelessWidget {
+  const _HealthInsights({required this.active, required this.controller});
+
+  final List<Subscription> active;
+  final SubscriptionController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final amounts = active.map((s) => s.monthlyAmount.amount).toList()..sort();
+    final median = amounts[amounts.length ~/ 2];
+    final flagged = active.where((s) {
+      final expensive = s.monthlyAmount.amount >= median * 1.5 && median > 0;
+      final soon = s.daysUntilRenewal >= 0 && s.daysUntilRenewal <= 7;
+      return expensive || soon;
+    }).toList();
+    if (flagged.isEmpty) return const SizedBox.shrink();
+    return Card(
+      color: const Color(0xFF13251F),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.insights_outlined,
+                color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Text('Bu ayın içgörüsü',
+                style: Theme.of(context).textTheme.titleSmall),
+          ]),
+          const SizedBox(height: 8),
+          Text('${flagged.length} aboneliği yenilemeden önce gözden geçir.',
+              style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          ...flagged.take(3).map((s) => ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(s.name),
+                subtitle: Text(s.daysUntilRenewal <= 7
+                    ? '7 gün içinde yenileniyor'
+                    : 'Ortalamanın üzerinde aylık maliyet'),
+                trailing: Text(DateTimeUtils.formatCurrency(
+                    s.monthlyAmount.amount,
+                    symbol: s.currency)),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                        builder: (_) => SubscriptionDetailScreen(
+                            subscription: s, controller: controller))),
+              )),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => SubscriptionDetailScreen(
+                  subscription: flagged.first,
+                  controller: controller,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.visibility_outlined),
+            label: const Text('İncele'),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _SavingsSummary extends StatelessWidget {
+  const _SavingsSummary({required this.controller});
+
+  final SubscriptionController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = controller.savingsByCurrency.entries.toList();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Gerçekleşen tasarruf',
+              style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 6),
+          Text('İptal ve duraklatma kararlarının yıllık etkisi',
+              style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 12),
+          ...entries.map((entry) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(entry.key),
+                  Text(
+                      '${DateTimeUtils.formatCurrency(entry.value.amount, symbol: entry.key)}/yıl',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              )),
+        ]),
+      ),
+    );
+  }
+}
+
+class _EmptyDashboardIntro extends StatelessWidget {
+  const _EmptyDashboardIntro({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainer,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Dashboard’unu oluşturmaya başla',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(
+              'Aboneliklerini ekle; aylık maliyetini, yenilemelerini ve trial’larını tek yerde takip et.',
+              style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 10),
+          TextButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Hemen başla')),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrialList extends StatelessWidget {
+  const _TrialList({required this.trials, required this.controller});
+
+  final List<Subscription> trials;
+  final SubscriptionController controller;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(18),
+          border:
+              Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        ),
+        child: Column(
+          children: trials.asMap().entries.map((entry) {
+            final sub = entry.value;
+            final last = entry.key == trials.length - 1;
+            final days = sub.trialEndDate == null
+                ? null
+                : DateTime(sub.trialEndDate!.year, sub.trialEndDate!.month,
+                        sub.trialEndDate!.day)
+                    .difference(DateTime(DateTime.now().year,
+                        DateTime.now().month, DateTime.now().day))
+                    .inDays;
+            return InkWell(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                      builder: (_) => SubscriptionDetailScreen(
+                          subscription: sub, controller: controller))),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                decoration: last
+                    ? null
+                    : BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant))),
+                child: Row(children: [
+                  ServiceIdentity(
+                      name: sub.name, category: sub.category, size: 34),
+                  const SizedBox(width: 10),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        Text(sub.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        Text(
+                            days == null
+                                ? 'Trial tarihi eksik'
+                                : days <= 0
+                                    ? 'Bugün sona eriyor'
+                                    : '$days gün sonra sona eriyor',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color: days != null && days <= 3
+                                        ? Theme.of(context).colorScheme.error
+                                        : null)),
+                      ])),
+                  Text(
+                      DateTimeUtils.formatCurrency(
+                          sub.trialPriceAfter?.amount ?? sub.amount.amount,
+                          symbol: sub.currency),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w700)),
+                ]),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+}
+
 // ─── Category Section ─────────────────────────────────────────────────────────
 
 class _CategorySection extends StatelessWidget {
@@ -605,13 +885,15 @@ class _CategorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final Map<String, ({double amount, String currency})> groups = {};
+    final Map<String, ({double amount, String currency, int count})> groups =
+        {};
     for (final sub in active) {
       final g = _group(sub.category);
       final existing = groups[g];
       groups[g] = (
         amount: (existing?.amount ?? 0) + sub.monthlyAmount.amount,
         currency: existing?.currency ?? sub.currency,
+        count: (existing?.count ?? 0) + 1,
       );
     }
     if (groups.isEmpty) return const SizedBox.shrink();
@@ -667,7 +949,7 @@ class _CategorySection extends StatelessWidget {
                           child: Row(
                             children: [
                               Text(
-                                cat,
+                                '$cat · ${entry.count} abonelik',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -675,10 +957,7 @@ class _CategorySection extends StatelessWidget {
                               ),
                               const Spacer(),
                               Text(
-                                DateTimeUtils.formatCurrency(
-                                  entry.amount,
-                                  symbol: entry.currency,
-                                ),
+                                '${DateTimeUtils.formatCurrency(entry.amount, symbol: entry.currency)} / ay',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -722,20 +1001,23 @@ class _CategorySection extends StatelessWidget {
 // ─── Offline Banner ───────────────────────────────────────────────────────────
 
 class _OfflineBanner extends StatelessWidget {
-  const _OfflineBanner({required this.onRetry, this.lastSyncAt});
+  const _OfflineBanner(
+      {required this.onRetry, this.lastSyncAt, this.pendingCount = 0});
   final VoidCallback onRetry;
   final DateTime? lastSyncAt;
+  final int pendingCount;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = cs.brightness == Brightness.dark;
-    final label = lastSyncAt == null
+    final base = lastSyncAt == null
         ? 'Çevrimdışı — önbellek gösteriliyor'
         : 'Çevrimdışı — ${_rel(lastSyncAt!)} önce güncellendi';
+    final label =
+        pendingCount > 0 ? '$base · $pendingCount işlem bekliyor' : base;
     return MaterialBanner(
-      backgroundColor:
-          isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
+      backgroundColor: isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
       content: Text(label, style: TextStyle(color: cs.tertiary)),
       actions: [
         TextButton(onPressed: onRetry, child: const Text('Yenile')),

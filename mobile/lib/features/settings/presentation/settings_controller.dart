@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/config/app_environment.dart';
 
 class SettingsController extends ChangeNotifier {
   SettingsController._();
@@ -13,7 +16,7 @@ class SettingsController extends ChangeNotifier {
   static const _keyPaymentMethods = 'settings_payment_methods';
 
   String _currency = '₺';
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.dark;
   bool _notificationsEnabled = true;
   int _daysBefore = 3;
   String _timezone = '';
@@ -23,6 +26,7 @@ class SettingsController extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   bool get notificationsEnabled => _notificationsEnabled;
   int get daysBefore => _daysBefore;
+
   /// Boş string = cihaz yerel saat dilimi kullan.
   String get timezone => _timezone;
   List<String> get paymentMethods => List.unmodifiable(_paymentMethods);
@@ -30,13 +34,15 @@ class SettingsController extends ChangeNotifier {
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _currency = prefs.getString(_keyCurrency) ?? '₺';
-    _themeMode = ThemeMode.values[
-        (prefs.getInt(_keyTheme) ?? 0).clamp(0, ThemeMode.values.length - 1)];
+    // Açık tema geçici olarak devre dışı. Eski cihaz ayarları da koyu temaya
+    // normalize edilir.
+    _themeMode = ThemeMode.dark;
     _notificationsEnabled = prefs.getBool(_keyNotifications) ?? true;
     _daysBefore = prefs.getInt(_keyDaysBefore) ?? 3;
     _timezone = prefs.getString(_keyTimezone) ?? '';
     _paymentMethods = prefs.getStringList(_keyPaymentMethods) ??
         ['Kredi Kartı', 'Banka Kartı', 'Papara'];
+    await _loadRemotePaymentMethods();
     notifyListeners();
   }
 
@@ -48,9 +54,9 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    _themeMode = mode;
+    _themeMode = ThemeMode.dark;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyTheme, mode.index);
+    await prefs.setInt(_keyTheme, ThemeMode.dark.index);
     notifyListeners();
   }
 
@@ -81,6 +87,7 @@ class SettingsController extends ChangeNotifier {
     _paymentMethods = [..._paymentMethods, trimmed];
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_keyPaymentMethods, _paymentMethods);
+    await _syncRemotePaymentMethods();
     notifyListeners();
   }
 
@@ -88,15 +95,48 @@ class SettingsController extends ChangeNotifier {
     _paymentMethods = _paymentMethods.where((e) => e != name).toList();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_keyPaymentMethods, _paymentMethods);
+    await _syncRemotePaymentMethods();
     notifyListeners();
   }
 
   Future<void> renamePaymentMethod(String oldName, String newName) async {
     final trimmed = newName.trim();
     if (trimmed.isEmpty || !_paymentMethods.contains(oldName)) return;
-    _paymentMethods = _paymentMethods.map((e) => e == oldName ? trimmed : e).toList();
+    _paymentMethods =
+        _paymentMethods.map((e) => e == oldName ? trimmed : e).toList();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_keyPaymentMethods, _paymentMethods);
+    await _syncRemotePaymentMethods();
     notifyListeners();
+  }
+
+  SupabaseClient? get _client =>
+      EnvironmentConfig.isSupabaseConfigured ? Supabase.instance.client : null;
+
+  Future<void> _loadRemotePaymentMethods() async {
+    final client = _client;
+    final userId = client?.auth.currentUser?.id;
+    if (client == null || userId == null) return;
+    try {
+      final rows = await client
+          .from('payment_methods')
+          .select('name')
+          .eq('user_id', userId)
+          .order('created_at');
+      final remote = rows.map((row) => row['name'] as String).toList();
+      if (remote.isNotEmpty) _paymentMethods = remote;
+    } catch (_) {}
+  }
+
+  Future<void> _syncRemotePaymentMethods() async {
+    final client = _client;
+    final userId = client?.auth.currentUser?.id;
+    if (client == null || userId == null) return;
+    try {
+      await client.from('payment_methods').delete().eq('user_id', userId);
+      await client.from('payment_methods').insert(_paymentMethods
+          .map((name) => {'user_id': userId, 'name': name})
+          .toList());
+    } catch (_) {}
   }
 }

@@ -43,6 +43,8 @@ class _FakeRepo implements SubscriptionDataSource {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
   }) async {
     if (failNextCall) {
       failNextCall = false;
@@ -105,7 +107,8 @@ class _FakeRepo implements SubscriptionDataSource {
 
 // --- Test data -----------------------------------------------------------
 
-Subscription _sub(String id, {SubscriptionStatus status = SubscriptionStatus.active}) =>
+Subscription _sub(String id,
+        {SubscriptionStatus status = SubscriptionStatus.active}) =>
     Subscription(
       id: id,
       userId: 'u1',
@@ -126,7 +129,8 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   group('SubscriptionController — yükleme (S4 dashboard)', () {
-    test('load() başarılı → items gelir, error null, isOffline false', () async {
+    test('load() başarılı → items gelir, error null, isOffline false',
+        () async {
       final repo = _FakeRepo([_sub('1'), _sub('2')]);
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
 
@@ -223,8 +227,7 @@ void main() {
     });
 
     test('restore() → archived → active olur', () async {
-      final repo =
-          _FakeRepo([_sub('1', status: SubscriptionStatus.archived)]);
+      final repo = _FakeRepo([_sub('1', status: SubscriptionStatus.archived)]);
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
       await ctrl.load();
 
@@ -248,14 +251,16 @@ void main() {
 
   group('SubscriptionController — hesaplamalar (S4 finansal)', () {
     test('totalMonthly boş liste → Money.zero', () async {
-      final ctrl = SubscriptionController(userId: 'u1', repository: _FakeRepo([]));
+      final ctrl =
+          SubscriptionController(userId: 'u1', repository: _FakeRepo([]));
       await ctrl.load();
       expect(ctrl.totalMonthly.minorUnits, 0);
     });
 
     test('totalMonthly iki aylık abonelik → toplar', () async {
       final subs = [_sub('1'), _sub('2')];
-      final ctrl = SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
+      final ctrl =
+          SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
       await ctrl.load();
       // Her biri 50 TRY aylık → toplam 100 TRY = 10000 minor
       expect(ctrl.totalMonthly.minorUnits, 10000);
@@ -275,8 +280,8 @@ void main() {
         category: SubscriptionCategory.software,
         createdAt: DateTime(2025, 1, 1),
       );
-      final ctrl =
-          SubscriptionController(userId: 'u1', repository: _FakeRepo([try1, usd1]));
+      final ctrl = SubscriptionController(
+          userId: 'u1', repository: _FakeRepo([try1, usd1]));
       await ctrl.load();
 
       final totals = ctrl.totalsByCurrency;
@@ -291,7 +296,8 @@ void main() {
         _sub('1'), // active 50 TRY
         _sub('2', status: SubscriptionStatus.paused), // paused → sayılmaz
       ];
-      final ctrl = SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
+      final ctrl =
+          SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
       await ctrl.load();
       expect(ctrl.totalMonthly.minorUnits, 5000);
     });
@@ -303,16 +309,15 @@ void main() {
       repo.failWithAuth = true;
       bool called = false;
       final ctrl = SubscriptionController(
-          userId: 'u1',
-          repository: repo,
-          onUnauthorized: () => called = true);
+          userId: 'u1', repository: repo, onUnauthorized: () => called = true);
 
       await ctrl.load();
 
       expect(called, isTrue);
     });
 
-    test('load() zaten yükleniyor → ikinci çağrı ignore edilir (dedup)', () async {
+    test('load() zaten yükleniyor → ikinci çağrı ignore edilir (dedup)',
+        () async {
       final repo = _FakeRepo([_sub('1')]);
       repo.slowNextCall = true;
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
@@ -337,8 +342,7 @@ void main() {
     });
 
     test('transition guard — cancelled → paused reddedilir', () async {
-      final repo =
-          _FakeRepo([_sub('1', status: SubscriptionStatus.cancelled)]);
+      final repo = _FakeRepo([_sub('1', status: SubscriptionStatus.cancelled)]);
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
       await ctrl.load();
 
