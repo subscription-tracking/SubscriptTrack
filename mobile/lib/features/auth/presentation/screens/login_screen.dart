@@ -56,7 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
             return Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                 children: [
                   const SizedBox(height: 24),
                   Icon(Icons.account_balance_wallet_outlined,
@@ -94,8 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         icon: Icon(_obscure
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined),
-                        onPressed: () =>
-                            setState(() => _obscure = !_obscure),
+                        onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                     ),
                     validator: (v) => v == null || v.length < 6
@@ -112,8 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   FilledButton(
-                    onPressed:
-                        widget.controller.loading ? null : _submit,
+                    onPressed: widget.controller.loading ? null : _submit,
                     style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(52)),
                     child: widget.controller.loading
@@ -124,6 +123,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 strokeWidth: 2, color: Colors.white),
                           )
                         : const Text('Giriş yap'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: widget.controller.loading
+                        ? null
+                        : () => _socialSignIn('google'),
+                    icon: const Icon(Icons.g_mobiledata, size: 26),
+                    label: const Text('Google ile devam et'),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: widget.controller.loading
+                        ? null
+                        : () => _socialSignIn('apple'),
+                    icon: const Icon(Icons.apple),
+                    label: const Text('Apple ile devam et'),
                   ),
                   const SizedBox(height: 12),
                   TextButton(
@@ -137,5 +152,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _socialSignIn(String provider) async {
+    final ok = await widget.controller.signInWithProvider(provider);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(widget.controller.error ?? 'Sosyal giriş başlatılamadı.')),
+      );
+      widget.controller.clearError();
+    }
   }
 }

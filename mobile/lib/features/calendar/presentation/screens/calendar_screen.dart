@@ -43,14 +43,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final cal = CalendarController(subscriptions: subscriptions);
     final renewalDays =
         cal.renewalDaysInMonth(_focusedMonth.year, _focusedMonth.month);
-    final selectedEvents =
-        _selectedDay != null ? cal.renewalsForDay(_selectedDay!) : <dynamic>[];
+    final trialDays =
+        cal.trialDaysInMonth(_focusedMonth.year, _focusedMonth.month);
+    final selectedEvents = _selectedDay != null
+        ? [
+            ...cal.renewalsForDay(_selectedDay!),
+            ...cal.trialsForDay(_selectedDay!)
+          ]
+        : <dynamic>[];
     final monthTotals =
         cal.totalsByCurrencyForMonth(_focusedMonth.year, _focusedMonth.month);
     final today = DateTime.now();
     final urgentDays = <DateTime>{};
-    for (final day in renewalDays) {
-      final diff = day.difference(DateTime(today.year, today.month, today.day)).inDays;
+    for (final day in {...renewalDays, ...trialDays}) {
+      final diff =
+          day.difference(DateTime(today.year, today.month, today.day)).inDays;
       if (diff >= 0 && diff <= 3) urgentDays.add(day);
     }
 
@@ -116,7 +123,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         const SizedBox(height: AppSpacing.xs),
         Padding(
           padding: AppSpacing.screen,
-          child: _buildGrid(renewalDays, urgentDays),
+          child: _buildGrid({...renewalDays, ...trialDays}, urgentDays),
         ),
         const Divider(height: 24),
         Expanded(
@@ -128,6 +135,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   itemBuilder: (_, i) => CalendarEventItem(
                     subscription: selectedEvents[i],
                     controller: subscriptions,
+                    isTrial: selectedEvents[i].isTrial,
                   ),
                 ),
         ),

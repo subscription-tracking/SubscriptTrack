@@ -59,11 +59,11 @@ class SavingsScreen extends StatelessWidget {
                 ...byCurrency.entries.map((entry) {
                   final currency = entry.key;
                   final subs = entry.value
-                    ..sort((a, b) =>
-                        b.monthlyAmount.compareTo(a.monthlyAmount));
+                    ..sort(
+                        (a, b) => b.monthlyAmount.compareTo(a.monthlyAmount));
                   final top3 = subs.take(3).toList();
-                  final top3Monthly =
-                      top3.fold(Money.zero, (Money s, e) => s + e.monthlyAmount);
+                  final top3Monthly = top3.fold(
+                      Money.zero, (Money s, e) => s + e.monthlyAmount);
                   final top3Yearly = top3Monthly * 12;
 
                   return Column(
@@ -80,8 +80,7 @@ class SavingsScreen extends StatelessWidget {
                                 byCurrency.length > 1
                                     ? 'En pahalı $currency abonelikleri ($currency) iptal etseydin'
                                     : 'En pahalı 3 aboneliği iptal etseydin',
-                                style:
-                                    Theme.of(context).textTheme.titleSmall,
+                                style: Theme.of(context).textTheme.titleSmall,
                               ),
                               const SizedBox(height: 12),
                               Text(
@@ -93,8 +92,7 @@ class SavingsScreen extends StatelessWidget {
                               ),
                               Text(
                                 '${DateTimeUtils.formatCurrency(top3Monthly.amount, symbol: currency)}/ay',
-                                style:
-                                    Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
                           ),
@@ -108,6 +106,27 @@ class SavingsScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 12),
                 ...active.map((s) => _SavingsRow(subscription: s)),
+                if (controller.savingsEvents.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Text('Gerçekleşen tasarruf geçmişi',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  ...controller.savingsEvents.map((event) => Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: const Icon(Icons.savings_outlined),
+                          title: Text(event.eventType == 'PAUSED'
+                              ? 'Abonelik duraklatıldı'
+                              : 'Abonelik iptal edildi'),
+                          subtitle:
+                              Text(DateTimeUtils.formatDate(event.effectiveAt)),
+                          trailing: Text(
+                            '${DateTimeUtils.formatCurrency(event.annualAmount, symbol: event.currency)}/yıl',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      )),
+                ],
               ],
             ),
           );

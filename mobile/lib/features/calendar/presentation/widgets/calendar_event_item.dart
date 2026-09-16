@@ -10,11 +10,13 @@ class CalendarEventItem extends StatelessWidget {
   const CalendarEventItem({
     required this.subscription,
     required this.controller,
+    this.isTrial = false,
     super.key,
   });
 
   final Subscription subscription;
   final SubscriptionController controller;
+  final bool isTrial;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,8 @@ class CalendarEventItem extends StatelessWidget {
           subscription.name,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Text(subscription.billingCycle.label),
+        subtitle:
+            Text(isTrial ? 'Trial bitişi' : subscription.billingCycle.label),
         trailing: Text(
           DateTimeUtils.formatCurrency(
             subscription.amount.amount,

@@ -15,6 +15,9 @@ class SubscriptionFormData {
     this.category = SubscriptionCategory.other,
     this.notes = '',
     this.paymentMethod,
+    this.isTrial = false,
+    this.trialEndDate,
+    this.trialPriceAfter = '',
   })  : startDate = startDate ?? DateTime.now(),
         nextRenewalDate =
             nextRenewalDate ?? DateTime.now().add(const Duration(days: 30));
@@ -28,6 +31,9 @@ class SubscriptionFormData {
   SubscriptionCategory category;
   String notes;
   String? paymentMethod;
+  bool isTrial;
+  DateTime? trialEndDate;
+  String trialPriceAfter;
 }
 
 class SubscriptionForm extends StatefulWidget {
@@ -110,6 +116,16 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
     if (picked != null) setState(() => widget.data.nextRenewalDate = picked);
+  }
+
+  Future<void> _pickTrialEndDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: widget.data.trialEndDate ?? widget.data.nextRenewalDate,
+      firstDate: widget.data.startDate,
+      lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
+    );
+    if (picked != null) setState(() => widget.data.trialEndDate = picked);
   }
 
   void _showQuickAddPaymentMethod() {
@@ -312,14 +328,53 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               prefixIcon: Icon(Icons.repeat),
             ),
             items: BillingCycle.values
-                .map((c) =>
-                    DropdownMenuItem(value: c, child: Text(c.label)))
+                .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
                 .toList(),
             onChanged: (v) => setState(() {
               widget.data.billingCycle = v ?? BillingCycle.monthly;
               _autoSetNextRenewal();
             }),
           ),
+          const SizedBox(height: 8),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Ücretsiz deneme'),
+            subtitle: const Text('Deneme bitişinde ücretli döneme geçer'),
+            value: widget.data.isTrial,
+            onChanged: (value) => setState(() => widget.data.isTrial = value),
+          ),
+          if (widget.data.isTrial) ...[
+            _DateTile(
+              icon: Icons.hourglass_bottom_outlined,
+              label: 'Deneme bitiş tarihi',
+              value: widget.data.trialEndDate == null
+                  ? 'Tarih seç'
+                  : _formatDate(widget.data.trialEndDate!),
+              onTap: _pickTrialEndDate,
+              outlineColor: outlineColor,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              initialValue: widget.data.trialPriceAfter,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Trial sonrası fiyat',
+                prefixIcon: Icon(Icons.payments_outlined),
+              ),
+              onChanged: (v) => widget.data.trialPriceAfter = v,
+              validator: (v) {
+                if (!widget.data.isTrial) return null;
+                if (widget.data.trialEndDate == null) {
+                  return 'Trial bitiş tarihi seç';
+                }
+                final n = double.tryParse((v ?? '').replaceAll(',', '.'));
+                return n == null || n <= 0
+                    ? 'Geçerli trial sonrası fiyatı gir'
+                    : null;
+              },
+            ),
+          ],
           const SizedBox(height: 16),
           DropdownButtonFormField<SubscriptionCategory>(
             initialValue: widget.data.category,
@@ -328,8 +383,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               prefixIcon: Icon(Icons.category_outlined),
             ),
             items: SubscriptionCategory.values
-                .map((c) =>
-                    DropdownMenuItem(value: c, child: Text(c.label)))
+                .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
                 .toList(),
             onChanged: (v) => setState(
                 () => widget.data.category = v ?? SubscriptionCategory.other),

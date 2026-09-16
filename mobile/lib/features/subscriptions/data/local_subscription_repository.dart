@@ -43,6 +43,8 @@ class LocalSubscriptionRepository implements SubscriptionDataSource {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
   }) async {
     final items = await _readAll(userId);
     final sub = Subscription(
@@ -57,7 +59,11 @@ class LocalSubscriptionRepository implements SubscriptionDataSource {
       category: category,
       notes: notes?.trim(),
       paymentMethod: paymentMethod?.trim(),
-      status: SubscriptionStatus.active,
+      status: trialEndDate == null
+          ? SubscriptionStatus.active
+          : SubscriptionStatus.trial,
+      trialEndDate: trialEndDate,
+      trialPriceAfter: trialPriceAfter,
       createdAt: DateTime.now().toUtc(),
     );
     items.add(sub);

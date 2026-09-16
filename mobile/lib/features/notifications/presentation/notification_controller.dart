@@ -62,9 +62,10 @@ class NotificationController extends ChangeNotifier {
 
   /// Regenerates notifications from active subscriptions.
   /// Used as offline fallback; skipped when Supabase data is already loaded.
-  void refresh(List<Subscription> active) {
+  void refresh(List<Subscription> active,
+      {List<Subscription> trials = const []}) {
     if (_loadedFromSupabase) return;
-    _notifications = _generate(active);
+    _notifications = _generate([...active, ...trials]);
     final currentIds = _notifications.map((n) => n.id).toSet();
     _readIds.removeWhere((id) => !currentIds.contains(id));
     notifyListeners();
@@ -136,6 +137,33 @@ class NotificationController extends ChangeNotifier {
           createdAt: now,
         ));
       }
+    }
+
+    for (final sub in active.where((s) => s.isTrial)) {
+      final end = sub.trialEndDate;
+      if (end == null) continue;
+      final today = DateTime(now.year, now.month, now.day);
+      final endDay =
+          DateTime(end.toLocal().year, end.toLocal().month, end.toLocal().day);
+      final days = endDay.difference(today).inDays;
+      if (days < 0 || days > 7) continue;
+      final dateKey =
+          '${endDay.year}${endDay.month.toString().padLeft(2, '0')}${endDay.day.toString().padLeft(2, '0')}';
+      final type = days == 0
+          ? NotificationType.trialToday
+          : days <= 3
+              ? NotificationType.trialSoon
+              : NotificationType.trialUpcoming;
+      result.add(AppNotification(
+        id: '${sub.id}_trial_$dateKey',
+        title: days == 0 ? 'Trial bugün bitiyor' : '$days gün trial kaldı',
+        body: days == 0
+            ? '${sub.name} trial süresi bugün bitiyor.'
+            : '${sub.name} trial süresi $days gün içinde bitiyor.',
+        type: type,
+        subscriptionId: sub.id,
+        createdAt: now,
+      ));
     }
 
     result.sort((a, b) => a.type.index.compareTo(b.type.index));

@@ -45,9 +45,11 @@ class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
         builder: (_, __) => MaterialApp.router(
           title: 'SubscriptTrack',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
+          // Açık tema geçici olarak kapalı; ürün şu aşamada yalnızca koyu tema
+          // ile çalışır.
+          theme: AppTheme.dark,
           darkTheme: AppTheme.dark,
-          themeMode: _settings.themeMode,
+          themeMode: ThemeMode.dark,
           routerConfig: _router,
         ),
       ),

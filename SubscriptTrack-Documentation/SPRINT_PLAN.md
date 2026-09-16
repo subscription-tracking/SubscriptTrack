@@ -1,6 +1,6 @@
 # SubscriptTrack Sprint Planı
 
-Son güncelleme: 2 Ağustos 2026
+Son güncelleme: 14 Eylül 2026
 
 ## Plan varsayımları
 
@@ -50,6 +50,14 @@ Son güncelleme: 2 Ağustos 2026
 | S20 | Mobil null safety ve güvenlik yamaları | TAMAMLANDI |
 | S21 | Backend kritik altyapı | TAMAMLANDI |
 | S22 | Backend tamamlanmamış özellikler + CSV | TAMAMLANDI |
+| S23 | Abonelik yaşam döngüsü ve durum UX'i | TAMAMLANDI (kod/test; migration uygulanacak) |
+| S24 | Bildirim ve takvim bütünlüğü | TAMAMLANDI (kod/test; migration uygulanacak) |
+| S25 | Gerçek veri senkronu ve tasarruf geçmişi | TAMAMLANDI (kod/test; migration uygulanacak) |
+| S26 | Hesap silme, RLS ve veri güvenliği | TAMAMLANDI (kod/migration; Supabase doğrulaması bekliyor) |
+| S27 | OAuth, ödeme yöntemi ve CSV import | TAMAMLANDI (kod/test; provider/migration ayarı bekliyor) |
+| S28 | Finansal içgörü ve UX kalitesi | DEVAM EDİYOR |
+| S29 | Offline dayanıklılık ve platform deneyimi | TAMAMLANDI (kod/test; gerçek cihaz matrisi bekliyor) |
+| S30 | Farklılaşma ve ticarileştirme | DEVAM EDİYOR |
 
 ---
 
@@ -585,6 +593,140 @@ log toplama/uyarı kuralları ve `CORS_ORIGINS` secret/environment değeri tanı
 **Kabul kriterleri:** Export asenkron tamamlanıyor ve download URL dönüyor; hesap silme GDPR akışını başlatıyor; CUSTOM cycle hata üretmiyor ya da doğru normalize ediliyor; CSV Excel'de doğru açılıyor.
 
 ---
+
+## Güncel ürün sprintleri — S23–S30
+
+Bu bölüm, S0–S22 sonrasında kalan ürün özelliklerini sekiz dikey sprintte toplar. Her sprintte ilgili domain, veri, UI ve test işleri birlikte tamamlanır. S23–S26 temel ürünün feature-complete hedefidir; S27–S29 kullanılabilirlik ve platform kapsamıdır; S30 farklılaşma ve ticarileştirme fazıdır.
+
+### S23 — Abonelik yaşam döngüsü ve durum UX'i
+
+**Hedef:** Trial ve Expired durumlarını gerçek domain davranışı olarak tamamlamak ve tüm durumları listede/detayda ayrıştırmak.
+
+**Kapsam:**
+- Trial başlangıç/bitiş tarihi ve trial sonrası fiyat alanları
+- `EXPIRED` modeli, geçiş kuralları ve event geçmişi
+- Trial → ACTIVE/CANCELLED/EXPIRED geçişleri
+- Active, Trial, Paused, Cancelled, Expired ve Archived filtreleri
+- Durum çipleri, durum bazlı detay aksiyonları ve empty state'ler
+
+**Kabul kriterleri:** Trial oluşturma/düzenleme ve bitiş sonrası geçiş çalışır; geçersiz geçişler reddedilir; tüm durumlar listede doğru görünür; domain, controller ve widget testleri yeşildir.
+
+### S24 — Bildirim ve takvim bütünlüğü
+
+**Hedef:** Trial ve yenileme olaylarını aynı olay modeli üzerinden bildirilebilir ve gezinilebilir yapmak.
+
+**Kapsam:**
+- Trial için 1/3/7 gün öncesi yerel bildirim
+- Duplicate bildirim engeli ve timezone hesabı
+- Bildirim payload'ında subscription ID
+- Bildirim tıklamasından detay ekranına deep link
+- Trial bitişlerinin takvimde ayrı event olması
+- Yüksek tutarlı/yıllık ödemelerin görsel olarak ayrılması
+
+**Kabul kriterleri:** Bildirim doğru yerel saatte planlanır; aynı olay tekrarlanmaz; bildirime tıklama doğru aboneliği açar; trial, renewal ve high-value event'leri takvimde ayrıdır.
+
+### S25 — Gerçek veri senkronu ve tasarruf geçmişi
+
+**Hedef:** Dashboard, calendar, savings, stats ve notifications ekranlarının gerçek Supabase verisiyle tutarlı çalışması.
+
+**Kapsam:**
+- Subscription, notification ve savings repository sync
+- Cancel/pause sonrası gerçek `SavingsEvent` üretimi
+- Tasarruf geçmişi ve para birimi bazlı gösterim
+- Local cache ile remote verinin birleştirilmesi
+- Refresh, timeout ve sync conflict davranışları
+
+**Kabul kriterleri:** Ekranlar mock/yalnızca local hesap yerine gerçek repository verisini kullanır; cancel/pause olayları tasarruf geçmişine yansır; remote/local merge testleri tamamlanır.
+
+### S26 — Hesap silme, RLS ve veri güvenliği
+
+`009_s26_security_hardening.sql` tüm kullanıcı tablolarında RLS'yi açıkça etkinleştirir; delete-account Edge Function service role secret için `SUPABASE_SERVICE_ROLE_KEY` adını destekler.
+
+**Hedef:** Kullanıcı verisi izolasyonunu ve hesap yaşam döngüsünü production seviyesinde tamamlamak.
+
+**Kapsam:**
+- Auth user, profile ve ilişkili verilerin eksiksiz silinmesi
+- Edge Function üzerinden server-side silme
+- RLS kullanıcı A/B izolasyon testleri
+- 401/403/permission hata davranışları
+- Foreign key/cascade ve silme audit yaklaşımı
+
+**Kabul kriterleri:** Kullanıcı hesabını uygulamadan silebilir; ilişkili kişisel veri kalmaz; kullanıcılar birbirinin verisine erişemez; service-role key client’a girmez.
+
+### S27 — OAuth, ödeme yöntemi ve CSV import
+
+**Hedef:** Kullanıcı girişini ve toplu veri ekleme akışını tamamlamak.
+
+**Kapsam:**
+- Google login ve callback
+- Apple login ve callback
+- PaymentMethod local/Supabase CRUD
+- Subscription form içinde payment method seçimi
+- CSV picker, parser, validation ve import preview
+- Duplicate kontrolü ve hatalı satır raporu
+
+**Kabul kriterleri:** OAuth akışları başarılı/hatalı callback senaryolarıyla çalışır; ödeme yöntemleri kalıcıdır; CSV import veri kaybı oluşturmadan başarılı ve hatalı satırları raporlar.
+
+### S28 — Finansal içgörü ve UX kalitesi
+
+`011_s28_payment_events.sql` aylık trend ve gerçekleşen ödeme analizleri için kullanıcı/RLS korumalı ödeme geçmişi tabanını oluşturur.
+
+**Hedef:** Kullanıcının yalnızca kayıtları değil, maliyetini anlamasını sağlamak.
+
+**Kapsam:**
+- Kategori bazlı tutar ve adet istatistikleri
+- En pahalı abonelikler
+- Aylık/yıllık finansal özetler
+- Türkçe/İngilizce localization
+- Add/edit/pause/cancel/archive/delete başarı mesajları
+- Auth, network, validation ve server hata eşlemeleri
+- Privacy center, kullanım koşulları ve destek bağlantısı
+
+**Kabul kriterleri:** İstatistikler gerçek veriden üretilir; tüm kullanıcı metinleri localization üzerinden gelir; kritik işlemler başarı/hata geri bildirimi verir.
+
+### S29 — Offline dayanıklılık ve platform deneyimi
+
+**Hedef:** Bağlantı kesintilerinde güvenilir kullanım ve platforma özgü yardımcı özellikler.
+
+**Kapsam:**
+- Offline create/edit/status mutation replay
+- Retry/backoff ve conflict davranışı
+- Partial sync ve queue görünürlüğü
+- iOS/Android Calendar export
+- Ana ekran widget'ı
+- Screen reader, text scaling, contrast ve focus desteği
+
+**Kabul kriterleri:** Kuyruk bağlantı kesilip geldiğinde veri kaybetmez; aynı mutation iki kez uygulanmaz; takvim export iki platformda çalışır; temel ekranlar erişilebilirlik kontrollerinden geçer.
+
+### S30 — Farklılaşma ve ticarileştirme
+
+**Hedef:** SubscriptTrack’i basit liste uygulamasından karar destek ürününe dönüştürmek.
+
+**Kapsam:**
+- Kullanım/değer analizi
+- Açıklanabilir abonelik sağlık skoru
+- Fiyat geçmişi ve artış bildirimi
+- Aile/partner paylaşımı ve izinleri
+- Servis/ülke bazlı iptal rehberleri
+- App Store/Google Play importu
+- Free/Premium plan, entitlement ve restore purchase
+- Gizlilik merkezi ve kullanıcı geri bildirim akışı
+
+**Kabul kriterleri:** Kullanıcı hangi abonelikleri gözden geçirmesi gerektiğini anlayabilir; fiyat ve paylaşım geçmişi korunur; gizlilik/veri işlemlerine tek merkezden ulaşabilir; geri bildirim paylaşabilir; premium sınırları nettir; satın alma geri yükleme çalışır.
+
+### Sprintler arası bağımlılıklar
+
+```text
+S23 → S24 → S25 → S26
+             ↘ S27 → S28
+                  ↘ S29 → S30
+```
+
+- S23 tamamlanmadan trial bildirimleri ve trial takvimi yapılmamalıdır.
+- S24 tamamlanmadan bildirim deep link'i ve event ayrımı kabul edilmemelidir.
+- S25 tamamlanmadan savings/stats ekranları gerçek veri özelliği kabul edilmemelidir.
+- S26 tamamlanmadan OAuth veya mağaza importu gibi yeni veri girişleri genişletilmemelidir.
+- S30, temel MVP tamamlandıktan sonra yapılmalıdır.
 
 ## MVP sonrası backlog
 

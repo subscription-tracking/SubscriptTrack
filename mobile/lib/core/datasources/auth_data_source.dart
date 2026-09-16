@@ -15,3 +15,7 @@ abstract class AuthDataSource {
   /// Local modda [AuthException] fırlatır.
   Future<void> updatePassword(String newPassword);
 }
+
+abstract interface class SocialAuthDataSource {
+  Future<bool> signInWithProvider(String provider);
+}

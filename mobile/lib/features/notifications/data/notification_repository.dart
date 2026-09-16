@@ -21,10 +21,7 @@ class NotificationRepository {
           .gte('created_at', cutoff.toIso8601String())
           .order('created_at', ascending: false)
           .limit(50);
-      return rows
-          .map(_fromRow)
-          .whereType<AppNotification>()
-          .toList();
+      return rows.map(_fromRow).whereType<AppNotification>().toList();
     } catch (_) {
       return [];
     }
@@ -44,8 +41,7 @@ class NotificationRepository {
       body: _body(type, name, days),
       type: type,
       subscriptionId: row['subscription_id'] as String?,
-      createdAt:
-          DateTime.tryParse(row['created_at'] as String? ?? '') ??
+      createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ??
           DateTime.now().toUtc(),
       readAtRemote: row['read_at'] != null,
     );
@@ -55,6 +51,9 @@ class NotificationRepository {
         'renewal_today' => NotificationType.renewalToday,
         'renewal_soon' => NotificationType.renewalSoon,
         'renewal_upcoming' => NotificationType.renewalUpcoming,
+        'trial_today' => NotificationType.trialToday,
+        'trial_soon' => NotificationType.trialSoon,
+        'trial_upcoming' => NotificationType.trialUpcoming,
         _ => null,
       };
 
@@ -62,6 +61,9 @@ class NotificationRepository {
         NotificationType.renewalToday => 'Bugün yenileniyor',
         NotificationType.renewalSoon => '$days gün kaldı',
         NotificationType.renewalUpcoming => 'Yaklaşan yenileme',
+        NotificationType.trialToday => 'Trial bugün bitiyor',
+        NotificationType.trialSoon => '$days gün trial kaldı',
+        NotificationType.trialUpcoming => 'Yaklaşan trial bitişi',
       };
 
   String _body(NotificationType type, String name, int days) => switch (type) {
@@ -69,5 +71,10 @@ class NotificationRepository {
         NotificationType.renewalSoon => '$name $days gün içinde yenileniyor.',
         NotificationType.renewalUpcoming =>
           '$name $days gün içinde yenileniyor.',
+        NotificationType.trialToday => '$name trial süresi bugün bitiyor.',
+        NotificationType.trialSoon =>
+          '$name trial süresi $days gün içinde bitiyor.',
+        NotificationType.trialUpcoming =>
+          '$name trial süresi $days gün içinde bitiyor.',
       };
 }

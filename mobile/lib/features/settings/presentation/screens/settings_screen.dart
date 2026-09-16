@@ -11,16 +11,18 @@ import 'export_data_screen.dart';
 import 'notification_preferences_screen.dart';
 import 'payment_methods_screen.dart';
 import 'profile_screen.dart';
+import 'privacy_center_screen.dart';
+import 'feedback_screen.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final auth          = context.watch<AuthController>();
-    final settings      = context.watch<SettingsController>();
+    final auth = context.watch<AuthController>();
+    final settings = context.watch<SettingsController>();
     final subscriptions = context.read<SubscriptionController>();
-    final user          = auth.user;
+    final user = auth.user;
     if (user == null) return const SizedBox.shrink();
 
     final initials = _initials(user.email);
@@ -148,14 +150,31 @@ class ProfileTab extends StatelessWidget {
         // ── Veri & Gizlilik ────────────────────────────────────────────────
         const _SectionLabel('Veri & Gizlilik'),
         _SettingTile(
+          icon: Icons.privacy_tip_outlined,
+          label: 'Gizlilik ve veri merkezi',
+          value: 'Veri kontrolü ve silme',
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => PrivacyCenterScreen(
+                    auth: auth, subscriptions: subscriptions),
+              )),
+        ),
+        _SettingTile(
+          icon: Icons.feedback_outlined,
+          label: 'Geri bildirim gönder',
+          value: 'Bug veya öneri paylaş',
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute<void>(builder: (_) => const FeedbackScreen())),
+        ),
+        _SettingTile(
           icon: Icons.download_outlined,
           label: 'Veriyi dışa aktar',
           value: 'CSV formatında',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (_) =>
-                  ExportDataScreen(subscriptions: subscriptions),
+              builder: (_) => ExportDataScreen(subscriptions: subscriptions),
             ),
           ),
         ),
@@ -222,8 +241,8 @@ class ProfileTab extends StatelessWidget {
 
   static String _themeName(ThemeMode mode) => switch (mode) {
         ThemeMode.system => 'Sistem',
-        ThemeMode.light  => 'Aydınlık',
-        ThemeMode.dark   => 'Karanlık',
+        ThemeMode.light => 'Aydınlık',
+        ThemeMode.dark => 'Karanlık',
       };
 
   static Future<void> _confirmSignOut(
@@ -332,7 +351,8 @@ class _SettingTile extends StatelessWidget {
               ],
               const SizedBox(width: 4),
               Icon(Icons.chevron_right,
-                  size: 18, color: AppColors.onSurfaceVar.withValues(alpha: 0.5)),
+                  size: 18,
+                  color: AppColors.onSurfaceVar.withValues(alpha: 0.5)),
             ],
           ),
         ),

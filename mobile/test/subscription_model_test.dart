@@ -139,6 +139,32 @@ void main() {
         expect(SubscriptionStatusExt.fromKey(s.key), s);
       }
     });
+
+    test('trial ve expired geçişleri desteklenir', () {
+      expect(SubscriptionStatus.trial.canTransitionTo(SubscriptionStatus.active), isTrue);
+      expect(SubscriptionStatus.trial.canTransitionTo(SubscriptionStatus.expired), isTrue);
+      expect(SubscriptionStatus.expired.canTransitionTo(SubscriptionStatus.active), isTrue);
+      expect(SubscriptionStatus.active.canTransitionTo(SubscriptionStatus.expired), isFalse);
+    });
+
+    test('trial alanları JSON round-trip korunur', () {
+      final sub = Subscription(
+        id: 'trial-1', userId: 'user-1', name: 'Trial',
+        amount: Money.fromJson(1), currency: 'TRY',
+        billingCycle: BillingCycle.monthly,
+        startDate: DateTime(2026, 9, 1),
+        nextRenewalDate: DateTime(2026, 10, 1),
+        category: SubscriptionCategory.software,
+        status: SubscriptionStatus.trial,
+        trialEndDate: DateTime(2026, 9, 15),
+        trialPriceAfter: Money.fromJson(99),
+        createdAt: DateTime(2026, 9, 1),
+      );
+      final rt = Subscription.fromJson(sub.toJson());
+      expect(rt.status, SubscriptionStatus.trial);
+      expect(rt.trialEndDate, DateTime(2026, 9, 15));
+      expect(rt.trialPriceAfter?.minorUnits, 9900);
+    });
   });
 
   group('BillingCycle enum', () {

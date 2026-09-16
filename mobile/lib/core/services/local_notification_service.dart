@@ -19,7 +19,7 @@ class LocalNotificationService {
     if (_initialized) return;
     tz.initializeTimeZones();
 
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('@drawable/ic_stat_notify');
     const ios = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -57,25 +57,28 @@ class LocalNotificationService {
     List<Subscription> subscriptions,
     int daysBefore, {
     String timezone = '',
+    List<Subscription> trials = const [],
   }) async {
     if (kIsWeb || !_initialized) return;
     // Deduplicate: skip reschedule if inputs haven't changed.
     final hash = Object.hashAll([
       daysBefore,
       timezone,
-      ...subscriptions.map((s) => Object.hash(s.id, s.nextRenewalDate.millisecondsSinceEpoch, s.status.index)),
+      ...subscriptions.map((s) => Object.hash(
+          s.id, s.nextRenewalDate.millisecondsSinceEpoch, s.status.index)),
+      ...trials.map((s) => Object.hash(
+          s.id, s.trialEndDate?.millisecondsSinceEpoch, s.status.index)),
     ]);
     if (hash == _lastScheduleHash) return;
     _lastScheduleHash = hash;
 
     await _plugin.cancelAll();
-    final location = timezone.isNotEmpty
-        ? tz.getLocation(timezone)
-        : tz.local;
+    final location = timezone.isNotEmpty ? tz.getLocation(timezone) : tz.local;
     final now = tz.TZDateTime.now(location);
 
     for (final sub in subscriptions) {
-      final reminderDay = sub.nextRenewalDate.subtract(Duration(days: daysBefore));
+      final reminderDay =
+          sub.nextRenewalDate.subtract(Duration(days: daysBefore));
       final scheduled = tz.TZDateTime(
         location,
         reminderDay.year,
@@ -120,6 +123,39 @@ class LocalNotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
+    }
+
+    for (final sub in trials) {
+      final end = sub.trialEndDate?.toLocal();
+      if (end == null) continue;
+      for (final days in const [7, 3, 1]) {
+        final reminder = end.subtract(Duration(days: days));
+        final scheduled = tz.TZDateTime(
+            location, reminder.year, reminder.month, reminder.day, 9);
+        if (scheduled.isBefore(now)) continue;
+        final dateKey =
+            '${end.year}${end.month.toString().padLeft(2, '0')}${end.day.toString().padLeft(2, '0')}';
+        final id = '${sub.id}|trial|$days|$dateKey'.hashCode.abs() % 2147483647;
+        await _plugin.zonedSchedule(
+          id,
+          '${sub.name} trial bitişi',
+          'Trial süresinin bitmesine $days gün kaldı.',
+          scheduled,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(_channelId, _channelName,
+                channelDescription: 'Trial ve yenileme hatırlatmaları',
+                importance: Importance.high,
+                priority: Priority.high,
+                icon: '@mipmap/ic_launcher'),
+            iOS: DarwinNotificationDetails(
+                presentAlert: true, presentBadge: true, presentSound: true),
+          ),
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          payload: sub.id,
+        );
+      }
     }
   }
 

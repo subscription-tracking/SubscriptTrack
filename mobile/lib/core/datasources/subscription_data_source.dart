@@ -14,6 +14,8 @@ abstract class SubscriptionDataSource {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
   });
   Future<Subscription> update(Subscription updated);
   Future<void> delete(String userId, String subscriptionId);

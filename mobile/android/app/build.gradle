@@ -47,7 +47,9 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
-            shrinkResources true
+            // flutter_local_notifications ikon adını runtime'da çözer;
+            // resource shrinker bu dolaylı referansı görmediği için kapalı tutulur.
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

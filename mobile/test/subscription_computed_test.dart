@@ -35,6 +35,8 @@ class _FakeRepo implements SubscriptionDataSource {
     required SubscriptionCategory category,
     String? notes,
     String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
   }) =>
       throw UnimplementedError();
 

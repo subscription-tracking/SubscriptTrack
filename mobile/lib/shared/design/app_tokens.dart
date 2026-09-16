@@ -11,7 +11,7 @@ abstract final class AppSpacing {
   static const xl = 24.0;
   static const xxl = 32.0;
   static const screen = EdgeInsets.symmetric(horizontal: lg);
-  static const screenWithBottomNav = EdgeInsets.fromLTRB(lg, xs, lg, 120);
+  static const screenWithBottomNav = EdgeInsets.fromLTRB(lg, xs, lg, 260);
 }
 
 abstract final class AppRadius {

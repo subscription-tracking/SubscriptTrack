@@ -16,8 +16,7 @@ class EditSubscriptionScreen extends StatefulWidget {
   final SubscriptionController controller;
 
   @override
-  State<EditSubscriptionScreen> createState() =>
-      _EditSubscriptionScreenState();
+  State<EditSubscriptionScreen> createState() => _EditSubscriptionScreenState();
 }
 
 class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
@@ -40,6 +39,10 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       category: widget.subscription.category,
       notes: widget.subscription.notes ?? '',
       paymentMethod: widget.subscription.paymentMethod,
+      isTrial: widget.subscription.isTrial,
+      trialEndDate: widget.subscription.trialEndDate,
+      trialPriceAfter:
+          widget.subscription.trialPriceAfter?.amount.toStringAsFixed(2) ?? '',
     );
   }
 
@@ -57,6 +60,9 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       category: _data.category,
       notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),
       paymentMethod: _data.paymentMethod,
+      trialEndDate: _data.isTrial ? _data.trialEndDate : null,
+      trialPriceAfter:
+          _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
     );
 
     final ok = await widget.controller.edit(updated);
@@ -68,8 +74,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text(widget.controller.error ?? 'Bir hata oluştu.'),
+          content: Text(widget.controller.error ?? 'Bir hata oluştu.'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );

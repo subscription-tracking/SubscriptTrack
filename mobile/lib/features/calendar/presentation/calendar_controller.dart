@@ -15,18 +15,30 @@ class CalendarController {
     }).toList();
   }
 
-  Set<DateTime> renewalDaysInMonth(int year, int month) {
-    return subscriptions.active
-        .where((s) {
-          final d = s.nextRenewalDate.toLocal();
-          return d.year == year && d.month == month;
-        })
-        .map((s) {
-          final d = s.nextRenewalDate.toLocal();
-          return DateTime(d.year, d.month, d.day);
-        })
-        .toSet();
+  List<Subscription> trialsForDay(DateTime day) {
+    final target = DateTime(day.year, day.month, day.day);
+    return subscriptions.trials.where((s) {
+      final d = s.trialEndDate?.toLocal();
+      return d != null && DateTime(d.year, d.month, d.day) == target;
+    }).toList();
   }
+
+  Set<DateTime> renewalDaysInMonth(int year, int month) {
+    return subscriptions.active.where((s) {
+      final d = s.nextRenewalDate.toLocal();
+      return d.year == year && d.month == month;
+    }).map((s) {
+      final d = s.nextRenewalDate.toLocal();
+      return DateTime(d.year, d.month, d.day);
+    }).toSet();
+  }
+
+  Set<DateTime> trialDaysInMonth(int year, int month) => subscriptions.trials
+      .map((s) => s.trialEndDate?.toLocal())
+      .whereType<DateTime>()
+      .where((d) => d.year == year && d.month == month)
+      .map((d) => DateTime(d.year, d.month, d.day))
+      .toSet();
 
   /// Para birimine göre aylık toplam — farklı para birimleri karışmaz.
   Map<String, Money> totalsByCurrencyForMonth(int year, int month) {
