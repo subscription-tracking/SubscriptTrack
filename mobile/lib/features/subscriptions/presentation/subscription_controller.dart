@@ -135,8 +135,18 @@ class SubscriptionController extends ChangeNotifier {
     notifyListeners();
     try {
       _items = await _repo.getAll(_userId);
-      _savingsEvents = await _savingsRepo.fetch(_userId);
-      _paymentEvents = await _paymentEventsRepo.fetch(_userId);
+      // Optional datasets must not force the primary dashboard into offline
+      // mode when one secondary table is unavailable.
+      try {
+        _savingsEvents = await _savingsRepo.fetch(_userId);
+      } catch (_) {
+        _savingsEvents = [];
+      }
+      try {
+        _paymentEvents = await _paymentEventsRepo.fetch(_userId);
+      } catch (_) {
+        _paymentEvents = [];
+      }
       await _expireEndedTrials();
       _isOffline = false;
       _error = null;
