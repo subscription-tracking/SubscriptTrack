@@ -71,9 +71,23 @@ class SubscriptionDetailScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _GridCategoryAndCycle(subscription: subscription),
                 const SizedBox(height: 24),
-                _PaymentMethodSection(subscription: subscription),
+                _PaymentMethodSection(
+                  subscription: subscription,
+                  onChange: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => EditSubscriptionScreen(
+                        subscription: subscription,
+                        controller: controller,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 24),
-                _PaymentHistorySection(subscription: subscription),
+                _PaymentHistorySection(
+                  subscription: subscription,
+                  controller: controller,
+                ),
                 const SizedBox(height: 28),
                 _ActionButtonsSection(
                   subscription: subscription,
@@ -637,9 +651,13 @@ class _GridCategoryAndCycle extends StatelessWidget {
 // ─── Payment Method Section ──────────────────────────────────────────────────
 
 class _PaymentMethodSection extends StatelessWidget {
-  const _PaymentMethodSection({required this.subscription});
+  const _PaymentMethodSection({
+    required this.subscription,
+    required this.onChange,
+  });
 
   final Subscription subscription;
+  final VoidCallback onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -707,7 +725,7 @@ class _PaymentMethodSection extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: onChange,
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   minimumSize: Size.zero,
@@ -733,20 +751,19 @@ class _PaymentMethodSection extends StatelessWidget {
 // ─── Payment History Section ─────────────────────────────────────────────────
 
 class _PaymentHistorySection extends StatelessWidget {
-  const _PaymentHistorySection({required this.subscription});
+  const _PaymentHistorySection({
+    required this.subscription,
+    required this.controller,
+  });
 
   final Subscription subscription;
+  final SubscriptionController controller;
 
   @override
   Widget build(BuildContext context) {
-    final priceStr = DateTimeUtils.formatCurrency(
-      subscription.amount.amount,
-      symbol: subscription.currency,
-    );
-
-    final now = DateTime.now();
-    final prevMonth1 = DateTime(now.year, now.month - 1, subscription.nextRenewalDate.day);
-    final prevMonth2 = DateTime(now.year, now.month - 2, subscription.nextRenewalDate.day);
+    final payments = controller.paymentEvents
+        .where((event) => event.subscriptionId == subscription.id)
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -767,7 +784,15 @@ class _PaymentHistorySection extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: payments.length > 2
+                  ? () => showDialog<void>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text('Geçmiş ödemeler'),
+                          content: Text('${payments.length} gerçek ödeme kaydı bulundu.'),
+                        ),
+                      )
+                  : null,
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: Size.zero,
@@ -791,21 +816,28 @@ class _PaymentHistorySection extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.border, width: 0.5),
           ),
-          child: Column(
-            children: [
-              _HistoryTile(
-                dateStr: DateTimeUtils.formatDate(prevMonth1),
-                amountStr: priceStr,
-                isFirst: true,
-              ),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.border),
-              _HistoryTile(
-                dateStr: DateTimeUtils.formatDate(prevMonth2),
-                amountStr: priceStr,
-                isFirst: false,
-              ),
-            ],
-          ),
+          child: payments.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text('Henüz ödeme geçmişi yok',
+                      style: TextStyle(color: AppColors.onSurfaceVar)),
+                )
+              : Column(
+                  children: [
+                    for (var i = 0; i < payments.length && i < 2; i++) ...[
+                      if (i > 0)
+                        const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+                      _HistoryTile(
+                        dateStr: DateTimeUtils.formatDate(payments[i].paidAt),
+                        amountStr: DateTimeUtils.formatCurrency(
+                          payments[i].amount,
+                          symbol: payments[i].currency,
+                        ),
+                        isFirst: i == 0,
+                      ),
+                    ],
+                  ],
+                ),
         ),
       ],
     );
