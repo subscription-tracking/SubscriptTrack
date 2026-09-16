@@ -69,6 +69,19 @@ class SubscriptionController extends ChangeNotifier {
       .where((s) => s.daysUntilRenewal >= 0 && s.daysUntilRenewal <= 30)
       .toList();
 
+  List<(Subscription subscription, DateTime date)> projectedRenewals({
+    int months = 12,
+  }) {
+    final result = <(Subscription, DateTime)>[];
+    for (final subscription in active) {
+      for (final date in subscription.projectedRenewals(count: months)) {
+        result.add((subscription, date));
+      }
+    }
+    result.sort((a, b) => a.$2.compareTo(b.$2));
+    return result;
+  }
+
   Money get totalMonthly =>
       active.fold(Money.zero, (sum, s) => sum + s.monthlyAmount);
 
