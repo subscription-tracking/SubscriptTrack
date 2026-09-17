@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/notifications/presentation/screens/notification_center_screen.dart';
-import '../theme/app_theme.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   const TopBar({this.title, super.key});
@@ -16,7 +15,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
     final cs     = Theme.of(context).colorScheme;
 
     return AppBar(
-      backgroundColor: AppColors.background,
+      backgroundColor: cs.surfaceContainerLowest,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       title: Row(
@@ -25,8 +24,8 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: cs.primary,
               shape: BoxShape.circle,
             ),
           ),

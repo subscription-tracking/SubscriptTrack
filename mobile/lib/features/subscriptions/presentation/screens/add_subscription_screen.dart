@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/money.dart';
+import '../../../../core/services/local_notification_service.dart';
+import '../../../settings/presentation/screens/notification_preferences_screen.dart';
+import '../../../settings/presentation/settings_controller.dart';
+import '../../../notifications/domain/notification_rule.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
@@ -17,8 +21,69 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _data = SubscriptionFormData();
 
+  /// Test 7: aynı isimde bir abonelik zaten varsa, sessizce ikinci bir kayıt
+  /// oluşturmak yerine kullanıcıya sorup onay istiyoruz — davranış tutarlı
+  /// ve görünür (izin veriliyor ama artık bilgilendiriliyor).
+  Future<bool> _confirmDuplicateNameIfAny() async {
+    final trimmedName = _data.name.trim().toLowerCase();
+    final isDuplicate = widget.controller.allItems
+        .any((s) => s.name.trim().toLowerCase() == trimmedName);
+    if (!isDuplicate) return true;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Aynı isimde abonelik mevcut'),
+        content: Text(
+          '"${_data.name.trim()}" adında zaten bir abonelik var. '
+          'Yine de eklemek istiyor musunuz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Vazgeç'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yine de ekle'),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  /// Test 37: kullanıcı yaklaşan yenileme tarihi olan bir abonelik eklerken,
+  /// bildirim izni kapalıysa hatırlatma alamayacağını PROAKTİF olarak
+  /// (ayarlara gitmeden, kendisi fark etmeden) öğrenmeli.
+  Future<void> _warnIfNotificationsDisabled() async {
+    final granted = await LocalNotificationService.arePermissionsGranted();
+    if (granted || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Bildirim izni kapalı — bu abonelik için hatırlatma alamayacaksın.',
+        ),
+        action: SnackBarAction(
+          label: 'Aç',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => NotificationPreferencesScreen(
+                controller: SettingsController.instance,
+              ),
+            ),
+          ),
+        ),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!await _confirmDuplicateNameIfAny()) return;
+    if (!mounted) return;
 
     final amount = Money.parse(_data.amount);
 
@@ -35,12 +100,19 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       trialEndDate: _data.isTrial ? _data.trialEndDate : null,
       trialPriceAfter:
           _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
+      notificationRules: _data.reminderDays
+          .map((days) => NotificationRule(daysBefore: days))
+          .toList(),
     );
 
     if (!mounted) return;
     if (ok) {
       if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
-        final created = widget.controller.allItems.firstWhere(
+        // lastWhere: aynı isimde birden fazla abonelik varsa (Test 7),
+        // yeni oluşturulan kayıt listenin SONUNA eklenir (bkz.
+        // SubscriptionController.add → _items.add(sub)) — firstWhere eski
+        // bir aynı-isimli kayda yanlışlıkla ödeme kaydı ekleyebilirdi.
+        final created = widget.controller.allItems.lastWhere(
           (s) => s.name == _data.name,
         );
         await widget.controller.recordPayment(
@@ -51,6 +123,8 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
         );
         if (!mounted) return;
       }
+      await _warnIfNotificationsDisabled();
+      if (!mounted) return;
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

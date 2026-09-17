@@ -12,6 +12,26 @@ class SecureStorage {
 
   static const _keyCurrentUser = 'current_user';
   static const _keyUserCredentials = 'user_credentials';
+  static const keyAppPinHash = 'app_pin_hash';
+  static const keyBiometricLock = 'app_biometric_lock';
+
+  Future<void> writeAppPinHash(String hash) =>
+      _storage.write(key: keyAppPinHash, value: hash);
+
+  Future<String?> readAppPinHash() => _storage.read(key: keyAppPinHash);
+
+  Future<void> deleteAppLock() async {
+    await _storage.delete(key: keyAppPinHash);
+    await _storage.delete(key: keyBiometricLock);
+  }
+
+  Future<void> writeBiometricLock(bool enabled) => _storage.write(
+        key: keyBiometricLock,
+        value: enabled ? 'true' : 'false',
+      );
+
+  Future<bool> readBiometricLock() async =>
+      (await _storage.read(key: keyBiometricLock)) == 'true';
 
   Future<void> writeCurrentUser(String userJson) =>
       _storage.write(key: _keyCurrentUser, value: userJson);

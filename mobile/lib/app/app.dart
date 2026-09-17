@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/settings/presentation/settings_controller.dart';
+import '../core/services/app_lock_gate.dart';
+import '../core/services/app_lock_service.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
@@ -17,6 +19,7 @@ class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
   late final AuthController _auth;
   late final _router = AppRouter.create(_auth);
   final _settings = SettingsController.instance;
+  final _lock = AppLockService.instance;
 
   @override
   void initState() {
@@ -42,15 +45,16 @@ class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
       ],
       child: ListenableBuilder(
         listenable: _settings,
-        builder: (_, __) => MaterialApp.router(
+        builder: (_, __) => AppLockGate(
+          service: _lock,
+          child: MaterialApp.router(
           title: 'SubscriptTrack',
           debugShowCheckedModeBanner: false,
-          // Açık tema geçici olarak kapalı; ürün şu aşamada yalnızca koyu tema
-          // ile çalışır.
-          theme: AppTheme.dark,
+          theme: AppTheme.light,
           darkTheme: AppTheme.dark,
-          themeMode: ThemeMode.dark,
+          themeMode: _settings.themeMode,
           routerConfig: _router,
+          ),
         ),
       ),
     );

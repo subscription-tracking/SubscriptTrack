@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/auth_data_source.dart';
@@ -56,6 +57,7 @@ AppUser _user({String id = 'u1', String email = 'a@b.com'}) =>
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   group('AuthController — session restore (S9)', () {
@@ -109,11 +111,14 @@ void main() {
 
   group('AuthController — deleteAccount local temizlik (S9)', () {
     test('deleteAccount → subscription cache temizlenir', () async {
-      final prefs = <String, Object>{
-        'subscriptions_u1': '[{"id":"sub1"}]',
+      // Test 58 düzeltmesi sonrası: abonelik önbelleği artık SharedPreferences
+      // değil, şifreli depolamada (FlutterSecureStorage) tutuluyor.
+      SharedPreferences.setMockInitialValues({
         'notif_read_ids': ['n1'],
-      };
-      SharedPreferences.setMockInitialValues(prefs);
+      });
+      FlutterSecureStorage.setMockInitialValues({
+        'subscriptions_u1': '[{"id":"sub1"}]',
+      });
 
       final repo = _FakeAuthRepo()..setUser(_user());
       final ctrl = AuthController(repository: repo);
@@ -121,8 +126,9 @@ void main() {
 
       await ctrl.deleteAccount(LocalStorage.instance);
 
+      final storedSecure = await const FlutterSecureStorage().read(key: 'subscriptions_u1');
       final stored = await SharedPreferences.getInstance();
-      expect(stored.getString('subscriptions_u1'), isNull);
+      expect(storedSecure, isNull);
       expect(stored.getStringList('notif_read_ids'), isNull);
       expect(ctrl.status, AuthStatus.unauthenticated);
       expect(ctrl.user, isNull);

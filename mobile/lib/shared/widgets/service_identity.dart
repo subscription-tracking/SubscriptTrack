@@ -28,7 +28,7 @@ class ServiceIdentity extends StatelessWidget {
     final brand = _brandIcons[nameKey];
     final fallback = _fallbackIcons[nameKey];
     final color =
-        brand?.$2 ?? fallback?.$2 ?? _categoryColor(category);
+        brand?.$2 ?? fallback?.$2 ?? _categoryColor(context, category);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
 
     // Decide the inner content.
@@ -159,17 +159,17 @@ class ServiceIdentity extends StatelessWidget {
     'bitwarden': (Icons.shield_rounded, Color(0xFF175DDC)),
   };
 
-  static Color _categoryColor(SubscriptionCategory category) =>
+  static Color _categoryColor(BuildContext context, SubscriptionCategory category) =>
       switch (category) {
         SubscriptionCategory.streaming => const Color(0xFFE56B6F),
         SubscriptionCategory.music => const Color(0xFF49B8A8),
         SubscriptionCategory.gaming => const Color(0xFF9A72FF),
-        SubscriptionCategory.software => AppColors.primary,
+        SubscriptionCategory.software => Theme.of(context).colorScheme.primary,
         SubscriptionCategory.cloud => const Color(0xFF60A5FA),
         SubscriptionCategory.fitness => const Color(0xFFF472B6),
         SubscriptionCategory.news => const Color(0xFFF5A524),
         SubscriptionCategory.food => const Color(0xFFFB923C),
         SubscriptionCategory.education => const Color(0xFF38BDF8),
-        SubscriptionCategory.other => AppColors.muted,
+        SubscriptionCategory.other => context.statusColors.muted,
       };
 }

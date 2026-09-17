@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../app/theme/app_theme.dart';
 
 /// Shimmer loading placeholder for glass cards and lists.
 class AppShimmer extends StatefulWidget {
@@ -42,6 +41,7 @@ class _AppShimmerState extends State<AppShimmer>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
+        final cs = Theme.of(context).colorScheme;
         return Container(
           width: widget.width,
           height: widget.height,
@@ -51,13 +51,13 @@ class _AppShimmerState extends State<AppShimmer>
               begin: Alignment(-1.0 + (_controller.value * 3.0), -0.3),
               end: Alignment(1.0 + (_controller.value * 3.0), 0.3),
               colors: [
-                AppColors.surfaceHigh,
-                AppColors.surfaceHigh.withValues(alpha: 0.4),
-                AppColors.surfaceHigh,
+                cs.surfaceContainerHigh,
+                cs.surfaceContainerHigh.withValues(alpha: 0.4),
+                cs.surfaceContainerHigh,
               ],
               stops: const [0.0, 0.5, 1.0],
             ),
-            border: Border.all(color: AppColors.border, width: 0.5),
+            border: Border.all(color: cs.outlineVariant, width: 0.5),
           ),
         );
       },

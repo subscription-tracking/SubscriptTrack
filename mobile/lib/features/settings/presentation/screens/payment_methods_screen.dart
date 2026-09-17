@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_theme.dart';
 import '../settings_controller.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
@@ -98,7 +97,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
               widget.controller.removePaymentMethod(name);
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error),
             child: const Text('Sil'),
           ),
         ],
@@ -128,12 +128,14 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.credit_card_off_outlined,
-                          size: 48, color: AppColors.onSurfaceVar),
+                      Icon(Icons.credit_card_off_outlined,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         'Henüz bir ödeme yöntemi eklemediniz.',
-                        style: TextStyle(color: AppColors.onSurfaceVar),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
@@ -166,12 +168,15 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.credit_card,
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         title: Text(
@@ -186,8 +191,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                               onPressed: () => _showEditDialog(name),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline,
-                                  size: 20, color: AppColors.error),
+                              icon: Icon(Icons.delete_outline,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.error),
                               onPressed: () => _confirmDelete(name),
                             ),
                           ],

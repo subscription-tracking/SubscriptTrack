@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/subscription_data_source.dart';
@@ -81,6 +82,7 @@ Subscription _sub(
 
 Future<SubscriptionController> _loadedCtrl(List<Subscription> subs) async {
   SharedPreferences.setMockInitialValues({});
+  FlutterSecureStorage.setMockInitialValues({});
   final ctrl =
       SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
   await ctrl.load();
@@ -172,11 +174,19 @@ void main() {
       expect(ctrl.upcomingRenewals, isEmpty);
     });
 
-    test('geçmiş tarihli → dahil değil', () async {
+    test('geçmiş tarihli (1 gün gecikmiş) → load() sonrası catch-up ile '
+        'artık geçmişte değil (Paket 1 / Test 45 düzeltmesi)', () async {
+      // Önceki davranış: nextRenewalDate geçmişte kalırsa upcomingRenewals'a
+      // hiç girmezdi (sonsuza dek "kayıp" kalırdı). Artık
+      // SubscriptionController._catchUpOverdueRenewals() bunu load()
+      // sırasında bir sonraki döneme ilerletiyor — bu yüzden negatif kalmıyor.
       final ctrl = await _loadedCtrl([
         _sub('1', daysFromNow: -1),
       ]);
-      expect(ctrl.upcomingRenewals, isEmpty);
+      final result = ctrl.allItems.single;
+      expect(result.daysUntilRenewal, greaterThanOrEqualTo(0),
+          reason: 'Gecikmiş yenileme artık bugün ya da sonrasına ilerletildi, '
+              'sonsuza dek negatif/geçmişte kalmıyor.');
     });
 
     test('paused → upcomingRenewals\'a girmez', () async {
@@ -221,6 +231,7 @@ void main() {
       // isOffline=true ancak cache varsa döner. Önce başarılı yükle
       // (cache yazar), sonra hatalı repo ile yükle.
       SharedPreferences.setMockInitialValues({});
+      FlutterSecureStorage.setMockInitialValues({});
       final fakeRepo = _FakeRepo([_sub('1')]);
       final ctrl = SubscriptionController(userId: 'u1', repository: fakeRepo);
       await ctrl.load(); // cache'e yazar

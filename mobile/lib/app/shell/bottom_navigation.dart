@@ -2,8 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
-
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({
     required this.currentIndex,
@@ -38,7 +36,7 @@ class BottomNavigation extends StatelessWidget {
               color: Theme.of(context).colorScheme.surfaceContainerHigh.withValues(alpha: 0.94),
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
-                color: AppColors.border,
+                color: cs.outlineVariant,
                 width: 0.5,
               ),
             ),
@@ -66,7 +64,7 @@ class BottomNavigation extends StatelessWidget {
                         ),
                         decoration: active
                             ? BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.09),
+                                color: cs.onSurface.withValues(alpha: 0.09),
                                 borderRadius: BorderRadius.circular(100),
                               )
                             : null,

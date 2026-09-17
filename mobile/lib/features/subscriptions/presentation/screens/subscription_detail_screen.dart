@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_theme.dart';
+import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/app_animated_money.dart';
 import '../../../../shared/widgets/service_identity.dart';
@@ -18,7 +18,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
   final Subscription subscription;
   final SubscriptionController controller;
 
-  Color _brandColor(Subscription sub) {
+  Color _brandColor(BuildContext context, Subscription sub) {
     final nameKey = sub.name.trim().toLowerCase();
     if (nameKey.contains('netflix')) return const Color(0xFFE50914);
     if (nameKey.contains('spotify')) return const Color(0xFF1DB954);
@@ -31,16 +31,17 @@ class SubscriptionDetailScreen extends StatelessWidget {
       return const Color(0xFF5AA9FF);
     }
     if (nameKey.contains('google')) return const Color(0xFF4285F4);
-    return AppColors.primary;
+    return Theme.of(context).colorScheme.primary;
   }
 
   @override
   Widget build(BuildContext context) {
-    final brandColor = _brandColor(subscription);
+    final cs = Theme.of(context).colorScheme;
+    final brandColor = _brandColor(context, subscription);
     final daysLeft = subscription.daysUntilRenewal;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: cs.surfaceContainerLowest,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -170,6 +171,7 @@ class _HeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
@@ -183,16 +185,16 @@ class _HeroHeader extends StatelessWidget {
           // Gradient and Glow overlay
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.black38,
                     Colors.transparent,
-                    AppColors.background,
+                    cs.surfaceContainerLowest,
                   ],
-                  stops: [0.0, 0.4, 1.0],
+                  stops: const [0.0, 0.4, 1.0],
                 ),
               ),
             ),
@@ -287,12 +289,12 @@ class _HeroHeader extends StatelessWidget {
                             ]),
                           ),
                         ],
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: _Action.delete,
                           child: Row(children: [
-                            Icon(Icons.delete_outline, color: AppColors.error),
-                            SizedBox(width: 12),
-                            Text('Sil', style: TextStyle(color: AppColors.error)),
+                            Icon(Icons.delete_outline, color: cs.error),
+                            const SizedBox(width: 12),
+                            Text('Sil', style: TextStyle(color: cs.error)),
                           ]),
                         ),
                       ],
@@ -426,15 +428,17 @@ class _NextPaymentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final statusColors = context.statusColors;
     final statusColor = daysLeft <= 3
-        ? AppColors.tertiary
-        : (daysLeft <= 7 ? AppColors.warning : AppColors.primary);
+        ? cs.tertiary
+        : (daysLeft <= 7 ? statusColors.warning : cs.primary);
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: cs.outlineVariant, width: 0.5),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -455,22 +459,22 @@ class _NextPaymentCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'SONRAKİ ÖDEME',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.onSurfaceVar,
+                            color: cs.onSurfaceVariant,
                             letterSpacing: 1.0,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           DateTimeUtils.formatDate(subscription.nextRenewalDate),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.onSurface,
+                            color: cs.onSurface,
                           ),
                         ),
                       ],
@@ -530,25 +534,26 @@ class _GridCategoryAndCycle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: cs.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border, width: 0.5),
+              border: Border.all(color: cs.outlineVariant, width: 0.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'KATEGORİ',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.onSurfaceVar,
+                    color: cs.onSurfaceVariant,
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -560,22 +565,22 @@ class _GridCategoryAndCycle extends StatelessWidget {
                       height: 28,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.primary.withValues(alpha: 0.15),
+                        color: cs.primary.withValues(alpha: 0.15),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.movie_filter_rounded,
                         size: 15,
-                        color: AppColors.primary,
+                        color: cs.primary,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         subscription.category.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.onSurface,
+                          color: cs.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -592,19 +597,19 @@ class _GridCategoryAndCycle extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: cs.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border, width: 0.5),
+              border: Border.all(color: cs.outlineVariant, width: 0.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'ÖDEME DÖNGÜSÜ',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.onSurfaceVar,
+                    color: cs.onSurfaceVariant,
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -616,22 +621,22 @@ class _GridCategoryAndCycle extends StatelessWidget {
                       height: 28,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.tertiary.withValues(alpha: 0.15),
+                        color: cs.tertiary.withValues(alpha: 0.15),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.update_rounded,
                         size: 15,
-                        color: AppColors.tertiary,
+                        color: cs.tertiary,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         subscription.billingCycle.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.onSurface,
+                          color: cs.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -661,17 +666,18 @@ class _PaymentMethodSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4, bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
             'ÖDEME YÖNTEMİ',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.onSurfaceVar,
+              color: cs.onSurfaceVariant,
               letterSpacing: 1.0,
             ),
           ),
@@ -679,9 +685,9 @@ class _PaymentMethodSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: cs.surface,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border, width: 0.5),
+            border: Border.all(color: cs.outlineVariant, width: 0.5),
           ),
           child: Row(
             children: [
@@ -689,12 +695,12 @@ class _PaymentMethodSection extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceHigh,
+                  color: cs.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.credit_card_rounded,
-                  color: AppColors.secondary,
+                  color: cs.secondary,
                   size: 24,
                 ),
               ),
@@ -705,10 +711,10 @@ class _PaymentMethodSection extends StatelessWidget {
                   children: [
                     Text(
                       subscription.paymentMethod ?? 'Belirtilmedi',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.onSurface,
+                        color: cs.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -716,9 +722,9 @@ class _PaymentMethodSection extends StatelessWidget {
                       subscription.paymentMethod != null
                           ? 'Kayıtlı Ödeme Kartı'
                           : 'Ödeme yöntemi seçilmedi',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.onSurfaceVar,
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -731,12 +737,12 @@ class _PaymentMethodSection extends StatelessWidget {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
+                child: Text(
                   'Değiştir',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: cs.primary,
                   ),
                 ),
               ),
@@ -761,6 +767,7 @@ class _PaymentHistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final payments = controller.paymentEvents
         .where((event) => event.subscriptionId == subscription.id)
         .toList();
@@ -771,14 +778,14 @@ class _PaymentHistorySection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 'GEÇMİŞ ÖDEMELER',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.onSurfaceVar,
+                  color: cs.onSurfaceVariant,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -811,12 +818,12 @@ class _PaymentHistorySection extends StatelessWidget {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
+              child: Text(
                 'Tümünü gör',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
+                  color: cs.primary,
                 ),
               ),
             ),
@@ -825,21 +832,21 @@ class _PaymentHistorySection extends StatelessWidget {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: cs.surface,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border, width: 0.5),
+            border: Border.all(color: cs.outlineVariant, width: 0.5),
           ),
           child: payments.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.all(20),
+              ? Padding(
+                  padding: const EdgeInsets.all(20),
                   child: Text('Henüz ödeme geçmişi yok',
-                      style: TextStyle(color: AppColors.onSurfaceVar)),
+                      style: TextStyle(color: cs.onSurfaceVariant)),
                 )
               : Column(
                   children: [
                     for (var i = 0; i < payments.length && i < 2; i++) ...[
                       if (i > 0)
-                        const Divider(height: 1, thickness: 0.5, color: AppColors.border),
+                        Divider(height: 1, thickness: 0.5, color: cs.outlineVariant),
                       _HistoryTile(
                         dateStr: DateTimeUtils.formatDate(payments[i].paidAt),
                         amountStr: DateTimeUtils.formatCurrency(
@@ -870,6 +877,8 @@ class _HistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final statusColors = context.statusColors;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -879,12 +888,12 @@ class _HistoryTile extends StatelessWidget {
             height: 34,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.success.withValues(alpha: 0.15),
+              color: statusColors.success.withValues(alpha: 0.15),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check_circle_rounded,
               size: 18,
-              color: AppColors.success,
+              color: statusColors.success,
             ),
           ),
           const SizedBox(width: 12),
@@ -894,19 +903,19 @@ class _HistoryTile extends StatelessWidget {
               children: [
                 Text(
                   dateStr,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
+                    color: cs.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   'ÖDENDİ',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.success,
+                    color: statusColors.success,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -915,10 +924,10 @@ class _HistoryTile extends StatelessWidget {
           ),
           Text(
             amountStr,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: AppColors.onSurface,
+              color: cs.onSurface,
             ),
           ),
         ],
@@ -946,6 +955,7 @@ class _ActionButtonsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isPaused = subscription.status == SubscriptionStatus.paused;
 
     return Column(
@@ -961,7 +971,7 @@ class _ActionButtonsSection extends StatelessWidget {
                 ),
                 label: Text(isPaused ? 'Devam Ettir' : 'Duraklat'),
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.surface,
+                  backgroundColor: cs.surface,
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -976,7 +986,7 @@ class _ActionButtonsSection extends StatelessWidget {
                 icon: const Icon(Icons.archive_outlined, size: 18),
                 label: const Text('Arşivle'),
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.surface,
+                  backgroundColor: cs.surface,
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -989,14 +999,14 @@ class _ActionButtonsSection extends StatelessWidget {
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: onCancel,
-          icon: const Icon(Icons.cancel_outlined, size: 20, color: AppColors.error),
-          label: const Text(
+          icon: Icon(Icons.cancel_outlined, size: 20, color: cs.error),
+          label: Text(
             'Aboneliği İptal Et',
-            style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700),
+            style: TextStyle(color: cs.error, fontWeight: FontWeight.w700),
           ),
           style: OutlinedButton.styleFrom(
-            backgroundColor: AppColors.error.withValues(alpha: 0.08),
-            side: BorderSide(color: AppColors.error.withValues(alpha: 0.3), width: 0.5),
+            backgroundColor: cs.error.withValues(alpha: 0.08),
+            side: BorderSide(color: cs.error.withValues(alpha: 0.3), width: 0.5),
             minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -1004,12 +1014,12 @@ class _ActionButtonsSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'Sonraki fatura tarihinden 24 saat önce sana hatırlatma bildirimi göndereceğiz.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 11,
-            color: AppColors.onSurfaceVar,
+            color: cs.onSurfaceVariant,
           ),
         ),
       ],

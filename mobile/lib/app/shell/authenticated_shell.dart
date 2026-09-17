@@ -5,6 +5,8 @@ import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/settings/presentation/settings_controller.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
+import '../../features/subscriptions/domain/subscription_models.dart';
+import '../../features/subscriptions/presentation/screens/subscription_detail_screen.dart';
 import '../../core/services/device_token_service.dart';
 import '../../core/services/local_notification_service.dart';
 import '../../core/services/notification_read_sync_service.dart';
@@ -49,7 +51,45 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
     SettingsController.instance.addListener(_onSettingsChanged);
     _subs!.load();
     _notif!.load(user.id).catchError((_) {});
-    WidgetsBinding.instance.addPostFrameCallback((_) => _registerDeviceToken());
+    LocalNotificationService.onNotificationTap = _handleNotificationTap;
+    LocalNotificationService.onSnoozeRequested = _handleSnoozeRequested;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _registerDeviceToken();
+      _handleColdStartNotification();
+    });
+  }
+
+  /// Uygulama, kapalıyken bir bildirime dokunularak açıldıysa (Test 35'in
+  /// "cold start" durumu), ilk frame sonrası ilgili detay ekranına gider.
+  Future<void> _handleColdStartNotification() async {
+    final id = await LocalNotificationService.getLaunchNotificationSubscriptionId();
+    if (id != null) _handleNotificationTap(id);
+  }
+
+  Subscription? _findSubscription(String id) {
+    for (final sub in _subs?.allItems ?? const <Subscription>[]) {
+      if (sub.id == id) return sub;
+    }
+    return null;
+  }
+
+  void _handleNotificationTap(String subscriptionId) {
+    final sub = _findSubscription(subscriptionId);
+    if (sub == null || !mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SubscriptionDetailScreen(
+          subscription: sub,
+          controller: _subs!,
+        ),
+      ),
+    );
+  }
+
+  void _handleSnoozeRequested(String subscriptionId) {
+    final sub = _findSubscription(subscriptionId);
+    if (sub == null) return;
+    LocalNotificationService.snooze(sub);
   }
 
   Future<void> _registerDeviceToken() async {
@@ -95,6 +135,12 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
   void dispose() {
     SettingsController.instance.removeListener(_onSettingsChanged);
     _subs?.removeListener(_onSubscriptionsChanged);
+    if (identical(LocalNotificationService.onNotificationTap, _handleNotificationTap)) {
+      LocalNotificationService.onNotificationTap = null;
+    }
+    if (identical(LocalNotificationService.onSnoozeRequested, _handleSnoozeRequested)) {
+      LocalNotificationService.onSnoozeRequested = null;
+    }
     _subs?.dispose();
     _notif?.dispose();
     final uid = _userId;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../settings/presentation/settings_controller.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../domain/subscription_models.dart';
 
@@ -20,13 +21,15 @@ class SubscriptionFormData {
     this.isTrial = false,
     this.trialEndDate,
     this.trialPriceAfter = '',
+    List<int>? reminderDays,
     this.initialPaymentStatus = InitialPaymentStatus.unpaid,
     DateTime? initialPaymentDate,
     this.deferredPaymentDate,
   })  : startDate = startDate ?? DateTime.now(),
         initialPaymentDate = initialPaymentDate ?? DateTime.now(),
         nextRenewalDate =
-            nextRenewalDate ?? DateTime.now().add(const Duration(days: 30));
+            nextRenewalDate ?? DateTime.now().add(const Duration(days: 30)),
+        reminderDays = reminderDays ?? [3];
 
   String name;
   String amount;
@@ -40,6 +43,7 @@ class SubscriptionFormData {
   bool isTrial;
   DateTime? trialEndDate;
   String trialPriceAfter;
+  List<int> reminderDays;
   InitialPaymentStatus initialPaymentStatus;
   DateTime initialPaymentDate;
   DateTime? deferredPaymentDate;
@@ -89,12 +93,15 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   void _autoSetNextRenewal() {
     final s = widget.data.startDate;
-    widget.data.nextRenewalDate = switch (widget.data.billingCycle) {
-      BillingCycle.weekly => s.add(const Duration(days: 7)),
-      BillingCycle.monthly => DateTime(s.year, s.month + 1, s.day),
-      BillingCycle.quarterly => DateTime(s.year, s.month + 3, s.day),
-      BillingCycle.yearly => DateTime(s.year + 1, s.month, s.day),
-    };
+    // Başlangıç bugün/gelecekteyse ilk yenileme == başlangıç tarihinin kendisi;
+    // geçmişteyse kaçırılan periyotlar atlanıp bugünden sonraki en yakın
+    // yenilemeye ulaşılır (nextOccurrenceOnOrAfter tek noktadan ikisini de
+    // karşılar — bkz. DateTimeUtils).
+    widget.data.nextRenewalDate = DateTimeUtils.nextOccurrenceOnOrAfter(
+      s,
+      widget.data.billingCycle.key,
+      DateTime.now(),
+    );
   }
 
   Future<void> _pickStartDate() async {
@@ -140,11 +147,13 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   Future<void> _pickDeferredPaymentDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: widget.data.deferredPaymentDate ?? widget.data.nextRenewalDate,
+      initialDate:
+          widget.data.deferredPaymentDate ?? widget.data.nextRenewalDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
-    if (picked != null) setState(() => widget.data.deferredPaymentDate = picked);
+    if (picked != null)
+      setState(() => widget.data.deferredPaymentDate = picked);
   }
 
   Future<void> _pickTrialEndDate() async {
@@ -440,11 +449,17 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               const DropdownMenuItem<String?>(
                 value: '__ADD_NEW__',
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.add, size: 18),
                     SizedBox(width: 6),
-                    Text('+ Yeni Kart Ekle...',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Flexible(
+                      child: Text(
+                        '+ Yeni Kart',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -465,11 +480,16 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               prefixIcon: Icon(Icons.fact_check_outlined),
             ),
             items: const [
-              DropdownMenuItem(value: InitialPaymentStatus.paid, child: Text('Ödendi')),
-              DropdownMenuItem(value: InitialPaymentStatus.unpaid, child: Text('Ödenmedi')),
-              DropdownMenuItem(value: InitialPaymentStatus.deferred, child: Text('Ertelendi')),
+              DropdownMenuItem(
+                  value: InitialPaymentStatus.paid, child: Text('Ödendi')),
+              DropdownMenuItem(
+                  value: InitialPaymentStatus.unpaid, child: Text('Ödenmedi')),
+              DropdownMenuItem(
+                  value: InitialPaymentStatus.deferred,
+                  child: Text('Ertelendi')),
             ],
-            onChanged: (v) => setState(() => widget.data.initialPaymentStatus = v ?? InitialPaymentStatus.unpaid),
+            onChanged: (v) => setState(() => widget.data.initialPaymentStatus =
+                v ?? InitialPaymentStatus.unpaid),
           ),
           const SizedBox(height: 8),
           if (widget.data.initialPaymentStatus == InitialPaymentStatus.paid)
@@ -507,9 +527,29 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             outlineColor: outlineColor,
           ),
           const SizedBox(height: 16),
+          Text('Hatırlatmalar', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            children: [0, 1, 3, 7]
+                .map((days) => FilterChip(
+                      label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
+                      selected: widget.data.reminderDays.contains(days),
+                      onSelected: (selected) => setState(() {
+                        if (selected) {
+                          widget.data.reminderDays.add(days);
+                        } else if (widget.data.reminderDays.length > 1) {
+                          widget.data.reminderDays.remove(days);
+                        }
+                      }),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _notes,
             maxLines: 3,
+            maxLength: 500,
             textInputAction: TextInputAction.done,
             decoration: const InputDecoration(
               labelText: 'Notlar (opsiyonel)',

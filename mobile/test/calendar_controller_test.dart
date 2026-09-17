@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/subscription_data_source.dart';
@@ -48,6 +49,13 @@ class _StaticRepo implements SubscriptionDataSource {
   Future<void> cancel(String u, String id) => throw UnimplementedError();
 }
 
+// Sabit "2026" yerine her zaman bugünden ileride kalan bir yıl kullanılıyor:
+// SubscriptionController.load() artık geçmiş nextRenewalDate'e sahip aktif
+// abonelikleri otomatik ilerletiyor (Paket 1 / Test 45 düzeltmesi) — bu test
+// dosyasındaki sabitler hep GELECEKTE kalsın diye hesaplanıyor, aksi halde
+// zamanla (ör. 2026 geçince) testler kırılırdı.
+final _futureYear = DateTime.now().year + 2;
+
 // --- yardımcı -------------------------------------------------------
 
 Subscription _sub(
@@ -74,6 +82,7 @@ Subscription _sub(
 
 Future<CalendarController> _ctrl(List<Subscription> subs) async {
   SharedPreferences.setMockInitialValues({});
+  FlutterSecureStorage.setMockInitialValues({});
   final subsCtrl =
       SubscriptionController(userId: 'u1', repository: _StaticRepo(subs));
   await subsCtrl.load();
@@ -85,7 +94,7 @@ Future<CalendarController> _ctrl(List<Subscription> subs) async {
 void main() {
   group('CalendarController.renewalsForDay (S5)', () {
     test('o gün yenileme olan aboneliği döner', () async {
-      final target = DateTime(2026, 8, 15);
+      final target = DateTime(_futureYear, 8, 15);
       final cal = await _ctrl([_sub('1', target)]);
       final result = cal.renewalsForDay(target);
       expect(result.length, 1);
@@ -93,12 +102,12 @@ void main() {
     });
 
     test('farklı gün → boş liste', () async {
-      final cal = await _ctrl([_sub('1', DateTime(2026, 8, 15))]);
-      expect(cal.renewalsForDay(DateTime(2026, 8, 14)), isEmpty);
+      final cal = await _ctrl([_sub('1', DateTime(_futureYear, 8, 15))]);
+      expect(cal.renewalsForDay(DateTime(_futureYear, 8, 14)), isEmpty);
     });
 
     test('paused abonelik dahil edilmez', () async {
-      final d = DateTime(2026, 8, 15);
+      final d = DateTime(_futureYear, 8, 15);
       final cal = await _ctrl([
         _sub('1', d),
         _sub('2', d, status: SubscriptionStatus.paused),
@@ -109,14 +118,14 @@ void main() {
     });
 
     test('aynı güne birden fazla abonelik', () async {
-      final d = DateTime(2026, 8, 20);
+      final d = DateTime(_futureYear, 8, 20);
       final cal = await _ctrl([_sub('1', d), _sub('2', d), _sub('3', d)]);
       expect(cal.renewalsForDay(d).length, 3);
     });
 
     test('UTC tarih yerel güne doğru düşer', () async {
       // UTC 2026-08-14T23:00:00Z → UTC+3 → 2026-08-15
-      final utc = DateTime.utc(2026, 8, 14, 23, 0, 0);
+      final utc = DateTime.utc(_futureYear, 8, 14, 23, 0, 0);
       final local = utc.toLocal();
       final cal = await _ctrl([_sub('1', utc)]);
       // Yerel günde görünmeli
@@ -128,58 +137,58 @@ void main() {
   group('CalendarController.renewalDaysInMonth (S5)', () {
     test('ilgili ay\'daki günleri döner', () async {
       final cal = await _ctrl([
-        _sub('1', DateTime(2026, 8, 5)),
-        _sub('2', DateTime(2026, 8, 20)),
-        _sub('3', DateTime(2026, 9, 1)), // farklı ay → dahil değil
+        _sub('1', DateTime(_futureYear, 8, 5)),
+        _sub('2', DateTime(_futureYear, 8, 20)),
+        _sub('3', DateTime(_futureYear, 9, 1)), // farklı ay → dahil değil
       ]);
-      final days = cal.renewalDaysInMonth(2026, 8);
+      final days = cal.renewalDaysInMonth(_futureYear, 8);
       expect(days.length, 2);
-      expect(days.contains(DateTime(2026, 8, 5)), isTrue);
-      expect(days.contains(DateTime(2026, 8, 20)), isTrue);
-      expect(days.contains(DateTime(2026, 9, 1)), isFalse);
+      expect(days.contains(DateTime(_futureYear, 8, 5)), isTrue);
+      expect(days.contains(DateTime(_futureYear, 8, 20)), isTrue);
+      expect(days.contains(DateTime(_futureYear, 9, 1)), isFalse);
     });
 
     test('ay sınırı — son ve ilk günler doğru ayrılır', () async {
       final cal = await _ctrl([
-        _sub('1', DateTime(2026, 7, 31)), // Temmuz son günü
-        _sub('2', DateTime(2026, 8, 1)), // Ağustos ilk günü
+        _sub('1', DateTime(_futureYear, 7, 31)), // Temmuz son günü
+        _sub('2', DateTime(_futureYear, 8, 1)), // Ağustos ilk günü
       ]);
-      expect(cal.renewalDaysInMonth(2026, 7).length, 1);
-      expect(cal.renewalDaysInMonth(2026, 8).length, 1);
+      expect(cal.renewalDaysInMonth(_futureYear, 7).length, 1);
+      expect(cal.renewalDaysInMonth(_futureYear, 8).length, 1);
     });
 
     test('boş liste → boş Set', () async {
       final cal = await _ctrl([]);
-      expect(cal.renewalDaysInMonth(2026, 8), isEmpty);
+      expect(cal.renewalDaysInMonth(_futureYear, 8), isEmpty);
     });
   });
 
   group('CalendarController.totalsByCurrencyForMonth (S4/S5)', () {
     test('tek para birimi — ayda gerçekleşen ödemeleri toplar', () async {
       final cal = await _ctrl([
-        _sub('1', DateTime(2026, 8, 5), amount: 100),
-        _sub('2', DateTime(2026, 8, 20), amount: 50),
-        _sub('3', DateTime(2026, 9, 1), amount: 200), // bu ay değil
+        _sub('1', DateTime(_futureYear, 8, 5), amount: 100),
+        _sub('2', DateTime(_futureYear, 8, 20), amount: 50),
+        _sub('3', DateTime(_futureYear, 9, 1), amount: 200), // bu ay değil
       ]);
-      final totals = cal.totalsByCurrencyForMonth(2026, 8);
+      final totals = cal.totalsByCurrencyForMonth(_futureYear, 8);
       expect(totals['TRY']?.minorUnits, 15000); // 150 TRY
       expect(totals.containsKey('USD'), isFalse);
     });
 
     test('çoklu para birimi ayrı toplanır', () async {
       final cal = await _ctrl([
-        _sub('1', DateTime(2026, 8, 10), currency: 'TRY', amount: 100),
-        _sub('2', DateTime(2026, 8, 15), currency: 'USD', amount: 10),
-        _sub('3', DateTime(2026, 8, 20), currency: 'USD', amount: 5),
+        _sub('1', DateTime(_futureYear, 8, 10), currency: 'TRY', amount: 100),
+        _sub('2', DateTime(_futureYear, 8, 15), currency: 'USD', amount: 10),
+        _sub('3', DateTime(_futureYear, 8, 20), currency: 'USD', amount: 5),
       ]);
-      final totals = cal.totalsByCurrencyForMonth(2026, 8);
+      final totals = cal.totalsByCurrencyForMonth(_futureYear, 8);
       expect(totals['TRY']?.minorUnits, 10000);
       expect(totals['USD']?.minorUnits, 1500);
     });
 
     test('o ayda yenileme yok → boş map', () async {
-      final cal = await _ctrl([_sub('1', DateTime(2026, 9, 1))]);
-      expect(cal.totalsByCurrencyForMonth(2026, 8), isEmpty);
+      final cal = await _ctrl([_sub('1', DateTime(_futureYear, 9, 1))]);
+      expect(cal.totalsByCurrencyForMonth(_futureYear, 8), isEmpty);
     });
   });
 }
