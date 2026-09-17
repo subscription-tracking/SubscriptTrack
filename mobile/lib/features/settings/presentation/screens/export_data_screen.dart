@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
+import '../../data/supabase_export_repository.dart';
 
 class ExportDataScreen extends StatelessWidget {
   const ExportDataScreen({required this.subscriptions, super.key});
@@ -64,6 +65,19 @@ class ExportDataScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _createCloudExport(BuildContext context) async {
+    try {
+      final url = await SupabaseExportRepository().createAndProcess();
+      await Share.share(url, subject: 'SubscriptTrack güvenli export bağlantısı');
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Bulut export oluşturulamadı: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final total = subscriptions.active.length +
@@ -109,6 +123,13 @@ class ExportDataScreen extends StatelessWidget {
                   style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(48)),
                 ),
+              if (!kIsWeb) const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: total == 0 ? null : () => _createCloudExport(context),
+                icon: const Icon(Icons.cloud_upload_outlined),
+                label: const Text('Güvenli bulut export oluştur'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              ),
               if (!kIsWeb) const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: total == 0 ? null : () => _copyToClipboard(context),
