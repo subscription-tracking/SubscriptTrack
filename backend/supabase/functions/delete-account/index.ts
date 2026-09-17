@@ -21,6 +21,13 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Sadece POST desteklenir' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Allow': 'POST, OPTIONS' },
+    })
+  }
+
   try {
     // 1. İsteği yapan kullanıcıyı JWT ile doğrula
     const authHeader = req.headers.get('Authorization')
@@ -47,10 +54,18 @@ Deno.serve(async (req: Request) => {
     }
 
     // 2. Admin client — service_role key ile kullanıcı sil
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
+      Deno.env.get('SERVICE_ROLE_KEY')
+    if (!serviceRoleKey) {
+      console.error('Service role secret yapılandırılmamış')
+      return new Response(JSON.stringify({ error: 'Sunucu yapılandırma hatası' }), {
+        status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const adminClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
-      Deno.env.get('SERVICE_ROLE_KEY') ?? '',
+      serviceRoleKey,
       { auth: { autoRefreshToken: false, persistSession: false } },
     )
 
