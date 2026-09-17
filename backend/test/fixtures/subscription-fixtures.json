@@ -1,0 +1,11 @@
+{
+  "currencies": ["TRY", "USD", "EUR", "GBP"],
+  "statuses": ["TRIAL", "ACTIVE", "PAUSED", "CANCELLED", "EXPIRED", "ARCHIVED"],
+  "renewalDaysBefore": [0, 1, 3, 7],
+  "subscriptions": [
+    {"id": "sub-try-monthly", "name": "Netflix", "amount": "199.99", "currency": "TRY", "billingCycle": "monthly", "status": "ACTIVE", "nextRenewalDate": "2026-10-01"},
+    {"id": "sub-usd-yearly", "name": "Cloud Tool", "amount": "120.00", "currency": "USD", "billingCycle": "yearly", "status": "ACTIVE", "nextRenewalDate": "2026-12-31"},
+    {"id": "sub-eur-trial", "name": "Design Tool", "amount": "19.99", "currency": "EUR", "billingCycle": "monthly", "status": "TRIAL", "trialEndDate": "2026-10-07"},
+    {"id": "sub-gbp-paused", "name": "Music Tool", "amount": "10.00", "currency": "GBP", "billingCycle": "monthly", "status": "PAUSED", "nextRenewalDate": "2026-10-15"}
+  ]
+}
