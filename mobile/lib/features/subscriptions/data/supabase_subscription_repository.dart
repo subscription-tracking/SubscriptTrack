@@ -77,30 +77,17 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
   @override
   Future<Subscription> update(Subscription updated) async {
     try {
-      final row = await _client
-          .from(_table)
-          .update({
-            'name': updated.name,
-            'amount': updated.amount.toJson(),
-            'currency': updated.currency,
-            'billing_cycle': updated.billingCycle.key,
-            'next_renewal_date':
-                updated.nextRenewalDate.toIso8601String().substring(0, 10),
-            'category': updated.category.key,
-            'notes': updated.notes,
-            'payment_method': updated.paymentMethod,
-            'status': updated.status.key,
-            'trial_end_date':
-                updated.trialEndDate?.toIso8601String().substring(0, 10),
-            'trial_price_after': updated.trialPriceAfter?.toJson(),
-            'notification_rules':
-                updated.notificationRules.map((rule) => rule.toJson()).toList(),
-          })
-          .eq('id', updated.id)
-          .eq('user_id', updated.userId)
-          .select()
-          .single();
-      return _fromRow(row);
+      final result = await _client.rpc('update_subscription_idempotent', params: {
+        'p_idempotency_key': const Uuid().v4(), 'p_subscription_id': updated.id,
+        'p_name': updated.name, 'p_amount': updated.amount.toJson(),
+        'p_currency': updated.currency, 'p_billing_cycle': updated.billingCycle.key,
+        'p_next_renewal_date': updated.nextRenewalDate.toIso8601String().substring(0, 10),
+        'p_category': updated.category.key, 'p_notes': updated.notes,
+        'p_payment_method': updated.paymentMethod, 'p_trial_end_date': updated.trialEndDate?.toIso8601String().substring(0, 10),
+        'p_trial_price_after': updated.trialPriceAfter?.toJson(),
+        'p_notification_rules': updated.notificationRules.map((r) => r.toJson()).toList(), 'p_status': updated.status.key,
+      });
+      return _fromRow(Map<String, dynamic>.from(result as Map));
     } on PostgrestException catch (e) {
       throw NetworkException(e.message);
     }
@@ -144,11 +131,8 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
   Future<void> _setStatus(
       String userId, String id, SubscriptionStatus status) async {
     try {
-      await _client
-          .from(_table)
-          .update({'status': status.key})
-          .eq('id', id)
-          .eq('user_id', userId);
+      final current = (await _client.from(_table).select().eq('id', id).eq('user_id', userId).single());
+      await update(_fromRow({...Map<String, dynamic>.from(current), 'status': status.key}));
     } on PostgrestException catch (e) {
       throw NetworkException(e.message);
     }
