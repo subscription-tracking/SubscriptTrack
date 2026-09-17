@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
 import '../design/app_tokens.dart';
 
 class AppSurface extends StatelessWidget {
@@ -24,7 +23,7 @@ class AppSurface extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: borderRadius,
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: child,
       );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
+import '../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../features/subscriptions/domain/subscription_models.dart';
 
 class SubscriptionStatusChip extends StatelessWidget {
@@ -15,7 +15,7 @@ class SubscriptionStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = _state;
+    final state = _state(context);
     return Semantics(
       label: state.label,
       child: Container(
@@ -32,33 +32,35 @@ class SubscriptionStatusChip extends StatelessWidget {
     );
   }
 
-  ({String label, Color color}) get _state {
+  ({String label, Color color}) _state(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final statusColors = context.statusColors;
     if (status == SubscriptionStatus.active && daysUntilRenewal != null) {
       if (daysUntilRenewal! <= 0) {
-        return (label: 'Bugün yenileniyor', color: AppColors.error);
+        return (label: 'Bugün yenileniyor', color: cs.error);
       }
       if (daysUntilRenewal! <= 3) {
-        return (label: 'Yakında yenileniyor', color: AppColors.warning);
+        return (label: 'Yakında yenileniyor', color: statusColors.warning);
       }
     }
     return switch (status) {
-      SubscriptionStatus.trial => (label: 'Deneme', color: AppColors.trial),
-      SubscriptionStatus.active => (label: 'Aktif', color: AppColors.primary),
+      SubscriptionStatus.trial => (label: 'Deneme', color: statusColors.trial),
+      SubscriptionStatus.active => (label: 'Aktif', color: cs.primary),
       SubscriptionStatus.paused => (
           label: 'Duraklatıldı',
-          color: AppColors.muted
+          color: statusColors.muted
         ),
       SubscriptionStatus.cancelled => (
           label: 'İptal edildi',
-          color: AppColors.success
+          color: statusColors.success
         ),
       SubscriptionStatus.archived => (
           label: 'Arşivlendi',
-          color: AppColors.muted
+          color: statusColors.muted
         ),
       SubscriptionStatus.expired => (
           label: 'Süresi doldu',
-          color: AppColors.error
+          color: cs.error
         ),
     };
   }

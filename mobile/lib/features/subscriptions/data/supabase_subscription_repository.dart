@@ -4,6 +4,7 @@ import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/subscription_models.dart';
+import '../../notifications/domain/notification_rule.dart';
 
 class SupabaseSubscriptionRepository implements SubscriptionDataSource {
   SupabaseClient get _client => Supabase.instance.client;
@@ -23,6 +24,17 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       throw NetworkException(e.message);
     }
   }
+
+  /// Test 54: Supabase Realtime üzerinden canlı senkronizasyon. Bu kullanıcının
+  /// abonelik satırlarında (başka bir cihazdan) herhangi bir INSERT/UPDATE/
+  /// DELETE olduğunda yeni tam listeyi yayınlar — polling/manuel yenileme
+  /// gerekmeden diğer cihazlardaki değişiklikler kısa sürede yansır.
+  Stream<List<Subscription>> watchAll(String userId) => _client
+      .from(_table)
+      .stream(primaryKey: ['id'])
+      .eq('user_id', userId)
+      .order('next_renewal_date')
+      .map((rows) => rows.map(_fromRow).toList());
 
   @override
   Future<Subscription> create({
@@ -87,6 +99,8 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
             'trial_end_date':
                 updated.trialEndDate?.toIso8601String().substring(0, 10),
             'trial_price_after': updated.trialPriceAfter?.toJson(),
+            'notification_rules':
+                updated.notificationRules.map((rule) => rule.toJson()).toList(),
           })
           .eq('id', updated.id)
           .eq('user_id', updated.userId)
@@ -175,6 +189,11 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       trialPriceAfter: row['trial_price_after'] == null
           ? null
           : Money.fromJson(row['trial_price_after']),
+      notificationRules: (row['notification_rules'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(NotificationRule.fromJson)
+              .toList() ??
+          const [NotificationRule(daysBefore: 3)],
       status: status,
       createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ??
           DateTime.now().toUtc(),

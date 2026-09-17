@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/domain/money.dart';
@@ -28,7 +29,10 @@ Subscription _sub(
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+  });
 
   group('NotificationController — bildirim üretimi (S5)', () {
     test('bugün yenileniyor → renewalToday', () {

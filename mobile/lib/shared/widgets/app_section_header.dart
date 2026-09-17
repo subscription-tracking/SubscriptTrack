@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
-
 class AppSectionHeader extends StatelessWidget {
   const AppSectionHeader({
     required this.title,
@@ -27,8 +25,9 @@ class AppSectionHeader extends StatelessWidget {
           TextButton(
             onPressed: onAction,
             child: Text(actionLabel!,
-                style: const TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w700)),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w700)),
           ),
       ]);
 }

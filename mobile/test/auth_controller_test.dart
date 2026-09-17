@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/auth_data_source.dart';
@@ -42,6 +43,7 @@ void main() {
 
   test('auth controller restores and clears a session', () async {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
     final source = _FakeAuthDataSource();
     final controller = AuthController(repository: source);
 

@@ -12,7 +12,7 @@ import 'archived_subscriptions_screen.dart';
 import 'subscription_detail_screen.dart';
 import 'csv_import_screen.dart';
 
-enum _SortOption { date, amount, name }
+enum _SortOption { date, amountAsc, amountDesc, name }
 
 class SubscriptionListScreen extends StatefulWidget {
   const SubscriptionListScreen({super.key});
@@ -27,6 +27,8 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
   final _search = TextEditingController();
   SubscriptionCategory? _filterCategory;
   _SortOption _sort = _SortOption.date;
+  bool _selectionMode = false;
+  final Set<String> _selectedIds = {};
 
   @override
   void initState() {
@@ -52,11 +54,67 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
 
     list.sort((a, b) => switch (_sort) {
           _SortOption.date => a.nextRenewalDate.compareTo(b.nextRenewalDate),
-          _SortOption.amount => b.monthlyAmount.compareTo(a.monthlyAmount),
+          _SortOption.amountAsc => a.monthlyAmount.compareTo(b.monthlyAmount),
+          _SortOption.amountDesc => b.monthlyAmount.compareTo(a.monthlyAmount),
           _SortOption.name => a.name.compareTo(b.name),
         });
 
     return list;
+  }
+
+  void _enterSelectionMode(String seedId) {
+    setState(() {
+      _selectionMode = true;
+      _selectedIds
+        ..clear()
+        ..add(seedId);
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _selectionMode = false;
+      _selectedIds.clear();
+    });
+  }
+
+  void _toggleSelected(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+        if (_selectedIds.isEmpty) _selectionMode = false;
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  Future<void> _confirmBulkDelete(SubscriptionController controller) async {
+    final count = _selectedIds.length;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Seçilenleri sil'),
+        content: Text(
+            '$count abonelik kalıcı olarak silinecek. Emin misin?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Vazgeç'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(ctx).colorScheme.error),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final ids = _selectedIds.toList();
+    _exitSelectionMode();
+    await controller.deleteMany(ids);
   }
 
   @override
@@ -85,27 +143,34 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                     child: const Text('Tekrar dene')),
               ],
             ),
-          _Header(
-            controller: controller,
-            searchController: _search,
-            filterCategory: _filterCategory,
-            sortOption: _sort,
-            onCategoryChanged: (c) => setState(() => _filterCategory = c),
-            onSortChanged: (s) => setState(() => _sort = s),
-            onArchiveTap: controller.archived.isEmpty
-                ? null
-                : () => Navigator.push(
+          _selectionMode
+              ? _SelectionBar(
+                  count: _selectedIds.length,
+                  onCancel: _exitSelectionMode,
+                  onDelete: () => _confirmBulkDelete(controller),
+                )
+              : _Header(
+                  controller: controller,
+                  searchController: _search,
+                  filterCategory: _filterCategory,
+                  sortOption: _sort,
+                  onCategoryChanged: (c) => setState(() => _filterCategory = c),
+                  onSortChanged: (s) => setState(() => _sort = s),
+                  onArchiveTap: controller.archived.isEmpty
+                      ? null
+                      : () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => ArchivedSubscriptionsScreen(
+                                  controller: controller),
+                            ),
+                          ),
+                  onImportTap: () => Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (_) =>
-                            ArchivedSubscriptionsScreen(controller: controller),
-                      ),
-                    ),
-            onImportTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (_) => CsvImportScreen(controller: controller))),
-          ),
+                          builder: (_) =>
+                              CsvImportScreen(controller: controller))),
+                ),
           TabBar(
             controller: _tabs,
             indicatorColor: Theme.of(context).colorScheme.primary,
@@ -135,6 +200,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   onRefresh: controller.load,
                   onAdd: () => _openAdd(context, controller),
                   showAddButton: true,
+                  selectionMode: _selectionMode,
+                  selectedIds: _selectedIds,
+                  onLongPress: _enterSelectionMode,
+                  onToggleSelect: _toggleSelected,
                 ),
                 _TabView(
                   items: _filtered(controller.active),
@@ -146,6 +215,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   onRefresh: controller.load,
                   onAdd: () => _openAdd(context, controller),
                   showAddButton: true,
+                  selectionMode: _selectionMode,
+                  selectedIds: _selectedIds,
+                  onLongPress: _enterSelectionMode,
+                  onToggleSelect: _toggleSelected,
                 ),
                 _TabView(
                   items: _filtered(controller.paused),
@@ -154,6 +227,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   emptyDetail: 'Aboneliği detay sayfasından duraklatabilirsin.',
                   controller: controller,
                   onRefresh: controller.load,
+                  selectionMode: _selectionMode,
+                  selectedIds: _selectedIds,
+                  onLongPress: _enterSelectionMode,
+                  onToggleSelect: _toggleSelected,
                 ),
                 _TabView(
                   items: _filtered(controller.cancelled),
@@ -162,6 +239,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   emptyDetail: 'İptal ettiğin abonelikler burada görünür.',
                   controller: controller,
                   onRefresh: controller.load,
+                  selectionMode: _selectionMode,
+                  selectedIds: _selectedIds,
+                  onLongPress: _enterSelectionMode,
+                  onToggleSelect: _toggleSelected,
                 ),
                 _TabView(
                   items: _filtered(controller.expired),
@@ -170,6 +251,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   emptyDetail: 'Süresi dolan abonelikler burada görünür.',
                   controller: controller,
                   onRefresh: controller.load,
+                  selectionMode: _selectionMode,
+                  selectedIds: _selectedIds,
+                  onLongPress: _enterSelectionMode,
+                  onToggleSelect: _toggleSelected,
                 ),
               ],
             ),
@@ -236,7 +321,10 @@ class _Header extends StatelessWidget {
                 onSelected: onSortChanged,
                 itemBuilder: (ctx) => [
                   _sortItem(ctx, _SortOption.date, 'Tarihe göre', sortOption),
-                  _sortItem(ctx, _SortOption.amount, 'Tutara göre', sortOption),
+                  _sortItem(
+                      ctx, _SortOption.amountAsc, 'Fiyat: Artan', sortOption),
+                  _sortItem(
+                      ctx, _SortOption.amountDesc, 'Fiyat: Azalan', sortOption),
                   _sortItem(ctx, _SortOption.name, 'İsme göre', sortOption),
                 ],
               ),
@@ -320,6 +408,51 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ─── Selection Bar (toplu silme) ───────────────────────────────────────────────
+
+class _SelectionBar extends StatelessWidget {
+  const _SelectionBar({
+    required this.count,
+    required this.onCancel,
+    required this.onDelete,
+  });
+
+  final int count;
+  final VoidCallback onCancel;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Seçimi iptal et',
+            onPressed: onCancel,
+          ),
+          Expanded(
+            child: Text(
+              '$count seçildi',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+          FilledButton.icon(
+            onPressed: count == 0 ? null : onDelete,
+            style: FilledButton.styleFrom(backgroundColor: cs.error),
+            icon: const Icon(Icons.delete_outline, size: 18),
+            label: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FilterChip extends StatelessWidget {
   const _FilterChip({
     required this.label,
@@ -375,6 +508,10 @@ class _TabView extends StatelessWidget {
     required this.onRefresh,
     this.onAdd,
     this.showAddButton = false,
+    this.selectionMode = false,
+    this.selectedIds = const {},
+    this.onLongPress,
+    this.onToggleSelect,
   });
 
   final List<Subscription> items;
@@ -385,6 +522,10 @@ class _TabView extends StatelessWidget {
   final Future<void> Function() onRefresh;
   final VoidCallback? onAdd;
   final bool showAddButton;
+  final bool selectionMode;
+  final Set<String> selectedIds;
+  final ValueChanged<String>? onLongPress;
+  final ValueChanged<String>? onToggleSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -428,15 +569,24 @@ class _TabView extends StatelessWidget {
           final sub = items[i];
           return _SubscriptionTile(
             subscription: sub,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => SubscriptionDetailScreen(
-                  subscription: sub,
-                  controller: controller,
-                ),
-              ),
-            ),
+            selectionMode: selectionMode,
+            selected: selectedIds.contains(sub.id),
+            onTap: () {
+              if (selectionMode) {
+                onToggleSelect?.call(sub.id);
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => SubscriptionDetailScreen(
+                      subscription: sub,
+                      controller: controller,
+                    ),
+                  ),
+                );
+              }
+            },
+            onLongPress: () => onLongPress?.call(sub.id),
           );
         },
       ),
@@ -447,10 +597,19 @@ class _TabView extends StatelessWidget {
 // ─── Subscription Tile ────────────────────────────────────────────────────────
 
 class _SubscriptionTile extends StatelessWidget {
-  const _SubscriptionTile({required this.subscription, required this.onTap});
+  const _SubscriptionTile({
+    required this.subscription,
+    required this.onTap,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onLongPress,
+  });
 
   final Subscription subscription;
   final VoidCallback onTap;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -466,14 +625,25 @@ class _SubscriptionTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: cs.outlineVariant, width: 0.5),
+            border: Border.all(
+              color: selected ? cs.primary : cs.outlineVariant,
+              width: selected ? 1.5 : 0.5,
+            ),
           ),
           child: Row(
             children: [
+              if (selectionMode) ...[
+                Checkbox(
+                  value: selected,
+                  onChanged: (_) => onTap(),
+                ),
+                const SizedBox(width: 4),
+              ],
               Opacity(
                 opacity: isPaused || isCancelled ? .55 : 1,
                 child: ServiceIdentity(

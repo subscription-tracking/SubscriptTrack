@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/subscription_data_source.dart';
@@ -126,7 +127,10 @@ Subscription _sub(String id,
 // --- Tests ---------------------------------------------------------------
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+  });
 
   group('SubscriptionController — yükleme (S4 dashboard)', () {
     test('load() başarılı → items gelir, error null, isOffline false',

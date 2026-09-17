@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/theme/app_theme.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../settings_controller.dart';
@@ -13,6 +12,8 @@ import 'payment_methods_screen.dart';
 import 'profile_screen.dart';
 import 'privacy_center_screen.dart';
 import 'feedback_screen.dart';
+import 'app_lock_settings_screen.dart';
+import '../../../../core/services/app_lock_service.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -26,6 +27,7 @@ class ProfileTab extends StatelessWidget {
     if (user == null) return const SizedBox.shrink();
 
     final initials = _initials(user.email);
+    final cs = Theme.of(context).colorScheme;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
@@ -49,10 +51,10 @@ class ProfileTab extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
+                        color: cs.primary.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.3),
+                          color: cs.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
@@ -63,7 +65,7 @@ class ProfileTab extends StatelessWidget {
                               .textTheme
                               .headlineSmall
                               ?.copyWith(
-                                color: AppColors.primary,
+                                color: cs.primary,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 28,
                               ),
@@ -73,12 +75,12 @@ class ProfileTab extends StatelessWidget {
                     Container(
                       width: 24,
                       height: 24,
-                      decoration: const BoxDecoration(
-                        color: AppColors.surfaceHigh,
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHigh,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.edit_outlined,
-                          size: 13, color: AppColors.onSurfaceVar),
+                      child: Icon(Icons.edit_outlined,
+                          size: 13, color: cs.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -97,7 +99,7 @@ class ProfileTab extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: AppColors.onSurfaceVar),
+                    ?.copyWith(color: cs.onSurfaceVariant),
               ),
             ],
           ),
@@ -150,6 +152,14 @@ class ProfileTab extends StatelessWidget {
         // ── Veri & Gizlilik ────────────────────────────────────────────────
         const _SectionLabel('Veri & Gizlilik'),
         _SettingTile(
+          icon: Icons.lock_outline,
+          label: 'Uygulama kilidi',
+          value: 'PIN ve biyometri',
+          onTap: () => Navigator.push(context, MaterialPageRoute<void>(
+            builder: (_) => AppLockSettingsScreen(service: AppLockService.instance),
+          )),
+        ),
+        _SettingTile(
           icon: Icons.privacy_tip_outlined,
           label: 'Gizlilik ve veri merkezi',
           value: 'Veri kontrolü ve silme',
@@ -181,7 +191,7 @@ class ProfileTab extends StatelessWidget {
         _SettingTile(
           icon: Icons.delete_forever_outlined,
           label: 'Hesabı sil',
-          valueColor: AppColors.error,
+          valueColor: cs.error,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(
@@ -197,8 +207,8 @@ class ProfileTab extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () => _confirmSignOut(context, auth),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.error,
-              side: const BorderSide(color: AppColors.error),
+              foregroundColor: cs.error,
+              side: BorderSide(color: cs.error),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -224,7 +234,7 @@ class ProfileTab extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: AppColors.onSurfaceVar),
+                ?.copyWith(color: cs.onSurfaceVariant),
           ),
         ),
       ],
@@ -247,10 +257,11 @@ class ProfileTab extends StatelessWidget {
 
   static Future<void> _confirmSignOut(
       BuildContext context, AuthController auth) async {
+    final cs = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.surfaceHigh,
+        backgroundColor: cs.surfaceContainerHigh,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Çıkış yap'),
         content: const Text('Hesabından çıkmak istiyor musun?'),
@@ -261,7 +272,7 @@ class ProfileTab extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            style: FilledButton.styleFrom(backgroundColor: cs.error),
             child: const Text('Çıkış yap'),
           ),
         ],
@@ -286,7 +297,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.onSurfaceVar,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 11,
               letterSpacing: 1.0,
               fontWeight: FontWeight.w600,
@@ -315,7 +326,8 @@ class _SettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelColor = valueColor ?? AppColors.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final labelColor = valueColor ?? cs.onSurface;
 
     return Material(
       color: Colors.transparent,
@@ -323,9 +335,9 @@ class _SettingTile extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border:
-                Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+                Border(bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
           ),
           child: Row(
             children: [
@@ -345,14 +357,14 @@ class _SettingTile extends StatelessWidget {
                 Text(
                   value!,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.onSurfaceVar,
+                        color: cs.onSurfaceVariant,
                       ),
                 ),
               ],
               const SizedBox(width: 4),
               Icon(Icons.chevron_right,
                   size: 18,
-                  color: AppColors.onSurfaceVar.withValues(alpha: 0.5)),
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
             ],
           ),
         ),

@@ -45,6 +45,69 @@ abstract final class AppLightColors {
   static const muted = Color(0xFF8792A8);
 }
 
+/// Durum renkleri (`success`/`warning`/`trial`/`muted`) Material'ın
+/// [ColorScheme]'inde karşılığı olmayan özel semantik renklerdir — bu yüzden
+/// tema geçişinde doğru varyantı seçebilmek için bir [ThemeExtension] olarak
+/// tanımlanıyor. Kullanım: `Theme.of(context).extension<AppStatusColors>()!`.
+@immutable
+class AppStatusColors extends ThemeExtension<AppStatusColors> {
+  const AppStatusColors({
+    required this.success,
+    required this.warning,
+    required this.trial,
+    required this.muted,
+  });
+
+  final Color success;
+  final Color warning;
+  final Color trial;
+  final Color muted;
+
+  static const dark = AppStatusColors(
+    success: AppColors.success,
+    warning: AppColors.warning,
+    trial: AppColors.trial,
+    muted: AppColors.muted,
+  );
+
+  static const light = AppStatusColors(
+    success: AppLightColors.success,
+    warning: AppLightColors.warning,
+    trial: AppLightColors.trial,
+    muted: AppLightColors.muted,
+  );
+
+  @override
+  AppStatusColors copyWith({
+    Color? success,
+    Color? warning,
+    Color? trial,
+    Color? muted,
+  }) =>
+      AppStatusColors(
+        success: success ?? this.success,
+        warning: warning ?? this.warning,
+        trial: trial ?? this.trial,
+        muted: muted ?? this.muted,
+      );
+
+  @override
+  AppStatusColors lerp(ThemeExtension<AppStatusColors>? other, double t) {
+    if (other is! AppStatusColors) return this;
+    return AppStatusColors(
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      trial: Color.lerp(trial, other.trial, t)!,
+      muted: Color.lerp(muted, other.muted, t)!,
+    );
+  }
+}
+
+extension AppStatusColorsX on BuildContext {
+  AppStatusColors get statusColors =>
+      Theme.of(this).extension<AppStatusColors>() ?? AppStatusColors.dark;
+}
+
 abstract final class AppTheme {
   static const _scheme = ColorScheme(
     brightness: Brightness.dark,
@@ -216,6 +279,7 @@ abstract final class AppTheme {
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,
       ),
+      extensions: const [AppStatusColors.dark],
     );
   }
 
@@ -359,6 +423,7 @@ abstract final class AppTheme {
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppLightColors.primary,
       ),
+      extensions: const [AppStatusColors.light],
     );
   }
 }

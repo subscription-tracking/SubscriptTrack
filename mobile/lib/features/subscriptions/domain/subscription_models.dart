@@ -1,4 +1,6 @@
 import '../../../core/domain/money.dart';
+import '../../../core/utils/date_time_utils.dart';
+import '../../notifications/domain/notification_rule.dart';
 
 enum SubscriptionStatus { trial, active, paused, cancelled, expired, archived }
 
@@ -124,6 +126,7 @@ class Subscription {
     this.paymentMethod,
     this.trialEndDate,
     this.trialPriceAfter,
+    this.notificationRules = const [NotificationRule(daysBefore: 3)],
     this.status = SubscriptionStatus.active,
     required this.createdAt,
   });
@@ -141,6 +144,7 @@ class Subscription {
   final String? paymentMethod;
   final DateTime? trialEndDate;
   final Money? trialPriceAfter;
+  final List<NotificationRule> notificationRules;
   final SubscriptionStatus status;
   final DateTime createdAt;
 
@@ -172,9 +176,9 @@ class Subscription {
       dates.add(current);
       current = switch (billingCycle) {
         BillingCycle.weekly => current.add(const Duration(days: 7)),
-        BillingCycle.monthly => DateTime(current.year, current.month + 1, current.day),
-        BillingCycle.quarterly => DateTime(current.year, current.month + 3, current.day),
-        BillingCycle.yearly => DateTime(current.year + 1, current.month, current.day),
+        BillingCycle.monthly => DateTimeUtils.addMonthsClamped(current, 1),
+        BillingCycle.quarterly => DateTimeUtils.addMonthsClamped(current, 3),
+        BillingCycle.yearly => DateTimeUtils.addMonthsClamped(current, 12),
       };
     }
     return dates;
@@ -192,6 +196,7 @@ class Subscription {
     String? paymentMethod,
     DateTime? trialEndDate,
     Money? trialPriceAfter,
+    List<NotificationRule>? notificationRules,
     SubscriptionStatus? status,
   }) =>
       Subscription(
@@ -208,6 +213,7 @@ class Subscription {
         paymentMethod: paymentMethod ?? this.paymentMethod,
         trialEndDate: trialEndDate ?? this.trialEndDate,
         trialPriceAfter: trialPriceAfter ?? this.trialPriceAfter,
+        notificationRules: notificationRules ?? this.notificationRules,
         status: status ?? this.status,
         createdAt: createdAt,
       );
@@ -226,6 +232,7 @@ class Subscription {
         'paymentMethod': paymentMethod,
         'trialEndDate': trialEndDate?.toIso8601String(),
         'trialPriceAfter': trialPriceAfter?.toJson(),
+        'notificationRules': notificationRules.map((r) => r.toJson()).toList(),
         'status': status.key,
         'createdAt': createdAt.toIso8601String(),
       };
@@ -271,6 +278,12 @@ class Subscription {
               ? null
               : Money.fromJson(
                   json['trialPriceAfter'] ?? json['trial_price_after']),
+      notificationRules: ((json['notificationRules'] ??
+                  json['notification_rules']) as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(NotificationRule.fromJson)
+              .toList() ??
+          const [NotificationRule(daysBefore: 3)],
       status: status,
       createdAt: DateTime.tryParse(
             (json['createdAt'] ?? json['created_at'] ?? '') as String,

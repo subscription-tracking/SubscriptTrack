@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/subscription_data_source.dart';
@@ -8,13 +10,17 @@ import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/services/offline_mutation_queue.dart';
 import '../../../core/storage/local_storage.dart';
+import '../../../core/utils/date_time_utils.dart';
 import '../data/local_subscription_repository.dart';
 import '../data/supabase_subscription_repository.dart';
 import '../domain/subscription_models.dart';
+import '../../notifications/domain/notification_rule.dart';
 import '../../savings/data/savings_repository.dart';
 import '../../stats/data/payment_events_repository.dart';
 
 class SubscriptionController extends ChangeNotifier {
+  static const _uuid = Uuid();
+
   SubscriptionController({
     required String userId,
     SubscriptionDataSource? repository,
@@ -23,7 +29,9 @@ class SubscriptionController extends ChangeNotifier {
         _repo = repository ??
             (EnvironmentConfig.isSupabaseConfigured
                 ? SupabaseSubscriptionRepository()
-                : LocalSubscriptionRepository());
+                : LocalSubscriptionRepository()) {
+    _startRealtimeSyncIfSupported();
+  }
 
   final VoidCallback? onUnauthorized;
 
@@ -32,6 +40,7 @@ class SubscriptionController extends ChangeNotifier {
   final _mutationQueue = OfflineMutationQueue();
   final _savingsRepo = SavingsRepository();
   final _paymentEventsRepo = PaymentEventsRepository();
+  StreamSubscription<List<Subscription>>? _realtimeSub;
 
   List<Subscription> _items = [];
   bool _loading = false;
@@ -82,8 +91,19 @@ class SubscriptionController extends ChangeNotifier {
     return result;
   }
 
-  Money get totalMonthly =>
-      active.fold(Money.zero, (sum, s) => sum + s.monthlyAmount);
+  /// Tek bir [Money] değeri yalnızca TEK bir para birimini anlamlı şekilde
+  /// temsil edebilir; birden fazla para birimi varsa (bkz. [totalsByCurrency]
+  /// — asıl kullanılması gereken API budur) yalnızca listedeki ilk aktif
+  /// aboneliğin para birimiyle eşleşenler toplanır. Farklı para birimlerinin
+  /// minor unit'lerini birbirine eklemek (ör. 100 TRY + 20 USD = "120") hiçbir
+  /// gerçek tutarı ifade etmez.
+  Money get totalMonthly {
+    if (active.isEmpty) return Money.zero;
+    final primaryCurrency = active.first.currency;
+    return active
+        .where((s) => s.currency == primaryCurrency)
+        .fold(Money.zero, (sum, s) => sum + s.monthlyAmount);
+  }
 
   Map<String, Money> get totalsByCurrency {
     final map = <String, Money>{};
@@ -126,6 +146,7 @@ class SubscriptionController extends ChangeNotifier {
       return false;
     }
   }
+
   Map<String, Money> get savingsByCurrency {
     final result = <String, Money>{};
     for (final event in _savingsEvents) {
@@ -161,6 +182,7 @@ class SubscriptionController extends ChangeNotifier {
         _paymentEvents = [];
       }
       await _expireEndedTrials();
+      await _catchUpOverdueRenewals();
       _isOffline = false;
       _error = null;
       _lastSyncAt = DateTime.now().toUtc();
@@ -232,6 +254,39 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
+  /// Advances any ACTIVE subscription whose nextRenewalDate has already
+  /// passed to the next upcoming occurrence — skipped/missed periods are
+  /// caught up automatically so a stale past date never lingers in the list
+  /// (trial/paused/cancelled/archived subscriptions are left untouched; a
+  /// trial's own expiry is handled by [_expireEndedTrials]).
+  Future<void> _catchUpOverdueRenewals() async {
+    final today = DateTime.now();
+    final overdue = _items.where((s) {
+      if (s.status != SubscriptionStatus.active) return false;
+      final renewal = DateTime(s.nextRenewalDate.year, s.nextRenewalDate.month,
+          s.nextRenewalDate.day);
+      return renewal.isBefore(DateTime(today.year, today.month, today.day));
+    }).toList();
+
+    for (final subscription in overdue) {
+      final caughtUp = subscription.copyWith(
+        nextRenewalDate: DateTimeUtils.nextOccurrenceOnOrAfter(
+          subscription.nextRenewalDate,
+          subscription.billingCycle.key,
+          today,
+        ),
+      );
+      final index = _items.indexWhere((s) => s.id == subscription.id);
+      if (index != -1) _items[index] = caughtUp;
+      try {
+        await _repo.update(caughtUp);
+      } catch (_) {
+        // Local state stays caught up for this session; next successful
+        // sync reconciles the server (mirrors _expireEndedTrials).
+      }
+    }
+  }
+
   Future<void> _applyMutation(OfflineMutation mutation) async {
     final id = mutation.payload['id'] as String?;
     if (id == null) {
@@ -256,6 +311,40 @@ class SubscriptionController extends ChangeNotifier {
       case 'delete':
         await _repo.delete(_userId, id);
         _items.removeWhere((s) => s.id == id);
+      case 'create':
+        // payload = offline sırasında oluşturulan geçici (local-...) id'li
+        // Subscription'ın toJson()'ı. Sunucu gerçek id'yi atayınca, yerel
+        // yer tutucuyu gerçek kayıtla DEĞİŞTİRİYORUZ (id değişir).
+        final localSub = Subscription.fromJson(mutation.payload);
+        final created = await _repo.create(
+          userId: _userId,
+          name: localSub.name,
+          amount: localSub.amount,
+          currency: localSub.currency,
+          billingCycle: localSub.billingCycle,
+          startDate: localSub.startDate,
+          nextRenewalDate: localSub.nextRenewalDate,
+          category: localSub.category,
+          notes: localSub.notes,
+          paymentMethod: localSub.paymentMethod,
+          trialEndDate: localSub.trialEndDate,
+          trialPriceAfter: localSub.trialPriceAfter,
+        );
+        // Not: _applyMutation, load()'un `_items = await _repo.getAll(...)`
+        // adımından SONRA çalışır — sunucuda henüz var olmayan bu kayıt o
+        // fetch'te dönmeyeceğinden, yerel geçici öğe `_items`'ta artık
+        // bulunmayabilir. Bulunursa yerine koy, bulunamazsa (silinmişse) ekle.
+        final createIdx = _items.indexWhere((s) => s.id == id);
+        if (createIdx != -1) {
+          _items[createIdx] = created;
+        } else {
+          _items.add(created);
+        }
+      case 'update':
+        final updated = Subscription.fromJson(mutation.payload);
+        final result = await _repo.update(updated);
+        final updateIdx = _items.indexWhere((s) => s.id == result.id);
+        if (updateIdx != -1) _items[updateIdx] = result;
       default:
         throw StateError('Unsupported offline mutation: ${mutation.type}');
     }
@@ -299,10 +388,11 @@ class SubscriptionController extends ChangeNotifier {
     String? paymentMethod,
     DateTime? trialEndDate,
     Money? trialPriceAfter,
+    List<NotificationRule> notificationRules = const [],
   }) async {
     _setLoading(true);
     try {
-      final sub = await _repo.create(
+      var sub = await _repo.create(
         userId: _userId,
         name: name,
         amount: amount,
@@ -316,7 +406,45 @@ class SubscriptionController extends ChangeNotifier {
         trialEndDate: trialEndDate,
         trialPriceAfter: trialPriceAfter,
       );
+      if (notificationRules.isNotEmpty &&
+          notificationRules.any((r) => r.daysBefore != 3 || !r.enabled)) {
+        sub = await _repo
+            .update(sub.copyWith(notificationRules: notificationRules));
+      }
       _items.add(sub);
+      _error = null;
+      await _writeCache(_items);
+      notifyListeners();
+      return true;
+    } on NetworkException {
+      // Test 48: bağlantı yokken de abonelik eklenebilmeli. Geçici bir
+      // local id ile İYİMSER (optimistic) olarak listeye ekliyoruz; bağlantı
+      // gelince _applyMutation bunu gerçek sunucu kaydıyla değiştirecek.
+      final localSub = Subscription(
+        id: 'local-${_uuid.v4()}',
+        userId: _userId,
+        name: name,
+        amount: amount,
+        currency: currency,
+        billingCycle: billingCycle,
+        startDate: startDate,
+        nextRenewalDate: nextRenewalDate,
+        category: category,
+        notes: notes,
+        paymentMethod: paymentMethod,
+        trialEndDate: trialEndDate,
+        trialPriceAfter: trialPriceAfter,
+        notificationRules: notificationRules.isEmpty
+            ? const [NotificationRule(daysBefore: 3)]
+            : notificationRules,
+        createdAt: DateTime.now().toUtc(),
+      );
+      _items.add(localSub);
+      await _mutationQueue.enqueue(OfflineMutation(
+        type: 'create',
+        payload: localSub.toJson(),
+        enqueuedAt: DateTime.now().toUtc(),
+      ));
       _error = null;
       await _writeCache(_items);
       notifyListeners();
@@ -336,6 +464,21 @@ class SubscriptionController extends ChangeNotifier {
       final result = await _repo.update(updated);
       final idx = _items.indexWhere((s) => s.id == result.id);
       if (idx != -1) _items[idx] = result;
+      _error = null;
+      await _writeCache(_items);
+      notifyListeners();
+      return true;
+    } on NetworkException {
+      // Test 48: bağlantı yokken de düzenleme kaybolmamalı — değişikliği
+      // yerel olarak uyguluyor, sunucuya yazımı bağlantı gelince
+      // _applyMutation'a bırakıyoruz.
+      final idx = _items.indexWhere((s) => s.id == updated.id);
+      if (idx != -1) _items[idx] = updated;
+      await _mutationQueue.enqueue(OfflineMutation(
+        type: 'update',
+        payload: updated.toJson(),
+        enqueuedAt: DateTime.now().toUtc(),
+      ));
       _error = null;
       await _writeCache(_items);
       notifyListeners();
@@ -364,6 +507,35 @@ class SubscriptionController extends ChangeNotifier {
       rethrow;
     }
     _items.removeWhere((s) => s.id == subscriptionId);
+    await _writeCache(_items);
+    notifyListeners();
+  }
+
+  /// Toplu silme (Test 21). Tek [delete] çağrısını her id için tekrarlamak
+  /// yerine ayrı bir metod: tüm silmeler bitene kadar tek bir
+  /// `notifyListeners()`/cache yazımı yapılır ("tek seferde silinir"), ve bir
+  /// id başarısız olsa bile diğerlerinin silinmesi durdurulmaz — hepsi
+  /// denenir, başarısız olanlar [error] üzerinden özetlenir.
+  Future<void> deleteMany(List<String> subscriptionIds) async {
+    final failed = <String>[];
+    for (final id in subscriptionIds) {
+      try {
+        await _repo.delete(_userId, id);
+        _items.removeWhere((s) => s.id == id);
+      } on NetworkException {
+        await _mutationQueue.enqueue(OfflineMutation(
+          type: 'delete',
+          payload: {'id': id},
+          enqueuedAt: DateTime.now().toUtc(),
+        ));
+        _items.removeWhere((s) => s.id == id);
+      } catch (_) {
+        failed.add(id);
+      }
+    }
+    _error = failed.isEmpty
+        ? null
+        : '${failed.length} abonelik silinemedi, tekrar deneyin.';
     await _writeCache(_items);
     notifyListeners();
   }
@@ -463,5 +635,39 @@ class SubscriptionController extends ChangeNotifier {
   void _setLoading(bool value) {
     _loading = value;
     notifyListeners();
+  }
+
+  /// Test 54: repo Supabase destekliyorsa, bu kullanıcının abonelik
+  /// satırlarını Realtime üzerinden dinlemeye başlar — başka bir cihazdan
+  /// yapılan değişiklikler manuel yenileme gerekmeden birkaç saniye içinde
+  /// bu controller'a yansır. LocalSubscriptionRepository (çevrimdışı-yalnızca
+  /// mod) veya test fake'leri bunu desteklemiyorsa sessizce hiçbir şey
+  /// yapmaz — arayüz genişletilmedi, sadece Supabase'e özgü ek yetenek.
+  void _startRealtimeSyncIfSupported() {
+    final repo = _repo;
+    if (repo is! SupabaseSubscriptionRepository) return;
+    _realtimeSub = repo.watchAll(_userId).listen(
+          _mergeRealtimeUpdate,
+          onError:
+              (_) {}, // bağlantı kopması sessizce yutulur; polling/manuel load() yedek olarak kalır
+        );
+  }
+
+  /// Sunucudan gelen taze listeyi mevcut duruma birleştirir. Henüz sunucuya
+  /// senkronize OLMAMIŞ yerel-öncelikli kayıtları (offline'da eklenmiş,
+  /// "local-" id'li — bkz. [add]) KORUR; onları sunucu listesi henüz
+  /// içermediği için kaybolmalarını önler.
+  void _mergeRealtimeUpdate(List<Subscription> serverItems) {
+    final pendingLocalOnly =
+        _items.where((s) => s.id.startsWith('local-')).toList();
+    _items = [...serverItems, ...pendingLocalOnly];
+    unawaited(_writeCache(_items));
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _realtimeSub?.cancel();
+    super.dispose();
   }
 }

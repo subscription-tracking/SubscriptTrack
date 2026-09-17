@@ -34,9 +34,12 @@ class SettingsController extends ChangeNotifier {
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _currency = prefs.getString(_keyCurrency) ?? '₺';
-    // Açık tema geçici olarak devre dışı. Eski cihaz ayarları da koyu temaya
-    // normalize edilir.
-    _themeMode = ThemeMode.dark;
+    final storedThemeIndex = prefs.getInt(_keyTheme);
+    _themeMode = storedThemeIndex != null &&
+            storedThemeIndex >= 0 &&
+            storedThemeIndex < ThemeMode.values.length
+        ? ThemeMode.values[storedThemeIndex]
+        : ThemeMode.dark;
     _notificationsEnabled = prefs.getBool(_keyNotifications) ?? true;
     _daysBefore = prefs.getInt(_keyDaysBefore) ?? 3;
     _timezone = prefs.getString(_keyTimezone) ?? '';
@@ -54,9 +57,9 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    _themeMode = ThemeMode.dark;
+    _themeMode = mode;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyTheme, ThemeMode.dark.index);
+    await prefs.setInt(_keyTheme, mode.index);
     notifyListeners();
   }
 

@@ -17,15 +17,25 @@ class AppearanceScreen extends StatelessWidget {
           children: [
             const _SectionHeader('Tema'),
             _ThemeTile(
+              label: 'Sistem',
+              icon: Icons.brightness_auto_outlined,
+              mode: ThemeMode.system,
+              current: controller.themeMode,
+              onTap: () => controller.setThemeMode(ThemeMode.system),
+            ),
+            _ThemeTile(
+              label: 'Aydınlık',
+              icon: Icons.light_mode_outlined,
+              mode: ThemeMode.light,
+              current: controller.themeMode,
+              onTap: () => controller.setThemeMode(ThemeMode.light),
+            ),
+            _ThemeTile(
               label: 'Karanlık',
               icon: Icons.dark_mode_outlined,
               mode: ThemeMode.dark,
               current: controller.themeMode,
               onTap: () => controller.setThemeMode(ThemeMode.dark),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Text('Açık tema geçici olarak kullanıma kapalıdır.'),
             ),
             const Divider(),
             const _SectionHeader('Para birimi'),
