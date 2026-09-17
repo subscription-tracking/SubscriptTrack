@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/errors/app_exception.dart';
@@ -56,14 +57,12 @@ class PaymentEventsRepository {
     final client = _client;
     if (client == null) throw const NetworkException('Supabase yapılandırılmamış.');
     try {
-      final row = await client.from('payment_events').insert({
-        'user_id': userId,
-        'subscription_id': subscriptionId,
-        'amount': amount,
-        'currency': currency,
-        'paid_at': paidAt.toUtc().toIso8601String(),
-        'source': 'manual',
-      }).select('id,subscription_id,amount,currency,paid_at').single();
+      final result = await client.rpc('record_payment_idempotent', params: {
+        'p_idempotency_key': const Uuid().v4(), 'p_subscription_id': subscriptionId,
+        'p_amount': amount, 'p_currency': currency,
+        'p_paid_at': paidAt.toUtc().toIso8601String(),
+      });
+      final row = Map<String, dynamic>.from(result as Map);
       return PaymentEvent(
         id: row['id'] as String,
         subscriptionId: row['subscription_id'] as String?,

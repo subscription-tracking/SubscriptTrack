@@ -90,6 +90,15 @@ Bu bulgular S13/S14/S16/S17 için doğrudan canlı kanıt niteliğindedir.
 
 S13–S17 için canlı yapılandırma düzeltmeleri uygulandı. Kalan doğrulama: gerçek authenticated kullanıcıyla CRUD, Realtime event ve cron tarafından notification üretimi smoke testidir.
 
+### Sprint 18 — idempotent mutation uygulaması
+
+- `017_idempotent_subscription_create.sql` canlıya uygulandı; abonelik oluşturma RPC'si aynı anahtar ve payload tekrarında aynı sonucu döndürüyor.
+- `018_idempotent_mutations.sql` canlıya uygulandı; abonelik güncelleme ve manuel ödeme olayı kayıtları da idempotency anahtarı/hash kontrolü yapan SECURITY DEFINER RPC'lerine taşındı.
+- Mobil `SupabaseSubscriptionRepository` ve `PaymentEventsRepository` bu RPC'leri kullanıyor; doğrudan mutation çağrıları kaldırıldı.
+- Flutter hedef testleri 29/29, backend testleri 3/3 geçti; `flutter analyze --no-pub` yalnızca mevcut 3 düşük öncelikli lint/info raporladı.
+
+Sprint 18'in kalan saha doğrulaması, gerçek authenticated kullanıcıyla aynı idempotency anahtarının başarılı tekrarını ve farklı payload çakışmasını smoke test etmektir.
+
 Bu remote SQL inspection, önceki REST 404 bulgularını güçlendirir: söz konusu tabloların canlı `public` şemasında bulunmadığı artık yüksek güvenle doğrulanmıştır. S13/S14 önceliği canlı şemayı migration zinciriyle hizalamaktır.
 
 ## Tekrarlanabilir komut
