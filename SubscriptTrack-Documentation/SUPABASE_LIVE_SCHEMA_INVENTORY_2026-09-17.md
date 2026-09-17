@@ -99,6 +99,13 @@ S13–S17 için canlı yapılandırma düzeltmeleri uygulandı. Kalan doğrulama
 
 Sprint 18'in kalan saha doğrulaması, gerçek authenticated kullanıcıyla aynı idempotency anahtarının başarılı tekrarını ve farklı payload çakışmasını smoke test etmektir.
 
+### Sprint 19 — Edge Function güvenlik kontrolü
+
+- `delete-account` fonksiyonuna yalnızca `POST` izin verildi; diğer metodlar `405` döndürüyor.
+- Service-role secret yoksa fonksiyon artık boş anahtarla admin client oluşturmuyor; kontrollü `503` dönüyor ve ayrıntıyı istemciye sızdırmıyor.
+- Hesap silme hâlâ bilinçli olarak kalıcı işlemdir; mobil çağrı JWT ile yapılır ve kullanıcı `auth.getUser()` ile doğrulanır.
+- Export için mobilde yalnızca yerel CSV akışı bulundu; canlı Storage/worker tabanlı backend export henüz uygulanmadı ve Sprint 19'un kalan işidir.
+
 Bu remote SQL inspection, önceki REST 404 bulgularını güçlendirir: söz konusu tabloların canlı `public` şemasında bulunmadığı artık yüksek güvenle doğrulanmıştır. S13/S14 önceliği canlı şemayı migration zinciriyle hizalamaktır.
 
 ## Tekrarlanabilir komut
