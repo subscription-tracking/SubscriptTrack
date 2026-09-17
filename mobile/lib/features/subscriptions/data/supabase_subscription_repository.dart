@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
@@ -52,28 +53,21 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
     Money? trialPriceAfter,
   }) async {
     try {
-      final row = await _client
-          .from(_table)
-          .insert({
-            'user_id': userId,
-            'name': name.trim(),
-            'amount': amount.toJson(),
-            'currency': currency,
-            'billing_cycle': billingCycle.key,
-            'start_date': startDate.toIso8601String().substring(0, 10),
-            'next_renewal_date':
-                nextRenewalDate.toIso8601String().substring(0, 10),
-            'category': category.key,
-            'notes': notes?.trim(),
-            'payment_method': paymentMethod?.trim(),
-            'status': trialEndDate == null
-                ? SubscriptionStatus.active.key
-                : SubscriptionStatus.trial.key,
-            'trial_end_date': trialEndDate?.toIso8601String().substring(0, 10),
-            'trial_price_after': trialPriceAfter?.toJson(),
-          })
-          .select()
-          .single();
+      final result = await _client.rpc('create_subscription_idempotent', params: {
+        'p_idempotency_key': const Uuid().v4(),
+        'p_name': name.trim(),
+        'p_amount': amount.toJson(),
+        'p_currency': currency,
+        'p_billing_cycle': billingCycle.key,
+        'p_start_date': startDate.toIso8601String().substring(0, 10),
+        'p_next_renewal_date': nextRenewalDate.toIso8601String().substring(0, 10),
+        'p_category': category.key,
+        'p_notes': notes?.trim(),
+        'p_payment_method': paymentMethod?.trim(),
+        'p_trial_end_date': trialEndDate?.toIso8601String().substring(0, 10),
+        'p_trial_price_after': trialPriceAfter?.toJson(),
+      });
+      final row = Map<String, dynamic>.from(result as Map);
       return _fromRow(row);
     } on PostgrestException catch (e) {
       throw NetworkException(e.message);
