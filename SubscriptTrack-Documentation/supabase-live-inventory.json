@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-09-17T17:00:06.556Z",
+  "projectUrl": "https://tdbljrojcmyjwchawfif.supabase.co",
+  "authSettings": {
+    "status": 200,
+    "reachable": true
+  },
+  "storageBuckets": {
+    "status": 200,
+    "reachable": true
+  },
+  "tables": {
+    "subscriptions": {
+      "status": 200,
+      "reachable": true
+    },
+    "profiles": {
+      "status": 404,
+      "reachable": false
+    },
+    "notifications": {
+      "status": 404,
+      "reachable": false
+    },
+    "notification_rules": {
+      "status": 404,
+      "reachable": false
+    },
+    "renewal_occurrences": {
+      "status": 404,
+      "reachable": false
+    },
+    "subscription_events": {
+      "status": 404,
+      "reachable": false
+    },
+    "savings_events": {
+      "status": 404,
+      "reachable": false
+    },
+    "device_tokens": {
+      "status": 200,
+      "reachable": true
+    },
+    "exports": {
+      "status": 404,
+      "reachable": false
+    },
+    "payment_methods": {
+      "status": 200,
+      "reachable": true
+    },
+    "payment_events": {
+      "status": 200,
+      "reachable": true
+    },
+    "idempotency_keys": {
+      "status": 404,
+      "reachable": false
+    }
+  },
+  "limitation": "Public REST probe cannot inspect columns, policies, triggers, cron or Realtime publication. Use an authenticated SQL/admin channel for those checks."
+}
