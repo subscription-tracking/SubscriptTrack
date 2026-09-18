@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "smoke:supabase": "node scripts/supabase-smoke.mjs"
   },
   "engines": {
     "node": ">=20"
