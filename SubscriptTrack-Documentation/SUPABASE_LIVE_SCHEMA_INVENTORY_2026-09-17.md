@@ -120,6 +120,8 @@ Sprint 18'in kalan saha doğrulaması, gerçek authenticated kullanıcıyla ayn�
 - Yeni `auth.users` kayıtları otomatik olarak `public.profiles` satırı oluşturuyor.
 - Mevcut kullanıcılar için eksik profil satırları geriye dönük olarak tamamlandı.
 - Trigger `SECURITY DEFINER` ve `search_path=public` ile sınırlı; profil RLS politikaları korunuyor.
+- Hesap silme akışında yerel cache artık sunucu silme onayından sonra temizleniyor; hata durumunda veri kaybı ve loading kilitlenmesi önlendi.
+- Auth controller testi 1/1, hesap silme kanıt testleri 5/5 geçti.
 
 Bu remote SQL inspection, önceki REST 404 bulgularını güçlendirir: söz konusu tabloların canlı `public` şemasında bulunmadığı artık yüksek güvenle doğrulanmıştır. S13/S14 önceliği canlı şemayı migration zinciriyle hizalamaktır.
 
