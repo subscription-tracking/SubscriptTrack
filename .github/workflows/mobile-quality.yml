@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - 'mobile/**'
+      - 'backend/**'
       - '.github/workflows/mobile-quality.yml'
   push:
     branches: [main]
     paths:
       - 'mobile/**'
+      - 'backend/**'
       - '.github/workflows/mobile-quality.yml'
 
 jobs:
@@ -23,6 +25,16 @@ jobs:
         with:
           node-version: 20
       - run: npm test
+      - name: Live Supabase smoke (when configured)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Supabase secrets not configured; live smoke skipped."
+          else
+            npm run smoke:supabase
+          fi
 
   analyze-and-test:
     runs-on: ubuntu-latest
