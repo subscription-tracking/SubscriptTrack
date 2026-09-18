@@ -123,6 +123,14 @@ Sprint 18'in kalan saha doğrulaması, gerçek authenticated kullanıcıyla ayn�
 - Hesap silme akışında yerel cache artık sunucu silme onayından sonra temizleniyor; hata durumunda veri kaybı ve loading kilitlenmesi önlendi.
 - Auth controller testi 1/1, hesap silme kanıt testleri 5/5 geçti.
 
+### Sprint 21 — staging/E2E smoke doğrulama
+
+- Backend test suite: 3/3 geçti.
+- Canlı Supabase smoke: Auth, Storage, subscriptions ve exports endpoint'leri HTTP 200 verdi.
+- `npm run smoke:supabase` tekrar kullanılabilir hale getirildi.
+- CI workflow backend değişikliklerinde tetikleniyor; Supabase secret'ları tanımlıysa canlı smoke otomatik çalışıyor, tanımlı değilse güvenli şekilde atlanıyor.
+- Tüm Flutter test paketi bu doğrulama çalışmasında başarılı tamamlandı.
+
 Bu remote SQL inspection, önceki REST 404 bulgularını güçlendirir: söz konusu tabloların canlı `public` şemasında bulunmadığı artık yüksek güvenle doğrulanmıştır. S13/S14 önceliği canlı şemayı migration zinciriyle hizalamaktır.
 
 ## Tekrarlanabilir komut
