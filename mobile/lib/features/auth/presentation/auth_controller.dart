@@ -183,12 +183,12 @@ class AuthController extends ChangeNotifier {
     if (_user == null) return;
     final userId = _user!.id;
     final email = _user!.email;
-    // Clear all local user data before signing out.
+    await _repo.deleteAccount(email);
+    // Only clear local data after the server confirms permanent deletion.
     await Future.wait([
       localStorage.deleteSubscriptions(userId),
       _clearNotificationReadState(),
     ]);
-    await _repo.deleteAccount(email);
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();

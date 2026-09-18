@@ -48,8 +48,17 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       return;
     }
 
-    await widget.auth.deleteAccount(LocalStorage.instance);
-    // AuthController unauthenticated durumuna geçer → router login'e yönlendirir.
+    try {
+      await widget.auth.deleteAccount(LocalStorage.instance);
+      // AuthController unauthenticated durumuna geçer → router login'e yönlendirir.
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _deleting = false;
+          _error = e.toString();
+        });
+      }
+    }
   }
 
   @override
