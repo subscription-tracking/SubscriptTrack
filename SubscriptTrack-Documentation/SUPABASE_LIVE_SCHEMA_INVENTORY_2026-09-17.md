@@ -114,6 +114,13 @@ Sprint 18'in kalan saha doğrulaması, gerçek authenticated kullanıcıyla ayn�
 - Mobil export ekranı RPC + Edge Function akışına bağlandı; yerel CSV paylaşımı geriye dönük korundu.
 - Son performans güvenlik testi tekrar çalıştırıldı ve geçti; çalışma ağacı temiz, değişiklikler `main`e pushlandı (`ead57ab`).
 
+### Sprint 20 — Auth profil senkronizasyonu
+
+- `021_auth_profile_trigger.sql` canlıya uygulandı.
+- Yeni `auth.users` kayıtları otomatik olarak `public.profiles` satırı oluşturuyor.
+- Mevcut kullanıcılar için eksik profil satırları geriye dönük olarak tamamlandı.
+- Trigger `SECURITY DEFINER` ve `search_path=public` ile sınırlı; profil RLS politikaları korunuyor.
+
 Bu remote SQL inspection, önceki REST 404 bulgularını güçlendirir: söz konusu tabloların canlı `public` şemasında bulunmadığı artık yüksek güvenle doğrulanmıştır. S13/S14 önceliği canlı şemayı migration zinciriyle hizalamaktır.
 
 ## Tekrarlanabilir komut
