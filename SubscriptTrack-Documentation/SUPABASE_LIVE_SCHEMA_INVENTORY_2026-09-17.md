@@ -106,6 +106,14 @@ Sprint 18'in kalan saha doğrulaması, gerçek authenticated kullanıcıyla ayn�
 - Hesap silme hâlâ bilinçli olarak kalıcı işlemdir; mobil çağrı JWT ile yapılır ve kullanıcı `auth.getUser()` ile doğrulanır.
 - Export için mobilde yalnızca yerel CSV akışı bulundu; canlı Storage/worker tabanlı backend export henüz uygulanmadı ve Sprint 19'un kalan işidir.
 
+### Sprint 19 — export uçtan uca tamamlandı
+
+- `019_exports_storage_foundation.sql` canlıya uygulandı: private `exports` bucket, kullanıcı klasörü bazlı Storage RLS ve idempotent export request RPC.
+- `020_export_worker.sql` canlıya uygulandı: `download_url` ve `error_message` alanları.
+- `process-export` Edge Function canlıda `ACTIVE` ve `verify_jwt=true`; CSV üretip private Storage'a yükleyerek bir saatlik signed URL oluşturuyor.
+- Mobil export ekranı RPC + Edge Function akışına bağlandı; yerel CSV paylaşımı geriye dönük korundu.
+- Son performans güvenlik testi tekrar çalıştırıldı ve geçti; çalışma ağacı temiz, değişiklikler `main`e pushlandı (`ead57ab`).
+
 Bu remote SQL inspection, önceki REST 404 bulgularını güçlendirir: söz konusu tabloların canlı `public` şemasında bulunmadığı artık yüksek güvenle doğrulanmıştır. S13/S14 önceliği canlı şemayı migration zinciriyle hizalamaktır.
 
 ## Tekrarlanabilir komut
