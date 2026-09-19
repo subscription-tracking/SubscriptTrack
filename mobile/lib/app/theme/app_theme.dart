@@ -3,25 +3,27 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract final class AppColors {
-  static const background = Color(0xFF0F1117);
-  static const surface = Color(0xFF181C25);
-  static const surfaceHigh = Color(0xFF202633);
-  static const border = Color(0xFF2A303C);
-  static const primary = Color(0xFF7377F5);
-  static const onPrimary = Colors.white;
-  static const secondary = Color(0xFFAAB4FF);
-  static const tertiary = Color(0xFFF5A524);
-  static const onBackground = Color(0xFFF5F7FA);
-  static const onSurface = Color(0xFFF5F7FA);
-  static const onSurfaceVar = Color(0xFFA7AFBE);
-  static const error = Color(0xFFE45151);
-  static const outline = Color(0xFF4B5568);
+  // Dark palette: neutral slate surfaces with a single restrained indigo brand
+  // accent. Semantic colours communicate state only; they are not decoration.
+  static const background = Color(0xFF101217);
+  static const surface = Color(0xFF181B22);
+  static const surfaceHigh = Color(0xFF20242D);
+  static const border = Color(0xFF2B303B);
+  static const primary = Color(0xFF8B8CF7);
+  static const onPrimary = Color(0xFF171824);
+  static const secondary = Color(0xFFB5B6FF);
+  static const tertiary = Color(0xFFD6A15A);
+  static const onBackground = Color(0xFFF2F4F7);
+  static const onSurface = Color(0xFFF2F4F7);
+  static const onSurfaceVar = Color(0xFFAAB1C0);
+  static const error = Color(0xFFD77979);
+  static const outline = Color(0xFF4C5361);
 
   // Semantic status colors. Do not use brand colors to communicate status.
-  static const success = Color(0xFF16A36A);
-  static const warning = Color(0xFFF5A524);
-  static const trial = Color(0xFF9A72FF);
-  static const muted = Color(0xFF718096);
+  static const success = Color(0xFF78A987);
+  static const warning = Color(0xFFD6A15A);
+  static const trial = Color(0xFF9B9BD8);
+  static const muted = Color(0xFF737B8C);
 }
 
 abstract final class AppLightColors {
@@ -113,27 +115,27 @@ abstract final class AppTheme {
     brightness: Brightness.dark,
     primary: AppColors.primary,
     onPrimary: AppColors.onPrimary,
-    primaryContainer: Color(0xFF1C3A36),
-    onPrimaryContainer: AppColors.primary,
+    primaryContainer: Color(0xFF252746),
+    onPrimaryContainer: Color(0xFFC7C8FF),
     secondary: AppColors.secondary,
-    onSecondary: Color(0xFF001A40),
-    secondaryContainer: Color(0xFF0D1F3C),
+    onSecondary: Color(0xFF1A1B2C),
+    secondaryContainer: Color(0xFF252834),
     onSecondaryContainer: AppColors.secondary,
     tertiary: AppColors.tertiary,
-    onTertiary: Color(0xFF4B2800),
-    tertiaryContainer: Color(0xFF3A2000),
-    onTertiaryContainer: AppColors.tertiary,
+    onTertiary: Color(0xFF2B2115),
+    tertiaryContainer: Color(0xFF2B261E),
+    onTertiaryContainer: Color(0xFFF0C58A),
     error: AppColors.error,
     onError: Colors.white,
-    errorContainer: Color(0xFF4A1010),
-    onErrorContainer: AppColors.error,
+    errorContainer: Color(0xFF352124),
+    onErrorContainer: Color(0xFFF0B4B4),
     surface: AppColors.surface,
     onSurface: AppColors.onSurface,
     surfaceContainerLowest: AppColors.background,
-    surfaceContainerLow: Color(0xFF0D1020),
+    surfaceContainerLow: Color(0xFF151820),
     surfaceContainer: AppColors.surface,
     surfaceContainerHigh: AppColors.surfaceHigh,
-    surfaceContainerHighest: Color(0xFF1F2840),
+    surfaceContainerHighest: Color(0xFF252A33),
     onSurfaceVariant: AppColors.onSurfaceVar,
     outline: AppColors.outline,
     outlineVariant: AppColors.border,
@@ -141,7 +143,7 @@ abstract final class AppTheme {
     scrim: Colors.black,
     inverseSurface: AppColors.onBackground,
     onInverseSurface: AppColors.background,
-    inversePrimary: Color(0xFF006B5F),
+    inversePrimary: Color(0xFF5556C9),
   );
 
   static ThemeData get dark {

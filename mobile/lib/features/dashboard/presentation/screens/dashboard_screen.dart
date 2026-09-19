@@ -264,17 +264,15 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isDark = cs.brightness == Brightness.dark;
+    final statusColors = context.statusColors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF252A72) : cs.primaryContainer,
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isDark
-              ? const Color(0xFF7377F5).withValues(alpha: 0.25)
-              : cs.outlineVariant,
+          color: cs.outlineVariant,
           width: 0.5,
         ),
       ),
@@ -363,7 +361,7 @@ class _HeroCard extends StatelessWidget {
               monthChangeLabel!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: monthChangeLabel!.contains('daha')
-                        ? const Color(0xFF43D69B)
+                        ? statusColors.success
                         : cs.onSurfaceVariant,
                   ),
             ),
@@ -664,7 +662,6 @@ class _NextPaymentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final statusColors = context.statusColors;
-    final isDark = cs.brightness == Brightness.dark;
     final days = subscription.daysUntilRenewal;
     final urgent = days <= 3;
 
@@ -683,11 +680,13 @@ class _NextPaymentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark
-            ? statusColors.warning.withValues(alpha: 0.12)
-            : statusColors.warning.withValues(alpha: 0.10),
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: statusColors.warning.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: (urgent ? cs.error : statusColors.warning)
+              .withValues(alpha: 0.45),
+          width: 0.75,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -743,16 +742,15 @@ class _NextPaymentCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton.icon(
-            onPressed: openDetail,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: statusColors.warning,
-              side: BorderSide(
-                  color: statusColors.warning.withValues(alpha: 0.4)),
-              visualDensity: VisualDensity.compact,
+              onPressed: openDetail,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: cs.primary,
+                side: BorderSide(color: cs.primary.withValues(alpha: 0.5)),
+                visualDensity: VisualDensity.compact,
+              ),
+              icon: const Icon(Icons.notifications_active_outlined, size: 16),
+              label: const Text('Hatırlat'),
             ),
-            icon: const Icon(Icons.notifications_active_outlined, size: 16),
-            label: const Text('Hatırlat'),
-          ),
           ),
         ],
       ),
@@ -823,7 +821,7 @@ class _HealthInsights extends StatelessWidget {
     }).toList();
     if (flagged.isEmpty) return const SizedBox.shrink();
     return Card(
-      color: const Color(0xFF13251F),
+      color: Theme.of(context).colorScheme.surfaceContainer,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1040,16 +1038,6 @@ class _CategoryDonutCard extends StatelessWidget {
   final List<Subscription> active;
   final VoidCallback onViewAll;
 
-  // S46 fix: Üretkenlik/Araçlar öncekinde çok soluktu (ACC7FF/FFD1AA) — beyaz
-  // kart zemininde donut diliminin "kesilmiş/kaybolmuş" görünmesine yol
-  // açıyordu. Dördü de artık benzer doygunlukta, birbirinden net ayrılıyor.
-  static const _groupColors = {
-    'Eğlence': Color(0xFFFF6B6B),
-    'Müzik': Color(0xFF2BB3A3),
-    'Üretkenlik': Color(0xFF5B67CA),
-    'Araçlar': Color(0xFFF2994A),
-  };
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -1080,7 +1068,7 @@ class _CategoryDonutCard extends StatelessWidget {
     final slices = sameCurrencyEntries
         .map((e) => (
               total == 0 ? 0.0 : e.value.amount / total,
-              _groupColors[e.key] ?? cs.secondary,
+              _groupColor(context, e.key),
             ))
         .toList();
 
@@ -1146,7 +1134,7 @@ class _CategoryDonutCard extends StatelessWidget {
                   children: sameCurrencyEntries.take(3).map((e) {
                     final percent =
                         total == 0 ? 0 : (e.value.amount / total * 100).round();
-                    final color = _groupColors[e.key] ?? cs.secondary;
+                    final color = _groupColor(context, e.key);
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
@@ -1200,6 +1188,18 @@ class _CategoryDonutCard extends StatelessWidget {
         SubscriptionCategory.other =>
           'Araçlar',
       };
+
+  static Color _groupColor(BuildContext context, String group) {
+    final cs = Theme.of(context).colorScheme;
+    final statusColors = context.statusColors;
+    return switch (group) {
+      'Eğlence' => cs.primary,
+      'Müzik' => statusColors.success,
+      'Üretkenlik' => cs.secondary,
+      'Araçlar' => statusColors.warning,
+      _ => cs.secondary,
+    };
+  }
 }
 
 class _DonutPainter extends CustomPainter {
@@ -1259,16 +1259,15 @@ class _OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = cs.brightness == Brightness.dark;
+    final statusColors = context.statusColors;
     final base = lastSyncAt == null
         ? 'Çevrimdışı — önbellek gösteriliyor'
         : 'Çevrimdışı — ${_rel(lastSyncAt!)} önce güncellendi';
     final label =
         pendingCount > 0 ? '$base · $pendingCount işlem bekliyor' : base;
     return MaterialBanner(
-      backgroundColor: isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
-      content: Text(label, style: TextStyle(color: cs.tertiary)),
+      backgroundColor: statusColors.warning.withValues(alpha: 0.12),
+      content: Text(label, style: TextStyle(color: statusColors.warning)),
       actions: [
         TextButton(onPressed: onRetry, child: const Text('Yenile')),
       ],
