@@ -87,8 +87,23 @@ END $$;
 -- 24h-expiry cache with no other reader, so they're simply stale.
 DELETE FROM public.idempotency_keys WHERE user_id IS NULL;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idempotency_keys_user_method_path_key
-  ON public.idempotency_keys (user_id, method, path, idempotency_key);
+-- Only add the uniqueness guard if nothing already enforces it (015's
+-- CREATE TABLE ... UNIQUE (...) already does, whenever 015 ran cleanly;
+-- this covers the environments where it didn't).
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.idempotency_keys'::regclass
+      AND conkey = (
+        SELECT array_agg(attnum ORDER BY attnum) FROM pg_attribute
+        WHERE attrelid = 'public.idempotency_keys'::regclass
+          AND attname IN ('user_id', 'method', 'path', 'idempotency_key')
+      )
+  ) THEN
+    CREATE UNIQUE INDEX IF NOT EXISTS idempotency_keys_user_method_path_key
+      ON public.idempotency_keys (user_id, method, path, idempotency_key);
+  END IF;
+END $$;
 
 ALTER TABLE public.idempotency_keys ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS own_idempotency_keys ON public.idempotency_keys;
