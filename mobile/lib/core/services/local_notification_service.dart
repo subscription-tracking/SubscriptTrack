@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -19,6 +19,7 @@ class LocalNotificationService {
 
   /// Hash of the last schedule call — avoids redundant cancels+reschedules.
   static int? _lastScheduleHash;
+  static String? _deviceTimezone;
 
   /// iOS, aynı anda en fazla 64 bekleyen yerel bildirime izin verir (bunun
   /// üzerinde OS sessizce eski/rastgele bildirimleri düşürür). Android'de
@@ -38,7 +39,7 @@ class LocalNotificationService {
   static Future<void> initialize() async {
     if (_initialized) return;
     tz.initializeTimeZones();
-    await _setDeviceLocalTimezone();
+    await refreshDeviceLocalTimezone();
 
     const android = AndroidInitializationSettings('@drawable/ic_stat_notify');
     final ios = DarwinInitializationSettings(
@@ -63,14 +64,31 @@ class LocalNotificationService {
   }
 
   static void _handleNotificationResponse(NotificationResponse response) {
-    final subscriptionId = response.payload;
+    _dispatchNotificationResponse(
+      payload: response.payload,
+      actionId: response.actionId,
+    );
+  }
+
+  static void _dispatchNotificationResponse({
+    required String? payload,
+    required String? actionId,
+  }) {
+    final subscriptionId = payload;
     if (subscriptionId == null || subscriptionId.isEmpty) return;
-    if (response.actionId == _snoozeActionId) {
+    if (actionId == _snoozeActionId) {
       onSnoozeRequested?.call(subscriptionId);
     } else {
       onNotificationTap?.call(subscriptionId);
     }
   }
+
+  @visibleForTesting
+  static void dispatchNotificationResponseForTesting({
+    String? payload,
+    String? actionId,
+  }) =>
+      _dispatchNotificationResponse(payload: payload, actionId: actionId);
 
   /// Uygulama SIFIRDAN (cold start) bir bildirime dokunularak açıldıysa,
   /// ilgili aboneliğin id'sini döner — aksi halde null. AuthenticatedShell
@@ -106,13 +124,21 @@ class LocalNotificationService {
   /// Bu çağrı olmadan "09:00'da hatırlat" gibi zamanlanmış bildirimler,
   /// UTC'den farklı bir dilimdeki (ör. Türkiye, UTC+3) kullanıcılar için
   /// saatlerce kaymış olarak tetiklenir (Test 41).
-  static Future<void> _setDeviceLocalTimezone() async {
-    if (kIsWeb) return;
+  /// Cihazın IANA saat dilimini yeniden okur. Değiştiyse eski planlama
+  /// parmak izi geçersiz sayılır; bir sonraki schedule çağrısı bildirimleri
+  /// yeni yerel saat için yeniden kurar.
+  static Future<bool> refreshDeviceLocalTimezone() async {
+    if (kIsWeb) return false;
     try {
       final deviceTimezone = await FlutterTimezone.getLocalTimezone();
+      if (deviceTimezone == _deviceTimezone) return false;
       tz.setLocalLocation(tz.getLocation(deviceTimezone));
+      _deviceTimezone = deviceTimezone;
+      _lastScheduleHash = null;
+      return true;
     } catch (_) {
       // Cihaz saat dilimi okunamazsa UTC'de kalınır (mevcut güvenli varsayılan).
+      return false;
     }
   }
 
@@ -145,16 +171,15 @@ class LocalNotificationService {
     List<NotificationRule> rules = const [],
   }) async {
     if (kIsWeb || !_initialized) return;
+    final scheduleMode = await _androidScheduleMode();
     // Deduplicate: skip reschedule if inputs haven't changed.
-    final hash = Object.hashAll([
+    final hash = scheduleFingerprint(
+      subscriptions,
       daysBefore,
-      timezone,
-      ...rules.map((r) => Object.hash(r.daysBefore, r.enabled)),
-      ...subscriptions.map((s) => Object.hash(
-          s.id, s.nextRenewalDate.millisecondsSinceEpoch, s.status.index)),
-      ...trials.map((s) => Object.hash(
-          s.id, s.trialEndDate?.millisecondsSinceEpoch, s.status.index)),
-    ]);
+      timezone: timezone,
+      trials: trials,
+      rules: rules,
+    );
     if (hash == _lastScheduleHash) return;
     _lastScheduleHash = hash;
 
@@ -268,12 +293,49 @@ class LocalNotificationService {
         ),
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: scheduleMode,
         // Test 35: bildirime dokununca hangi aboneliğe gidileceğini taşır.
         payload: reminder.payload,
       );
     }
   }
+
+  /// Bildirimin içeriğini veya zamanını etkileyen bir alan değiştiğinde yeni
+  /// bir planlama yapılmasını sağlar. Platform çağrısı olmadan test edilebilir.
+  @visibleForTesting
+  static int scheduleFingerprint(
+    List<Subscription> subscriptions,
+    int daysBefore, {
+    String timezone = '',
+    List<Subscription> trials = const [],
+    List<NotificationRule> rules = const [],
+  }) =>
+      Object.hashAll([
+        daysBefore,
+        timezone,
+        ...rules.expand((r) => [r.daysBefore, r.enabled]),
+        ...subscriptions.expand(
+          (s) => [
+            s.id,
+            s.name,
+            s.amount.minorUnits,
+            s.currency,
+            s.nextRenewalDate.millisecondsSinceEpoch,
+            s.status.index,
+            ...s.notificationRules.expand((r) => [r.daysBefore, r.enabled]),
+          ],
+        ),
+        ...trials.expand(
+          (s) => [
+            s.id,
+            s.name,
+            s.amount.minorUnits,
+            s.currency,
+            s.trialEndDate?.millisecondsSinceEpoch,
+            s.status.index,
+          ],
+        ),
+      ]);
 
   /// Bildirimdeki "Ertele" aksiyonuna basılınca çağrılır (Test 36):
   /// [sub] için [snoozeDuration] sonra tek seferlik bir hatırlatma bildirimi
@@ -282,6 +344,9 @@ class LocalNotificationService {
   /// yerini almaz (o da mevcut kalır).
   static Future<void> snooze(Subscription sub, {Duration? duration}) async {
     if (kIsWeb || !_initialized) return;
+    final pending = await _plugin.pendingNotificationRequests();
+    if (!canScheduleAdditionalNotification(pending.length)) return;
+    final scheduleMode = await _androidScheduleMode();
     final wait = duration ?? snoozeDuration;
     final scheduled = tz.TZDateTime.now(tz.local).add(wait);
     final snoozeId =
@@ -310,9 +375,26 @@ class LocalNotificationService {
       ),
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: scheduleMode,
       payload: sub.id,
     );
+  }
+
+  @visibleForTesting
+  static bool canScheduleAdditionalNotification(int pendingCount) =>
+      pendingCount < maxScheduledNotifications;
+
+  /// Android 12+ exact-alarm izni verilmemişse, planlamayı başarısız kılmak
+  /// yerine OS'nin izin verdiği yakın zamanlı moda düşer. iOS'ta bu ayar
+  /// kullanılmadığından exact modu zararsız biçimde korunur.
+  static Future<AndroidScheduleMode> _androidScheduleMode() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) return AndroidScheduleMode.exactAllowWhileIdle;
+    final canSchedule = await android.canScheduleExactNotifications();
+    return canSchedule == false
+        ? AndroidScheduleMode.inexactAllowWhileIdle
+        : AndroidScheduleMode.exactAllowWhileIdle;
   }
 
   static Future<void> sendTestNotification() async {
@@ -352,6 +434,13 @@ class LocalNotificationService {
   static Future<void> cancelAll() async {
     if (kIsWeb || !_initialized) return;
     await _plugin.cancelAll();
+  }
+
+  /// Read-only diagnostic hook used by device acceptance tests.
+  static Future<Set<int>> pendingNotificationIds() async {
+    if (kIsWeb || !_initialized) return const {};
+    final pending = await _plugin.pendingNotificationRequests();
+    return pending.map((request) => request.id).toSet();
   }
 
   /// Cancels every pending notification whose payload belongs to [subscriptionId].

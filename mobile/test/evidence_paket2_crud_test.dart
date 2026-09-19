@@ -124,7 +124,8 @@ void main() {
   FlutterSecureStorage.setMockInitialValues({});
 
   group('TEST 3 — Negatif fiyat girildiğinde hata verilmeli', () {
-    testWidgets('"-50" girilince "Geçerli tutar gir" hatası çıkar', (tester) async {
+    testWidgets('"-50" girilince "Geçerli tutar gir" hatası çıkar',
+        (tester) async {
       final key = GlobalKey<FormState>();
       final data = SubscriptionFormData();
       await tester.pumpWidget(_buildForm(key, data));
@@ -137,7 +138,8 @@ void main() {
     });
   });
 
-  group('TEST 4 — Fiyat alanına harf/özel karakter girildiğinde hata verilmeli', () {
+  group('TEST 4 — Fiyat alanına harf/özel karakter girildiğinde hata verilmeli',
+      () {
     testWidgets('"abc" girilince hata çıkar', (tester) async {
       final key = GlobalKey<FormState>();
       final data = SubscriptionFormData();
@@ -164,33 +166,47 @@ void main() {
   });
 
   group('TEST 7 — Aynı isimde birden fazla abonelik ekleme', () {
-    test('Kontrolör katmanı (SubscriptionController.add) kasıtlı olarak isim '
+    test(
+        'Kontrolör katmanı (SubscriptionController.add) kasıtlı olarak isim '
         'benzersizliğini KONTROL ETMİYOR — CSV toplu içe aktarım gibi akışlar '
-        'kullanıcıya soru sormadan çalışabilsin diye bu kontrol UI katmanına bırakıldı', () async {
+        'kullanıcıya soru sormadan çalışabilsin diye bu kontrol UI katmanına bırakıldı',
+        () async {
       final repo = _FakeRepo();
       final controller = SubscriptionController(userId: 'u1', repository: repo);
 
       final ok1 = await controller.add(
-        name: 'Netflix', amount: Money.fromJson(100), currency: 'TRY',
-        billingCycle: BillingCycle.monthly, startDate: DateTime(2026, 1, 1),
-        nextRenewalDate: DateTime(2026, 2, 1), category: SubscriptionCategory.streaming,
+        name: 'Netflix',
+        amount: Money.fromJson(100),
+        currency: 'TRY',
+        billingCycle: BillingCycle.monthly,
+        startDate: DateTime(2026, 1, 1),
+        nextRenewalDate: DateTime(2026, 2, 1),
+        category: SubscriptionCategory.streaming,
       );
       final ok2 = await controller.add(
-        name: 'Netflix', amount: Money.fromJson(150), currency: 'TRY',
-        billingCycle: BillingCycle.yearly, startDate: DateTime(2026, 1, 2),
-        nextRenewalDate: DateTime(2027, 1, 2), category: SubscriptionCategory.streaming,
+        name: 'Netflix',
+        amount: Money.fromJson(150),
+        currency: 'TRY',
+        billingCycle: BillingCycle.yearly,
+        startDate: DateTime(2026, 1, 2),
+        nextRenewalDate: DateTime(2027, 1, 2),
+        category: SubscriptionCategory.streaming,
       );
 
       expect(ok1, isTrue);
       expect(ok2, isTrue);
-      final netflixCount = controller.allItems.where((s) => s.name == 'Netflix').length;
+      final netflixCount =
+          controller.allItems.where((s) => s.name == 'Netflix').length;
       expect(netflixCount, 2,
-          reason: 'Kontrolör seviyesinde ikinci "Netflix" kaydı engellenmiyor — '
+          reason:
+              'Kontrolör seviyesinde ikinci "Netflix" kaydı engellenmiyor — '
               'gerçek kullanıcı uyarısı AddSubscriptionScreen\'de (aşağıdaki test).');
     });
 
-    testWidgets('FIXED: AddSubscriptionScreen artık aynı isimde kayıt varsa '
-        'onay dialogu gösteriyor — "Vazgeç" denince KAYDEDİLMİYOR', (tester) async {
+    testWidgets(
+        'FIXED: AddSubscriptionScreen artık aynı isimde kayıt varsa '
+        'onay dialogu gösteriyor — "Vazgeç" denince KAYDEDİLMİYOR',
+        (tester) async {
       final existing = _makeSub(name: 'Netflix');
       final repo = _FakeRepo([existing]);
       final controller = SubscriptionController(userId: 'u1', repository: repo);
@@ -216,10 +232,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(controller.allItems.length, 1,
-          reason: '"Vazgeç" denilince yeni kayıt OLUŞTURULMADI, sadece orijinal kayıt duruyor.');
+          reason:
+              '"Vazgeç" denilince yeni kayıt OLUŞTURULMADI, sadece orijinal kayıt duruyor.');
     });
 
-    testWidgets('FIXED: aynı isim dialogunda "Yine de ekle" denince kayıt oluşturuluyor', (tester) async {
+    testWidgets(
+        'FIXED: aynı isim dialogunda "Yine de ekle" denince kayıt oluşturuluyor',
+        (tester) async {
       final existing = _makeSub(name: 'Netflix');
       final repo = _FakeRepo([existing]);
       final controller = SubscriptionController(userId: 'u1', repository: repo);
@@ -242,12 +261,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(controller.allItems.length, 2,
-          reason: '"Yine de ekle" denilince ikinci "Netflix" kaydı da oluşturuldu.');
+          reason:
+              '"Yine de ekle" denilince ikinci "Netflix" kaydı da oluşturuldu.');
     });
   });
 
   group('TEST 11 — Not alanına çok uzun metin girme', () {
-    testWidgets('FIXED: 500 karakter sınırı var — 600 karakter girilince 500\'e kırpılıyor, çökmüyor', (tester) async {
+    testWidgets(
+        'FIXED: 500 karakter sınırı var — 600 karakter girilince 500\'e kırpılıyor, çökmüyor',
+        (tester) async {
       final key = GlobalKey<FormState>();
       final data = SubscriptionFormData();
       await tester.pumpWidget(_buildForm(key, data));
@@ -258,10 +280,12 @@ void main() {
       await tester.pump();
 
       expect(data.notes.length, 500,
-          reason: 'maxLength: 500 uygulandı — 600 karakterlik giriş 500\'e kırpıldı, çökme olmadı.');
+          reason:
+              'maxLength: 500 uygulandı — 600 karakterlik giriş 500\'e kırpıldı, çökme olmadı.');
     });
 
-    testWidgets('500 karakterin altındaki metin hiç kırpılmadan kabul ediliyor', (tester) async {
+    testWidgets('500 karakterin altındaki metin hiç kırpılmadan kabul ediliyor',
+        (tester) async {
       final key = GlobalKey<FormState>();
       final data = SubscriptionFormData();
       await tester.pumpWidget(_buildForm(key, data));
@@ -276,26 +300,38 @@ void main() {
   });
 
   group('TEST 12 — Art arda hızlıca birden fazla abonelik ekleme', () {
-    test('8 abonelik art arda (Future.wait ile) eklenince hiçbiri kaybolmuyor/bozulmuyor', () async {
+    test(
+        '8 abonelik art arda (Future.wait ile) eklenince hiçbiri kaybolmuyor/bozulmuyor',
+        () async {
       final repo = _FakeRepo();
       final controller = SubscriptionController(userId: 'u1', repository: repo);
 
-      final futures = List.generate(8, (i) => controller.add(
-            name: 'Sub $i', amount: Money.fromJson(10.0 + i), currency: 'TRY',
-            billingCycle: BillingCycle.monthly, startDate: DateTime(2026, 1, 1),
-            nextRenewalDate: DateTime(2026, 2, 1), category: SubscriptionCategory.other,
-          ));
+      final futures = List.generate(
+          8,
+          (i) => controller.add(
+                name: 'Sub $i',
+                amount: Money.fromJson(10.0 + i),
+                currency: 'TRY',
+                billingCycle: BillingCycle.monthly,
+                startDate: DateTime(2026, 1, 1),
+                nextRenewalDate: DateTime(2026, 2, 1),
+                category: SubscriptionCategory.other,
+              ));
       final results = await Future.wait(futures);
 
-      expect(results.every((ok) => ok), isTrue, reason: 'Bazı add() çağrıları başarısız oldu.');
-      expect(controller.allItems.length, 8, reason: '8 abonelik de kayıp/bozulma olmadan listede.');
+      expect(results.every((ok) => ok), isTrue,
+          reason: 'Bazı add() çağrıları başarısız oldu.');
+      expect(controller.allItems.length, 8,
+          reason: '8 abonelik de kayıp/bozulma olmadan listede.');
       expect(controller.allItems.map((s) => s.name).toSet().length, 8,
           reason: 'Tüm isimler benzersiz ve karışmadan geldi.');
     });
   });
 
   group('TEST 13 — Var olan aboneliğin fiyatını güncelleme', () {
-    test('controller.edit ile fiyat güncellenince repo ve controller state\'i yansıtıyor', () async {
+    test(
+        'controller.edit ile fiyat güncellenince repo ve controller state\'i yansıtıyor',
+        () async {
       final original = _makeSub(amount: 100);
       final repo = _FakeRepo([original]);
       final controller = SubscriptionController(userId: 'u1', repository: repo);
@@ -310,8 +346,12 @@ void main() {
     });
   });
 
-  group('TEST 14 — Yenileme periyodunu değiştirme (Aylık -> Yıllık), UI üzerinden', () {
-    testWidgets('Dropdown\'dan "Yıllık" seçilince nextRenewalDate otomatik yeniden hesaplanır', (tester) async {
+  group(
+      'TEST 14 — Yenileme periyodunu değiştirme (Aylık -> Yıllık), UI üzerinden',
+      () {
+    testWidgets(
+        'Dropdown\'dan "Yıllık" seçilince nextRenewalDate otomatik yeniden hesaplanır',
+        (tester) async {
       final key = GlobalKey<FormState>();
       // Kasıtlı olarak GEÇMİŞTE bir başlangıç (40 gün önce) kullanıyoruz ki
       // periyot değişince (aylık->yıllık) nextOccurrenceOnOrAfter'ın FARKLI
@@ -330,21 +370,24 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(data.billingCycle, BillingCycle.yearly);
-      final expectedYearly =
-          DateTimeUtils.nextOccurrenceOnOrAfter(startDate, 'yearly', DateTime.now());
+      final expectedYearly = DateTimeUtils.nextOccurrenceOnOrAfter(
+          startDate, 'yearly', DateTime.now());
       expect(data.nextRenewalDate, expectedYearly,
-          reason: 'Periyot Yıllık\'a çevrilince sonraki yenileme, yıllık döngüye göre '
+          reason:
+              'Periyot Yıllık\'a çevrilince sonraki yenileme, yıllık döngüye göre '
               'yeniden hesaplandı (aylık döngüden farklı bir sonuç verir).');
       // Aynı başlangıç için aylık hesap FARKLI bir tarih verirdi — bu da
       // periyodun gerçekten etkili olduğunu (statik/sabit değer olmadığını) kanıtlar.
-      final wouldBeMonthly =
-          DateTimeUtils.nextOccurrenceOnOrAfter(startDate, 'monthly', DateTime.now());
+      final wouldBeMonthly = DateTimeUtils.nextOccurrenceOnOrAfter(
+          startDate, 'monthly', DateTime.now());
       expect(expectedYearly, isNot(wouldBeMonthly));
     });
   });
 
   group('TEST 15 — Başlangıç tarihini değiştirme', () {
-    testWidgets('Başlangıç tarihi değişince sonraki yenileme yeniden hesaplanır', (tester) async {
+    testWidgets(
+        'Başlangıç tarihi değişince sonraki yenileme yeniden hesaplanır',
+        (tester) async {
       final key = GlobalKey<FormState>();
       // Test zamanla "geçmişe" düşüp Paket-1 catch-up mantığını (nextOccurrenceOnOrAfter)
       // tetiklemesin diye, her zaman GELECEKTE kalacak bir başlangıç tarihi kullanıyoruz.
@@ -372,13 +415,36 @@ void main() {
       // Paket-1 düzeltmesi (nextOccurrenceOnOrAfter) sonrası: yeni başlangıç
       // tarihi hâlâ bugünden ileride olduğu için ilk yenileme = başlangıç
       // tarihinin KENDİSİ (Test 6 davranışı) — +1 ay DEĞİL.
-      expect(data.nextRenewalDate, DateTime(startDate.year, startDate.month, 20),
-          reason: 'Gelecekteki yeni başlangıç tarihi seçilince ilk yenileme onunla AYNI oldu.');
+      expect(
+          data.nextRenewalDate, DateTime(startDate.year, startDate.month, 20),
+          reason:
+              'Gelecekteki yeni başlangıç tarihi seçilince ilk yenileme onunla AYNI oldu.');
+    });
+
+    test('Güncellenen başlangıç tarihi repository katmanına taşınır', () async {
+      final original = _makeSub();
+      final repo = _FakeRepo([original]);
+      final controller = SubscriptionController(userId: 'u1', repository: repo);
+      await controller.load();
+      final changedStartDate = DateTime(2026, 12, 20);
+
+      final ok = await controller.edit(
+        original.copyWith(
+          startDate: changedStartDate,
+          nextRenewalDate: changedStartDate,
+        ),
+      );
+
+      expect(ok, isTrue);
+      expect(repo.updateCalls.single.startDate, changedStartDate);
+      expect(controller.allItems.single.startDate, changedStartDate);
     });
   });
 
   group('TEST 16 — Düzenleme sırasında zorunlu alanı boşaltma', () {
-    testWidgets('Edit ekranında isim silinip Güncelle\'ye basılınca kayıt reddedilir, controller.edit çağrılmaz', (tester) async {
+    testWidgets(
+        'Edit ekranında isim silinip Güncelle\'ye basılınca kayıt reddedilir, controller.edit çağrılmaz',
+        (tester) async {
       final original = _makeSub();
       final repo = _FakeRepo([original]);
       final controller = SubscriptionController(userId: 'u1', repository: repo);
@@ -387,7 +453,8 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(800, 2400));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(MaterialApp(
-        home: EditSubscriptionScreen(subscription: original, controller: controller),
+        home: EditSubscriptionScreen(
+            subscription: original, controller: controller),
       ));
       await tester.pumpAndSettle();
 
@@ -398,20 +465,24 @@ void main() {
 
       expect(find.text('Ad boş olamaz'), findsOneWidget);
       expect(repo.updateCalls, isEmpty,
-          reason: 'Validasyon formu durdurdu, controller.edit / repo.update hiç çağrılmadı — '
+          reason:
+              'Validasyon formu durdurdu, controller.edit / repo.update hiç çağrılmadı — '
               'önceki veri korunuyor.');
     });
   });
 
   group('TEST 17 — Düzenlemeyi kaydetmeden iptal etme (geri gitme)', () {
-    testWidgets('Alanlar değiştirilip Güncelle\'ye basılmadan ekrandan çıkılırsa hiçbir şey persist edilmez', (tester) async {
+    testWidgets(
+        'Alanlar değiştirilip Güncelle\'ye basılmadan ekrandan çıkılırsa hiçbir şey persist edilmez',
+        (tester) async {
       final original = _makeSub(name: 'Netflix', amount: 100);
       final repo = _FakeRepo([original]);
       final controller = SubscriptionController(userId: 'u1', repository: repo);
       await controller.load();
 
       await tester.pumpWidget(MaterialApp(
-        home: EditSubscriptionScreen(subscription: original, controller: controller),
+        home: EditSubscriptionScreen(
+            subscription: original, controller: controller),
       ));
       await tester.pumpAndSettle();
 
@@ -420,7 +491,8 @@ void main() {
       await tester.pump();
       // "Güncelle" butonuna HİÇ basılmıyor — sadece geri tuşuyla çıkılıyor.
 
-      expect(repo.updateCalls, isEmpty, reason: 'Kaydet basılmadığı için update hiç tetiklenmedi.');
+      expect(repo.updateCalls, isEmpty,
+          reason: 'Kaydet basılmadığı için update hiç tetiklenmedi.');
       expect(controller.allItems.single.name, 'Netflix',
           reason: 'Orijinal veri controller state\'inde değişmeden duruyor.');
       expect(controller.allItems.single.amount.amount, 100.0);

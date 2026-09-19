@@ -36,18 +36,15 @@ class SecureStorage {
   Future<void> writeCurrentUser(String userJson) =>
       _storage.write(key: _keyCurrentUser, value: userJson);
 
-  Future<String?> readCurrentUser() =>
-      _storage.read(key: _keyCurrentUser);
+  Future<String?> readCurrentUser() => _storage.read(key: _keyCurrentUser);
 
-  Future<void> deleteCurrentUser() =>
-      _storage.delete(key: _keyCurrentUser);
+  Future<void> deleteCurrentUser() => _storage.delete(key: _keyCurrentUser);
 
   // Email -> hashed password map, JSON string olarak
   Future<void> writeCredentials(String credJson) =>
       _storage.write(key: _keyUserCredentials, value: credJson);
 
-  Future<String?> readCredentials() =>
-      _storage.read(key: _keyUserCredentials);
+  Future<String?> readCredentials() => _storage.read(key: _keyUserCredentials);
 
   Future<void> deleteCredentialsForEmail(String email) async {
     final raw = await readCredentials();

@@ -29,7 +29,9 @@ class SupabaseDeviceTokenService implements DeviceTokenService {
             {
               'user_id': userId,
               'token': pushToken,
-              'platform': defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios',
+              'platform': defaultTargetPlatform == TargetPlatform.android
+                  ? 'android'
+                  : 'ios',
             },
             // The deployed schema has a unique constraint on token.
             onConflict: 'token',

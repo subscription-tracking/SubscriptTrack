@@ -3,8 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/auth_data_source.dart';
-import 'package:subscript_track/core/errors/app_exception.dart'
-    as app_errors;
+import 'package:subscript_track/core/errors/app_exception.dart' as app_errors;
 import 'package:subscript_track/core/storage/local_storage.dart';
 import 'package:subscript_track/features/auth/presentation/auth_controller.dart';
 
@@ -16,7 +15,6 @@ class _FakeAuthRepo implements AuthDataSource {
 
   void setUser(AppUser u) => _current = u;
 
-
   @override
   Future<AppUser?> currentUser() async => _current;
 
@@ -25,12 +23,10 @@ class _FakeAuthRepo implements AuthDataSource {
       throw UnimplementedError();
 
   @override
-  Future<AppUser> signIn({required String email, required String password}) async {
+  Future<AppUser> signIn(
+      {required String email, required String password}) async {
     if (failSignIn) throw const app_errors.AuthException('Giriş başarısız.');
-    _current = AppUser(
-        id: 'u1',
-        email: email,
-        createdAt: DateTime(2024));
+    _current = AppUser(id: 'u1', email: email, createdAt: DateTime(2024));
     return _current!;
   }
 
@@ -126,7 +122,8 @@ void main() {
 
       await ctrl.deleteAccount(LocalStorage.instance);
 
-      final storedSecure = await const FlutterSecureStorage().read(key: 'subscriptions_u1');
+      final storedSecure =
+          await const FlutterSecureStorage().read(key: 'subscriptions_u1');
       final stored = await SharedPreferences.getInstance();
       expect(storedSecure, isNull);
       expect(stored.getStringList('notif_read_ids'), isNull);
@@ -134,7 +131,8 @@ void main() {
       expect(ctrl.user, isNull);
     });
 
-    test('deleteAccount → user null ise erken çıkar (status değişmez)', () async {
+    test('deleteAccount → user null ise erken çıkar (status değişmez)',
+        () async {
       final repo = _FakeAuthRepo();
       final ctrl = AuthController(repository: repo);
       // user null, deleteAccount erken çıkmalı — exception fırlatmamalı

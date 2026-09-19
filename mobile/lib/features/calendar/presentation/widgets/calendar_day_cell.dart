@@ -66,8 +66,9 @@ class CalendarDayCell extends StatelessWidget {
                   '$day',
                   style: TextStyle(
                     color: textColor,
-                    fontWeight:
-                        isToday || isSelected ? FontWeight.w700 : FontWeight.normal,
+                    fontWeight: isToday || isSelected
+                        ? FontWeight.w700
+                        : FontWeight.normal,
                     fontSize: 13,
                   ),
                 ),

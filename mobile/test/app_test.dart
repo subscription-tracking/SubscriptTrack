@@ -8,12 +8,14 @@ import 'package:subscript_track/features/notifications/presentation/notification
 import 'package:subscript_track/features/subscriptions/presentation/subscription_controller.dart';
 
 void main() {
-  testWidgets('authenticated shell renders dashboard and navigates', (tester) async {
+  testWidgets('authenticated shell renders dashboard and navigates',
+      (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => SubscriptionController(userId: 'test-user')),
+          ChangeNotifierProvider(
+              create: (_) => SubscriptionController(userId: 'test-user')),
           ChangeNotifierProvider(create: (_) => NotificationController()),
         ],
         child: const MaterialApp(home: AppShell()),

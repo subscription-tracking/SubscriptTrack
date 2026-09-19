@@ -28,8 +28,21 @@ class SubscriptionFormData {
   })  : startDate = startDate ?? DateTime.now(),
         initialPaymentDate = initialPaymentDate ?? DateTime.now(),
         nextRenewalDate =
-            nextRenewalDate ?? DateTime.now().add(const Duration(days: 30)),
+            nextRenewalDate ?? _defaultNextRenewalDate(startDate, billingCycle),
         reminderDays = reminderDays ?? [3];
+
+  static DateTime _defaultNextRenewalDate(
+    DateTime? startDate,
+    BillingCycle billingCycle,
+  ) {
+    final start = startDate ?? DateTime.now();
+    return DateTimeUtils.nextOccurrenceOnOrAfter(
+      start,
+      billingCycle.key,
+      DateTime.now(),
+      originalAnchor: start,
+    );
+  }
 
   String name;
   String amount;
@@ -47,6 +60,18 @@ class SubscriptionFormData {
   InitialPaymentStatus initialPaymentStatus;
   DateTime initialPaymentDate;
   DateTime? deferredPaymentDate;
+
+  /// Başlangıç tarihi veya fatura döngüsü değiştiğinde sonraki yenilemeyi
+  /// yeniden hesaplar. Hesap UI'dan bağımsız tutulur; hem tarih seçici hem de
+  /// otomatik test aynı domain kuralını kullanır.
+  void recalculateNextRenewal({DateTime? now}) {
+    nextRenewalDate = DateTimeUtils.nextOccurrenceOnOrAfter(
+      startDate,
+      billingCycle.key,
+      now ?? DateTime.now(),
+      originalAnchor: startDate,
+    );
+  }
 }
 
 class SubscriptionForm extends StatefulWidget {
@@ -92,16 +117,11 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   ];
 
   void _autoSetNextRenewal() {
-    final s = widget.data.startDate;
     // Başlangıç bugün/gelecekteyse ilk yenileme == başlangıç tarihinin kendisi;
     // geçmişteyse kaçırılan periyotlar atlanıp bugünden sonraki en yakın
     // yenilemeye ulaşılır (nextOccurrenceOnOrAfter tek noktadan ikisini de
     // karşılar — bkz. DateTimeUtils).
-    widget.data.nextRenewalDate = DateTimeUtils.nextOccurrenceOnOrAfter(
-      s,
-      widget.data.billingCycle.key,
-      DateTime.now(),
-    );
+    widget.data.recalculateNextRenewal();
   }
 
   Future<void> _pickStartDate() async {
@@ -152,8 +172,9 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
-    if (picked != null)
+    if (picked != null) {
       setState(() => widget.data.deferredPaymentDate = picked);
+    }
   }
 
   Future<void> _pickTrialEndDate() async {

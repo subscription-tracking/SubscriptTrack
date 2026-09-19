@@ -52,7 +52,7 @@ class CsvImportParser {
           indexes[key]! < values.length ? values[indexes[key]!].trim() : '';
       final name = value('name');
       final amountText = value('amount');
-      final date = DateTime.tryParse(value('next_renewal_date'));
+      final date = _parseStrictIsoDate(value('next_renewal_date'));
       final key = name.toLowerCase();
       if (name.isEmpty ||
           Money.parse(amountText) == Money.zero ||
@@ -117,6 +117,22 @@ class CsvImportParser {
       .replaceAll('ü', 'u')
       .replaceAll('ö', 'o')
       .replaceAll('ç', 'c');
+
+  /// DateTime.tryParse taşan günleri (ör. 2026-02-30) sonraki aya
+  /// normalleştirebilir. İçe aktarmada kullanıcı girdisi takvimde gerçekten
+  /// var olan `YYYY-MM-DD` tarihi olmalıdır.
+  static DateTime? _parseStrictIsoDate(String value) {
+    final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(value);
+    if (match == null) return null;
+    final year = int.parse(match.group(1)!);
+    final month = int.parse(match.group(2)!);
+    final day = int.parse(match.group(3)!);
+    final parsed = DateTime(year, month, day);
+    return parsed.year == year && parsed.month == month && parsed.day == day
+        ? parsed
+        : null;
+  }
+
   static BillingCycle _cycle(String value) => switch (_header(value)) {
         'yearly' || 'annual' || 'yillik' => BillingCycle.yearly,
         'weekly' || 'haftalik' => BillingCycle.weekly,

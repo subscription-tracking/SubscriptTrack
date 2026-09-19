@@ -24,7 +24,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ok = await widget.controller.sendPasswordResetEmail(_email.text.trim());
+    final ok =
+        await widget.controller.sendPasswordResetEmail(_email.text.trim());
     if (ok && mounted) setState(() => _sent = true);
   }
 
@@ -36,13 +37,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(title: const Text('Şifremi unuttum')),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: _sent ? _SuccessView(email: _email.text.trim()) : _FormView(
-          formKey: _formKey,
-          email: _email,
-          controller: widget.controller,
-          colors: colors,
-          onSubmit: _submit,
-        ),
+        child: _sent
+            ? _SuccessView(email: _email.text.trim())
+            : _FormView(
+                formKey: _formKey,
+                email: _email,
+                controller: widget.controller,
+                colors: colors,
+                onSubmit: _submit,
+              ),
       ),
     );
   }
@@ -111,8 +114,8 @@ class _FormView extends StatelessWidget {
           const SizedBox(height: 24),
           FilledButton(
             onPressed: controller.loading ? null : onSubmit,
-            style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52)),
+            style:
+                FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
             child: controller.loading
                 ? const SizedBox(
                     height: 20,
@@ -155,8 +158,8 @@ class _SuccessView extends StatelessWidget {
         const SizedBox(height: 32),
         OutlinedButton(
           onPressed: () => Navigator.pop(context),
-          style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(52)),
+          style:
+              OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
           child: const Text('Giriş ekranına dön'),
         ),
       ],

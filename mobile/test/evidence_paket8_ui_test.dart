@@ -64,7 +64,8 @@ class _FakeRepo implements SubscriptionDataSource {
   Future<void> cancel(String userId, String subscriptionId) async {}
 }
 
-Subscription _sub(String id, String name, {double amount = 100}) => Subscription(
+Subscription _sub(String id, String name, {double amount = 100}) =>
+    Subscription(
       id: id,
       userId: 'u1',
       name: name,
@@ -80,9 +81,13 @@ Subscription _sub(String id, String name, {double amount = 100}) => Subscription
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TEST 49 — Karanlık/aydınlık tema geçişi (FIXED — gerçek açık/koyu/sistem tema desteği)', () {
-    testWidgets('MaterialApp themeMode: ThemeMode.light verildiğinde gerçekten '
-        'AÇIK temayla render ediliyor (AppTheme.light artık kullanımda)', (tester) async {
+  group(
+      'TEST 49 — Karanlık/aydınlık tema geçişi (FIXED — gerçek açık/koyu/sistem tema desteği)',
+      () {
+    testWidgets(
+        'MaterialApp themeMode: ThemeMode.light verildiğinde gerçekten '
+        'AÇIK temayla render ediliyor (AppTheme.light artık kullanımda)',
+        (tester) async {
       await tester.pumpWidget(MaterialApp(
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
@@ -94,7 +99,9 @@ void main() {
       expect(Theme.of(context).brightness, Brightness.light);
     });
 
-    testWidgets('MaterialApp themeMode: ThemeMode.dark verildiğinde koyu temayla render ediliyor', (tester) async {
+    testWidgets(
+        'MaterialApp themeMode: ThemeMode.dark verildiğinde koyu temayla render ediliyor',
+        (tester) async {
       await tester.pumpWidget(MaterialApp(
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
@@ -106,7 +113,8 @@ void main() {
       expect(Theme.of(context).brightness, Brightness.dark);
     });
 
-    testWidgets('FIXED: setThemeMode(ThemeMode.light) artık GERÇEKTEN uygulanıyor '
+    testWidgets(
+        'FIXED: setThemeMode(ThemeMode.light) artık GERÇEKTEN uygulanıyor '
         '(önceden sessizce ThemeMode.dark\'a sabitleniyordu)', (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
@@ -123,7 +131,9 @@ void main() {
       expect(settings.themeMode, ThemeMode.dark);
     });
 
-    testWidgets('FIXED: seçim kalıcı — kaydedilip tekrar load() edilince korunuyor', (tester) async {
+    testWidgets(
+        'FIXED: seçim kalıcı — kaydedilip tekrar load() edilince korunuyor',
+        (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
       final settings = SettingsController.instance;
@@ -135,10 +145,12 @@ void main() {
       expect(settings.themeMode, ThemeMode.light,
           reason: 'Tema tercihi SharedPreferences\'a yazılıp doğru okunuyor.');
 
-      await settings.setThemeMode(ThemeMode.dark); // sıradaki testleri etkilememek için sıfırla
+      await settings.setThemeMode(
+          ThemeMode.dark); // sıradaki testleri etkilememek için sıfırla
     });
 
-    testWidgets('FIXED: AppearanceScreen artık "Sistem", "Aydınlık" VE "Karanlık" '
+    testWidgets(
+        'FIXED: AppearanceScreen artık "Sistem", "Aydınlık" VE "Karanlık" '
         'seçeneklerinin üçünü de gösteriyor', (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
@@ -154,10 +166,13 @@ void main() {
       expect(find.text('Sistem'), findsOneWidget);
       expect(find.text('Aydınlık'), findsOneWidget);
       expect(find.text('Karanlık'), findsOneWidget);
-      expect(find.text('Açık tema geçici olarak kullanıma kapalıdır.'), findsNothing);
+      expect(find.text('Açık tema geçici olarak kullanıma kapalıdır.'),
+          findsNothing);
     });
 
-    testWidgets('FIXED: AppearanceScreen\'de "Aydınlık"a dokununca controller güncelleniyor', (tester) async {
+    testWidgets(
+        'FIXED: AppearanceScreen\'de "Aydınlık"a dokununca controller güncelleniyor',
+        (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
       final settings = SettingsController.instance;
@@ -202,7 +217,9 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('FIXED — Küçük ekran (320x568, ör. iPhone SE) — taşma/overflow hatası yok', (tester) async {
+    testWidgets(
+        'FIXED — Küçük ekran (320x568, ör. iPhone SE) — taşma/overflow hatası yok',
+        (tester) async {
       // Bu test önce GERÇEK bir bug buldu: boş "Deneme" sekmesindeki
       // AppEmptyState, dar+kısa ekranlarda dikey RenderFlex overflow
       // veriyordu (app_empty_state.dart:34, "63 pixels on the bottom").
@@ -213,12 +230,15 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('Büyük tablet ekranı (1024x1366) — taşma/overflow hatası yok', (tester) async {
+    testWidgets('Büyük tablet ekranı (1024x1366) — taşma/overflow hatası yok',
+        (tester) async {
       await pumpListAt(tester, const Size(1024, 1366));
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('FIXED — Abonelik ekleme formu küçük ekranda (360x640) taşma vermiyor', (tester) async {
+    testWidgets(
+        'FIXED — Abonelik ekleme formu küçük ekranda (360x640) taşma vermiyor',
+        (tester) async {
       // Bu test de GERÇEK bir bug buldu: "Ödeme Yöntemi" dropdown'ındaki
       // "+ Yeni Kart Ekle..." menü satırı (subscription_form.dart), bir Row
       // içinde flex/ellipsis olmadan duruyordu — DropdownButton kapalı
@@ -232,7 +252,8 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
-      final ctrl = SubscriptionController(userId: 'u1', repository: _FakeRepo([]));
+      final ctrl =
+          SubscriptionController(userId: 'u1', repository: _FakeRepo([]));
       await ctrl.load();
       await tester.pumpWidget(MaterialApp(
         theme: AppTheme.dark,
@@ -244,7 +265,9 @@ void main() {
   });
 
   group('TEST 51 — Fiyat alanı için uygun klavye tipi', () {
-    testWidgets('Tutar alanı ondalıklı SAYISAL klavye açıyor (harf tuşları değil)', (tester) async {
+    testWidgets(
+        'Tutar alanı ondalıklı SAYISAL klavye açıyor (harf tuşları değil)',
+        (tester) async {
       final key = GlobalKey<FormState>();
       final data = SubscriptionFormData();
       await tester.pumpWidget(MaterialApp(
@@ -260,8 +283,10 @@ void main() {
         of: find.byType(TextFormField).at(1),
         matching: find.byType(EditableText),
       ));
-      expect(amountEditable.keyboardType, const TextInputType.numberWithOptions(decimal: true),
-          reason: 'Tutar alanı sayısal + ondalıklı klavye tipini açıkça talep ediyor.');
+      expect(amountEditable.keyboardType,
+          const TextInputType.numberWithOptions(decimal: true),
+          reason:
+              'Tutar alanı sayısal + ondalıklı klavye tipini açıkça talep ediyor.');
     });
   });
 }

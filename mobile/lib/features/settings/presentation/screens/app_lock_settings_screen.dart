@@ -23,9 +23,15 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
     try {
       await widget.service.setPin(_pin.text);
       _pin.clear();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN kaydedildi')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('PIN kaydedildi')));
+      }
     } on FormatException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 
@@ -37,13 +43,23 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
           body: ListView(padding: const EdgeInsets.all(20), children: [
             SwitchListTile(
               title: const Text('PIN kilidi'),
-              subtitle: Text(widget.service.enabled ? 'Arka plandan dönünce sorulur' : 'Kapalı'),
+              subtitle: Text(widget.service.enabled
+                  ? 'Arka plandan dönünce sorulur'
+                  : 'Kapalı'),
               value: widget.service.enabled,
-              onChanged: widget.service.enabled ? (_) => widget.service.disable() : null,
+              onChanged: widget.service.enabled
+                  ? (_) => widget.service.disable()
+                  : null,
             ),
             if (!widget.service.enabled) ...[
-              TextField(controller: _pin, obscureText: true, keyboardType: TextInputType.number, maxLength: 8, decoration: const InputDecoration(labelText: 'Yeni PIN')),
-              FilledButton(onPressed: _setPin, child: const Text('PIN’i etkinleştir')),
+              TextField(
+                  controller: _pin,
+                  obscureText: true,
+                  keyboardType: TextInputType.number,
+                  maxLength: 8,
+                  decoration: const InputDecoration(labelText: 'Yeni PIN')),
+              FilledButton(
+                  onPressed: _setPin, child: const Text('PIN’i etkinleştir')),
             ],
             SwitchListTile(
               title: const Text('Biyometrik kilit açma'),
@@ -53,7 +69,10 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
                       try {
                         await widget.service.setBiometricEnabled(value);
                       } on StateError catch (e) {
-                        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text(e.message)));
+                        }
                       }
                     }
                   : null,

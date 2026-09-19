@@ -47,9 +47,15 @@ class _FakeRepo implements SubscriptionDataSource {
     Money? trialPriceAfter,
   }) async {
     final sub = Subscription(
-      id: 'new-1', userId: userId, name: name, amount: amount,
-      currency: currency, billingCycle: billingCycle, startDate: startDate,
-      nextRenewalDate: nextRenewalDate, category: category,
+      id: 'new-1',
+      userId: userId,
+      name: name,
+      amount: amount,
+      currency: currency,
+      billingCycle: billingCycle,
+      startDate: startDate,
+      nextRenewalDate: nextRenewalDate,
+      category: category,
       createdAt: DateTime.now(),
     );
     _data.add(sub);
@@ -88,51 +94,43 @@ Subscription _sub(String id) => Subscription(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TEST 35 — Bildirime dokunulduğunda ilgili abonelik detayına yönlendirme (FIXED)', () {
-    test('DÜZELTME: normal (trial olmayan) hatırlatmalara artık payload: sub.id '
-        'ekleniyor — önceden SADECE trial hatırlatmalarında vardı', () {
-      // local_notification_service.dart: normal abonelik zonedSchedule
-      // çağrısına `payload: sub.id` eklendi (satır ~148). Bu, çoğunluk
-      // kullanım senaryosu (normal yenileme hatırlatmaları) için Test 35'in
-      // önkoşuluydu — trial'lar zaten payload'a sahipti.
-      expect(true, isTrue, reason: 'Kod incelemesiyle doğrulandı, satır referansı yukarıda.');
-    });
-
-    test('DÜZELTME: onDidReceiveNotificationResponse artık kayıtlı — '
-        'dispatch mantığı (actionId snooze mu, değil mi) BİREBİR aynı '
-        'formülle doğru çalışıyor', () {
-      // _handleNotificationResponse (local_notification_service.dart) ile
-      // BİREBİR aynı dispatch mantığı:
+  group(
+      'TEST 35 — Bildirime dokunulduğunda ilgili abonelik detayına yönlendirme (FIXED)',
+      () {
+    test(
+        'normal yanıt abonelik kimliğini tap callback’ine iletir; snooze yanıtı ayrı callback kullanır',
+        () {
       String? tappedId;
       String? snoozedId;
-      void onTap(String id) => tappedId = id;
-      void onSnooze(String id) => snoozedId = id;
+      LocalNotificationService.onNotificationTap = (id) => tappedId = id;
+      LocalNotificationService.onSnoozeRequested = (id) => snoozedId = id;
+      addTearDown(() {
+        LocalNotificationService.onNotificationTap = null;
+        LocalNotificationService.onSnoozeRequested = null;
+      });
 
-      void dispatch(String? payload, String? actionId) {
-        if (payload == null || payload.isEmpty) return;
-        if (actionId == 'snooze_reminder') {
-          onSnooze(payload);
-        } else {
-          onTap(payload);
-        }
-      }
-
-      dispatch('sub-42', null); // normal dokunuş
+      LocalNotificationService.dispatchNotificationResponseForTesting(
+          payload: 'sub-42');
       expect(tappedId, 'sub-42');
       expect(snoozedId, isNull);
 
       tappedId = null;
-      dispatch('sub-7', 'snooze_reminder'); // "Ertele" aksiyonu
+      LocalNotificationService.dispatchNotificationResponseForTesting(
+        payload: 'sub-7',
+        actionId: 'snooze_reminder',
+      );
       expect(snoozedId, 'sub-7');
       expect(tappedId, isNull);
 
-      dispatch(null, null); // payload yoksa hiçbir şey tetiklenmez
+      LocalNotificationService.dispatchNotificationResponseForTesting();
       expect(tappedId, isNull);
-      expect(snoozedId, 'sub-7'); // değişmedi
+      expect(snoozedId, 'sub-7');
     });
 
-    test('DÜZELTME: AuthenticatedShell._findSubscription eşdeğeri — '
-        'abonelik id\'ye göre doğru bulunuyor, bulunamazsa null (çökme yok)', () {
+    test(
+        'DÜZELTME: AuthenticatedShell._findSubscription eşdeğeri — '
+        'abonelik id\'ye göre doğru bulunuyor, bulunamazsa null (çökme yok)',
+        () {
       final items = [_sub('1'), _sub('2'), _sub('3')];
       Subscription? findById(String id) {
         for (final s in items) {
@@ -147,22 +145,25 @@ void main() {
   });
 
   group('TEST 36 — Bildirimi erteleme (snooze) (FIXED)', () {
-    test('LocalNotificationService.snooze() artık MEVCUT (önceden hiç yoktu) '
-        've initialize edilmemiş ortamda güvenli no-op olarak çalışıyor (çökmüyor)', () async {
+    test(
+        'LocalNotificationService.snooze() artık MEVCUT (önceden hiç yoktu) '
+        've initialize edilmemiş ortamda güvenli no-op olarak çalışıyor (çökmüyor)',
+        () async {
       final sub = _sub('1');
-      await LocalNotificationService.snooze(sub); // plugin başlatılmadığı için no-op
-      // Çökmeden tamamlandı — bu satıra ulaşılması kanıttır.
-      expect(true, isTrue);
+      await expectLater(LocalNotificationService.snooze(sub), completes);
     });
 
     test('Varsayılan erteleme süresi 30 dakika olarak tanımlı ve public', () {
-      expect(LocalNotificationService.snoozeDuration, const Duration(minutes: 30));
+      expect(
+          LocalNotificationService.snoozeDuration, const Duration(minutes: 30));
     });
   });
 
   group('TEST 37 — Bildirim izni verilmediğinde davranış (FIXED)', () {
-    test('LocalNotificationService.arePermissionsGranted() artık MEVCUT '
-        '(önceden hiç yoktu) — kullanıcıya SORMADAN durumu kontrol ediyor', () async {
+    test(
+        'LocalNotificationService.arePermissionsGranted() artık MEVCUT '
+        '(önceden hiç yoktu) — kullanıcıya SORMADAN durumu kontrol ediyor',
+        () async {
       final granted = await LocalNotificationService.arePermissionsGranted();
       // Plugin bu test ortamında hiç initialize olamadığından güvenli
       // varsayılan (true) dönüyor; gerçek cihazda plugin başladıktan sonra
@@ -170,11 +171,14 @@ void main() {
       expect(granted, isA<bool>());
     });
 
-    testWidgets('UI regresyon kontrolü: AddSubscriptionScreen, yeni proaktif '
-        'izin kontrolü eklendikten SONRA da normal şekilde kaydedip kapanıyor', (tester) async {
+    testWidgets(
+        'UI regresyon kontrolü: AddSubscriptionScreen, yeni proaktif '
+        'izin kontrolü eklendikten SONRA da normal şekilde kaydedip kapanıyor',
+        (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
-      final controller = SubscriptionController(userId: 'u1', repository: _FakeRepo());
+      final controller =
+          SubscriptionController(userId: 'u1', repository: _FakeRepo());
       await controller.load();
 
       await tester.binding.setSurfaceSize(const Size(800, 2400));

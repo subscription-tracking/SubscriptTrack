@@ -20,8 +20,14 @@ class ExportDataScreen extends StatelessWidget {
     final buf = StringBuffer();
     buf.write(
       [
-        'Ad', 'Tutar', 'Para Birimi', 'Döngü',
-        'Kategori', 'Durum', 'Sonraki Yenileme', 'Notlar',
+        'Ad',
+        'Tutar',
+        'Para Birimi',
+        'Döngü',
+        'Kategori',
+        'Durum',
+        'Sonraki Yenileme',
+        'Notlar',
       ].map(_csvField).join(','),
     );
     buf.write(eol);
@@ -68,7 +74,8 @@ class ExportDataScreen extends StatelessWidget {
   Future<void> _createCloudExport(BuildContext context) async {
     try {
       final url = await SupabaseExportRepository().createAndProcess();
-      await Share.share(url, subject: 'SubscriptTrack güvenli export bağlantısı');
+      await Share.share(url,
+          subject: 'SubscriptTrack güvenli export bağlantısı');
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,10 +132,12 @@ class ExportDataScreen extends StatelessWidget {
                 ),
               if (!kIsWeb) const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: total == 0 ? null : () => _createCloudExport(context),
+                onPressed:
+                    total == 0 ? null : () => _createCloudExport(context),
                 icon: const Icon(Icons.cloud_upload_outlined),
                 label: const Text('Güvenli bulut export oluştur'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)),
               ),
               if (!kIsWeb) const SizedBox(height: 12),
               OutlinedButton.icon(

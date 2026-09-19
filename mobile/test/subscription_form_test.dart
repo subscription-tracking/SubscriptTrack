@@ -4,6 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:subscript_track/features/subscriptions/presentation/widgets/subscription_form.dart';
 
 void main() {
+  group('SubscriptionFormData varsayılan yenileme tarihi', () {
+    test('başlangıç tarihi verildiğinde tek tarih kuralını kullanır', () {
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month, now.day + 7);
+      final data = SubscriptionFormData(startDate: start);
+
+      expect(data.nextRenewalDate, start);
+    });
+  });
+
   group('SubscriptionForm validasyon', () {
     late GlobalKey<FormState> formKey;
     late SubscriptionFormData data;

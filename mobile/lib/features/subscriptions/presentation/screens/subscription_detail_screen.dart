@@ -92,9 +92,14 @@ class SubscriptionDetailScreen extends StatelessWidget {
                 const SizedBox(height: 28),
                 _ActionButtonsSection(
                   subscription: subscription,
-                  onPauseResume: () => subscription.status == SubscriptionStatus.active
-                      ? _handleAction(context, _Action.pause)
-                      : _handleAction(context, _Action.resume),
+                  onRenewed: () async {
+                    await controller.markRenewed(subscription.id);
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                  onPauseResume: () =>
+                      subscription.status == SubscriptionStatus.active
+                          ? _handleAction(context, _Action.pause)
+                          : _handleAction(context, _Action.resume),
                   onArchive: () => _handleAction(context, _Action.archive),
                   onCancel: () => _handleAction(context, _Action.cancel),
                   onDelete: () => _handleAction(context, _Action.delete),
@@ -126,8 +131,9 @@ class SubscriptionDetailScreen extends StatelessWidget {
         final confirm = await showDialog<bool>(
           context: ctx,
           builder: (_) => AlertDialog(
-            title: const Text('Aboneliği sil'),
+            title: const Text('Yanlış kaydı sil'),
             content: Text(
+                'Bu işlem yalnızca yanlışlıkla oluşturulan kayıtlar içindir. '
                 '${subscription.name} kalıcı olarak silinecek. Emin misin?'),
             actions: [
               TextButton(
@@ -137,13 +143,13 @@ class SubscriptionDetailScreen extends StatelessWidget {
                 onPressed: () => Navigator.pop(ctx, true),
                 style: FilledButton.styleFrom(
                     backgroundColor: Theme.of(ctx).colorScheme.error),
-                child: const Text('Sil'),
+                child: const Text('Kalıcı olarak sil'),
               ),
             ],
           ),
         );
         if (confirm == true) {
-          await controller.delete(subscription.id);
+          await controller.delete(subscription.id, mistakenRecord: true);
           if (ctx.mounted) Navigator.pop(ctx);
         }
     }
@@ -245,7 +251,8 @@ class _HeroHeader extends StatelessWidget {
                             color: Colors.white, size: 20),
                       ),
                       itemBuilder: (_) => [
-                        if (subscription.status == SubscriptionStatus.active) ...[
+                        if (subscription.status ==
+                            SubscriptionStatus.active) ...[
                           const PopupMenuItem(
                             value: _Action.pause,
                             child: Row(children: [
@@ -271,7 +278,8 @@ class _HeroHeader extends StatelessWidget {
                             ]),
                           ),
                         ],
-                        if (subscription.status == SubscriptionStatus.paused) ...[
+                        if (subscription.status ==
+                            SubscriptionStatus.paused) ...[
                           const PopupMenuItem(
                             value: _Action.resume,
                             child: Row(children: [
@@ -294,7 +302,10 @@ class _HeroHeader extends StatelessWidget {
                           child: Row(children: [
                             Icon(Icons.delete_outline, color: cs.error),
                             const SizedBox(width: 12),
-                            Text('Sil', style: TextStyle(color: cs.error)),
+                            Expanded(
+                              child: Text('Yanlış kayıt',
+                                  style: TextStyle(color: cs.error)),
+                            ),
                           ]),
                         ),
                       ],
@@ -319,7 +330,8 @@ class _HeroHeader extends StatelessWidget {
                     color: const Color(0xFF0D1017),
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.25), width: 1.5),
+                        color: Colors.white.withValues(alpha: 0.25),
+                        width: 1.5),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.4),
@@ -430,9 +442,12 @@ class _NextPaymentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final statusColors = context.statusColors;
-    final statusColor = daysLeft <= 3
-        ? cs.tertiary
-        : (daysLeft <= 7 ? statusColors.warning : cs.primary);
+    final isOverdue = daysLeft < 0;
+    final statusColor = isOverdue
+        ? cs.error
+        : daysLeft <= 3
+            ? cs.tertiary
+            : (daysLeft <= 7 ? statusColors.warning : cs.primary);
 
     return Container(
       decoration: BoxDecoration(
@@ -470,7 +485,8 @@ class _NextPaymentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          DateTimeUtils.formatDate(subscription.nextRenewalDate),
+                          DateTimeUtils.formatDate(
+                              subscription.nextRenewalDate),
                           style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.w800,
@@ -494,7 +510,7 @@ class _NextPaymentCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '$daysLeft',
+                          '${isOverdue ? daysLeft.abs() : daysLeft}',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -504,7 +520,7 @@ class _NextPaymentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'GÜN KALDI',
+                          isOverdue ? 'GÜN GECİKTİ' : 'GÜN KALDI',
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
@@ -802,7 +818,8 @@ class _PaymentHistorySection extends StatelessWidget {
                               shrinkWrap: true,
                               itemCount: payments.length,
                               itemBuilder: (_, i) => ListTile(
-                                title: Text(DateTimeUtils.formatDate(payments[i].paidAt)),
+                                title: Text(DateTimeUtils.formatDate(
+                                    payments[i].paidAt)),
                                 trailing: Text(DateTimeUtils.formatCurrency(
                                   payments[i].amount,
                                   symbol: payments[i].currency,
@@ -846,7 +863,10 @@ class _PaymentHistorySection extends StatelessWidget {
                   children: [
                     for (var i = 0; i < payments.length && i < 2; i++) ...[
                       if (i > 0)
-                        Divider(height: 1, thickness: 0.5, color: cs.outlineVariant),
+                        Divider(
+                            height: 1,
+                            thickness: 0.5,
+                            color: cs.outlineVariant),
                       _HistoryTile(
                         dateStr: DateTimeUtils.formatDate(payments[i].paidAt),
                         amountStr: DateTimeUtils.formatCurrency(
@@ -941,6 +961,7 @@ class _HistoryTile extends StatelessWidget {
 class _ActionButtonsSection extends StatelessWidget {
   const _ActionButtonsSection({
     required this.subscription,
+    required this.onRenewed,
     required this.onPauseResume,
     required this.onArchive,
     required this.onCancel,
@@ -948,6 +969,7 @@ class _ActionButtonsSection extends StatelessWidget {
   });
 
   final Subscription subscription;
+  final VoidCallback onRenewed;
   final VoidCallback onPauseResume;
   final VoidCallback onArchive;
   final VoidCallback onCancel;
@@ -957,9 +979,25 @@ class _ActionButtonsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isPaused = subscription.status == SubscriptionStatus.paused;
+    final isOverdue = subscription.status == SubscriptionStatus.active &&
+        subscription.daysUntilRenewal < 0;
 
     return Column(
       children: [
+        if (isOverdue) ...[
+          FilledButton.icon(
+            onPressed: onRenewed,
+            icon: const Icon(Icons.check_circle_outline, size: 18),
+            label: const Text('Yenilendi'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
         Row(
           children: [
             Expanded(
@@ -1006,7 +1044,8 @@ class _ActionButtonsSection extends StatelessWidget {
           ),
           style: OutlinedButton.styleFrom(
             backgroundColor: cs.error.withValues(alpha: 0.08),
-            side: BorderSide(color: cs.error.withValues(alpha: 0.3), width: 0.5),
+            side:
+                BorderSide(color: cs.error.withValues(alpha: 0.3), width: 0.5),
             minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),

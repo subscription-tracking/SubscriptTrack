@@ -85,8 +85,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Ödeme Yöntemini Sil'),
-        content: Text(
-            '"$name" ödeme yöntemini silmek istediğinize emin misiniz?'),
+        content:
+            Text('"$name" ödeme yöntemini silmek istediğinize emin misiniz?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -130,12 +130,14 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                     children: [
                       Icon(Icons.credit_card_off_outlined,
                           size: 48,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(height: 12),
                       Text(
                         'Henüz bir ödeme yöntemi eklemediniz.',
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(

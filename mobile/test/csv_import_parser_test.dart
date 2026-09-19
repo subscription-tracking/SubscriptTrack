@@ -39,4 +39,15 @@ void main() {
     expect(result.rows.single.billingCycle.name, 'yearly');
     expect(result.errors, hasLength(1));
   });
+
+  test('takvimde olmayan ISO tarihi normalleştirmeden reddeder', () {
+    final result = CsvImportParser.parse(
+      'name,amount,currency,billing_cycle,next_renewal_date,category\n'
+      'Bad,10,TRY,monthly,2026-02-30,other\n'
+      'Good,20,TRY,monthly,2026-02-28,other',
+    );
+
+    expect(result.rows.map((row) => row.name), ['Good']);
+    expect(result.errors.single, contains('tarih geçersiz'));
+  });
 }

@@ -23,7 +23,8 @@ class AppSurface extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: borderRadius,
-          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          border:
+              Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: child,
       );

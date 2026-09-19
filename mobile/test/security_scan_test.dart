@@ -23,17 +23,15 @@ void main() {
     });
 
     test('supabase URL doğrudan tanımlanmamış', () {
-      final pattern = RegExp(
-          r'https://[a-z0-9]+\.supabase\.co',
-          caseSensitive: false);
+      final pattern =
+          RegExp(r'https://[a-z0-9]+\.supabase\.co', caseSensitive: false);
       final hits = <String>[];
       for (final f in dartFiles) {
         final content = f.readAsStringSync();
         if (pattern.hasMatch(content)) hits.add(f.path);
       }
       expect(hits, isEmpty,
-          reason:
-              'Supabase URL şu dosyalarda hardcoded: $hits\n'
+          reason: 'Supabase URL şu dosyalarda hardcoded: $hits\n'
               'Bunları --dart-define ile inject et.');
     });
 
@@ -46,8 +44,7 @@ void main() {
         if (pattern.hasMatch(content)) hits.add(f.path);
       }
       expect(hits, isEmpty,
-          reason:
-              'JWT/anon key şu dosyalarda hardcoded: $hits\n'
+          reason: 'JWT/anon key şu dosyalarda hardcoded: $hits\n'
               'Bunları --dart-define ile inject et.');
     });
 
@@ -61,8 +58,7 @@ void main() {
         if (pattern.hasMatch(content)) hits.add(f.path);
       }
       expect(hits, isEmpty,
-          reason:
-              'Hardcoded IP adresi şu dosyalarda bulundu: $hits\n'
+          reason: 'Hardcoded IP adresi şu dosyalarda bulundu: $hits\n'
               'API URL\'lerini --dart-define ile inject et.');
     });
 
@@ -75,8 +71,7 @@ void main() {
         if (pattern.hasMatch(content)) hits.add(f.path);
       }
       expect(hits, isEmpty,
-          reason:
-              'service_role referansı şu dosyalarda bulundu: $hits\n'
+          reason: 'service_role referansı şu dosyalarda bulundu: $hits\n'
               'Bu key hiçbir zaman client\'a gömülmemeli.');
     });
   });

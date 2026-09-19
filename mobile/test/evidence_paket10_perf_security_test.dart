@@ -65,7 +65,8 @@ List<Subscription> _generate(int count) => List.generate(
         billingCycle: BillingCycle.monthly,
         startDate: DateTime.now(),
         nextRenewalDate: DateTime.now().add(Duration(days: 1 + i % 60)),
-        category: SubscriptionCategory.values[i % SubscriptionCategory.values.length],
+        category:
+            SubscriptionCategory.values[i % SubscriptionCategory.values.length],
         createdAt: DateTime.now(),
       ),
     );
@@ -74,7 +75,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('TEST 56 — Çok sayıda abonelikle liste performansı', () {
-    testWidgets('500 abonelikli liste makul sürede (donmadan) render oluyor, '
+    testWidgets(
+        '500 abonelikli liste makul sürede (donmadan) render oluyor, '
         'çökme/overflow yok', (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
@@ -97,11 +99,14 @@ void main() {
 
       expect(tester.takeException(), isNull, reason: 'Çökme/overflow yok.');
       expect(sw.elapsedMilliseconds, lessThan(5000),
-          reason: '500 kayıtlı liste makul sürede render oldu (test ortamında bile).');
+          reason:
+              '500 kayıtlı liste makul sürede render oldu (test ortamında bile).');
     });
 
-    testWidgets('VAR: ListView.separated GERÇEKTEN tembel (lazy) render yapıyor — '
-        '500 kayıttan sadece ekranda görünen küçük bir kısmı widget ağacına inşa ediliyor', (tester) async {
+    testWidgets(
+        'VAR: ListView.separated GERÇEKTEN tembel (lazy) render yapıyor — '
+        '500 kayıttan sadece ekranda görünen küçük bir kısmı widget ağacına inşa ediliyor',
+        (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
       final repo = _FakeRepo(_generate(500));
@@ -121,12 +126,14 @@ void main() {
       // "Servis N" metinlerinden kaçı GERÇEKTEN widget ağacında?
       final builtNameCount = find.textContaining('Servis').evaluate().length;
       expect(builtNameCount, lessThan(50),
-          reason: '500 kayıttan sadece ekrana sığan küçük bir kısmı (görünür alan + '
+          reason:
+              '500 kayıttan sadece ekrana sığan küçük bir kısmı (görünür alan + '
               'tampon) gerçekten inşa edildi — ListView.separated tembel render '
               'sağlıyor, tüm liste bir kerede oluşturulmuyor.');
     });
 
-    testWidgets('Arama, 500 kayıt arasında da doğru filtreliyor', (tester) async {
+    testWidgets('Arama, 500 kayıt arasında da doğru filtreliyor',
+        (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
       final repo = _FakeRepo(_generate(500));
@@ -154,7 +161,8 @@ void main() {
           reason: 'Eşleşmeyen "Servis 1" artık listede yok.');
     });
 
-    testWidgets('Detay ekranı, 500 kayıtlı bir listeden açılan tek abonelik için '
+    testWidgets(
+        'Detay ekranı, 500 kayıtlı bir listeden açılan tek abonelik için '
         'sorunsuz render oluyor (N+1 performans sorunu yok)', (tester) async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
@@ -164,7 +172,8 @@ void main() {
       await ctrl.load();
 
       await tester.pumpWidget(MaterialApp(
-        home: SubscriptionDetailScreen(subscription: all[250], controller: ctrl),
+        home:
+            SubscriptionDetailScreen(subscription: all[250], controller: ctrl),
       ));
       await tester.pumpAndSettle();
 
@@ -173,8 +182,10 @@ void main() {
     });
   });
 
-  group('TEST 57 — Çok sayıda zamanlanmış bildirimin OS limitlerini aşmaması', () {
-    test('FIXED: LocalNotificationService artık aynı anda en fazla '
+  group('TEST 57 — Çok sayıda zamanlanmış bildirimin OS limitlerini aşmaması',
+      () {
+    test(
+        'FIXED: LocalNotificationService artık aynı anda en fazla '
         'maxScheduledNotifications (60) bildirim planlıyor — iOS\'un 64 '
         'bildirim sert sınırının altında güvenli bir tavan', () {
       // local_notification_service.dart: scheduleRenewalReminders artık tüm
@@ -186,16 +197,20 @@ void main() {
               'sınırının altında güvenli bir marj bırakıyor.');
     });
 
-    test('FIXED: öncelik sıralaması EN YAKIN (en acil) hatırlatmaları koruyor — '
-        'aynı sıralama+kırpma mantığının BİREBİR aynı formülle doğrulanması', () {
+    test(
+        'FIXED: öncelik sıralaması EN YAKIN (en acil) hatırlatmaları koruyor — '
+        'aynı sıralama+kırpma mantığının BİREBİR aynı formülle doğrulanması',
+        () {
       // scheduleRenewalReminders içindeki BİREBİR aynı mantık:
-      final scheduledTimes = List.generate(150, (i) => DateTime(2026, 1, 1).add(Duration(days: i)));
+      final scheduledTimes = List.generate(
+          150, (i) => DateTime(2026, 1, 1).add(Duration(days: i)));
       final sorted = [...scheduledTimes]..sort();
       const cap = 60;
       final kept = sorted.length > cap ? sorted.sublist(0, cap) : sorted;
 
       expect(kept.length, 60);
-      expect(kept.first, DateTime(2026, 1, 1), reason: 'En yakın tarih korundu.');
+      expect(kept.first, DateTime(2026, 1, 1),
+          reason: 'En yakın tarih korundu.');
       expect(kept.last, DateTime(2026, 1, 1).add(const Duration(days: 59)),
           reason: 'İlk 60 (en yakın) tarih korundu, geri kalan 90\'ı atlandı — '
               'rastgele/OS\'a bırakılmış bir düşme değil, bilinçli önceliklendirme.');
@@ -203,26 +218,31 @@ void main() {
   });
 
   group('TEST 58 — Finansal verilerin cihazda saklanma güvenliği', () {
-    test('FIXED: abonelik önbelleği artık düz metin SharedPreferences DEĞİL, '
+    test(
+        'FIXED: abonelik önbelleği artık düz metin SharedPreferences DEĞİL, '
         'şifreli depolama (FlutterSecureStorage — Android EncryptedSharedPreferences, '
         'iOS Keychain) kullanıyor', () async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
 
-      await LocalStorage.instance.writeSubscriptions('u1', '[{"name":"Netflix","amount":"249.99"}]');
+      await LocalStorage.instance
+          .writeSubscriptions('u1', '[{"name":"Netflix","amount":"249.99"}]');
 
       // Düz metin SharedPreferences'ta finansal veri YOK:
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('subscriptions_u1'), isNull,
-          reason: 'Abonelik verisi artık düz metin SharedPreferences\'ta saklanmıyor.');
+          reason:
+              'Abonelik verisi artık düz metin SharedPreferences\'ta saklanmıyor.');
 
       // Veri, şifreli depolamada duruyor (uygulama içinde okunabilir, ama
       // Android/iOS düzeyinde ayrıca şifreleniyor):
-      final secure = await const FlutterSecureStorage().read(key: 'subscriptions_u1');
+      final secure =
+          await const FlutterSecureStorage().read(key: 'subscriptions_u1');
       expect(secure, contains('Netflix'));
     });
 
-    test('Auth kimlik bilgileri zaten şifreli depolamada tutuluyordu — '
+    test(
+        'Auth kimlik bilgileri zaten şifreli depolamada tutuluyordu — '
         'artık HEM auth HEM abonelik verisi aynı korumaya sahip', () {
       // Kanıt: core/storage/secure_storage.dart (auth) ve
       // core/storage/local_storage.dart (abonelikler) artık ikisi de

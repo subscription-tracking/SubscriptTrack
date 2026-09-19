@@ -55,11 +55,15 @@ class PaymentEventsRepository {
     required DateTime paidAt,
   }) async {
     final client = _client;
-    if (client == null) throw const NetworkException('Supabase yapılandırılmamış.');
+    if (client == null) {
+      throw const NetworkException('Supabase yapılandırılmamış.');
+    }
     try {
       final result = await client.rpc('record_payment_idempotent', params: {
-        'p_idempotency_key': const Uuid().v4(), 'p_subscription_id': subscriptionId,
-        'p_amount': amount, 'p_currency': currency,
+        'p_idempotency_key': const Uuid().v4(),
+        'p_subscription_id': subscriptionId,
+        'p_amount': amount,
+        'p_currency': currency,
         'p_paid_at': paidAt.toUtc().toIso8601String(),
       });
       final row = Map<String, dynamic>.from(result as Map);

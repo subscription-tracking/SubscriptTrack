@@ -1,9 +1,4 @@
-// PAKET 1 — DÜZELTME KANITI: SubscriptionController._catchUpOverdueRenewals()
-//
-// Test 45: "Otomatik yenilenen aboneliğin bir sonraki dönemi" — geçmiş
-// nextRenewalDate'e sahip AKTİF bir abonelik controller.load() sonrası
-// otomatik olarak bugünden sonraki en yakın yenilemeye ilerletilmeli ve
-// repo'ya (backend) da yazılmalıdır.
+// PAKET 1 — Gecikmiş yenileme ve kullanıcı onaylı yenileme kanıtı.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -66,8 +61,9 @@ void main() {
   SharedPreferences.setMockInitialValues({});
   FlutterSecureStorage.setMockInitialValues({});
 
-  test('FIXED — TEST 45: geçmişte kalan aktif aboneliğin nextRenewalDate\'i '
-      'load() sonrası otomatik ilerletiliyor ve backend\'e (repo.update) yazılıyor', () async {
+  test(
+      'TEST 34: geçmişte kalan aktif abonelik yüklemede görünür kalır; '
+      'kullanıcı onayıyla sonraki döneme geçer', () async {
     final now = DateTime.now();
     final threeMonthsAgo = DateTime(now.year, now.month - 3, 15);
     final overdueSub = Subscription(
@@ -90,29 +86,35 @@ void main() {
     await controller.load();
 
     final result = controller.allItems.single;
-    final today = DateTime(now.year, now.month, now.day);
-
     expect(result.status, SubscriptionStatus.active,
-        reason: 'Abonelik "expired" olmuyor, sadece bir sonraki döneme yenileniyor.');
+        reason: 'Abonelik gecikmiş olsa da sessizce expired yapılmaz.');
+    expect(result.nextRenewalDate, threeMonthsAgo,
+        reason:
+            'Yükleme, gecikmiş tarihi kullanıcı onayı olmadan değiştirmez.');
+    expect(repo.updateCalls, isEmpty);
+
+    expect(await controller.markRenewed('overdue-1'), isTrue);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
     expect(
-      DateTime(result.nextRenewalDate.year, result.nextRenewalDate.month,
-              result.nextRenewalDate.day)
-          .isBefore(today),
-      isFalse,
-      reason: 'Eski (geçmiş) tarih artık listede KALMIYOR — bugün ya da sonrasına ilerletildi.',
-    );
-    expect(repo.updateCalls, isNotEmpty,
-        reason: 'Yeni tarih backend\'e (repo.update) de yazıldı, sadece local state değil.');
+        controller.allItems.single.nextRenewalDate.isBefore(tomorrow), isFalse);
     expect(repo.updateCalls.single.id, 'overdue-1');
   });
 
-  test('Kontrast: nextRenewalDate zaten gelecekte olan aktif abonelik DOKUNULMADAN kalıyor', () async {
+  test(
+      'Kontrast: nextRenewalDate zaten gelecekte olan aktif abonelik DOKUNULMADAN kalıyor',
+      () async {
     final future = DateTime.now().add(const Duration(days: 10));
     final sub = Subscription(
-      id: 'future-1', userId: 'u1', name: 'Normal', amount: Money.fromJson(50),
-      currency: 'TRY', billingCycle: BillingCycle.monthly,
-      startDate: DateTime.now(), nextRenewalDate: future,
-      category: SubscriptionCategory.other, status: SubscriptionStatus.active,
+      id: 'future-1',
+      userId: 'u1',
+      name: 'Normal',
+      amount: Money.fromJson(50),
+      currency: 'TRY',
+      billingCycle: BillingCycle.monthly,
+      startDate: DateTime.now(),
+      nextRenewalDate: future,
+      category: SubscriptionCategory.other,
+      status: SubscriptionStatus.active,
       createdAt: DateTime.now(),
     );
     final repo = _FakeRepo([sub]);
@@ -121,17 +123,24 @@ void main() {
     await controller.load();
 
     expect(repo.updateCalls, isEmpty,
-        reason: 'Zaten güncel olan abonelik için gereksiz bir update çağrısı yapılmadı.');
+        reason:
+            'Zaten güncel olan abonelik için gereksiz bir update çağrısı yapılmadı.');
     expect(controller.allItems.single.nextRenewalDate, future);
   });
 
-  test('Kontrast: PAUSED durumdaki geçmiş tarihli abonelik otomatik ilerletilmiyor', () async {
+  test('PAUSED durumdaki abonelik yenilendi olarak işaretlenemez', () async {
     final past = DateTime.now().subtract(const Duration(days: 40));
     final sub = Subscription(
-      id: 'paused-1', userId: 'u1', name: 'Duraklatılmış', amount: Money.fromJson(50),
-      currency: 'TRY', billingCycle: BillingCycle.monthly,
-      startDate: past, nextRenewalDate: past,
-      category: SubscriptionCategory.other, status: SubscriptionStatus.paused,
+      id: 'paused-1',
+      userId: 'u1',
+      name: 'Duraklatılmış',
+      amount: Money.fromJson(50),
+      currency: 'TRY',
+      billingCycle: BillingCycle.monthly,
+      startDate: past,
+      nextRenewalDate: past,
+      category: SubscriptionCategory.other,
+      status: SubscriptionStatus.paused,
       createdAt: past,
     );
     final repo = _FakeRepo([sub]);
@@ -139,8 +148,8 @@ void main() {
 
     await controller.load();
 
-    expect(repo.updateCalls, isEmpty,
-        reason: 'Sadece AKTİF abonelikler otomatik ilerletiliyor; duraklatılmış olan dokunulmadan kalıyor.');
+    expect(await controller.markRenewed('paused-1'), isFalse);
+    expect(repo.updateCalls, isEmpty);
     expect(controller.allItems.single.nextRenewalDate, past);
   });
 }

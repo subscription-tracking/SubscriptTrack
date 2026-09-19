@@ -72,9 +72,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ? _slides[_page].accentColor
       : const Color(0xFF7377F5);
 
-  Color get _currentBg => _page < _slides.length
-      ? _slides[_page].bgColor
-      : const Color(0xFF0C0E2A);
+  Color get _currentBg =>
+      _page < _slides.length ? _slides[_page].bgColor : const Color(0xFF0C0E2A);
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: TextButton(
                       onPressed: _finish,
                       style: TextButton.styleFrom(
-                        foregroundColor:
-                            _currentAccent.withValues(alpha: 0.72),
+                        foregroundColor: _currentAccent.withValues(alpha: 0.72),
                       ),
                       child: const Text('Atla'),
                     ),

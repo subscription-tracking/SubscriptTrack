@@ -25,7 +25,8 @@ class _NotificationPreferencesScreenState
       if (!granted && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Bildirim izni verilmedi. Ayarlardan açabilirsin.')),
+              content:
+                  Text('Bildirim izni verilmedi. Ayarlardan açabilirsin.')),
         );
         return;
       }

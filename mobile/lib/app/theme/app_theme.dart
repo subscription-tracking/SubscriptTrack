@@ -399,11 +399,10 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppLightColors.surfaceHigh,
         selectedColor: AppLightColors.primary.withValues(alpha: 0.12),
-        labelStyle: const TextStyle(
-            color: AppLightColors.onSurfaceVar, fontSize: 13),
+        labelStyle:
+            const TextStyle(color: AppLightColors.onSurfaceVar, fontSize: 13),
         side: const BorderSide(color: AppLightColors.border),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         padding: const EdgeInsets.symmetric(horizontal: 4),
       ),
       dividerTheme: const DividerThemeData(

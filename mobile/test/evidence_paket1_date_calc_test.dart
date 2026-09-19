@@ -5,7 +5,6 @@
 // subscription_form.dart) çalıştırıp assert eder. Sonuçlar iddia değil,
 // `flutter test` çıktısıyla doğrulanmış gerçek davranıştır.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:subscript_track/core/domain/money.dart';
@@ -16,7 +15,6 @@ import 'package:subscript_track/features/subscriptions/presentation/widgets/subs
 Subscription _sub({
   required DateTime nextRenewalDate,
   BillingCycle billingCycle = BillingCycle.monthly,
-  SubscriptionStatus status = SubscriptionStatus.active,
 }) =>
     Subscription(
       id: 's1',
@@ -32,8 +30,11 @@ Subscription _sub({
     );
 
 void main() {
-  group('TEST 42 — Ay sonu (31\'inde başlayan aylık) kısa aylarda hesaplama', () {
-    test('DÜZELTME SONRASI: projectedRenewals 31 Ocak -> 28 Şubat\'a SABİTLENİYOR (FIXED)', () {
+  group('TEST 42 — Ay sonu (31\'inde başlayan aylık) kısa aylarda hesaplama',
+      () {
+    test(
+        'DÜZELTME SONRASI: projectedRenewals 31 Ocak -> 28 Şubat\'a SABİTLENİYOR (FIXED)',
+        () {
       final sub = _sub(
         nextRenewalDate: DateTime(2026, 1, 31),
         billingCycle: BillingCycle.monthly,
@@ -53,12 +54,16 @@ void main() {
         billingCycle: BillingCycle.monthly,
       );
       final next = sub.projectedRenewals(count: 2)[1];
-      expect(next, DateTime(2026, 2, 15)); // burada bug tetiklenmiyor, doğru çalışıyor
+      expect(next,
+          DateTime(2026, 2, 15)); // burada bug tetiklenmiyor, doğru çalışıyor
     });
   });
 
-  group('TEST 43 — 29 Şubat başlangıçlı yıllık abonelik, artık olmayan yılda', () {
-    test('DÜZELTME SONRASI: projectedRenewals 29 Şubat 2024 -> 28 Şubat 2025\'e SABİTLENİYOR (FIXED)', () {
+  group('TEST 43 — 29 Şubat başlangıçlı yıllık abonelik, artık olmayan yılda',
+      () {
+    test(
+        'DÜZELTME SONRASI: projectedRenewals 29 Şubat 2024 -> 28 Şubat 2025\'e SABİTLENİYOR (FIXED)',
+        () {
       final sub = _sub(
         nextRenewalDate: DateTime(2024, 2, 29),
         billingCycle: BillingCycle.yearly,
@@ -66,12 +71,14 @@ void main() {
       final next = sub.projectedRenewals(count: 2)[1];
 
       expect(next, DateTime(2025, 2, 28),
-          reason: 'addMonthsClamped ile 2025 (artık olmayan yıl) için 28 Şubat\'a '
+          reason:
+              'addMonthsClamped ile 2025 (artık olmayan yıl) için 28 Şubat\'a '
               'sabitleniyor, Mart\'a taşmıyor. Bug DÜZELTİLDİ.');
     });
   });
 
-  group('TEST 44 — Yıl/ay sınırını aşan geçişler (kontrast - regresyon değil)', () {
+  group('TEST 44 — Yıl/ay sınırını aşan geçişler (kontrast - regresyon değil)',
+      () {
     test('Aralık -> Ocak geçişi doğru çalışıyor', () {
       final sub = _sub(
         nextRenewalDate: DateTime(2026, 12, 10),
@@ -91,129 +98,94 @@ void main() {
     });
   });
 
-  group('TEST 8 — Farklı periyotlarla ekleme: temel hesap doğruluğu (gün taşması yokken)', () {
+  group(
+      'TEST 8 — Farklı periyotlarla ekleme: temel hesap doğruluğu (gün taşması yokken)',
+      () {
     test('haftalık +7 gün', () {
-      final sub = _sub(nextRenewalDate: DateTime(2026, 3, 10), billingCycle: BillingCycle.weekly);
+      final sub = _sub(
+          nextRenewalDate: DateTime(2026, 3, 10),
+          billingCycle: BillingCycle.weekly);
       expect(sub.projectedRenewals(count: 2)[1], DateTime(2026, 3, 17));
     });
 
     test('3 aylık +3 ay', () {
-      final sub = _sub(nextRenewalDate: DateTime(2026, 3, 10), billingCycle: BillingCycle.quarterly);
+      final sub = _sub(
+          nextRenewalDate: DateTime(2026, 3, 10),
+          billingCycle: BillingCycle.quarterly);
       expect(sub.projectedRenewals(count: 2)[1], DateTime(2026, 6, 10));
     });
   });
 
-  group('TEST 45 — Gecikmiş/geçmiş yenilemenin otomatik ilerletilmesi', () {
-    test('nextRenewalDate geçmişte olsa bile projectedRenewals BUGÜNE göre değil, '
-        'kayıtlı tarihe göre hesaplar — otomatik "yakala" mantığı YOK (BUG)', () {
+  group('TEST 34/45 — Gecikmiş yenileme ve kullanıcı onaylı ilerletme', () {
+    test(
+        'nextRenewalDate geçmişte olsa bile projectedRenewals BUGÜNE göre değil, '
+        'kayıtlı tarihe göre hesaplar — otomatik "yakala" mantığı YOK (BUG)',
+        () {
       // "Bugün" 2026-09-17 varsayımıyla, 3 ay önce kaçırılmış aylık bir abonelik:
       final missedRenewal = DateTime(2026, 6, 17);
-      final sub = _sub(nextRenewalDate: missedRenewal, billingCycle: BillingCycle.monthly);
+      final sub = _sub(
+          nextRenewalDate: missedRenewal, billingCycle: BillingCycle.monthly);
 
       // Subscription.projectedRenewals() bilerek SAF bir projeksiyon
       // yardımcısıdır (ekranda "gelecek 12 ay" gibi listeler için) ve
       // kayıtlı nextRenewalDate'i mutasyona uğratmaz — bu beklenen tasarım.
-      // Asıl "kayıtlı tarihi bugüne göre ilerlet" sorumluluğu artık
-      // SubscriptionController._catchUpOverdueRenewals() içinde (aşağıdaki
-      // test grubu). Burada sadece projectedRenewals'ın saf/immutable
+      // Gecikmiş tarih yükleme sırasında da kullanıcı onayı olmadan
+      // değiştirilmez. Burada yalnızca projectedRenewals'ın saf/immutable
       // davranışını doğruluyoruz:
       final projected = sub.projectedRenewals(count: 2);
       expect(sub.nextRenewalDate, missedRenewal,
-          reason: 'projectedRenewals çağrısı orijinal nesneyi DEĞİŞTİRMEZ (immutable).');
+          reason:
+              'projectedRenewals çağrısı orijinal nesneyi DEĞİŞTİRMEZ (immutable).');
       expect(projected[0], missedRenewal);
       expect(projected[1], DateTime(2026, 7, 17));
     });
 
-    test('FIXED: SubscriptionController.load() sonrası geçmiş nextRenewalDate '
-        'otomatik olarak bugünden sonraki en yakın yenilemeye ilerletiliyor', () async {
-      // Bu davranış artık _catchUpOverdueRenewals() ile sağlanıyor —
-      // uçtan uca kanıt için bkz. evidence_paket1_fix_test.dart.
-      expect(SubscriptionStatus.active.canTransitionTo(SubscriptionStatus.expired), isFalse,
-          reason: 'Tasarım gereği aktif abonelik "expired" olmuyor — bunun yerine '
-              'otomatik olarak bir sonraki döneme YENİLENİYOR (durumu active kalır). '
+    test('gecikmiş ACTIVE kayıt kullanıcı onayı olmadan expired yapılmaz', () {
+      expect(
+          SubscriptionStatus.active.canTransitionTo(SubscriptionStatus.expired),
+          isFalse,
+          reason: 'Tasarım gereği aktif abonelik "expired" olmuyor; gecikmiş '
+              'olarak görünür kalır. '
               'Trial\'lar ise ayrı olarak _expireEndedTrials ile expired olabiliyor.');
     });
   });
 
-  group('TEST 5/6 — Form: geçmiş/gelecek başlangıç tarihiyle otomatik yenileme hesabı '
-      '(_autoSetNextRenewal, widget testiyle uçtan uca)', () {
-    testWidgets(
+  group(
+      'TEST 5/6 — Form: geçmiş/gelecek başlangıç tarihiyle otomatik yenileme hesabı',
+      () {
+    test(
         'FIXED — TEST 5: geçmiş başlangıç tarihi (1 yıl önce, aylık) seçilince '
         'kaçırılan periyotlar atlanıp bugünden sonraki en yakın yenilemeye ulaşılıyor',
-        (tester) async {
-      final formKey = GlobalKey<FormState>();
-      // "Bugün" test ortamında gerçek DateTime.now() olacağından, başlangıcı
-      // 1 yıl önceye sabitliyoruz.
-      final oneYearAgo = DateTime.now().subtract(const Duration(days: 365));
-      final startDate = DateTime(oneYearAgo.year, oneYearAgo.month, 10);
+        () {
+      final now = DateTime(2026, 9, 19);
+      final startDate = DateTime(2025, 9, 10);
       final data = SubscriptionFormData(
         startDate: startDate,
         billingCycle: BillingCycle.monthly,
       );
-
-      await tester.binding.setSurfaceSize(const Size(800, 2400));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: SubscriptionForm(formKey: formKey, data: data),
-          ),
-        ),
-      ));
-
-      // Formun ilk render'ında constructor sadece startDate+30gün default
-      // koyuyor; asıl _autoSetNextRenewal'ı tetiklemek için tarih seçiciyi
-      // aynı tarihle onaylayıp kapatıyoruz.
-      await tester.ensureVisible(find.text('Başlangıç tarihi'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Başlangıç tarihi'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('OK'));
-      await tester.pumpAndSettle();
+      data.recalculateNextRenewal(now: now);
 
       // FIXED: nextOccurrenceOnOrAfter, 1 yıl önceki başlangıçtan itibaren
       // kaçırılan ~12 aylık periyodu atlayıp bugünden SONRAKİ en yakın
       // yenilemeye ulaşıyor — artık geçmişte bir tarih dönmüyor.
       final expectedNext = DateTimeUtils.nextOccurrenceOnOrAfter(
-          startDate, 'monthly', DateTime.now());
+          startDate, 'monthly', now,
+          originalAnchor: startDate);
       expect(data.nextRenewalDate, expectedNext);
-      expect(
-        data.nextRenewalDate.isBefore(
-            DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)),
-        isFalse,
-        reason: 'Hesaplanan "sonraki yenileme tarihi" artık bugün ya da '
-            'sonrasında — Excel\'in beklediği davranış SAĞLANDI.',
-      );
+      expect(data.nextRenewalDate.isBefore(now), isFalse,
+          reason: 'Hesaplanan yenileme tarihi bugün ya da sonrasında olmalı.');
     });
 
-    testWidgets(
+    test(
         'FIXED — TEST 6: gelecekteki başlangıç tarihi seçilince ilk yenileme '
-        'tarihi artık başlangıç tarihiyle AYNI',
-        (tester) async {
-      final formKey = GlobalKey<FormState>();
-      final future = DateTime.now().add(const Duration(days: 60));
-      final startDate = DateTime(future.year, future.month, future.day);
+        'tarihi artık başlangıç tarihiyle AYNI', () {
+      final now = DateTime(2026, 9, 19);
+      final startDate = DateTime(2026, 11, 18);
       final data = SubscriptionFormData(
         startDate: startDate,
         billingCycle: BillingCycle.monthly,
       );
-
-      await tester.binding.setSurfaceSize(const Size(800, 2400));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: SubscriptionForm(formKey: formKey, data: data),
-          ),
-        ),
-      ));
-
-      await tester.ensureVisible(find.text('Başlangıç tarihi'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Başlangıç tarihi'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('OK'));
-      await tester.pumpAndSettle();
+      data.recalculateNextRenewal(now: now);
 
       // FIXED: Excel beklentisi "ilk yenileme tarihi == başlangıç tarihi" idi.
       // nextOccurrenceOnOrAfter, anchor (startDate) zaten bugün/gelecekteyse
