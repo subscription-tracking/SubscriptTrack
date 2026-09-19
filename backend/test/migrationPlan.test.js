@@ -136,3 +136,68 @@ test('026 locks down write access to categories/services reference tables', asyn
   assert.match(migration, /GRANT SELECT ON public\.categories TO authenticated, anon/);
   assert.match(migration, /GRANT SELECT ON public\.services TO authenticated, anon/);
 });
+
+test('027 drops the orphaned pre-022 update_subscription_idempotent overload', async () => {
+  const migration = await readFile(
+    new URL('../migrations/027_advisor_hardening.sql', import.meta.url),
+    'utf8',
+  );
+
+  // The orphaned overload is the 018 signature (14 args, no p_start_date);
+  // the DROP statement itself must not carry the current 022+ signature's
+  // second `date` (p_start_date immediately followed by p_next_renewal_date).
+  const dropStatement = migration.slice(
+    migration.indexOf('DROP FUNCTION IF EXISTS public.update_subscription_idempotent'),
+    migration.indexOf(');', migration.indexOf('DROP FUNCTION IF EXISTS public.update_subscription_idempotent')) + 2,
+  );
+
+  assert.match(
+    dropStatement,
+    /text, uuid, text, numeric, text, text, date, text, text, text, date, numeric, jsonb, text/,
+  );
+  assert.doesNotMatch(dropStatement, /date, date,/);
+});
+
+test('027 revokes anon execute on direct-client mutation RPCs', async () => {
+  const migration = await readFile(
+    new URL('../migrations/027_advisor_hardening.sql', import.meta.url),
+    'utf8',
+  );
+
+  for (const fn of [
+    'create_subscription_idempotent',
+    'update_subscription_idempotent',
+    'record_payment_idempotent',
+    'request_export_idempotent',
+  ]) {
+    assert.match(
+      migration,
+      new RegExp(`REVOKE EXECUTE ON FUNCTION public\\.${fn}\\([\\s\\S]{0,400}\\) FROM anon;`),
+      `expected an anon revoke for ${fn}`,
+    );
+  }
+});
+
+test('027 fully revokes PUBLIC (not just anon/authenticated) on trigger-only functions', async () => {
+  const migration = await readFile(
+    new URL('../migrations/027_advisor_hardening.sql', import.meta.url),
+    'utf8',
+  );
+
+  for (const fn of ['handle_new_user_profile', 'sync_renewal_occurrence']) {
+    assert.match(
+      migration,
+      new RegExp(`REVOKE ALL ON FUNCTION public\\.${fn}\\(\\) FROM PUBLIC;`),
+      `expected a PUBLIC revoke for ${fn} (revoking only anon/authenticated leaves the implicit PUBLIC grant in effect)`,
+    );
+  }
+});
+
+test('027 pins search_path on set_updated_at', async () => {
+  const migration = await readFile(
+    new URL('../migrations/027_advisor_hardening.sql', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(migration, /ALTER FUNCTION public\.set_updated_at\(\) SET search_path = public;/);
+});
