@@ -15,6 +15,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const requiredSecret = (name: string) => (Deno.env.get(name) ?? '').trim()
+
 Deno.serve(async (req: Request) => {
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -30,7 +32,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     // 1. İsteği yapan kullanıcıyı JWT ile doğrula
-    const authHeader = req.headers.get('Authorization')
+    const authHeader = req.headers.get('Authorization')?.trim()
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Authorization header eksik' }),
@@ -40,8 +42,8 @@ Deno.serve(async (req: Request) => {
 
     // Kullanıcı client — JWT'den user_id çıkarmak için
     const userClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      requiredSecret('SUPABASE_URL'),
+      requiredSecret('SUPABASE_ANON_KEY'),
       { global: { headers: { Authorization: authHeader } } },
     )
 
@@ -54,8 +56,8 @@ Deno.serve(async (req: Request) => {
     }
 
     // 2. Admin client — service_role key ile kullanıcı sil
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
-      Deno.env.get('SERVICE_ROLE_KEY')
+    const serviceRoleKey = requiredSecret('SUPABASE_SERVICE_ROLE_KEY') ||
+      requiredSecret('SERVICE_ROLE_KEY')
     if (!serviceRoleKey) {
       console.error('Service role secret yapılandırılmamış')
       return new Response(JSON.stringify({ error: 'Sunucu yapılandırma hatası' }), {
@@ -64,7 +66,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const adminClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      requiredSecret('SUPABASE_URL'),
       serviceRoleKey,
       { auth: { autoRefreshToken: false, persistSession: false } },
     )

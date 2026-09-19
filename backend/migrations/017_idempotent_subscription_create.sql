@@ -16,7 +16,7 @@ CREATE OR REPLACE FUNCTION public.create_subscription_idempotent(
   p_trial_end_date date DEFAULT NULL,
   p_trial_price_after numeric DEFAULT NULL
 ) RETURNS jsonb
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
   v_user uuid := auth.uid();
   v_hash text;

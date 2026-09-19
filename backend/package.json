@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
+    "smoke:authenticated": "node scripts/authenticated-subscription-smoke.mjs",
+    "smoke:staging": "node scripts/staging-smoke.mjs",
     "smoke:supabase": "node scripts/supabase-smoke.mjs"
   },
   "engines": {
