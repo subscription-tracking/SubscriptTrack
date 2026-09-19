@@ -57,19 +57,20 @@
         0 50px 100px rgba(0,0,0,0.75),
         0 20px 40px rgba(0,0,0,0.5);
       position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       overflow: hidden;
     }
 
     /* Reserved status-bar band: holds the dynamic island, sits above the
-       app viewport instead of overlapping it. */
+       app viewport instead of overlapping it. Fixed/absolute (not flex),
+       because Flutter's web engine measures its host element's size once
+       at boot and a flex-computed height was read as zero before layout
+       settled, collapsing the whole app to a 0x0 canvas. */
     #status-band {
-      flex-shrink: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 54px;
-      position: relative;
     }
 
     /* Dynamic island */
@@ -110,15 +111,17 @@
       border-radius: 0 2px 2px 0;
     }
 
-    /* Flutter app screen area — fills whatever height remains below the
-       status band, so it never has to know about the mockup above it. */
+    /* Flutter app screen area — fixed size, positioned below the status
+       band. A concrete pixel size (not flex-computed) so Flutter's web
+       engine measures a real, non-zero size at boot. */
     #flutter-target {
+      position: absolute;
+      top: 54px;
+      left: 0;
       width: 393px;
-      flex: 1 1 auto;
-      min-height: 0;
+      height: 798px; /* 852 (frame) - 54 (status band) */
       border-radius: 0 0 48px 48px;
       overflow: hidden;
-      position: relative;
     }
 
     /* Screen glare, scoped to the app viewport only (not the status band) */
