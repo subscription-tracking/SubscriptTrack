@@ -57,6 +57,11 @@ Kimlik sağlayıcısının kullanıcı kaydı. Harici auth kullanılıyorsa uygu
 | `in_app_enabled` | BOOLEAN | not null |
 | `email_enabled` | BOOLEAN | not null |
 
+Auth kullanıcısı oluşturulduğunda `handle_new_user_profile` tetikleyicisi yalnızca
+`user_id` ile profil satırını oluşturur. Kayıt ekranındaki görünen ad,
+`auth.users.raw_user_meta_data.display_name` içinde tutulur; `profiles` tablosunda
+`display_name` alanı yoktur.
+
 ### 3.3 `services`
 
 | Alan | Tip | Kural |
