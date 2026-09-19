@@ -69,6 +69,7 @@ Son güncelleme: 20 Eylül 2026
 | S43 | Abonelik bazlı bildirim özelleştirmesi | TAMAMLANDI |
 | S44 | Hukuki/uyum: gizlilik politikası, kullanım şartları, KVKK onayı | TAMAMLANDI |
 | S45 | Küçük UX iyileştirmeleri | TAMAMLANDI |
+| S46 | Ana sayfa sadeleştirmesi (grafik-öncelikli) | TAMAMLANDI |
 
 ---
 
@@ -1039,6 +1040,28 @@ kadar küçük ama kullanıcı deneyimini iyileştiren maddeleri toplu kapatmak.
 **Doğrulama:** `flutter test --no-pub`: 334/334, `flutter analyze --no-pub`: 0 issue.
 
 ---
+
+## S46 — Ana sayfa sadeleştirmesi (grafik-öncelikli)
+
+**Durum:** TAMAMLANDI (20 Eylül 2026)
+
+**Hedef:** Kullanıcı geri bildirimi üzerine ana sayfayı metin-ağırlıklı tam
+listelerden, grafik-öncelikli ve daha az tekrarlı bir hale getirmek.
+İncelemede iki tam liste bölümünün (Yaklaşan ödemeler, Kategoriler) zaten
+başka sekmelerde (Takvim, Stats) ayrıntılı olarak var olduğu, ana sayfada
+aynı verinin gereksiz yere tekrar edildiği görüldü.
+
+**Yapılanlar:**
+- **Kaldırıldı:** tam "Yaklaşan ödemeler" listesi (`_RenewalList`/`_RenewalTile`) ve tam "Kategoriler" listesi (`_CategorySection`) — ikisi de sırasıyla Takvim ve Stats sekmelerinde zaten hesaplanıp gösteriliyordu, ana sayfada birebir tekrarıydı.
+- **Eklendi — `_MonthProgressRing`:** Hero karta, `CustomPainter` ile çizilmiş bir ilerleme halkası eklendi ("X/Y ödeme"). Tanım bilerek basit tutuldu: bu takvim ayında en az bir ödeme kaydı (payment_events) girilmiş aktif abonelik sayısı / toplam aktif abonelik — "bu ay yenilenmesi gereken kesin sayı" değil, kod içinde bu sınırlama açıkça yorumlanmış durumda.
+- **Eklendi — `_NextPaymentCard`:** Tam liste yerine yalnızca en yakın tek ödeme, amber vurgulu bir kart olarak gösteriliyor; "Hatırlat" butonu ilgili aboneliğin detay ekranına (S43'teki hatırlatma bölümüne) yönlendiriyor.
+- **Eklendi — `_CategoryDonutCard`:** `CustomPainter` ile çizilmiş özet bir donut grafik + en büyük 3 kategori + yüzdeleri + "Tüm kategoriler" linki (StatsScreen'e). Tam hesaplama hâlâ tek yerde (Stats) yapılıyor; ana sayfadaki bu widget yalnızca görsel bir özet.
+- Yeni bağımlılık eklenmedi — halka ve donut grafikleri `dart:math` + `CustomPainter` ile elle çizildi (fl_chart gibi bir paket eklenmedi).
+- Yeni `test/dashboard_screen_test.dart` (5 test): tam liste yerine tek kart gösterimi, "Hatırlat" navigasyonu, donut kartı + yüzdeler, "Tüm kategoriler" navigasyonu, ödeme kaydı yokken sayaç "0/N" gösterimi.
+
+**Kabul kriterleri:** Karşılandı — ana sayfa artık aynı veriyi iki kez göstermiyor, grafik-öncelikli iki yeni bileşen (halka + donut) eklendi, mevcut testler kırılmadı.
+
+**Doğrulama:** `flutter test --no-pub`: 339/339, `flutter analyze --no-pub`: 0 issue. Yerel `flutter build web` ile önizleme alınıp Browser pane'de konsol hatası/çökme olmadığı doğrulandı (bu ortamda gerçek Supabase kimlik bilgisi olmadığı için popüle edilmiş dashboard'un tam ekran görüntüsü alınamadı — doğrulamanın asıl kanıtı widget testleridir).
 
 ## MVP sonrası backlog
 
