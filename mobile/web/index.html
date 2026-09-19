@@ -40,7 +40,11 @@
       flex-shrink: 0;
     }
 
-    /* Outer phone body */
+    /* Outer phone body. The dynamic island lives in a reserved status-bar
+       band above the app viewport (not overlaid on top of it) — the web
+       build has no real notch/safe-area to inset around, so overlaying
+       would cover app content (e.g. a screen's title) instead of sitting
+       beside it like it does on an actual device. */
     #phone-frame {
       width: 393px;
       height: 852px;
@@ -54,9 +58,18 @@
         0 20px 40px rgba(0,0,0,0.5);
       position: relative;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 14px;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Reserved status-bar band: holds the dynamic island, sits above the
+       app viewport instead of overlapping it. */
+    #status-band {
+      flex-shrink: 0;
+      width: 100%;
+      height: 54px;
+      position: relative;
     }
 
     /* Dynamic island */
@@ -69,7 +82,6 @@
       height: 34px;
       background: #000;
       border-radius: 20px;
-      z-index: 10;
       pointer-events: none;
     }
 
@@ -98,23 +110,24 @@
       border-radius: 0 2px 2px 0;
     }
 
-    /* Flutter app screen area */
+    /* Flutter app screen area — fills whatever height remains below the
+       status band, so it never has to know about the mockup above it. */
     #flutter-target {
       width: 393px;
-      height: 852px;
-      border-radius: 48px;
+      flex: 1 1 auto;
+      min-height: 0;
+      border-radius: 0 0 48px 48px;
       overflow: hidden;
       position: relative;
     }
 
-    /* Screen glare */
+    /* Screen glare, scoped to the app viewport only (not the status band) */
     #screen-glare {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 240px;
-      border-radius: 48px 48px 0 0;
+      height: 200px;
       background: linear-gradient(160deg, rgba(255,255,255,0.04) 0%, transparent 60%);
       pointer-events: none;
       z-index: 5;
@@ -124,9 +137,12 @@
 <body>
   <div id="phone-wrap">
     <div id="phone-frame">
-      <div id="dynamic-island"></div>
-      <div id="screen-glare"></div>
-      <div id="flutter-target"></div>
+      <div id="status-band">
+        <div id="dynamic-island"></div>
+      </div>
+      <div id="flutter-target">
+        <div id="screen-glare"></div>
+      </div>
     </div>
   </div>
 
