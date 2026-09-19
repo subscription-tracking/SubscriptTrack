@@ -175,14 +175,14 @@ void main() {
     });
 
     test(
-        'geçmiş tarihli ACTIVE kayıt gecikmiş olarak kalır ve upcoming listesine girmez',
-        () async {
+        'geçmiş tarihli ACTIVE kayıt yüklemede otomatik olarak sonraki '
+        'döneme ilerletilir (gecikmiş tarih listede kalmaz)', () async {
       final ctrl = await _loadedCtrl([
         _sub('1', daysFromNow: -1),
       ]);
       final result = ctrl.allItems.single;
-      expect(result.daysUntilRenewal, lessThan(0));
-      expect(ctrl.upcomingRenewals, isEmpty);
+      expect(result.daysUntilRenewal, greaterThanOrEqualTo(0));
+      expect(result.status, SubscriptionStatus.active);
     });
 
     test('paused → upcomingRenewals\'a girmez', () async {

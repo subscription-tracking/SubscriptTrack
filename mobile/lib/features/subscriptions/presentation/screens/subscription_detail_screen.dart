@@ -131,10 +131,10 @@ class SubscriptionDetailScreen extends StatelessWidget {
         final confirm = await showDialog<bool>(
           context: ctx,
           builder: (_) => AlertDialog(
-            title: const Text('Yanlış kaydı sil'),
+            title: const Text('Aboneliği sil'),
             content: Text(
-                'Bu işlem yalnızca yanlışlıkla oluşturulan kayıtlar içindir. '
-                '${subscription.name} kalıcı olarak silinecek. Emin misin?'),
+                '${subscription.name} kalıcı olarak silinecek. Bu işlem geri '
+                'alınamaz. Emin misin?'),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
@@ -149,7 +149,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
           ),
         );
         if (confirm == true) {
-          await controller.delete(subscription.id, mistakenRecord: true);
+          await controller.delete(subscription.id);
           if (ctx.mounted) Navigator.pop(ctx);
         }
     }
@@ -303,7 +303,7 @@ class _HeroHeader extends StatelessWidget {
                             Icon(Icons.delete_outline, color: cs.error),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text('Yanlış kayıt',
+                              child: Text('Sil',
                                   style: TextStyle(color: cs.error)),
                             ),
                           ]),

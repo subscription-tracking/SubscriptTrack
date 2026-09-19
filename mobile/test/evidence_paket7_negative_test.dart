@@ -168,7 +168,7 @@ void main() {
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
       await ctrl.load();
 
-      await ctrl.delete('1', mistakenRecord: true);
+      await ctrl.delete('1');
 
       final cached = await LocalStorage.instance.readSubscriptions('cache_u1');
       expect(cached, isNotNull);
@@ -222,8 +222,7 @@ void main() {
       await ctrl.load();
       repo.offline = true;
 
-      await ctrl.delete('1',
-          mistakenRecord: true); // repo.delete NetworkException fırlatıyor
+      await ctrl.delete('1'); // repo.delete NetworkException fırlatıyor
 
       expect(ctrl.allItems, isEmpty,
           reason: 'Silme yerel olarak uygulandı (optimistic), kuyruğa alındı.');

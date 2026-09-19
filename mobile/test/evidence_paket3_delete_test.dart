@@ -90,8 +90,9 @@ void main() {
   const userId = 'evidence-delete-user';
 
   group('TEST 18 — Tek bir aboneliği silme', () {
-    testWidgets('Yanlış kayıt menüsündeki onay fiziksel silme yapar',
-        (tester) async {
+    testWidgets(
+        'Detay menüsündeki Sil onayı herhangi bir abonelik için '
+        'fiziksel silme yapar', (tester) async {
       final sub = _sub('1', 'Netflix');
       final repo = _FakeRepo([sub]);
       final controller =
@@ -106,10 +107,10 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.more_vert_rounded));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Yanlış kayıt'));
+      await tester.tap(find.text('Sil'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Yanlış kaydı sil'), findsOneWidget,
+      expect(find.text('Aboneliği sil'), findsOneWidget,
           reason: 'Onay dialogu gösterildi.');
 
       await tester.tap(find.text('Kalıcı olarak sil'));
@@ -123,8 +124,7 @@ void main() {
   });
 
   group('TEST 19 — Silme işlemini onaylamadan vazgeçme', () {
-    testWidgets('Yanlış kayıt silme onayından vazgeçince kayıt korunur',
-        (tester) async {
+    testWidgets('Sil onayından vazgeçince kayıt korunur', (tester) async {
       final sub = _sub('1', 'Netflix');
       final repo = _FakeRepo([sub]);
       final controller =
@@ -139,7 +139,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.more_vert_rounded));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Yanlış kayıt'));
+      await tester.tap(find.text('Sil'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('İptal'));
@@ -170,7 +170,7 @@ void main() {
         notifiedActiveIds = controller.active.map((s) => s.id).toList();
       });
 
-      await controller.delete('1', mistakenRecord: true);
+      await controller.delete('1');
 
       expect(notifiedActiveIds, ['2'],
           reason:
@@ -197,7 +197,7 @@ void main() {
       var notifyCount = 0;
       controller.addListener(() => notifyCount++);
 
-      await controller.deleteMany(['1', '3'], mistakenRecords: true);
+      await controller.deleteMany(['1', '3']);
 
       expect(repo.deleteCalls, containsAll(['1', '3']));
       expect(controller.allItems.map((s) => s.id), ['2']);
@@ -206,8 +206,7 @@ void main() {
               'notifyListeners çağrısı yapıldı ("tek seferde silinir").');
     });
 
-    testWidgets('toplu seçim fiziksel silmek yerine abonelikleri arşivler',
-        (tester) async {
+    testWidgets('toplu seçimde Arşivle seçilenleri arşivler', (tester) async {
       final subs = [
         _sub('1', 'Netflix'),
         _sub('2', 'Spotify'),
@@ -250,6 +249,44 @@ void main() {
         containsAll(['1', '2']),
         reason: 'Netflix ve Spotify arşive taşındı, iCloud aktif kaldı.',
       );
+    });
+
+    testWidgets('toplu seçimde Sil, seçilenleri kalıcı olarak siler',
+        (tester) async {
+      final subs = [
+        _sub('1', 'Netflix'),
+        _sub('2', 'Spotify'),
+        _sub('3', 'iCloud')
+      ];
+      final repo = _FakeRepo(subs);
+      final controller =
+          SubscriptionController(userId: userId, repository: repo);
+      await controller.load();
+
+      await tester.pumpWidget(MaterialApp(
+        home: ChangeNotifierProvider<SubscriptionController>.value(
+          value: controller,
+          child: const SubscriptionListScreen(),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Aktif (3)'));
+      await tester.pumpAndSettle();
+
+      await tester.longPress(find.text('Netflix'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Spotify'));
+      await tester.pumpAndSettle();
+      expect(find.text('2 seçildi'), findsOneWidget);
+
+      await tester.tap(find.text('Sil').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Kalıcı olarak sil'));
+      await tester.pumpAndSettle();
+
+      expect(repo.deleteCalls, containsAll(['1', '2']));
+      expect(controller.allItems.map((s) => s.id), ['3'],
+          reason: 'Netflix ve Spotify kalıcı olarak silindi, iCloud kaldı.');
     });
   });
 }

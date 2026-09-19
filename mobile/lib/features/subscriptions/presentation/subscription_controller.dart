@@ -188,6 +188,7 @@ class SubscriptionController extends ChangeNotifier {
         _paymentEvents = [];
       }
       await _expireEndedTrials();
+      await _advanceOverdueRenewals();
       _isOffline = false;
       _error = null;
       _lastSyncAt = DateTime.now().toUtc();
@@ -259,8 +260,46 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
-  /// Kullanıcı gecikmiş yenilemenin gerçekleştiğini onayladığında yeni
-  /// dönemi hesaplar. Yükleme sırasında tarihi sessizce değiştirmeyiz.
+  /// Yükleme sırasında gecikmiş (geçmiş tarihli) aktif aboneliklerin bir
+  /// sonraki dönemini otomatik hesaplar (Test 45) — eski tarih listede
+  /// kalmaz. Birden fazla dönem kaçırılmışsa [DateTimeUtils.nextOccurrenceOnOrAfter]
+  /// hepsini tek adımda bugüne/sonrasına taşır.
+  Future<void> _advanceOverdueRenewals() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final overdue = _items.where((s) {
+      return s.status == SubscriptionStatus.active &&
+          !s.isNotStarted &&
+          s.nextRenewalDate.isBefore(today);
+    }).toList();
+    for (final subscription in overdue) {
+      final advanced = subscription.copyWith(
+        nextRenewalDate: DateTimeUtils.nextOccurrenceOnOrAfter(
+          subscription.nextRenewalDate,
+          subscription.billingCycle.key,
+          today,
+          originalAnchor: subscription.startDate,
+        ),
+      );
+      final index = _items.indexWhere((s) => s.id == subscription.id);
+      if (index != -1) _items[index] = advanced;
+      try {
+        await _repo.update(advanced);
+      } on NetworkException {
+        await _mutationQueue.enqueue(OfflineMutation(
+          type: 'update',
+          payload: advanced.toJson(),
+          enqueuedAt: DateTime.now().toUtc(),
+        ));
+      } catch (_) {
+        // Yerel durum ilerletilmiş kalır; sonraki senkron sunucuyla uzlaştırır.
+      }
+    }
+  }
+
+  /// Kullanıcının manuel olarak "Yenilendi" demesi için de kullanılabilir
+  /// (ör. otomatik senkron henüz çalışmadan hemen geri bildirim istenirse);
+  /// asıl otomatik ilerletme [_advanceOverdueRenewals] içindedir.
   Future<bool> markRenewed(String id) async {
     final current = _findById(id);
     if (current == null || current.status != SubscriptionStatus.active) {
@@ -485,16 +524,9 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
-  /// Fiziksel silme yalnızca yanlışlıkla oluşturulmuş kayıtlar içindir.
-  /// Normal abonelik yaşam döngüsünde [cancel] veya [archive] kullanılır.
-  Future<void> delete(
-    String subscriptionId, {
-    bool mistakenRecord = false,
-  }) async {
-    if (!mistakenRecord) {
-      throw const ValidationException(
-          'physical_delete_requires_mistaken_record');
-    }
+  /// Aboneliği kalıcı olarak siler (Test 18–21, 40). Sonraki listelemede
+  /// görünmez ve bekleyen bildirimleri iptal edilir.
+  Future<void> delete(String subscriptionId) async {
     try {
       await _repo.delete(_userId, subscriptionId);
     } on NetworkException {
@@ -519,14 +551,7 @@ class SubscriptionController extends ChangeNotifier {
   /// `notifyListeners()`/cache yazımı yapılır ("tek seferde silinir"), ve bir
   /// id başarısız olsa bile diğerlerinin silinmesi durdurulmaz — hepsi
   /// denenir, başarısız olanlar [error] üzerinden özetlenir.
-  Future<void> deleteMany(
-    List<String> subscriptionIds, {
-    bool mistakenRecords = false,
-  }) async {
-    if (!mistakenRecords) {
-      throw const ValidationException(
-          'physical_delete_requires_mistaken_record');
-    }
+  Future<void> deleteMany(List<String> subscriptionIds) async {
     final failed = <String>[];
     for (final id in subscriptionIds) {
       try {
