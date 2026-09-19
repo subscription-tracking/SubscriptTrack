@@ -151,10 +151,23 @@ class Subscription {
   bool get isTrial => status == SubscriptionStatus.trial;
   bool get isExpired => status == SubscriptionStatus.expired;
 
+  /// Derived presentation state; the persisted lifecycle status stays intact.
+  bool isNotStartedAt(DateTime now) {
+    if (status != SubscriptionStatus.active &&
+        status != SubscriptionStatus.trial) {
+      return false;
+    }
+    final today = DateTime(now.year, now.month, now.day);
+    final start = DateTime(startDate.year, startDate.month, startDate.day);
+    return start.isAfter(today);
+  }
+
+  bool get isNotStarted => isNotStartedAt(DateTime.now());
+
   bool get isArchived => status == SubscriptionStatus.archived;
 
   Money get monthlyAmount => switch (billingCycle) {
-        BillingCycle.weekly => amount * 4.33,
+        BillingCycle.weekly => amount * 52 / 12,
         BillingCycle.monthly => amount,
         BillingCycle.quarterly => amount / 3,
         BillingCycle.yearly => amount / 12,
@@ -174,12 +187,11 @@ class Subscription {
     var current = nextRenewalDate;
     for (var i = 0; i < count; i++) {
       dates.add(current);
-      current = switch (billingCycle) {
-        BillingCycle.weekly => current.add(const Duration(days: 7)),
-        BillingCycle.monthly => DateTimeUtils.addMonthsClamped(current, 1),
-        BillingCycle.quarterly => DateTimeUtils.addMonthsClamped(current, 3),
-        BillingCycle.yearly => DateTimeUtils.addMonthsClamped(current, 12),
-      };
+      current = DateTimeUtils.nextRenewalDate(
+        current,
+        billingCycle.key,
+        anchorDate: startDate,
+      );
     }
     return dates;
   }

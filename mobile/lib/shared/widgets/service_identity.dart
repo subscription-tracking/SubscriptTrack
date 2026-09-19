@@ -147,8 +147,7 @@ class ServiceIdentity extends StatelessWidget {
     'netlify': (Icons.cloud_rounded, Color(0xFF00C7B7)),
     // Gaming
     'ea play': (Icons.sports_esports_rounded, Color(0xFFFF4747)),
-    'nintendo switch online':
-        (Icons.sports_esports_rounded, Color(0xFFE60012)),
+    'nintendo switch online': (Icons.sports_esports_rounded, Color(0xFFE60012)),
     // Health
     'myfitnesspal': (Icons.monitor_heart_rounded, Color(0xFF00B0FF)),
     // VPN & Security
@@ -159,7 +158,8 @@ class ServiceIdentity extends StatelessWidget {
     'bitwarden': (Icons.shield_rounded, Color(0xFF175DDC)),
   };
 
-  static Color _categoryColor(BuildContext context, SubscriptionCategory category) =>
+  static Color _categoryColor(
+          BuildContext context, SubscriptionCategory category) =>
       switch (category) {
         SubscriptionCategory.streaming => const Color(0xFFE56B6F),
         SubscriptionCategory.music => const Color(0xFF49B8A8),

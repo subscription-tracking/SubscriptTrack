@@ -12,7 +12,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final unread = context.watch<NotificationController>().unreadCount;
-    final cs     = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
 
     return AppBar(
       backgroundColor: cs.surfaceContainerLowest,

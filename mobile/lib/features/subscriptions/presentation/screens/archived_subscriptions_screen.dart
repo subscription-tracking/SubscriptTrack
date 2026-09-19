@@ -25,8 +25,7 @@ class ArchivedSubscriptionsScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.archive_outlined,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.primary),
+                      size: 64, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(height: 16),
                   const Text('Arşivlenmiş abonelik yok'),
                 ],

@@ -14,7 +14,9 @@ class SupabaseExportRepository {
     });
     final data = Map<String, dynamic>.from(result.data as Map);
     final url = data['download_url'] as String?;
-    if (url == null || url.isEmpty) throw StateError('Export linki üretilemedi.');
+    if (url == null || url.isEmpty) {
+      throw StateError('Export linki üretilemedi.');
+    }
     return url;
   }
 }

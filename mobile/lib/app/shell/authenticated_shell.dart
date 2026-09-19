@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,13 +21,15 @@ class AuthenticatedShell extends StatefulWidget {
   State<AuthenticatedShell> createState() => _AuthenticatedShellState();
 }
 
-class _AuthenticatedShellState extends State<AuthenticatedShell> {
+class _AuthenticatedShellState extends State<AuthenticatedShell>
+    with WidgetsBindingObserver {
   SubscriptionController? _subs;
   NotificationController? _notif;
   String? _userId;
 
   int _lastDaysBefore = -1;
   String _lastTimezone = '__unset__';
+  String? _pendingNotificationSubscriptionId;
 
   @override
   void initState() {
@@ -49,6 +53,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
     _notif!.loadReadState();
     _subs!.addListener(_onSubscriptionsChanged);
     SettingsController.instance.addListener(_onSettingsChanged);
+    WidgetsBinding.instance.addObserver(this);
     _subs!.load();
     _notif!.load(user.id).catchError((_) {});
     LocalNotificationService.onNotificationTap = _handleNotificationTap;
@@ -62,7 +67,8 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
   /// Uygulama, kapalıyken bir bildirime dokunularak açıldıysa (Test 35'in
   /// "cold start" durumu), ilk frame sonrası ilgili detay ekranına gider.
   Future<void> _handleColdStartNotification() async {
-    final id = await LocalNotificationService.getLaunchNotificationSubscriptionId();
+    final id =
+        await LocalNotificationService.getLaunchNotificationSubscriptionId();
     if (id != null) _handleNotificationTap(id);
   }
 
@@ -75,7 +81,14 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
 
   void _handleNotificationTap(String subscriptionId) {
     final sub = _findSubscription(subscriptionId);
-    if (sub == null || !mounted) return;
+    if (sub == null) {
+      // Cold-start durumunda abonelikler henüz yüklenmemiş olabilir. Kimliği
+      // saklayıp controller yüklemeyi bitirdiğinde yönlendireceğiz.
+      _pendingNotificationSubscriptionId = subscriptionId;
+      return;
+    }
+    if (!mounted) return;
+    _pendingNotificationSubscriptionId = null;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => SubscriptionDetailScreen(
@@ -104,12 +117,32 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
     _scheduleNotifications();
     final uid = _userId;
     if (uid != null) _notif!.load(uid).catchError((_) {});
+    final pendingId = _pendingNotificationSubscriptionId;
+    if (pendingId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pendingNotificationSubscriptionId == pendingId) {
+          _handleNotificationTap(pendingId);
+        }
+      });
+    }
   }
 
   void _onSettingsChanged() {
     final settings = SettingsController.instance;
     if (settings.daysBefore != _lastDaysBefore ||
         settings.timezone != _lastTimezone) {
+      _scheduleNotifications();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    unawaited(_refreshDeviceTimezone());
+  }
+
+  Future<void> _refreshDeviceTimezone() async {
+    if (await LocalNotificationService.refreshDeviceLocalTimezone()) {
       _scheduleNotifications();
     }
   }
@@ -134,11 +167,14 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
   @override
   void dispose() {
     SettingsController.instance.removeListener(_onSettingsChanged);
+    WidgetsBinding.instance.removeObserver(this);
     _subs?.removeListener(_onSubscriptionsChanged);
-    if (identical(LocalNotificationService.onNotificationTap, _handleNotificationTap)) {
+    if (identical(
+        LocalNotificationService.onNotificationTap, _handleNotificationTap)) {
       LocalNotificationService.onNotificationTap = null;
     }
-    if (identical(LocalNotificationService.onSnoozeRequested, _handleSnoozeRequested)) {
+    if (identical(
+        LocalNotificationService.onSnoozeRequested, _handleSnoozeRequested)) {
       LocalNotificationService.onSnoozeRequested = null;
     }
     _subs?.dispose();

@@ -20,11 +20,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tzdata;
+import 'package:subscript_track/features/notifications/domain/notification_rule.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TEST 30/31/33 — Hatırlatma zamanı hesabı (local_notification_service.dart:80-94)', () {
+  group(
+      'TEST 30/31/33 — Hatırlatma zamanı hesabı (local_notification_service.dart:80-94)',
+      () {
     // Kaynaktaki birebir formül:
     //   final reminderDay = sub.nextRenewalDate.subtract(Duration(days: daysBefore));
     //   final scheduled = TZDateTime(location, reminderDay.year, month, day, 9);
@@ -37,7 +40,16 @@ void main() {
       final renewal = DateTime(2026, 10, 20);
       final reminderDay = reminderDayFor(renewal, 3);
       expect(reminderDay, DateTime(2026, 10, 17));
-      expect(reminderDay.hour == 0 && true, isTrue); // saat bilgisi 09:00'a ayrıca sabitleniyor (satır 87)
+      tzdata.initializeTimeZones();
+      final scheduled = tz.TZDateTime(
+        tz.getLocation('Europe/Istanbul'),
+        reminderDay.year,
+        reminderDay.month,
+        reminderDay.day,
+        9,
+      );
+      expect(scheduled.hour, 9);
+      expect(scheduled.location.name, 'Europe/Istanbul');
     });
 
     test('TEST 31 — kullanıcı "1 gün önce" olarak özelleştirirse', () {
@@ -46,29 +58,36 @@ void main() {
       expect(reminderDay, DateTime(2026, 10, 19));
     });
 
-    test('TEST 33 — yenileme BUGÜN ise (daysBefore=0), "Bugün yenileniyor" metni kullanılır', () {
+    test(
+        'TEST 33 — yenileme BUGÜN ise (daysBefore=0), "Bugün yenileniyor" metni kullanılır',
+        () {
       const daysBefore = 0;
-      final body = daysBefore == 0 ? 'Bugün yenileniyor' : '$daysBefore gün içinde yenileniyor';
+      const body = daysBefore == 0
+          ? 'Bugün yenileniyor'
+          : '$daysBefore gün içinde yenileniyor';
       expect(body, 'Bugün yenileniyor');
       final renewal = DateTime(2026, 10, 20);
       expect(reminderDayFor(renewal, 0), renewal,
-          reason: 'daysBefore=0 için hatırlatma günü = yenileme gününün kendisi.');
+          reason:
+              'daysBefore=0 için hatırlatma günü = yenileme gününün kendisi.');
     });
   });
 
   group('TEST 32 — Birden fazla hatırlatma zamanı tanımlama', () {
-    test('BULGU: normal abonelikler için TEK bir daysBefore parametresi var; '
-        'çoklu hatırlatma (ör. hem 7 hem 1 gün önce) SADECE trial bitişleri için '
-        'sabit-kodlanmış [7,3,1] listesiyle mevcut (satır 131)', () {
-      // scheduleRenewalReminders(List<Subscription> subscriptions, int daysBefore, ...)
-      //   -> normal abonelikler: sub.nextRenewalDate - daysBefore (TEK gün)
-      // for (final sub in trials) { for (final days in const [7, 3, 1]) { ... } }
-      //   -> trial bitişleri: [7,3,1] (ÜÇ farklı hatırlatma, sabit)
-      const trialReminderDays = [7, 3, 1];
-      expect(trialReminderDays.length, 3,
-          reason: 'Trial bitişi için 3 ayrı hatırlatma var.');
-      // Normal abonelik tarafında böyle bir liste YOK — settings_controller.dart
-      // sadece TEK bir int (_daysBefore) tutuyor, List<int> değil.
+    test('normal abonelik kuralları birden fazla gün öncesini korur', () {
+      const rules = [
+        NotificationRule(daysBefore: 7),
+        NotificationRule(daysBefore: 1),
+      ];
+      final enabledDays = rules
+          .where((r) => r.enabled)
+          .map((r) => r.daysBefore)
+          .toSet()
+          .toList()
+        ..sort();
+      expect(enabledDays, [1, 7]);
+      // LocalNotificationService.scheduleRenewalReminders aynı listeyi
+      // her abonelik için dolaşarak iki ayrı OS bildirimi planlar.
     });
   });
 
@@ -82,18 +101,21 @@ void main() {
       return '$subId|$daysBefore|$dateKey'.hashCode.abs() % 2147483647;
     }
 
-    test('Aynı gün yenilenen 3 farklı abonelik BİRBİRİNDEN FARKLI id alır '
+    test(
+        'Aynı gün yenilenen 3 farklı abonelik BİRBİRİNDEN FARKLI id alır '
         '(sub.id anahtara dahil olduğu için çakışmıyor)', () {
       final sameDay = DateTime(2026, 11, 5);
       final id1 = stableNotifId('sub-A', 3, sameDay);
       final id2 = stableNotifId('sub-B', 3, sameDay);
       final id3 = stableNotifId('sub-C', 3, sameDay);
       expect({id1, id2, id3}.length, 3,
-          reason: 'Her abonelik kendi id\'sine göre benzersiz bildirim id\'si alıyor, '
+          reason:
+              'Her abonelik kendi id\'sine göre benzersiz bildirim id\'si alıyor, '
               'aynı tarih tek başına çakışmaya yol açmıyor.');
     });
 
-    test('Aynı abonelik + aynı gün + aynı daysBefore -> AYNI id (idempotent, '
+    test(
+        'Aynı abonelik + aynı gün + aynı daysBefore -> AYNI id (idempotent, '
         'tekrar planlamada duplicate bildirim oluşturmaz)', () {
       final d = DateTime(2026, 11, 5);
       expect(stableNotifId('sub-A', 3, d), stableNotifId('sub-A', 3, d));
@@ -101,11 +123,13 @@ void main() {
   });
 
   group('TEST 41 — Cihaz saat dilimi değişikliğinde hatırlatma zamanı', () {
-    test('Dedup hash formülü timezone STRING\'ini DE içeriyor (satır 64-66) — '
+    test(
+        'Dedup hash formülü timezone STRING\'ini DE içeriyor (satır 64-66) — '
         'bu yüzden kullanıcı Ayarlar\'dan farklı bir timezone seçerse yeniden '
         'planlama TETİKLENİR (önceki incelemede yanlışlıkla "risk" diye işaretlemiştim, '
         'kaynağı tekrar okuyunca bunun doğru çalıştığını görüyorum)', () {
-      Object hashFor(int daysBefore, String timezone, List<(String, int)> subs) =>
+      Object hashFor(
+              int daysBefore, String timezone, List<(String, int)> subs) =>
           Object.hashAll([
             daysBefore,
             timezone,
@@ -116,10 +140,12 @@ void main() {
       final hashIstanbul = hashFor(3, 'Europe/Istanbul', subs);
       final hashTokyo = hashFor(3, 'Asia/Tokyo', subs);
       expect(hashIstanbul, isNot(hashTokyo),
-          reason: 'timezone alanı hash\'e dahil, farklı timezone farklı hash üretir.');
+          reason:
+              'timezone alanı hash\'e dahil, farklı timezone farklı hash üretir.');
     });
 
-    test('DÜZELTME ÖNCESİ durumun kanıtı (regresyon değil, tarihsel kayıt): '
+    test(
+        'DÜZELTME ÖNCESİ durumun kanıtı (regresyon değil, tarihsel kayıt): '
         'setLocalLocation hiç çağrılmazsa tz.local paketin kendi varsayılanı '
         'olan UTC\'de kalırdı', () {
       tzdata.initializeTimeZones();
@@ -131,10 +157,12 @@ void main() {
       expect(tz.local.name, 'UTC');
     });
 
-    test('FIXED: local_notification_service.dart artık initialize() içinde '
+    test(
+        'FIXED: local_notification_service.dart artık initialize() içinde '
         'cihazın gerçek saat dilimini flutter_timezone ile okuyup '
         'tz.setLocalLocation() ile ayarlıyor — mock edilmiş "Europe/Istanbul" '
-        'cihaz saat dilimiyle tz.local artık UTC DEĞİL, İstanbul oluyor', () async {
+        'cihaz saat dilimiyle tz.local artık UTC DEĞİL, İstanbul oluyor',
+        () async {
       tzdata.initializeTimeZones();
 
       // _setDeviceLocalTimezone() içindeki BİREBİR mekanizmayı, gerçek cihaz
@@ -147,8 +175,8 @@ void main() {
         if (call.method == 'getLocalTimezone') return 'Europe/Istanbul';
         return null;
       });
-      addTearDown(() => TestDefaultBinaryMessengerBinding.instance
-          .defaultBinaryMessenger
+      addTearDown(() => TestDefaultBinaryMessengerBinding
+          .instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, null));
 
       // local_notification_service.dart _setDeviceLocalTimezone() ile BİREBİR

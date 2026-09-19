@@ -70,7 +70,10 @@ Subscription _sub(String id, String name) => Subscription(
       amount: Money.fromJson(100),
       currency: 'TRY',
       billingCycle: BillingCycle.monthly,
-      startDate: DateTime.now().add(const Duration(days: 30)),
+      // Aktif liste senaryoları için kayıt başlamış olmalı. Gelecek başlangıç
+      // tarihi, kayıtları "Henüz başlamadı" sunum durumuna taşır ve bu
+      // testlerin hedeflediği aktif listeyi bilinçli olarak boş bırakır.
+      startDate: DateTime.now().subtract(const Duration(days: 30)),
       nextRenewalDate: DateTime.now().add(const Duration(days: 30)),
       category: SubscriptionCategory.streaming,
       createdAt: DateTime.now(),
@@ -81,68 +84,84 @@ void main() {
   SharedPreferences.setMockInitialValues({});
   FlutterSecureStorage.setMockInitialValues({});
 
+  // Flutter test dosyaları paralel isolate'lerde çalışırken platform mock
+  // depolarını paylaşabilir. Bu pakete özel kullanıcı kimliği, başka paketlerin
+  // cache/mutation verisinin bu kabul testlerini etkilemesini önler.
+  const userId = 'evidence-delete-user';
+
   group('TEST 18 — Tek bir aboneliği silme', () {
-    testWidgets('Menüden Sil -> onay dialogunda Sil -> controller.delete çağrılır, liste güncellenir', (tester) async {
+    testWidgets('Yanlış kayıt menüsündeki onay fiziksel silme yapar',
+        (tester) async {
       final sub = _sub('1', 'Netflix');
       final repo = _FakeRepo([sub]);
-      final controller = SubscriptionController(userId: 'u1', repository: repo);
+      final controller =
+          SubscriptionController(userId: userId, repository: repo);
       await controller.load();
 
       await tester.pumpWidget(MaterialApp(
-        home: SubscriptionDetailScreen(subscription: sub, controller: controller),
+        home:
+            SubscriptionDetailScreen(subscription: sub, controller: controller),
       ));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.more_vert_rounded));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Sil'));
+      await tester.tap(find.text('Yanlış kayıt'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Aboneliği sil'), findsOneWidget,
+      expect(find.text('Yanlış kaydı sil'), findsOneWidget,
           reason: 'Onay dialogu gösterildi.');
 
-      // Dialogdaki "Sil" butonu (menüdekinden farklı, dialog içinde).
-      await tester.tap(find.text('Sil').last);
+      await tester.tap(find.text('Kalıcı olarak sil'));
       await tester.pumpAndSettle();
 
-      expect(repo.deleteCalls, ['1'], reason: 'repo.delete tam olarak bir kez, doğru id ile çağrıldı.');
-      expect(controller.allItems, isEmpty, reason: 'Abonelik listeden kaldırıldı ve tekrar görüntülenmiyor.');
+      expect(repo.deleteCalls, ['1'],
+          reason: 'repo.delete tam olarak bir kez, doğru id ile çağrıldı.');
+      expect(controller.allItems, isEmpty,
+          reason: 'Abonelik listeden kaldırıldı ve tekrar görüntülenmiyor.');
     });
   });
 
   group('TEST 19 — Silme işlemini onaylamadan vazgeçme', () {
-    testWidgets('Menüden Sil -> onay dialogunda İptal -> hiçbir şey silinmez', (tester) async {
+    testWidgets('Yanlış kayıt silme onayından vazgeçince kayıt korunur',
+        (tester) async {
       final sub = _sub('1', 'Netflix');
       final repo = _FakeRepo([sub]);
-      final controller = SubscriptionController(userId: 'u1', repository: repo);
+      final controller =
+          SubscriptionController(userId: userId, repository: repo);
       await controller.load();
 
       await tester.pumpWidget(MaterialApp(
-        home: SubscriptionDetailScreen(subscription: sub, controller: controller),
+        home:
+            SubscriptionDetailScreen(subscription: sub, controller: controller),
       ));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.more_vert_rounded));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Sil'));
+      await tester.tap(find.text('Yanlış kayıt'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('İptal'));
       await tester.pumpAndSettle();
 
       expect(repo.deleteCalls, isEmpty, reason: 'repo.delete hiç çağrılmadı.');
-      expect(controller.allItems.length, 1, reason: 'Abonelik listede kalmaya devam ediyor.');
+      expect(controller.allItems.length, 1,
+          reason: 'Abonelik listede kalmaya devam ediyor.');
     });
   });
 
   group('TEST 20 — Silinen aboneliğe ait planlanmış hatırlatmanın iptali', () {
-    test('Silinen abonelik controller.active listesinden de kalkıyor '
+    test(
+        'Silinen abonelik controller.active listesinden de kalkıyor '
         '(AuthenticatedShell bu listeyi LocalNotificationService.scheduleRenewalReminders\'a besliyor, '
-        'dolayısıyla silinen abonelik için yeniden planlama yapılmıyor)', () async {
+        'dolayısıyla silinen abonelik için yeniden planlama yapılmıyor)',
+        () async {
       final sub1 = _sub('1', 'Netflix');
       final sub2 = _sub('2', 'Spotify');
       final repo = _FakeRepo([sub1, sub2]);
-      final controller = SubscriptionController(userId: 'u1', repository: repo);
+      final controller =
+          SubscriptionController(userId: userId, repository: repo);
       await controller.load();
       expect(controller.active.map((s) => s.id), containsAll(['1', '2']));
 
@@ -151,27 +170,34 @@ void main() {
         notifiedActiveIds = controller.active.map((s) => s.id).toList();
       });
 
-      await controller.delete('1');
+      await controller.delete('1', mistakenRecord: true);
 
       expect(notifiedActiveIds, ['2'],
-          reason: 'notifyListeners() tetiklendiğinde (AuthenticatedShell\'in dinlediği an) '
+          reason:
+              'notifyListeners() tetiklendiğinde (AuthenticatedShell\'in dinlediği an) '
               'silinen abonelik artık active listesinde YOK — bir sonraki reschedule çağrısı '
               'onun bildirimini içermeyecek.');
     });
   });
 
   group('TEST 21 — Birden fazla aboneliği toplu silme', () {
-    test('FIXED (controller): deleteMany birden fazla id\'yi tek seferde siler, '
+    test(
+        'FIXED (controller): deleteMany birden fazla id\'yi tek seferde siler, '
         'geriye kalanlar tek notifyListeners ile yansır', () async {
-      final subs = [_sub('1', 'Netflix'), _sub('2', 'Spotify'), _sub('3', 'iCloud')];
+      final subs = [
+        _sub('1', 'Netflix'),
+        _sub('2', 'Spotify'),
+        _sub('3', 'iCloud')
+      ];
       final repo = _FakeRepo(subs);
-      final controller = SubscriptionController(userId: 'u1', repository: repo);
+      final controller =
+          SubscriptionController(userId: userId, repository: repo);
       await controller.load();
 
       var notifyCount = 0;
       controller.addListener(() => notifyCount++);
 
-      await controller.deleteMany(['1', '3']);
+      await controller.deleteMany(['1', '3'], mistakenRecords: true);
 
       expect(repo.deleteCalls, containsAll(['1', '3']));
       expect(controller.allItems.map((s) => s.id), ['2']);
@@ -180,11 +206,16 @@ void main() {
               'notifyListeners çağrısı yapıldı ("tek seferde silinir").');
     });
 
-    testWidgets('FIXED (UI): bir kartı uzun basma seçim modunu açar, birden '
-        'fazla kart seçilip "Sil" ile onaylanınca hepsi tek seferde siliniyor', (tester) async {
-      final subs = [_sub('1', 'Netflix'), _sub('2', 'Spotify'), _sub('3', 'iCloud')];
+    testWidgets('toplu seçim fiziksel silmek yerine abonelikleri arşivler',
+        (tester) async {
+      final subs = [
+        _sub('1', 'Netflix'),
+        _sub('2', 'Spotify'),
+        _sub('3', 'iCloud')
+      ];
       final repo = _FakeRepo(subs);
-      final controller = SubscriptionController(userId: 'u1', repository: repo);
+      final controller =
+          SubscriptionController(userId: userId, repository: repo);
       await controller.load();
 
       await tester.pumpWidget(MaterialApp(
@@ -208,13 +239,17 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('2 seçildi'), findsOneWidget);
 
-      await tester.tap(find.text('Sil'));
+      await tester.tap(find.text('Arşivle').first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Sil').last); // onay dialogundaki buton
+      await tester.tap(find.text('Arşivle').last);
       await tester.pumpAndSettle();
 
-      expect(controller.allItems.map((s) => s.id), ['3'],
-          reason: 'Netflix ve Spotify tek işlemle silindi, iCloud listede kaldı.');
+      expect(controller.active.map((s) => s.id), ['3']);
+      expect(
+        controller.archived.map((s) => s.id),
+        containsAll(['1', '2']),
+        reason: 'Netflix ve Spotify arşive taşındı, iCloud aktif kaldı.',
+      );
     });
   });
 }

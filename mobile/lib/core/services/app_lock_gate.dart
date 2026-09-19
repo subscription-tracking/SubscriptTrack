@@ -21,7 +21,8 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       widget.service.lock();
     }
   }
@@ -35,13 +36,19 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
         listenable: widget.service,
-        builder: (context, _) => Stack(
-          children: [
-            widget.child,
-            if (widget.service.locked)
-              Positioned.fill(child: _LockOverlay(service: widget.service)),
-          ],
-        ),
+        builder: (context, _) {
+          if (!widget.service.loaded) {
+            return const Material(
+                child: Center(child: CircularProgressIndicator()));
+          }
+          return Stack(
+            children: [
+              widget.child,
+              if (widget.service.locked)
+                Positioned.fill(child: _LockOverlay(service: widget.service)),
+            ],
+          );
+        },
       );
 }
 
@@ -81,7 +88,8 @@ class _LockOverlayState extends State<_LockOverlay> {
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 const Icon(Icons.lock_outline, size: 56),
                 const SizedBox(height: 16),
-                Text('Uygulama kilitli', style: Theme.of(context).textTheme.headlineSmall),
+                Text('Uygulama kilitli',
+                    style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _pin,
@@ -90,9 +98,11 @@ class _LockOverlayState extends State<_LockOverlay> {
                   keyboardType: TextInputType.number,
                   maxLength: 8,
                   onSubmitted: (_) => _unlock(),
-                  decoration: InputDecoration(labelText: 'PIN', errorText: _error),
+                  decoration:
+                      InputDecoration(labelText: 'PIN', errorText: _error),
                 ),
-                FilledButton(onPressed: _unlock, child: const Text('Kilidi aç')),
+                FilledButton(
+                    onPressed: _unlock, child: const Text('Kilidi aç')),
                 if (widget.service.biometricEnabled)
                   TextButton.icon(
                     onPressed: widget.service.unlockWithBiometric,

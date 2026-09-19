@@ -80,10 +80,9 @@ void main() {
       expect((m / 3).minorUnits, 1000); // 10.00 TL/ay
     });
 
-    test('haftalık → çarpar 4.33', () {
-      final m = Money.parse('10.00');
-      // 10 * 4.33 = 43.30 → 4330 minor units
-      expect((m * 4.33).minorUnits, 4330);
+    test('haftalık → 52 / 12 ile aylıklaştırılır', () {
+      final m = Money.parse('100.00');
+      expect((m * 52 / 12).minorUnits, 43333);
     });
   });
 }

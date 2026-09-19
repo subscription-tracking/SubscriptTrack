@@ -18,12 +18,34 @@ class DateTimeUtils {
 
   /// Advances [anchor] by one billing [cycle], using [addMonthsClamped] for
   /// month-based cycles so day-of-month overflow never occurs.
-  static DateTime _advanceOnce(DateTime anchor, String cycleKey) => switch (cycleKey) {
+  static DateTime _advanceOnce(
+    DateTime anchor,
+    String cycleKey, {
+    int? preferredDay,
+  }) =>
+      switch (cycleKey) {
         'weekly' => anchor.add(const Duration(days: 7)),
-        'quarterly' => addMonthsClamped(anchor, 3),
-        'yearly' => addMonthsClamped(anchor, 12),
-        _ => addMonthsClamped(anchor, 1), // monthly (default)
+        'quarterly' => _addMonthsWithPreferredDay(anchor, 3, preferredDay),
+        'yearly' => _addMonthsWithPreferredDay(anchor, 12, preferredDay),
+        _ => _addMonthsWithPreferredDay(
+            anchor, 1, preferredDay), // monthly (default)
       };
+
+  /// Advances month-based schedules while preserving their original billing
+  /// day. A 31 January schedule becomes 28 February, then returns to 31 March.
+  static DateTime _addMonthsWithPreferredDay(
+    DateTime date,
+    int months,
+    int? preferredDay,
+  ) {
+    if (preferredDay == null) return addMonthsClamped(date, months);
+    final totalMonths = date.month - 1 + months;
+    final year = date.year + totalMonths ~/ 12;
+    final month = totalMonths % 12 + 1;
+    final lastDay = DateTime(year, month + 1, 0).day;
+    final day = preferredDay.clamp(1, lastDay);
+    return DateTime(year, month, day);
+  }
 
   /// Returns the first occurrence of [anchor] + N·[cycle] that falls on or
   /// after [reference] (both compared by calendar day).
@@ -39,17 +61,31 @@ class DateTimeUtils {
   static DateTime nextOccurrenceOnOrAfter(
     DateTime anchor,
     String cycleKey,
-    DateTime reference,
-  ) {
+    DateTime reference, {
+    DateTime? originalAnchor,
+  }) {
     final refDay = DateTime(reference.year, reference.month, reference.day);
     var current = anchor;
     var currentDay = DateTime(current.year, current.month, current.day);
     while (currentDay.isBefore(refDay)) {
-      current = _advanceOnce(current, cycleKey);
+      current = _advanceOnce(
+        current,
+        cycleKey,
+        preferredDay: (originalAnchor ?? anchor).day,
+      );
       currentDay = DateTime(current.year, current.month, current.day);
     }
     return current;
   }
+
+  /// Returns the next date for an occurrence while retaining its original
+  /// billing day from [anchorDate].
+  static DateTime nextRenewalDate(
+    DateTime current,
+    String cycleKey, {
+    required DateTime anchorDate,
+  }) =>
+      _advanceOnce(current, cycleKey, preferredDay: anchorDate.day);
 
   static String formatDate(DateTime date) {
     final now = DateTime.now();

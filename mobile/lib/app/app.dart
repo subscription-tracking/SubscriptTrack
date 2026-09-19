@@ -48,12 +48,12 @@ class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
         builder: (_, __) => AppLockGate(
           service: _lock,
           child: MaterialApp.router(
-          title: 'SubscriptTrack',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: _settings.themeMode,
-          routerConfig: _router,
+            title: 'SubscriptTrack',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: _settings.themeMode,
+            routerConfig: _router,
           ),
         ),
       ),

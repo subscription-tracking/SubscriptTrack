@@ -38,19 +38,22 @@ void main() {
     test('bugün yenileniyor → renewalToday', () {
       final ctrl = NotificationController();
       ctrl.refresh([_sub('1', 0)]);
-      expect(ctrl.all.any((n) => n.type == NotificationType.renewalToday), isTrue);
+      expect(
+          ctrl.all.any((n) => n.type == NotificationType.renewalToday), isTrue);
     });
 
     test('1–3 gün → renewalSoon', () {
       final ctrl = NotificationController();
       ctrl.refresh([_sub('1', 2)]);
-      expect(ctrl.all.any((n) => n.type == NotificationType.renewalSoon), isTrue);
+      expect(
+          ctrl.all.any((n) => n.type == NotificationType.renewalSoon), isTrue);
     });
 
     test('4–7 gün → renewalUpcoming', () {
       final ctrl = NotificationController();
       ctrl.refresh([_sub('1', 6)]);
-      expect(ctrl.all.any((n) => n.type == NotificationType.renewalUpcoming), isTrue);
+      expect(ctrl.all.any((n) => n.type == NotificationType.renewalUpcoming),
+          isTrue);
     });
 
     test('8+ gün → bildirim yok', () {
@@ -190,7 +193,8 @@ void main() {
     });
   });
 
-  group('NotificationController — refresh sonrası eski ID temizleme (S5/S6)', () {
+  group('NotificationController — refresh sonrası eski ID temizleme (S5/S6)',
+      () {
     test('abonelik listeden çıkınca ilgili readId bellekten temizlenir', () {
       final sub1 = _sub('1', 2);
       final ctrl = NotificationController();

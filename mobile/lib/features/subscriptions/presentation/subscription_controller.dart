@@ -9,6 +9,7 @@ import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/services/offline_mutation_queue.dart';
+import '../../../core/services/local_notification_service.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../core/utils/date_time_utils.dart';
 import '../data/local_subscription_repository.dart';
@@ -51,9 +52,14 @@ class SubscriptionController extends ChangeNotifier {
   List<SavingsEvent> _savingsEvents = [];
   List<PaymentEvent> _paymentEvents = [];
 
-  List<Subscription> get active =>
-      _items.where((s) => s.status == SubscriptionStatus.active).toList()
-        ..sort((a, b) => a.nextRenewalDate.compareTo(b.nextRenewalDate));
+  List<Subscription> get active => _items
+      .where((s) => s.status == SubscriptionStatus.active && !s.isNotStarted)
+      .toList()
+    ..sort((a, b) => a.nextRenewalDate.compareTo(b.nextRenewalDate));
+
+  List<Subscription> get notStarted =>
+      _items.where((s) => s.isNotStarted).toList()
+        ..sort((a, b) => a.startDate.compareTo(b.startDate));
 
   List<Subscription> get trials =>
       _items.where((s) => s.status == SubscriptionStatus.trial).toList()
@@ -182,7 +188,6 @@ class SubscriptionController extends ChangeNotifier {
         _paymentEvents = [];
       }
       await _expireEndedTrials();
-      await _catchUpOverdueRenewals();
       _isOffline = false;
       _error = null;
       _lastSyncAt = DateTime.now().toUtc();
@@ -254,37 +259,24 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
-  /// Advances any ACTIVE subscription whose nextRenewalDate has already
-  /// passed to the next upcoming occurrence — skipped/missed periods are
-  /// caught up automatically so a stale past date never lingers in the list
-  /// (trial/paused/cancelled/archived subscriptions are left untouched; a
-  /// trial's own expiry is handled by [_expireEndedTrials]).
-  Future<void> _catchUpOverdueRenewals() async {
-    final today = DateTime.now();
-    final overdue = _items.where((s) {
-      if (s.status != SubscriptionStatus.active) return false;
-      final renewal = DateTime(s.nextRenewalDate.year, s.nextRenewalDate.month,
-          s.nextRenewalDate.day);
-      return renewal.isBefore(DateTime(today.year, today.month, today.day));
-    }).toList();
-
-    for (final subscription in overdue) {
-      final caughtUp = subscription.copyWith(
-        nextRenewalDate: DateTimeUtils.nextOccurrenceOnOrAfter(
-          subscription.nextRenewalDate,
-          subscription.billingCycle.key,
-          today,
-        ),
-      );
-      final index = _items.indexWhere((s) => s.id == subscription.id);
-      if (index != -1) _items[index] = caughtUp;
-      try {
-        await _repo.update(caughtUp);
-      } catch (_) {
-        // Local state stays caught up for this session; next successful
-        // sync reconciles the server (mirrors _expireEndedTrials).
-      }
+  /// Kullanıcı gecikmiş yenilemenin gerçekleştiğini onayladığında yeni
+  /// dönemi hesaplar. Yükleme sırasında tarihi sessizce değiştirmeyiz.
+  Future<bool> markRenewed(String id) async {
+    final current = _findById(id);
+    if (current == null || current.status != SubscriptionStatus.active) {
+      return false;
     }
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final updated = current.copyWith(
+      nextRenewalDate: DateTimeUtils.nextOccurrenceOnOrAfter(
+        current.nextRenewalDate,
+        current.billingCycle.key,
+        tomorrow,
+        originalAnchor: current.startDate,
+      ),
+    );
+    return edit(updated);
   }
 
   Future<void> _applyMutation(OfflineMutation mutation) async {
@@ -340,6 +332,7 @@ class SubscriptionController extends ChangeNotifier {
         } else {
           _items.add(created);
         }
+        await _mutationQueue.replaceSubscriptionId(localSub.id, created.id);
       case 'update':
         final updated = Subscription.fromJson(mutation.payload);
         final result = await _repo.update(updated);
@@ -492,7 +485,16 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
-  Future<void> delete(String subscriptionId) async {
+  /// Fiziksel silme yalnızca yanlışlıkla oluşturulmuş kayıtlar içindir.
+  /// Normal abonelik yaşam döngüsünde [cancel] veya [archive] kullanılır.
+  Future<void> delete(
+    String subscriptionId, {
+    bool mistakenRecord = false,
+  }) async {
+    if (!mistakenRecord) {
+      throw const ValidationException(
+          'physical_delete_requires_mistaken_record');
+    }
     try {
       await _repo.delete(_userId, subscriptionId);
     } on NetworkException {
@@ -506,6 +508,7 @@ class SubscriptionController extends ChangeNotifier {
       notifyListeners();
       rethrow;
     }
+    await LocalNotificationService.cancelForSubscription(subscriptionId);
     _items.removeWhere((s) => s.id == subscriptionId);
     await _writeCache(_items);
     notifyListeners();
@@ -516,12 +519,20 @@ class SubscriptionController extends ChangeNotifier {
   /// `notifyListeners()`/cache yazımı yapılır ("tek seferde silinir"), ve bir
   /// id başarısız olsa bile diğerlerinin silinmesi durdurulmaz — hepsi
   /// denenir, başarısız olanlar [error] üzerinden özetlenir.
-  Future<void> deleteMany(List<String> subscriptionIds) async {
+  Future<void> deleteMany(
+    List<String> subscriptionIds, {
+    bool mistakenRecords = false,
+  }) async {
+    if (!mistakenRecords) {
+      throw const ValidationException(
+          'physical_delete_requires_mistaken_record');
+    }
     final failed = <String>[];
     for (final id in subscriptionIds) {
       try {
         await _repo.delete(_userId, id);
         _items.removeWhere((s) => s.id == id);
+        await LocalNotificationService.cancelForSubscription(id);
       } on NetworkException {
         await _mutationQueue.enqueue(OfflineMutation(
           type: 'delete',
@@ -529,6 +540,7 @@ class SubscriptionController extends ChangeNotifier {
           enqueuedAt: DateTime.now().toUtc(),
         ));
         _items.removeWhere((s) => s.id == id);
+        await LocalNotificationService.cancelForSubscription(id);
       } catch (_) {
         failed.add(id);
       }
@@ -536,6 +548,40 @@ class SubscriptionController extends ChangeNotifier {
     _error = failed.isEmpty
         ? null
         : '${failed.length} abonelik silinemedi, tekrar deneyin.';
+    await _writeCache(_items);
+    notifyListeners();
+  }
+
+  /// Toplu işlemde normal yaşam döngüsüne uygun seçenek fiziksel silme değil,
+  /// arşivlemedir. Arşivlenen kayıtlar geçmişte kalır ve bildirimleri iptal
+  /// edilir.
+  Future<void> archiveMany(List<String> subscriptionIds) async {
+    final failed = <String>[];
+    for (final id in subscriptionIds) {
+      final current = _findById(id);
+      if (current == null ||
+          !current.status.canTransitionTo(SubscriptionStatus.archived)) {
+        failed.add(id);
+        continue;
+      }
+      try {
+        await _repo.archive(_userId, id);
+      } on NetworkException {
+        await _mutationQueue.enqueue(OfflineMutation(
+          type: 'archive',
+          payload: {'id': id},
+          enqueuedAt: DateTime.now().toUtc(),
+        ));
+      } catch (_) {
+        failed.add(id);
+        continue;
+      }
+      _updateLocalStatus(id, SubscriptionStatus.archived);
+      await LocalNotificationService.cancelForSubscription(id);
+    }
+    _error = failed.isEmpty
+        ? null
+        : '${failed.length} abonelik arşivlenemedi, tekrar deneyin.';
     await _writeCache(_items);
     notifyListeners();
   }

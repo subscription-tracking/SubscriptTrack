@@ -36,7 +36,14 @@ class AppRouter {
               const publicRoutes = {'/login', '/register', '/forgot-password'};
               return publicRoutes.contains(loc) ? null : '/login';
             case AuthStatus.authenticated:
-              const authOnlyRoutes = {'/login', '/register', '/forgot-password', '/reset-password', '/splash', '/onboarding'};
+              const authOnlyRoutes = {
+                '/login',
+                '/register',
+                '/forgot-password',
+                '/reset-password',
+                '/splash',
+                '/onboarding'
+              };
               return authOnlyRoutes.contains(loc) ? '/home' : null;
           }
         },

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../auth_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen(
-      {required this.controller, this.onLoginTap, super.key});
+  const RegisterScreen({required this.controller, this.onLoginTap, super.key});
 
   final AuthController controller;
   final VoidCallback? onLoginTap;
@@ -58,8 +57,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             return Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                 children: [
                   const SizedBox(height: 24),
                   Icon(Icons.account_balance_wallet_outlined,
@@ -96,8 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         icon: Icon(_obscure
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined),
-                        onPressed: () =>
-                            setState(() => _obscure = !_obscure),
+                        onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                     ),
                     validator: (v) => v == null || v.length < 6
@@ -114,14 +112,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelText: 'Şifre tekrar',
                       prefixIcon: Icon(Icons.lock_outline),
                     ),
-                    validator: (v) => v != _password.text
-                        ? 'Şifreler eşleşmiyor'
-                        : null,
+                    validator: (v) =>
+                        v != _password.text ? 'Şifreler eşleşmiyor' : null,
                   ),
                   const SizedBox(height: 28),
                   FilledButton(
-                    onPressed:
-                        widget.controller.loading ? null : _submit,
+                    onPressed: widget.controller.loading ? null : _submit,
                     child: widget.controller.loading
                         ? const SizedBox(
                             height: 20,

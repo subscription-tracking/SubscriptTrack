@@ -23,7 +23,8 @@ class _SharedBackendRepo implements SubscriptionDataSource {
   final List<Subscription> _backingStore;
 
   @override
-  Future<List<Subscription>> getAll(String userId) async => List.of(_backingStore);
+  Future<List<Subscription>> getAll(String userId) async =>
+      List.of(_backingStore);
 
   @override
   Future<Subscription> create({
@@ -63,7 +64,8 @@ class _SharedBackendRepo implements SubscriptionDataSource {
   Future<void> cancel(String userId, String subscriptionId) async {}
 }
 
-Subscription _sub(String id, {double amount = 100, String name = 'Netflix'}) => Subscription(
+Subscription _sub(String id, {double amount = 100, String name = 'Netflix'}) =>
+    Subscription(
       id: id,
       userId: 'u1',
       name: name,
@@ -80,8 +82,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('TEST 52 — Uygulama kapatılıp yeniden açıldığında veri korunması', () {
-    test('Controller yok edilip (uygulama "kapansa"), aynı kullanıcı için '
-        'YENİ bir controller örneği ("yeniden açma") aynı veriyi görüyor', () async {
+    test(
+        'Controller yok edilip (uygulama "kapansa"), aynı kullanıcı için '
+        'YENİ bir controller örneği ("yeniden açma") aynı veriyi görüyor',
+        () async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
       final backend = [_sub('1'), _sub('2', name: 'Spotify')];
@@ -98,11 +102,14 @@ void main() {
       await ctrl.load();
 
       expect(ctrl.allItems.length, 2,
-          reason: 'Aynı kullanıcı için aboneliklerin hepsi korunmuş, kaybolmamış.');
-      expect(ctrl.allItems.map((s) => s.name), containsAll(['Netflix', 'Spotify']));
+          reason:
+              'Aynı kullanıcı için aboneliklerin hepsi korunmuş, kaybolmamış.');
+      expect(ctrl.allItems.map((s) => s.name),
+          containsAll(['Netflix', 'Spotify']));
     });
 
-    test('Sunucuya hiç erişilemese bile (backend tamamen çöktü varsayımı), '
+    test(
+        'Sunucuya hiç erişilemese bile (backend tamamen çöktü varsayımı), '
         'önceki oturumdan kalan yerel önbellek gösterilir', () async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
@@ -120,12 +127,14 @@ void main() {
 
       expect(ctrl.isOffline, isTrue);
       expect(ctrl.allItems, isNotEmpty,
-          reason: 'Önceki oturumdan kalan önbellek sayesinde veri hâlâ gösteriliyor.');
+          reason:
+              'Önceki oturumdan kalan önbellek sayesinde veri hâlâ gösteriliyor.');
     });
   });
 
   group('TEST 54 — Birden fazla cihazda senkronizasyon', () {
-    test('DÜZELTME ÖNCESİ durumun kanıtı (tarihsel kayıt): fake repo'
+    test(
+        'DÜZELTME ÖNCESİ durumun kanıtı (tarihsel kayıt): fake repo'
         '\'lar (Supabase DEĞİL) realtime desteklemediği için, bu tür test '
         'fixture\'larıyla iki controller örneği arasında OTOMATİK senkron '
         'olmaz — sadece manuel load() ile senkronize olurdu', () async {
@@ -151,7 +160,8 @@ void main() {
       expect(deviceB.allItems.single.name, 'Netflix Premium');
     });
 
-    test('FIXED: SubscriptionController artık repo SupabaseSubscriptionRepository '
+    test(
+        'FIXED: SubscriptionController artık repo SupabaseSubscriptionRepository '
         'ise otomatik olarak Realtime dinlemeye başlıyor (constructor\'da '
         '_startRealtimeSyncIfSupported() çağrılıyor)', () {
       // Kanıt: SubscriptionController(userId:..., repository: SupabaseSubscriptionRepository())
@@ -162,21 +172,27 @@ void main() {
       // gözlemlemek mümkün değil (Paket 5/6'daki plugin kısıtıyla aynı doğa) —
       // ama mekanizmanın KENDİSİ artık var ve derleniyor.
       expect(true, isTrue,
-          reason: 'Kanıt: subscription_controller.dart _startRealtimeSyncIfSupported '
+          reason:
+              'Kanıt: subscription_controller.dart _startRealtimeSyncIfSupported '
               've supabase_subscription_repository.dart watchAll() satırlarıdır.');
     });
 
-    test('FIXED: birleştirme mantığı (_mergeRealtimeUpdate ile BİREBİR aynı '
+    test(
+        'FIXED: birleştirme mantığı (_mergeRealtimeUpdate ile BİREBİR aynı '
         'formül) — sunucudan gelen taze liste, henüz senkronize OLMAMIŞ '
         '"local-" id\'li (offline eklenmiş) kayıtları SİLMİYOR', () {
       // subscription_controller.dart _mergeRealtimeUpdate ile birebir aynı:
-      List<Subscription> merge(List<Subscription> current, List<Subscription> serverItems) {
+      List<Subscription> merge(
+          List<Subscription> current, List<Subscription> serverItems) {
         final pendingLocalOnly =
             current.where((s) => s.id.startsWith('local-')).toList();
         return [...serverItems, ...pendingLocalOnly];
       }
 
-      final current = [_sub('1', name: 'Netflix'), _sub('local-abc', name: 'Henüz Senkron Değil')];
+      final current = [
+        _sub('1', name: 'Netflix'),
+        _sub('local-abc', name: 'Henüz Senkron Değil')
+      ];
       final serverItems = [
         _sub('1', name: 'Netflix Premium'), // başka cihazda güncellendi
         _sub('2', name: 'Spotify'), // başka cihazda eklendi
@@ -186,16 +202,20 @@ void main() {
 
       expect(merged.map((s) => s.name),
           containsAll(['Netflix Premium', 'Spotify', 'Henüz Senkron Değil']),
-          reason: 'Sunucudaki güncel veriler geldi VE offline eklenen kayıp olmadı.');
+          reason:
+              'Sunucudaki güncel veriler geldi VE offline eklenen kayıp olmadı.');
       expect(merged.any((s) => s.name == 'Netflix' && s.id == '1'), isFalse,
-          reason: 'Aynı id\'li eski (senkronize olmuş) kayıt sunucu versiyonuyla değişti.');
+          reason:
+              'Aynı id\'li eski (senkronize olmuş) kayıt sunucu versiyonuyla değişti.');
     });
   });
 
   group('TEST 55 — Uygulama güncellemesi sonrası veri bütünlüğü', () {
-    test('Eski (güncelleme ÖNCESİ) formatındaki JSON — yeni alanlar '
+    test(
+        'Eski (güncelleme ÖNCESİ) formatındaki JSON — yeni alanlar '
         '(paymentMethod, trialEndDate, trialPriceAfter, status) hiç yokken — '
-        'Subscription.fromJson çökmeden, mantıklı varsayılanlarla parse ediyor', () {
+        'Subscription.fromJson çökmeden, mantıklı varsayılanlarla parse ediyor',
+        () {
       final legacyJson = {
         'id': 'old-1',
         'userId': 'u1',
@@ -214,13 +234,15 @@ void main() {
 
       expect(sub.name, 'Eski Kayıt');
       expect(sub.status, SubscriptionStatus.active,
-          reason: 'status alanı yoksa güvenli varsayılan (active) kullanılıyor.');
+          reason:
+              'status alanı yoksa güvenli varsayılan (active) kullanılıyor.');
       expect(sub.paymentMethod, isNull);
       expect(sub.trialEndDate, isNull);
       expect(sub.trialPriceAfter, isNull);
     });
 
-    test('snake_case (backend) VE camelCase (eski yerel önbellek) alan '
+    test(
+        'snake_case (backend) VE camelCase (eski yerel önbellek) alan '
         'isimlerinin İKİSİ de doğru parse ediliyor — geçiş dönemi güvenli', () {
       final snakeCaseJson = {
         'id': 'x1',
@@ -239,7 +261,8 @@ void main() {
       expect(sub.billingCycle, BillingCycle.yearly);
     });
 
-    test('Backend migration geçmişi ADDİTİVE (yıkıcı olmayan) ve idempotent — '
+    test(
+        'Backend migration geçmişi ADDİTİVE (yıkıcı olmayan) ve idempotent — '
         'ALTER TABLE ... ADD COLUMN IF NOT EXISTS deseni kullanılıyor', () {
       final migrationsDir = Directory('../backend/migrations');
       if (!migrationsDir.existsSync()) {
@@ -287,7 +310,8 @@ class _AlwaysFailingRepo implements SubscriptionDataSource {
   }) async =>
       throw UnimplementedError();
   @override
-  Future<Subscription> update(Subscription updated) async => throw UnimplementedError();
+  Future<Subscription> update(Subscription updated) async =>
+      throw UnimplementedError();
   @override
   Future<void> delete(String userId, String subscriptionId) async {}
   @override

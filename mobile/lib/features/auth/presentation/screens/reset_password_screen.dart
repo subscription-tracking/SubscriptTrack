@@ -51,7 +51,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 16),
-                Icon(Icons.lock_reset_outlined, size: 64, color: colors.primary),
+                Icon(Icons.lock_reset_outlined,
+                    size: 64, color: colors.primary),
                 const SizedBox(height: 24),
                 Text(
                   'Yeni şifreni belirle',

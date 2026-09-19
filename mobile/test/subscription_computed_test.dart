@@ -174,19 +174,15 @@ void main() {
       expect(ctrl.upcomingRenewals, isEmpty);
     });
 
-    test('geçmiş tarihli (1 gün gecikmiş) → load() sonrası catch-up ile '
-        'artık geçmişte değil (Paket 1 / Test 45 düzeltmesi)', () async {
-      // Önceki davranış: nextRenewalDate geçmişte kalırsa upcomingRenewals'a
-      // hiç girmezdi (sonsuza dek "kayıp" kalırdı). Artık
-      // SubscriptionController._catchUpOverdueRenewals() bunu load()
-      // sırasında bir sonraki döneme ilerletiyor — bu yüzden negatif kalmıyor.
+    test(
+        'geçmiş tarihli ACTIVE kayıt gecikmiş olarak kalır ve upcoming listesine girmez',
+        () async {
       final ctrl = await _loadedCtrl([
         _sub('1', daysFromNow: -1),
       ]);
       final result = ctrl.allItems.single;
-      expect(result.daysUntilRenewal, greaterThanOrEqualTo(0),
-          reason: 'Gecikmiş yenileme artık bugün ya da sonrasına ilerletildi, '
-              'sonsuza dek negatif/geçmişte kalmıyor.');
+      expect(result.daysUntilRenewal, lessThan(0));
+      expect(ctrl.upcomingRenewals, isEmpty);
     });
 
     test('paused → upcomingRenewals\'a girmez', () async {

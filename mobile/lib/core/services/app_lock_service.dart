@@ -18,15 +18,18 @@ class AppLockService extends ChangeNotifier {
   bool _locked = false;
   bool _enabled = false;
   bool _biometricEnabled = false;
+  bool _loaded = false;
 
   bool get locked => _locked;
   bool get enabled => _enabled;
   bool get biometricEnabled => _biometricEnabled;
+  bool get loaded => _loaded;
 
   Future<void> load() async {
     _enabled = (await _storage.readAppPinHash()) != null;
     _biometricEnabled = await _storage.readBiometricLock();
-    _locked = false;
+    _locked = _enabled;
+    _loaded = true;
     notifyListeners();
   }
 
@@ -37,12 +40,14 @@ class AppLockService extends ChangeNotifier {
     await _storage.writeAppPinHash(_hash(pin));
     _enabled = true;
     _locked = false;
+    _loaded = true;
     notifyListeners();
   }
 
   Future<bool> verifyPin(String pin) async {
     final expected = await _storage.readAppPinHash();
-    final valid = expected != null && const _HashComparator().matches(_hash(pin), expected);
+    final valid = expected != null &&
+        const _HashComparator().matches(_hash(pin), expected);
     if (valid) {
       _locked = false;
       notifyListeners();
@@ -87,10 +92,12 @@ class AppLockService extends ChangeNotifier {
     _enabled = false;
     _biometricEnabled = false;
     _locked = false;
+    _loaded = true;
     notifyListeners();
   }
 
-  static String _hash(String pin) => sha256.convert(utf8.encode(pin)).toString();
+  static String _hash(String pin) =>
+      sha256.convert(utf8.encode(pin)).toString();
 }
 
 class _HashComparator {

@@ -155,9 +155,12 @@ class ProfileTab extends StatelessWidget {
           icon: Icons.lock_outline,
           label: 'Uygulama kilidi',
           value: 'PIN ve biyometri',
-          onTap: () => Navigator.push(context, MaterialPageRoute<void>(
-            builder: (_) => AppLockSettingsScreen(service: AppLockService.instance),
-          )),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    AppLockSettingsScreen(service: AppLockService.instance),
+              )),
         ),
         _SettingTile(
           icon: Icons.privacy_tip_outlined,
@@ -336,8 +339,8 @@ class _SettingTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
-            border:
-                Border(bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
+            border: Border(
+                bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
           ),
           child: Row(
             children: [
@@ -363,8 +366,7 @@ class _SettingTile extends StatelessWidget {
               ],
               const SizedBox(width: 4),
               Icon(Icons.chevron_right,
-                  size: 18,
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                  size: 18, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
             ],
           ),
         ),

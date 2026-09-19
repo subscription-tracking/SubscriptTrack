@@ -6,11 +6,13 @@ import '../../features/subscriptions/domain/subscription_models.dart';
 class SubscriptionStatusChip extends StatelessWidget {
   const SubscriptionStatusChip({
     required this.status,
+    this.isNotStarted = false,
     this.daysUntilRenewal,
     super.key,
   });
 
   final SubscriptionStatus status;
+  final bool isNotStarted;
   final int? daysUntilRenewal;
 
   @override
@@ -35,8 +37,14 @@ class SubscriptionStatusChip extends StatelessWidget {
   ({String label, Color color}) _state(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final statusColors = context.statusColors;
+    if (isNotStarted) {
+      return (label: 'Henüz başlamadı', color: statusColors.warning);
+    }
     if (status == SubscriptionStatus.active && daysUntilRenewal != null) {
-      if (daysUntilRenewal! <= 0) {
+      if (daysUntilRenewal! < 0) {
+        return (label: 'Gecikmiş', color: cs.error);
+      }
+      if (daysUntilRenewal == 0) {
         return (label: 'Bugün yenileniyor', color: cs.error);
       }
       if (daysUntilRenewal! <= 3) {
@@ -58,10 +66,7 @@ class SubscriptionStatusChip extends StatelessWidget {
           label: 'Arşivlendi',
           color: statusColors.muted
         ),
-      SubscriptionStatus.expired => (
-          label: 'Süresi doldu',
-          color: cs.error
-        ),
+      SubscriptionStatus.expired => (label: 'Süresi doldu', color: cs.error),
     };
   }
 }

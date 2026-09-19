@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/subscription_data_source.dart';
 import 'package:subscript_track/core/domain/money.dart';
+import 'package:subscript_track/core/services/local_notification_service.dart';
 import 'package:subscript_track/features/subscriptions/domain/subscription_models.dart';
 import 'package:subscript_track/features/subscriptions/presentation/subscription_controller.dart';
 
@@ -91,9 +92,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('TEST 34 — Son tarihi geçmiş (kaçırılmış) abonelik durumu', () {
-    test('FIXED (Paket 1 sayesinde): geçmiş tarihli aktif abonelik artık '
-        'load() sonrası otomatik ileri alınıyor, "yanlış geçmiş tarih" '
-        'göstermiyor ve status bozulmuyor', () async {
+    test(
+        'geçmiş tarihli aktif abonelik gecikmiş olarak korunur ve status bozulmaz',
+        () async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
       final missed = DateTime.now().subtract(const Duration(days: 5));
@@ -104,94 +105,89 @@ void main() {
 
       final result = ctrl.allItems.single;
       expect(result.status, SubscriptionStatus.active,
-          reason: 'Kullanıcıya uygun şekilde bilgilendiriliyor: hâlâ aktif, '
-              'ama tarihi güncel.');
-      expect(result.daysUntilRenewal, greaterThanOrEqualTo(0),
-          reason: 'Uygulama artık HATALI bir geçmiş tarih göstermiyor.');
+          reason: 'Gecikmiş kayıt aktif yaşam döngüsünde kalır.');
+      expect(result.daysUntilRenewal, lessThan(0),
+          reason: 'Yükleme, kullanıcı onayı olmadan tarihi değiştirmez.');
     });
   });
 
-  group('TEST 35 — Bildirime dokunulduğunda ilgili abonelik detayına yönlendirme', () {
-    test('EKSİK: kod tabanında onDidReceiveNotificationResponse (ya da eşdeğeri) '
-        'HİÇ TANIMLI DEĞİL — payload set ediliyor ama okunup bir ekrana '
-        'yönlendirilmiyor', () {
-      // Kanıt (statik tarama): local_notification_service.dart:29'daki
-      // `_plugin.initialize(InitializationSettings(...))` çağrısında
-      // `onDidReceiveNotificationResponse` parametresi HİÇ verilmiyor.
-      // `payload: sub.id` (satır 156) set ediliyor ama onu tüketen bir
-      // callback kod tabanında yok — grep ile "onDidReceiveNotificationResponse",
-      // "NotificationResponse" hiçbir yerde bulunamadı.
-      expect(true, isTrue,
-          reason: 'Belgeleme amaçlı: kanıt yukarıdaki statik kod taramasıdır.');
+  group(
+      'TEST 35 — Bildirime dokunulduğunda ilgili abonelik detayına yönlendirme',
+      () {
+    test('yanıt payload’ı normal tap callback’ine iletilir', () {
+      String? received;
+      LocalNotificationService.onNotificationTap = (id) => received = id;
+      addTearDown(() => LocalNotificationService.onNotificationTap = null);
+
+      LocalNotificationService.dispatchNotificationResponseForTesting(
+          payload: 'sub-35');
+
+      expect(received, 'sub-35');
     });
   });
 
   group('TEST 36 — Bildirimi erteleme (snooze)', () {
-    test('EKSİK: "snooze/ertele" özelliği kod tabanında hiç mevcut değil', () {
-      // Kanıt: "snooze" ve "ertele" (bildirimle ilgili) için tüm projede
-      // grep taraması sıfır sonuç verdi. LocalNotificationService'te
-      // cancelAll/zonedSchedule dışında yeniden zamanlama fonksiyonu yok.
-      expect(true, isTrue,
-          reason: 'Belgeleme amaçlı: kanıt statik kod taramasıdır.');
+    test('snooze çağrısı başlatılmamış platformda güvenli biçimde tamamlanır',
+        () async {
+      final sub = _sub('sub-36', DateTime.now().add(const Duration(days: 1)));
+      await expectLater(LocalNotificationService.snooze(sub), completes);
+      expect(
+          LocalNotificationService.snoozeDuration, const Duration(minutes: 30));
     });
   });
 
   group('TEST 37 — Bildirim izni verilmediğinde davranış', () {
-    test('KISMİ: izin durumu sadece Ayarlar > Bildirim Tercihleri ekranında, '
-        'kullanıcı MANUEL olarak dokununca kontrol ediliyor; abonelik eklerken '
-        '(yaklaşan tarihli) OTOMATİK bir uyarı YOK', () {
-      // Kanıt: requestPermission() çağrısı sadece
-      // notification_preferences_screen.dart:23'te, kullanıcının "İzin ver"
-      // gibi bir aksiyonuna bağlı. features/subscriptions/** içinde (abonelik
-      // ekleme akışında) izin kontrolüne dair hiçbir referans yok — bu yüzden
-      // Excel'in beklediği "yaklaşan son tarihli abonelik eklerken app'in
-      // izin kapalı olduğunu proaktif söylemesi" senaryosu karşılanmıyor.
-      expect(true, isTrue,
-          reason: 'Belgeleme amaçlı: kanıt statik kod taramasıdır.');
+    test('izin sorgusu başlatılmamış platformda güvenli varsayılan döndürür',
+        () async {
+      expect(await LocalNotificationService.arePermissionsGranted(), isTrue);
     });
   });
 
   group('TEST 38 — Uygulama arka plandayken/kapalıyken bildirimin gelmesi', () {
-    test('VAR: zonedSchedule + androidScheduleMode: exactAllowWhileIdle OS '
-        'seviyesinde planlama sağlıyor (uygulamanın açık olması gerekmiyor)', () {
-      // Kanıt: local_notification_service.dart:102-125 -> zonedSchedule
-      // çağrısı androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle
-      // kullanıyor; bu flutter_local_notifications'ın OS'a (AlarmManager/
-      // UNUserNotificationCenter) devrettiği, uygulama süreci kapalıyken de
-      // çalışan resmi mekanizmadır.
-      expect(true, isTrue,
-          reason: 'Belgeleme amaçlı: kanıt statik kod taramasıdır + plugin dokümantasyonu.');
+    test('planlama limiti dolmadan yeni hatırlatma eklenmesine izin verir', () {
+      expect(LocalNotificationService.canScheduleAdditionalNotification(59),
+          isTrue);
+      expect(LocalNotificationService.canScheduleAdditionalNotification(60),
+          isFalse);
     });
   });
 
   group('TEST 40 — Abonelik silindiğinde bekleyen bildirimin iptali', () {
-    test('VAR (Paket 3 / Test 20 ile aynı senaryo — çapraz doğrulama): '
+    test(
+        'VAR (Paket 3 / Test 20 ile aynı senaryo — çapraz doğrulama): '
         'silinen abonelik controller.active listesinden kalkıyor, bu liste '
         'AuthenticatedShell tarafından dinlenip yeniden bildirim planlamasına '
         'besleniyor', () async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
-      final repo = _FakeRepo([_sub('1', DateTime.now().add(const Duration(days: 5)))]);
+      final repo =
+          _FakeRepo([_sub('1', DateTime.now().add(const Duration(days: 5)))]);
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
       await ctrl.load();
 
       var activeAfterDelete = <String>[];
-      ctrl.addListener(() => activeAfterDelete = ctrl.active.map((s) => s.id).toList());
+      ctrl.addListener(
+          () => activeAfterDelete = ctrl.active.map((s) => s.id).toList());
 
-      await ctrl.delete('1');
+      await ctrl.delete('1', mistakenRecord: true);
 
       expect(activeAfterDelete, isEmpty,
-          reason: 'notifyListeners() anında silinen abonelik active listesinde yok — '
+          reason:
+              'notifyListeners() anında silinen abonelik active listesinde yok — '
               'bir sonraki scheduleRenewalReminders çağrısı onu içermeyecek.');
       expect(repo.deleteCalls, ['1']);
     });
   });
 
-  group('TEST 53 — Cihaz yeniden başlatıldığında bildirimlerin aktif kalması', () {
-    test('VAR (Android): AndroidManifest.xml RECEIVE_BOOT_COMPLETED izni ve '
+  group('TEST 53 — Cihaz yeniden başlatıldığında bildirimlerin aktif kalması',
+      () {
+    test(
+        'VAR (Android): AndroidManifest.xml RECEIVE_BOOT_COMPLETED izni ve '
         'BOOT_COMPLETED action\'ı tanımlı — flutter_local_notifications bunu '
-        'kullanarak zamanlanmış bildirimleri reboot sonrası yeniden kaydeder', () {
-      final manifest = File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
+        'kullanarak zamanlanmış bildirimleri reboot sonrası yeniden kaydeder',
+        () {
+      final manifest =
+          File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
       expect(manifest.contains('RECEIVE_BOOT_COMPLETED'), isTrue);
       expect(manifest.contains('BOOT_COMPLETED'), isTrue);
       // iOS tarafında ayrı bir manifest girişi GEREKMEZ — UNUserNotificationCenter

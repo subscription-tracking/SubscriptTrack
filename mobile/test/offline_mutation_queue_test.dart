@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,14 +77,39 @@ void main() {
       expect(drained.first.enqueuedAt, before);
     });
 
+    test('payload SharedPreferences içinde düz metin olarak saklanmaz',
+        () async {
+      final q = OfflineMutationQueue();
+      await q.enqueue(OfflineMutation(
+        type: 'create',
+        payload: {'name': 'Gizli Abonelik', 'amount': '99.99'},
+        enqueuedAt: DateTime.utc(2026, 8, 1),
+      ));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('offline_mutation_queue'), isNull);
+    });
+
+    test('legacy SharedPreferences kuyruğu güvenli depoya taşınır', () async {
+      final legacy = jsonEncode([_m('pause', 'legacy-sub').toJson()]);
+      SharedPreferences.setMockInitialValues(
+          {'offline_mutation_queue': legacy});
+
+      final q = OfflineMutationQueue();
+      expect((await q.peek())!.payload['id'], 'legacy-sub');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('offline_mutation_queue'), isNull);
+    });
+
     test('sıra FIFO korunur', () async {
       final q = OfflineMutationQueue();
       await q.enqueue(_m('pause', 's1'));
       await q.enqueue(_m('resume', 's1'));
       await q.enqueue(_m('cancel', 's1'));
       final drained = await q.drain();
-      expect(drained.map((m) => m.type).toList(),
-          ['pause', 'resume', 'cancel']);
+      expect(
+          drained.map((m) => m.type).toList(), ['pause', 'resume', 'cancel']);
     });
 
     test('drain sonrası tekrar enqueue çalışır', () async {
@@ -93,7 +120,8 @@ void main() {
       expect(await q.length, 1);
     });
 
-    test('concurrent enqueue operations do not lose queued mutations', () async {
+    test('concurrent enqueue operations do not lose queued mutations',
+        () async {
       final q = OfflineMutationQueue();
       await Future.wait([
         q.enqueue(_m('pause', 's1')),
@@ -114,6 +142,23 @@ void main() {
       await q.removeFirst();
       expect((await q.peek())!.type, 'cancel');
       expect(await q.length, 1);
+    });
+
+    test(
+        'create sonraki işlemlerde geçici kimliği sunucu kimliğiyle değiştirir',
+        () async {
+      final q = OfflineMutationQueue();
+      await q.enqueue(_m('create', 'local-123'));
+      await q.enqueue(_m('update', 'local-123'));
+      await q.enqueue(_m('delete', 'local-123'));
+
+      await q.replaceSubscriptionId('local-123', 'server-456');
+      final mutations = await q.drain();
+
+      expect(
+        mutations.map((m) => m.payload['id']).toList(),
+        everyElement('server-456'),
+      );
     });
   });
 }

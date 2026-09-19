@@ -71,7 +71,8 @@ class AuthRepository implements AuthDataSource {
     final credentials = await _loadCredentials();
     final entry = credentials[normalizedEmail];
 
-    if (entry == null || entry['hash'] != _hash(password, salt: normalizedEmail)) {
+    if (entry == null ||
+        entry['hash'] != _hash(password, salt: normalizedEmail)) {
       throw const AuthException('E-posta veya şifre hatalı.');
     }
 

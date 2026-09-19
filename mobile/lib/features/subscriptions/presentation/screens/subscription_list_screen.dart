@@ -94,9 +94,8 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Seçilenleri sil'),
-        content: Text(
-            '$count abonelik kalıcı olarak silinecek. Emin misin?'),
+        title: const Text('Seçilenleri arşivle'),
+        content: Text('$count abonelik ana listeden kaldırılıp arşivlenecek.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -106,7 +105,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(ctx).colorScheme.error),
-            child: const Text('Sil'),
+            child: const Text('Arşivle'),
           ),
         ],
       ),
@@ -114,7 +113,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     if (confirm != true) return;
     final ids = _selectedIds.toList();
     _exitSelectionMode();
-    await controller.deleteMany(ids);
+    await controller.archiveMany(ids);
   }
 
   @override
@@ -408,7 +407,7 @@ class _Header extends StatelessWidget {
   }
 }
 
-// ─── Selection Bar (toplu silme) ───────────────────────────────────────────────
+// ─── Selection Bar (toplu arşivleme) ─────────────────────────────────────────
 
 class _SelectionBar extends StatelessWidget {
   const _SelectionBar({
@@ -444,8 +443,8 @@ class _SelectionBar extends StatelessWidget {
           FilledButton.icon(
             onPressed: count == 0 ? null : onDelete,
             style: FilledButton.styleFrom(backgroundColor: cs.error),
-            icon: const Icon(Icons.delete_outline, size: 18),
-            label: const Text('Sil'),
+            icon: const Icon(Icons.archive_outlined, size: 18),
+            label: const Text('Arşivle'),
           ),
         ],
       ),
@@ -676,6 +675,7 @@ class _SubscriptionTile extends StatelessWidget {
                     const SizedBox(height: 6),
                     SubscriptionStatusChip(
                       status: subscription.status,
+                      isNotStarted: subscription.isNotStarted,
                       daysUntilRenewal: days,
                     ),
                   ],

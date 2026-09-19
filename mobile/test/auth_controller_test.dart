@@ -12,7 +12,8 @@ class _FakeAuthDataSource implements AuthDataSource {
   Future<AppUser?> currentUser() async => user;
 
   @override
-  Future<AppUser> signIn({required String email, required String password}) async {
+  Future<AppUser> signIn(
+      {required String email, required String password}) async {
     user = AppUser(
       id: 'user-1',
       email: email,

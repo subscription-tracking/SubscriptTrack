@@ -8,9 +8,16 @@ import '../../../core/storage/local_storage.dart';
 import '../domain/subscription_models.dart';
 
 /// Supabase yapılandırılmadığında kullanılan yerel depo.
-/// Veriler SharedPreferences'a JSON olarak yazılır.
+/// Veriler şifreli cihaz deposuna JSON olarak yazılır.
 class LocalSubscriptionRepository implements SubscriptionDataSource {
   static const _uuid = Uuid();
+  Future<void> _tail = Future<void>.value();
+
+  Future<T> _synchronized<T>(Future<T> Function() operation) {
+    final result = _tail.then((_) => operation());
+    _tail = result.then<void>((_) {}, onError: (_) {});
+    return result;
+  }
 
   Future<List<Subscription>> _readAll(String userId) async {
     final raw = await LocalStorage.instance.readSubscriptions(userId);
@@ -45,47 +52,49 @@ class LocalSubscriptionRepository implements SubscriptionDataSource {
     String? paymentMethod,
     DateTime? trialEndDate,
     Money? trialPriceAfter,
-  }) async {
-    final items = await _readAll(userId);
-    final sub = Subscription(
-      id: _uuid.v4(),
-      userId: userId,
-      name: name.trim(),
-      amount: amount,
-      currency: currency,
-      billingCycle: billingCycle,
-      startDate: startDate,
-      nextRenewalDate: nextRenewalDate,
-      category: category,
-      notes: notes?.trim(),
-      paymentMethod: paymentMethod?.trim(),
-      status: trialEndDate == null
-          ? SubscriptionStatus.active
-          : SubscriptionStatus.trial,
-      trialEndDate: trialEndDate,
-      trialPriceAfter: trialPriceAfter,
-      createdAt: DateTime.now().toUtc(),
-    );
-    items.add(sub);
-    await _writeAll(userId, items);
-    return sub;
-  }
+  }) =>
+      _synchronized(() async {
+        final items = await _readAll(userId);
+        final sub = Subscription(
+          id: _uuid.v4(),
+          userId: userId,
+          name: name.trim(),
+          amount: amount,
+          currency: currency,
+          billingCycle: billingCycle,
+          startDate: startDate,
+          nextRenewalDate: nextRenewalDate,
+          category: category,
+          notes: notes?.trim(),
+          paymentMethod: paymentMethod?.trim(),
+          status: trialEndDate == null
+              ? SubscriptionStatus.active
+              : SubscriptionStatus.trial,
+          trialEndDate: trialEndDate,
+          trialPriceAfter: trialPriceAfter,
+          createdAt: DateTime.now().toUtc(),
+        );
+        items.add(sub);
+        await _writeAll(userId, items);
+        return sub;
+      });
 
   @override
-  Future<Subscription> update(Subscription updated) async {
-    final items = await _readAll(updated.userId);
-    final idx = items.indexWhere((s) => s.id == updated.id);
-    if (idx != -1) items[idx] = updated;
-    await _writeAll(updated.userId, items);
-    return updated;
-  }
+  Future<Subscription> update(Subscription updated) => _synchronized(() async {
+        final items = await _readAll(updated.userId);
+        final idx = items.indexWhere((s) => s.id == updated.id);
+        if (idx != -1) items[idx] = updated;
+        await _writeAll(updated.userId, items);
+        return updated;
+      });
 
   @override
-  Future<void> delete(String userId, String subscriptionId) async {
-    final items = await _readAll(userId);
-    items.removeWhere((s) => s.id == subscriptionId);
-    await _writeAll(userId, items);
-  }
+  Future<void> delete(String userId, String subscriptionId) =>
+      _synchronized(() async {
+        final items = await _readAll(userId);
+        items.removeWhere((s) => s.id == subscriptionId);
+        await _writeAll(userId, items);
+      });
 
   @override
   Future<void> archive(String userId, String id) =>
@@ -108,10 +117,11 @@ class LocalSubscriptionRepository implements SubscriptionDataSource {
       _setStatus(userId, id, SubscriptionStatus.cancelled);
 
   Future<void> _setStatus(
-      String userId, String id, SubscriptionStatus status) async {
-    final items = await _readAll(userId);
-    final idx = items.indexWhere((s) => s.id == id);
-    if (idx != -1) items[idx] = items[idx].copyWith(status: status);
-    await _writeAll(userId, items);
-  }
+          String userId, String id, SubscriptionStatus status) =>
+      _synchronized(() async {
+        final items = await _readAll(userId);
+        final idx = items.indexWhere((s) => s.id == id);
+        if (idx != -1) items[idx] = items[idx].copyWith(status: status);
+        await _writeAll(userId, items);
+      });
 }
