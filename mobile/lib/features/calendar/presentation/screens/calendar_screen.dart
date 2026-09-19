@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../calendar_controller.dart';
 import '../widgets/calendar_day_cell.dart';
@@ -128,7 +129,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
         const Divider(height: 24),
         Expanded(
           child: selectedEvents.isEmpty
-              ? _EmptyDayState(hasSelection: _selectedDay != null)
+              ? _EmptyDayState(
+                  hasSelection: _selectedDay != null,
+                  onAddForDay: _selectedDay == null
+                      ? null
+                      : () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => AddSubscriptionScreen(
+                                controller: subscriptions,
+                                initialStartDate: _selectedDay,
+                              ),
+                            ),
+                          ),
+                )
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: selectedEvents.length,
@@ -226,8 +240,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 }
 
 class _EmptyDayState extends StatelessWidget {
-  const _EmptyDayState({required this.hasSelection});
+  const _EmptyDayState({required this.hasSelection, this.onAddForDay});
   final bool hasSelection;
+  final VoidCallback? onAddForDay;
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +276,14 @@ class _EmptyDayState extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
           ),
+          if (onAddForDay != null) ...[
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: onAddForDay,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Bu güne abonelik ekle'),
+            ),
+          ],
         ],
       ),
     );

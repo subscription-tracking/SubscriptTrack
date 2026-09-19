@@ -7,6 +7,12 @@ class NotificationRule {
   final int daysBefore;
   final bool enabled;
 
+  NotificationRule copyWith({int? daysBefore, bool? enabled}) =>
+      NotificationRule(
+        daysBefore: daysBefore ?? this.daysBefore,
+        enabled: enabled ?? this.enabled,
+      );
+
   Map<String, dynamic> toJson() => {
         'daysBefore': daysBefore,
         'enabled': enabled,
@@ -17,4 +23,14 @@ class NotificationRule {
         daysBefore: (json['daysBefore'] as num?)?.toInt() ?? 3,
         enabled: json['enabled'] as bool? ?? true,
       );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NotificationRule &&
+          other.daysBefore == daysBefore &&
+          other.enabled == enabled;
+
+  @override
+  int get hashCode => Object.hash(daysBefore, enabled);
 }

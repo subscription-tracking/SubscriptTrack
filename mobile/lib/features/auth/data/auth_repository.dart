@@ -116,6 +116,30 @@ class AuthRepository implements AuthDataSource {
     await _saveCredentials(credentials);
   }
 
+  @override
+  Future<AppUser> updateDisplayName(String name) async {
+    final json = await _storage.readCurrentUser();
+    if (json == null) throw const AuthException('Oturum bulunamadı.');
+    final current = AppUser.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    final updated = AppUser(
+      id: current.id,
+      email: current.email,
+      displayName: name,
+      createdAt: current.createdAt,
+    );
+    final credentials = await _loadCredentials();
+    final entry = credentials[current.email];
+    if (entry != null) {
+      credentials[current.email] = {
+        ...entry,
+        'userJson': jsonEncode(updated.toJson()),
+      };
+      await _saveCredentials(credentials);
+    }
+    await _storage.writeCurrentUser(jsonEncode(updated.toJson()));
+    return updated;
+  }
+
   // ---- private helpers ----
 
   // SHA-256 with a fixed per-installation salt derived from the user's email.
@@ -171,5 +195,9 @@ class UnavailableAuthRepository implements AuthDataSource {
 
   @override
   Future<void> updatePassword(String newPassword) =>
+      Future.error(const AuthException(_message));
+
+  @override
+  Future<AppUser> updateDisplayName(String name) =>
       Future.error(const AuthException(_message));
 }

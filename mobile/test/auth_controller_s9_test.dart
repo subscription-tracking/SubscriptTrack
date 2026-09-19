@@ -41,6 +41,17 @@ class _FakeAuthRepo implements AuthDataSource {
 
   @override
   Future<void> updatePassword(String newPassword) async {}
+
+  @override
+  Future<AppUser> updateDisplayName(String name) async {
+    _current = AppUser(
+      id: _current!.id,
+      email: _current!.email,
+      displayName: name,
+      createdAt: _current!.createdAt,
+    );
+    return _current!;
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────

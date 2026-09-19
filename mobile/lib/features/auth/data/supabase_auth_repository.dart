@@ -123,6 +123,22 @@ class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource {
     }
   }
 
+  @override
+  Future<AppUser> updateDisplayName(String name) async {
+    try {
+      final response = await _client.auth.updateUser(
+        sb.UserAttributes(data: {'display_name': name}),
+      );
+      final user = response.user;
+      if (user == null) throw const AuthException('Ad güncellenemedi.');
+      return _toAppUser(user);
+    } on sb.AuthException catch (e) {
+      throw AuthException(_localizeError(e.message));
+    } catch (e) {
+      throw AuthException(e.toString());
+    }
+  }
+
   // ─── Helpers ────────────────────────────────────────────────────
 
   AppUser _toAppUser(sb.User user) => AppUser(

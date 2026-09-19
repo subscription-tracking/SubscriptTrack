@@ -26,7 +26,9 @@ class ProfileTab extends StatelessWidget {
     final user = auth.user;
     if (user == null) return const SizedBox.shrink();
 
-    final initials = _initials(user.email);
+    final displayName = user.displayName?.trim();
+    final hasDisplayName = displayName != null && displayName.isNotEmpty;
+    final initials = _initials(hasDisplayName ? displayName : user.email);
     final cs = Theme.of(context).colorScheme;
 
     return ListView(
@@ -41,7 +43,7 @@ class ProfileTab extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (_) => ProfileScreen(user: user),
+                    builder: (_) => ProfileScreen(auth: auth),
                   ),
                 ),
                 child: Stack(
@@ -87,7 +89,7 @@ class ProfileTab extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                user.email.split('@').first,
+                hasDisplayName ? displayName : user.email.split('@').first,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       fontSize: 17,

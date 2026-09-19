@@ -18,26 +18,14 @@ class SubscriptionDetailScreen extends StatelessWidget {
   final Subscription subscription;
   final SubscriptionController controller;
 
-  Color _brandColor(BuildContext context, Subscription sub) {
-    final nameKey = sub.name.trim().toLowerCase();
-    if (nameKey.contains('netflix')) return const Color(0xFFE50914);
-    if (nameKey.contains('spotify')) return const Color(0xFF1DB954);
-    if (nameKey.contains('youtube')) return const Color(0xFFFF0033);
-    if (nameKey.contains('chatgpt') || nameKey.contains('openai')) {
-      return const Color(0xFF10A37F);
-    }
-    if (nameKey.contains('adobe')) return const Color(0xFFFF0000);
-    if (nameKey.contains('icloud') || nameKey.contains('apple')) {
-      return const Color(0xFF5AA9FF);
-    }
-    if (nameKey.contains('google')) return const Color(0xFF4285F4);
-    return Theme.of(context).colorScheme.primary;
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final brandColor = _brandColor(context, subscription);
+    // S45: ServiceIdentity ile aynı marka-renk eşleşmesini kullanır (eskiden
+    // burada daha dar, .contains tabanlı ayrı bir kopyası vardı) — hero
+    // arka planı artık avatar ikonunun rengiyle her zaman tutarlı.
+    final brandColor = ServiceIdentity.colorFor(
+        context, subscription.name, subscription.category);
     final daysLeft = subscription.daysUntilRenewal;
 
     return Scaffold(
@@ -75,6 +63,19 @@ class SubscriptionDetailScreen extends StatelessWidget {
                 _PaymentMethodSection(
                   subscription: subscription,
                   onChange: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => EditSubscriptionScreen(
+                        subscription: subscription,
+                        controller: controller,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _ReminderSection(
+                  subscription: subscription,
+                  onEdit: () => Navigator.push(
                     context,
                     MaterialPageRoute<void>(
                       builder: (_) => EditSubscriptionScreen(
@@ -770,6 +771,100 @@ class _PaymentMethodSection extends StatelessWidget {
   }
 }
 
+// ─── Reminder Section ─────────────────────────────────────────────────────
+
+/// S43: abonelik bazlı hatırlatma kurallarını (Subscription.notificationRules)
+/// gösterir. Salt-okunur önizleme + düzenleme ekranına yönlendirme; asıl
+/// kural yönetimi (çoklu seçim, özel gün ekleme) SubscriptionForm'da yapılır.
+class _ReminderSection extends StatelessWidget {
+  const _ReminderSection({
+    required this.subscription,
+    required this.onEdit,
+  });
+
+  final Subscription subscription;
+  final VoidCallback onEdit;
+
+  String _label(int daysBefore) =>
+      daysBefore == 0 ? 'Aynı gün' : '$daysBefore gün önce';
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final rules = subscription.notificationRules
+        .where((r) => r.enabled)
+        .toList()
+      ..sort((a, b) => a.daysBefore.compareTo(b.daysBefore));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'HATIRLATMALAR',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurfaceVariant,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              TextButton(
+                onPressed: onEdit,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'Düzenle',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: cs.outlineVariant, width: 0.5),
+          ),
+          child: rules.isEmpty
+              ? Text('Bu abonelik için hatırlatma kapalı.',
+                  style: TextStyle(color: cs.onSurfaceVariant))
+              : Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: rules
+                      .map((r) => Chip(
+                            label: Text(_label(r.daysBefore)),
+                            visualDensity: VisualDensity.compact,
+                            backgroundColor: cs.primary.withValues(alpha: 0.1),
+                            side: BorderSide.none,
+                            labelStyle: TextStyle(
+                              color: cs.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ))
+                      .toList(),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
 // ─── Payment History Section ─────────────────────────────────────────────────
 
 class _PaymentHistorySection extends StatelessWidget {
@@ -1050,15 +1145,6 @@ class _ActionButtonsSection extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Sonraki fatura tarihinden 24 saat önce sana hatırlatma bildirimi göndereceğiz.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 11,
-            color: cs.onSurfaceVariant,
           ),
         ),
       ],

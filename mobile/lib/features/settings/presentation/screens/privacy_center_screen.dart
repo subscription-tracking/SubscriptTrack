@@ -4,6 +4,8 @@ import '../../../auth/presentation/auth_controller.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import 'delete_account_screen.dart';
 import 'export_data_screen.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_of_service_screen.dart';
 
 class PrivacyCenterScreen extends StatelessWidget {
   const PrivacyCenterScreen(
@@ -34,6 +36,22 @@ class PrivacyCenterScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          ListTile(
+            leading: const Icon(Icons.policy_outlined),
+            title: const Text('Gizlilik Politikası'),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                    builder: (_) => const PrivacyPolicyScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.gavel_outlined),
+            title: const Text('Kullanım Şartları'),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                    builder: (_) => const TermsOfServiceScreen())),
+          ),
           ListTile(
             leading: const Icon(Icons.download_outlined),
             title: const Text('Verilerimi dışa aktar'),

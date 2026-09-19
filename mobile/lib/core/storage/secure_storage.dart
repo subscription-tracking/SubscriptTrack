@@ -14,6 +14,7 @@ class SecureStorage {
   static const _keyUserCredentials = 'user_credentials';
   static const keyAppPinHash = 'app_pin_hash';
   static const keyBiometricLock = 'app_biometric_lock';
+  static const keyLockTimeoutMinutes = 'app_lock_timeout_minutes';
 
   Future<void> writeAppPinHash(String hash) =>
       _storage.write(key: keyAppPinHash, value: hash);
@@ -23,6 +24,15 @@ class SecureStorage {
   Future<void> deleteAppLock() async {
     await _storage.delete(key: keyAppPinHash);
     await _storage.delete(key: keyBiometricLock);
+    await _storage.delete(key: keyLockTimeoutMinutes);
+  }
+
+  Future<void> writeLockTimeoutMinutes(int minutes) =>
+      _storage.write(key: keyLockTimeoutMinutes, value: minutes.toString());
+
+  Future<int> readLockTimeoutMinutes() async {
+    final raw = await _storage.read(key: keyLockTimeoutMinutes);
+    return int.tryParse(raw ?? '') ?? 0;
   }
 
   Future<void> writeBiometricLock(bool enabled) => _storage.write(

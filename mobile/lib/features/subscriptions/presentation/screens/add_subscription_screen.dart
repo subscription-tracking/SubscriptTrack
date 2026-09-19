@@ -4,14 +4,21 @@ import '../../../../core/domain/money.dart';
 import '../../../../core/services/local_notification_service.dart';
 import '../../../settings/presentation/screens/notification_preferences_screen.dart';
 import '../../../settings/presentation/settings_controller.dart';
-import '../../../notifications/domain/notification_rule.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
 class AddSubscriptionScreen extends StatefulWidget {
-  const AddSubscriptionScreen({required this.controller, super.key});
+  const AddSubscriptionScreen({
+    required this.controller,
+    this.initialStartDate,
+    super.key,
+  });
 
   final SubscriptionController controller;
+
+  /// S45: takvimde seçili bir güne "bu tarihte başlayan abonelik ekle" ile
+  /// gelindiyse, formun başlangıç tarihini o günle önceden doldurur.
+  final DateTime? initialStartDate;
 
   @override
   State<AddSubscriptionScreen> createState() => _AddSubscriptionScreenState();
@@ -19,7 +26,7 @@ class AddSubscriptionScreen extends StatefulWidget {
 
 class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _data = SubscriptionFormData();
+  late final _data = SubscriptionFormData(startDate: widget.initialStartDate);
 
   /// Test 7: aynı isimde bir abonelik zaten varsa, sessizce ikinci bir kayıt
   /// oluşturmak yerine kullanıcıya sorup onay istiyoruz — davranış tutarlı
@@ -100,9 +107,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       trialEndDate: _data.isTrial ? _data.trialEndDate : null,
       trialPriceAfter:
           _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
-      notificationRules: _data.reminderDays
-          .map((days) => NotificationRule(daysBefore: days))
-          .toList(),
+      notificationRules: _data.notificationRules,
     );
 
     if (!mounted) return;
