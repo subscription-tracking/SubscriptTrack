@@ -67,3 +67,72 @@ test('025 allows idempotency RPCs to resolve pgcrypto safely', async () => {
   assert.match(migration, /create_subscription_idempotent[\s\S]*SET search_path TO public, extensions/);
   assert.match(migration, /update_subscription_idempotent[\s\S]*SET search_path TO public, extensions/);
 });
+
+test('026 record_payment_idempotent verifies subscription ownership before insert', async () => {
+  const migration = await readFile(
+    new URL('../migrations/026_security_hardening_followup.sql', import.meta.url),
+    'utf8',
+  );
+
+  const fn = migration.slice(
+    migration.indexOf('CREATE OR REPLACE FUNCTION public.record_payment_idempotent'),
+    migration.indexOf('REVOKE ALL ON FUNCTION public.record_payment_idempotent'),
+  );
+
+  // The ownership check must run before any row is written, so it has to
+  // precede both the payment_events insert and the idempotency_keys insert.
+  const ownershipCheckIdx = fn.search(
+    /NOT EXISTS \(\s*SELECT 1 FROM subscriptions WHERE id = p_subscription_id AND user_id = v_user\s*\)/,
+  );
+  const paymentInsertIdx = fn.indexOf('INSERT INTO payment_events');
+
+  assert.notEqual(ownershipCheckIdx, -1,
+    'record_payment_idempotent must verify p_subscription_id belongs to auth.uid()');
+  assert.ok(ownershipCheckIdx < paymentInsertIdx,
+    'ownership check must run before the payment_events insert');
+  assert.match(fn, /RAISE EXCEPTION 'subscription not found' USING ERRCODE = 'P0002'/);
+});
+
+test('026 reconciles idempotency_keys columns additively (no destructive drops)', async () => {
+  const migration = await readFile(
+    new URL('../migrations/026_security_hardening_followup.sql', import.meta.url),
+    'utf8',
+  );
+
+  for (const column of ['user_id', 'method', 'path', 'idempotency_key', 'request_hash', 'status', 'response_body']) {
+    assert.match(
+      migration,
+      new RegExp(`ADD COLUMN IF NOT EXISTS ${column}\\b`),
+      `expected an additive ADD COLUMN IF NOT EXISTS for ${column}`,
+    );
+  }
+  assert.doesNotMatch(migration, /DROP COLUMN/);
+  assert.match(migration, /DELETE FROM public\.idempotency_keys WHERE user_id IS NULL/);
+  assert.match(migration, /CREATE POLICY own_idempotency_keys ON public\.idempotency_keys/);
+});
+
+test('026 grants billing_schedules access only through the owning subscription', async () => {
+  const migration = await readFile(
+    new URL('../migrations/026_security_hardening_followup.sql', import.meta.url),
+    'utf8',
+  );
+
+  for (const action of ['select', 'insert', 'update', 'delete']) {
+    assert.match(
+      migration,
+      new RegExp(`"billing_schedules: ${action} own"[\\s\\S]{0,400}s\\.user_id = auth\\.uid\\(\\)`),
+    );
+  }
+});
+
+test('026 locks down write access to categories/services reference tables', async () => {
+  const migration = await readFile(
+    new URL('../migrations/026_security_hardening_followup.sql', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(migration, /REVOKE INSERT, UPDATE, DELETE ON public\.categories FROM authenticated, anon/);
+  assert.match(migration, /REVOKE INSERT, UPDATE, DELETE ON public\.services FROM authenticated, anon/);
+  assert.match(migration, /GRANT SELECT ON public\.categories TO authenticated, anon/);
+  assert.match(migration, /GRANT SELECT ON public\.services TO authenticated, anon/);
+});
