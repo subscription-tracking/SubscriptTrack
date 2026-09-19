@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/domain/money.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../auth/presentation/auth_controller.dart';
@@ -30,6 +33,20 @@ class DashboardScreen extends StatelessWidget {
     final trials = controller.trials;
     final totals = controller.totalsByCurrency;
     final monthChangeLabel = _monthChangeLabel(controller);
+    // "Tamamlandı" burada şu anlama gelir: bu takvim ayında en az bir ödeme
+    // kaydı (payment_events) girilmiş aktif abonelik. Bu, "bu ay yenilenmesi
+    // gereken" aboneliklerin kesin sayısı değil — kullanıcının fiilen ödeme
+    // olarak işaretlediği kayıtların basit bir özeti.
+    final now = DateTime.now();
+    final paidSubscriptionIdsThisMonth = controller.paymentEvents
+        .where((e) =>
+            e.paidAt.toLocal().year == now.year &&
+            e.paidAt.toLocal().month == now.month)
+        .map((e) => e.subscriptionId)
+        .whereType<String>()
+        .toSet();
+    final completedThisMonth =
+        active.where((s) => paidSubscriptionIdsThisMonth.contains(s.id)).length;
 
     final cs = Theme.of(context).colorScheme;
     return Column(
@@ -62,6 +79,8 @@ class DashboardScreen extends StatelessWidget {
                 _HeroCard(
                   totals: totals,
                   monthChangeLabel: monthChangeLabel,
+                  completedThisMonth: completedThisMonth,
+                  totalActive: active.length,
                   onAnalysisTap: active.isEmpty
                       ? null
                       : () => Navigator.push(
@@ -93,23 +112,39 @@ class DashboardScreen extends StatelessWidget {
                       trials: trials.take(3).toList(), controller: controller),
                   const SizedBox(height: 28),
                 ],
+                // S46: tam "Yaklaşan ödemeler" listesi kaldırıldı — o liste
+                // zaten Takvim sekmesinde var. Ana sayfada yalnızca en
+                // yakın tek ödeme, hızlı erişim kartı olarak kalıyor.
                 _SectionHeader(
-                  title: 'Yaklaşan ödemeler',
+                  title: 'Sıradaki ödeme',
                   actionLabel:
-                      onViewAllSubscriptions != null ? 'Tümünü gör' : null,
+                      onViewAllSubscriptions != null && upcoming.isNotEmpty
+                          ? 'Takvimde gör'
+                          : null,
                   onAction: onViewAllSubscriptions,
                 ),
                 const SizedBox(height: 12),
                 if (upcoming.isEmpty)
                   _EmptyRenewalsCard()
                 else
-                  _RenewalList(
-                    renewals: upcoming.take(5).toList(),
+                  _NextPaymentCard(
+                    subscription: upcoming.first,
                     controller: controller,
                   ),
                 if (active.isNotEmpty) ...[
                   const SizedBox(height: 28),
-                  _CategorySection(active: active),
+                  // S46: tam kategori listesi kaldırıldı — zaten Stats
+                  // sekmesinde ayrıntılı olarak var. Ana sayfada yalnızca
+                  // özet bir donut grafik + oraya link.
+                  _CategoryDonutCard(
+                    active: active,
+                    onViewAll: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => StatsScreen(controller: controller),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 28),
                   _HealthInsights(active: active, controller: controller),
                 ],
@@ -212,12 +247,19 @@ class _GreetingRow extends StatelessWidget {
 // ─── Hero Card ───────────────────────────────────────────────────────────────
 
 class _HeroCard extends StatelessWidget {
-  const _HeroCard(
-      {required this.totals, this.monthChangeLabel, this.onAnalysisTap});
+  const _HeroCard({
+    required this.totals,
+    this.monthChangeLabel,
+    this.onAnalysisTap,
+    this.completedThisMonth = 0,
+    this.totalActive = 0,
+  });
 
   final Map<String, Money> totals;
   final String? monthChangeLabel;
   final VoidCallback? onAnalysisTap;
+  final int completedThisMonth;
+  final int totalActive;
 
   @override
   Widget build(BuildContext context) {
@@ -282,38 +324,22 @@ class _HeroCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (onAnalysisTap != null)
-                GestureDetector(
-                  onTap: onAnalysisTap,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(
-                        color: cs.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.trending_up, color: cs.primary, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Analiz',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: cs.primary,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              if (totalActive > 0)
+                _MonthProgressRing(
+                  completed: completedThisMonth,
+                  total: totalActive,
+                )
+              else if (onAnalysisTap != null)
+                _AnalysisPill(onTap: onAnalysisTap!),
             ],
           ),
+          if (totalActive > 0 && onAnalysisTap != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _AnalysisPill(onTap: onAnalysisTap!),
+            ),
+          ],
           if (onAnalysisTap != null) ...[
             const SizedBox(height: 10),
             Text(
@@ -350,6 +376,144 @@ class _HeroCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _AnalysisPill extends StatelessWidget {
+  const _AnalysisPill({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: cs.primary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.trending_up, color: cs.primary, size: 14),
+            const SizedBox(width: 4),
+            Text(
+              'Analiz',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: cs.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// S46: "Tamamlandı" tanımı için bkz. DashboardScreen.build() içindeki
+/// completedThisMonth hesaplama yorumu — bu ay ödeme kaydı girilmiş aktif
+/// abonelik sayısıdır, "bu ay yenilenmesi gereken toplam" değildir.
+class _MonthProgressRing extends StatelessWidget {
+  const _MonthProgressRing({required this.completed, required this.total});
+
+  final int completed;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final progress = total == 0 ? 0.0 : completed / total;
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size(64, 64),
+            painter: _RingPainter(
+              progress: progress,
+              color: cs.primary,
+              trackColor: cs.primary.withValues(alpha: 0.15),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$completed/$total',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                      color: cs.onSurface,
+                    ),
+              ),
+              Text(
+                'ödeme',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontSize: 8,
+                      color: cs.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  _RingPainter({
+    required this.progress,
+    required this.color,
+    required this.trackColor,
+  });
+
+  final double progress;
+  final Color color;
+  final Color trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final strokeWidth = size.width * 0.14;
+    final center = size.center(Offset.zero);
+    final radius = (size.width - strokeWidth) / 2;
+
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = trackColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round,
+    );
+
+    final clamped = progress.clamp(0.0, 1.0);
+    if (clamped > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -math.pi / 2,
+        2 * math.pi * clamped,
+        false,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter oldDelegate) =>
+      oldDelegate.progress != progress ||
+      oldDelegate.color != color ||
+      oldDelegate.trackColor != trackColor;
 }
 
 String? _monthChangeLabel(SubscriptionController controller) {
@@ -489,122 +653,121 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ─── Renewal List ─────────────────────────────────────────────────────────────
+// ─── Next Payment Card (S46) ───────────────────────────────────────────────
 
-class _RenewalList extends StatelessWidget {
-  const _RenewalList({required this.renewals, required this.controller});
-
-  final List<Subscription> renewals;
-  final SubscriptionController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainer,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant, width: 0.5),
-      ),
-      child: Column(
-        children: renewals.asMap().entries.map((entry) {
-          final i = entry.key;
-          final sub = entry.value;
-          final isLast = i == renewals.length - 1;
-          return _RenewalTile(
-            subscription: sub,
-            controller: controller,
-            isLast: isLast,
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class _RenewalTile extends StatelessWidget {
-  const _RenewalTile({
-    required this.subscription,
-    required this.controller,
-    required this.isLast,
-  });
+/// Tam "yaklaşan ödemeler" listesi yerine tek, en yakın ödemeyi vurgulayan
+/// bir kart — tam liste zaten Takvim sekmesinde mevcut.
+class _NextPaymentCard extends StatelessWidget {
+  const _NextPaymentCard(
+      {required this.subscription, required this.controller});
 
   final Subscription subscription;
   final SubscriptionController controller;
-  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final statusColors = context.statusColors;
+    final isDark = cs.brightness == Brightness.dark;
     final days = subscription.daysUntilRenewal;
     final urgent = days <= 3;
 
-    return InkWell(
-      borderRadius: isLast
-          ? const BorderRadius.only(
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            )
-          : null,
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => SubscriptionDetailScreen(
-            subscription: subscription,
-            controller: controller,
+    void openDetail() => Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => SubscriptionDetailScreen(
+              subscription: subscription,
+              controller: controller,
+            ),
           ),
-        ),
+        );
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? statusColors.warning.withValues(alpha: 0.12)
+            : statusColors.warning.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: statusColors.warning.withValues(alpha: 0.3)),
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: isLast
-            ? null
-            : BoxDecoration(
-                border: Border(bottom: BorderSide(color: cs.outlineVariant)),
-              ),
-        child: Row(
-          children: [
-            ServiceIdentity(
-              name: subscription.name,
-              category: subscription.category,
-              size: 36,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: statusColors.warning.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(100),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    subscription.name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · ${days < 0 ? 'geçti' : '$days gün kaldı'}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: urgent ? cs.error : cs.onSurfaceVariant,
-                          fontSize: 11,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              DateTimeUtils.formatCurrency(
-                subscription.amount.amount,
-                symbol: subscription.currency,
-              ),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            child: Text(
+              days < 0 ? '${days.abs()} gün geçti' : '$days gün kaldı',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: urgent ? cs.error : statusColors.warning,
                     fontWeight: FontWeight.w700,
-                    color: cs.onSurface,
                   ),
             ),
-            const SizedBox(width: 8),
-            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: openDetail,
+            child: Row(
+              children: [
+                ServiceIdentity(
+                  name: subscription.name,
+                  category: subscription.category,
+                  size: 44,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        subscription.name,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        DateTimeUtils.formatDate(subscription.nextRenewalDate),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  DateTimeUtils.formatCurrency(
+                    subscription.amount.amount,
+                    symbol: subscription.currency,
+                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface,
+                      ),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: openDetail,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: statusColors.warning,
+              side: BorderSide(
+                  color: statusColors.warning.withValues(alpha: 0.4)),
+              visualDensity: VisualDensity.compact,
+            ),
+            icon: const Icon(Icons.notifications_active_outlined, size: 16),
+            label: const Text('Hatırlat'),
+          ),
+        ],
       ),
     );
   }
@@ -879,12 +1042,16 @@ class _TrialList extends StatelessWidget {
       );
 }
 
-// ─── Category Section ─────────────────────────────────────────────────────────
+// ─── Category Donut Card (S46) ─────────────────────────────────────────────
 
-class _CategorySection extends StatelessWidget {
-  const _CategorySection({required this.active});
+/// Tam kategori dökümü yerine özet bir donut grafik + en büyük 2 kategori +
+/// Stats sekmesine link — tam liste zaten orada (StatsScreen) hesaplanıyor,
+/// burada tekrar üretilmiyor.
+class _CategoryDonutCard extends StatelessWidget {
+  const _CategoryDonutCard({required this.active, required this.onViewAll});
 
   final List<Subscription> active;
+  final VoidCallback onViewAll;
 
   static const _groupColors = {
     'Eğlence': Color(0xFFFF6B6B),
@@ -909,83 +1076,119 @@ class _CategorySection extends StatelessWidget {
     }
     if (groups.isEmpty) return const SizedBox.shrink();
 
-    final entries = groups.entries.toList();
+    // Donut, tek para birimi varsayarak oran gösterir — karışık para
+    // birimi durumunda en çok kullanılanı baz alınır (StatsScreen zaten
+    // para birimi bazlı ayrımı tam olarak yapıyor, buradaki grafik sadece
+    // görsel bir özet).
+    final primaryCurrency = groups.values.first.currency;
+    final sameCurrencyEntries = groups.entries
+        .where((e) => e.value.currency == primaryCurrency)
+        .toList()
+      ..sort((a, b) => b.value.amount.compareTo(a.value.amount));
+    final total =
+        sameCurrencyEntries.fold<double>(0, (sum, e) => sum + e.value.amount);
+    final slices = sameCurrencyEntries
+        .map((e) => (
+              total == 0 ? 0.0 : e.value.amount / total,
+              _groupColors[e.key] ?? cs.secondary,
+            ))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(title: 'Kategoriler'),
+        _SectionHeader(
+          title: 'Bu ayın görünümü',
+          actionLabel: 'Tüm kategoriler',
+          onAction: onViewAll,
+        ),
         const SizedBox(height: 12),
         Container(
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: cs.surfaceContainer,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: cs.outlineVariant),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: cs.outlineVariant, width: 0.5),
           ),
-          child: Column(
-            children: entries.asMap().entries.map((mapEntry) {
-              final i = mapEntry.key;
-              final cat = mapEntry.value.key;
-              final entry = mapEntry.value.value;
-              final isLast = i == entries.length - 1;
-              final color = _groupColors[cat] ?? cs.secondary;
-
-              return Container(
-                decoration: isLast
-                    ? null
-                    : BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(color: cs.outlineVariant)),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 84,
+                height: 84,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomPaint(
+                      size: const Size(84, 84),
+                      painter: _DonutPainter(
+                        slices: slices,
+                        trackColor: cs.outlineVariant,
                       ),
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 3,
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: i == 0
-                              ? const BorderRadius.only(
-                                  topLeft: Radius.circular(16))
-                              : isLast
-                                  ? const BorderRadius.only(
-                                      bottomLeft: Radius.circular(16))
-                                  : null,
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          DateTimeUtils.formatCurrency(total,
+                              symbol: primaryCurrency),
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                          child: Row(
-                            children: [
-                              Text(
-                                '$cat · ${entry.count} abonelik',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w500),
-                              ),
-                              const Spacer(),
-                              Text(
-                                '${DateTimeUtils.formatCurrency(entry.amount, symbol: entry.currency)} / ay',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: cs.onSurface,
-                                    ),
-                              ),
-                            ],
-                          ),
+                        Text(
+                          'toplam',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(color: cs.onSurfaceVariant),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-              );
-            }).toList(),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: sameCurrencyEntries.take(3).map((e) {
+                    final percent =
+                        total == 0 ? 0 : (e.value.amount / total * 100).round();
+                    final color = _groupColors[e.key] ?? cs.secondary;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                                color: color, shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              e.key,
+                              style: Theme.of(context).textTheme.bodySmall,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            '%$percent',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1007,6 +1210,52 @@ class _CategorySection extends StatelessWidget {
         SubscriptionCategory.other =>
           'Araçlar',
       };
+}
+
+class _DonutPainter extends CustomPainter {
+  _DonutPainter({required this.slices, required this.trackColor});
+
+  final List<(double, Color)> slices;
+  final Color trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final strokeWidth = size.width * 0.22;
+    final center = size.center(Offset.zero);
+    final radius = (size.width - strokeWidth) / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = trackColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth,
+    );
+
+    var startAngle = -math.pi / 2;
+    for (final slice in slices) {
+      final sweep = 2 * math.pi * slice.$1;
+      if (sweep <= 0) continue;
+      canvas.drawArc(
+        rect,
+        startAngle,
+        sweep,
+        false,
+        Paint()
+          ..color = slice.$2
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.butt,
+      );
+      startAngle += sweep;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DonutPainter oldDelegate) =>
+      oldDelegate.slices != slices || oldDelegate.trackColor != trackColor;
 }
 
 // ─── Offline Banner ───────────────────────────────────────────────────────────
