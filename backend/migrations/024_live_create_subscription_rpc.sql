@@ -1,7 +1,4 @@
--- 017: Idempotent subscription create for direct mobile Supabase clients.
-ALTER TABLE public.idempotency_keys
-  ADD COLUMN IF NOT EXISTS request_hash text;
-
+-- 024: Restore the documented authenticated create-subscription RPC in the live schema.
 CREATE OR REPLACE FUNCTION public.create_subscription_idempotent(
   p_idempotency_key text,
   p_name text,

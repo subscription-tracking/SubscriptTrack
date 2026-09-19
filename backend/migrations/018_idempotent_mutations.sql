@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION public.update_subscription_idempotent(
   p_currency text, p_billing_cycle text, p_next_renewal_date date,
   p_category text, p_notes text, p_payment_method text, p_trial_end_date date,
   p_trial_price_after numeric, p_notification_rules jsonb, p_status text
-) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v_user uuid := auth.uid(); v_hash text; v_existing idempotency_keys%ROWTYPE; v_row subscriptions%ROWTYPE; v_body jsonb;
 BEGIN
   IF v_user IS NULL THEN RAISE EXCEPTION 'not authenticated' USING ERRCODE='42501'; END IF;
@@ -18,7 +18,7 @@ BEGIN
 END; $$;
 
 CREATE OR REPLACE FUNCTION public.record_payment_idempotent(p_idempotency_key text,p_subscription_id uuid,p_amount numeric,p_currency text,p_paid_at timestamptz)
-RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public, extensions AS $$
 DECLARE v_user uuid:=auth.uid(); v_hash text; v_existing idempotency_keys%ROWTYPE; v_body jsonb;
 BEGIN
   IF v_user IS NULL THEN RAISE EXCEPTION 'not authenticated' USING ERRCODE='42501'; END IF;
