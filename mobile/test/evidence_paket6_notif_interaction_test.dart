@@ -92,8 +92,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('TEST 34 — Son tarihi geçmiş (kaçırılmış) abonelik durumu', () {
-    test(
-        'geçmiş tarihli aktif abonelik gecikmiş olarak korunur ve status bozulmaz',
+    test('geçmiş tarihli aktif abonelik status bozulmadan otomatik ilerletilir',
         () async {
       SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
@@ -105,9 +104,11 @@ void main() {
 
       final result = ctrl.allItems.single;
       expect(result.status, SubscriptionStatus.active,
-          reason: 'Gecikmiş kayıt aktif yaşam döngüsünde kalır.');
-      expect(result.daysUntilRenewal, lessThan(0),
-          reason: 'Yükleme, kullanıcı onayı olmadan tarihi değiştirmez.');
+          reason: 'Gecikmiş kayıt aktif yaşam döngüsünde kalır (expired '
+              'yapılmaz).');
+      expect(result.daysUntilRenewal, greaterThanOrEqualTo(0),
+          reason: 'Yükleme sırasında bir sonraki döneme otomatik ilerletilir; '
+              'eski (gecikmiş) tarih listede kalmaz.');
     });
   });
 
@@ -169,7 +170,7 @@ void main() {
       ctrl.addListener(
           () => activeAfterDelete = ctrl.active.map((s) => s.id).toList());
 
-      await ctrl.delete('1', mistakenRecord: true);
+      await ctrl.delete('1');
 
       expect(activeAfterDelete, isEmpty,
           reason:

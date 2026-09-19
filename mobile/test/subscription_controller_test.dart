@@ -246,25 +246,10 @@ void main() {
       final ctrl = SubscriptionController(userId: 'u1', repository: repo);
       await ctrl.load();
 
-      await ctrl.delete('1', mistakenRecord: true);
+      await ctrl.delete('1');
 
       expect(ctrl.active.any((s) => s.id == '1'), isFalse);
       expect(ctrl.active.length, 1);
-    });
-
-    test('delete() yanlış kayıt gerekçesi olmadan fiziksel silme yapmaz',
-        () async {
-      final ctrl = SubscriptionController(
-        userId: 'u1',
-        repository: _FakeRepo([_sub('1')]),
-      );
-      await ctrl.load();
-
-      await expectLater(
-        ctrl.delete('1'),
-        throwsA(isA<ValidationException>()),
-      );
-      expect(ctrl.allItems.single.id, '1');
     });
   });
 

@@ -89,7 +89,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     });
   }
 
-  Future<void> _confirmBulkDelete(SubscriptionController controller) async {
+  Future<void> _confirmBulkArchive(SubscriptionController controller) async {
     final count = _selectedIds.length;
     final confirm = await showDialog<bool>(
       context: context,
@@ -103,8 +103,6 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
             child: const Text('Arşivle'),
           ),
         ],
@@ -114,6 +112,34 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     final ids = _selectedIds.toList();
     _exitSelectionMode();
     await controller.archiveMany(ids);
+  }
+
+  Future<void> _confirmBulkDelete(SubscriptionController controller) async {
+    final count = _selectedIds.length;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Seçilenleri sil'),
+        content: Text(
+            '$count abonelik kalıcı olarak silinecek. Bu işlem geri alınamaz.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Vazgeç'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(ctx).colorScheme.error),
+            child: const Text('Kalıcı olarak sil'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final ids = _selectedIds.toList();
+    _exitSelectionMode();
+    await controller.deleteMany(ids);
   }
 
   @override
@@ -146,6 +172,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
               ? _SelectionBar(
                   count: _selectedIds.length,
                   onCancel: _exitSelectionMode,
+                  onArchive: () => _confirmBulkArchive(controller),
                   onDelete: () => _confirmBulkDelete(controller),
                 )
               : _Header(
@@ -407,17 +434,19 @@ class _Header extends StatelessWidget {
   }
 }
 
-// ─── Selection Bar (toplu arşivleme) ─────────────────────────────────────────
+// ─── Selection Bar (toplu arşivleme / silme) ─────────────────────────────────
 
 class _SelectionBar extends StatelessWidget {
   const _SelectionBar({
     required this.count,
     required this.onCancel,
+    required this.onArchive,
     required this.onDelete,
   });
 
   final int count;
   final VoidCallback onCancel;
+  final VoidCallback onArchive;
   final VoidCallback onDelete;
 
   @override
@@ -440,11 +469,17 @@ class _SelectionBar extends StatelessWidget {
                   ),
             ),
           ),
+          OutlinedButton.icon(
+            onPressed: count == 0 ? null : onArchive,
+            icon: const Icon(Icons.archive_outlined, size: 18),
+            label: const Text('Arşivle'),
+          ),
+          const SizedBox(width: 8),
           FilledButton.icon(
             onPressed: count == 0 ? null : onDelete,
             style: FilledButton.styleFrom(backgroundColor: cs.error),
-            icon: const Icon(Icons.archive_outlined, size: 18),
-            label: const Text('Arşivle'),
+            icon: const Icon(Icons.delete_outline, size: 18),
+            label: const Text('Sil'),
           ),
         ],
       ),

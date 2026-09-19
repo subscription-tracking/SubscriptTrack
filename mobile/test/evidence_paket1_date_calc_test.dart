@@ -116,11 +116,12 @@ void main() {
     });
   });
 
-  group('TEST 34/45 — Gecikmiş yenileme ve kullanıcı onaylı ilerletme', () {
+  group('TEST 34/45 — Gecikmiş yenileme ve otomatik ilerletme', () {
     test(
-        'nextRenewalDate geçmişte olsa bile projectedRenewals BUGÜNE göre değil, '
-        'kayıtlı tarihe göre hesaplar — otomatik "yakala" mantığı YOK (BUG)',
-        () {
+        'projectedRenewals saf/immutable bir projeksiyondur — kaydın '
+        'nextRenewalDate\'ini mutasyona uğratmaz (otomatik ilerletme '
+        'SubscriptionController.load() içinde ayrıca yapılır, bkz. '
+        'subscription_controller_test.dart)', () {
       // "Bugün" 2026-09-17 varsayımıyla, 3 ay önce kaçırılmış aylık bir abonelik:
       final missedRenewal = DateTime(2026, 6, 17);
       final sub = _sub(
@@ -128,10 +129,9 @@ void main() {
 
       // Subscription.projectedRenewals() bilerek SAF bir projeksiyon
       // yardımcısıdır (ekranda "gelecek 12 ay" gibi listeler için) ve
-      // kayıtlı nextRenewalDate'i mutasyona uğratmaz — bu beklenen tasarım.
-      // Gecikmiş tarih yükleme sırasında da kullanıcı onayı olmadan
-      // değiştirilmez. Burada yalnızca projectedRenewals'ın saf/immutable
-      // davranışını doğruluyoruz:
+      // kayıtlı nextRenewalDate'i mutasyona uğratmaz. Gerçek otomatik
+      // ilerletme SubscriptionController.load() -> _advanceOverdueRenewals()
+      // içinde, DateTimeUtils.nextOccurrenceOnOrAfter ile yapılır.
       final projected = sub.projectedRenewals(count: 2);
       expect(sub.nextRenewalDate, missedRenewal,
           reason:
@@ -140,12 +140,12 @@ void main() {
       expect(projected[1], DateTime(2026, 7, 17));
     });
 
-    test('gecikmiş ACTIVE kayıt kullanıcı onayı olmadan expired yapılmaz', () {
+    test('gecikmiş ACTIVE kayıt "expired" durumuna geçemez', () {
       expect(
           SubscriptionStatus.active.canTransitionTo(SubscriptionStatus.expired),
           isFalse,
           reason: 'Tasarım gereği aktif abonelik "expired" olmuyor; gecikmiş '
-              'olarak görünür kalır. '
+              'durum otomatik olarak bir sonraki döneme ilerletilir. '
               'Trial\'lar ise ayrı olarak _expireEndedTrials ile expired olabiliyor.');
     });
   });

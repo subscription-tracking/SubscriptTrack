@@ -1,6 +1,6 @@
 # Excel Test Senaryosu İzlenebilirliği
 
-Son güncelleme: 19 Eylül 2026 (S37)
+Son güncelleme: 19 Eylül 2026 (S39)
 
 Bu tablo, `Abonelik_Takip_Test_Senaryolari.xlsx` içindeki her satırı kaynak
 testine bağlar. `Kod` yalnız otomatik testin bulunduğunu gösterir; işletim
@@ -71,11 +71,14 @@ sistemi teslimi, fiziksel cihaz, mağaza veya canlı backend gerektiren satırla
 
 ## Kapsam sınırları
 
-- Normal kullanıcı akışında silme değil archive/cancel kullanılır. 18–21 ve
-  40 numaralı Excel maddeleri bu kurala hizalanmıştır; fiziksel silme yalnız
-  yanlış oluşturulmuş kayıt için uygulanır.
-- 45 numaralı satırda yenileme tarihi kullanıcı onayı olmadan otomatik
-  ilerletilmez; gecikmiş durum korunur.
+- 18–21 ve 40 numaralı Excel maddeleri artık literal metinle birebir: hem
+  liste ekranında (tekli ve toplu seçim) hem detay ekranında gerçek/kalıcı
+  "Sil" işlemi herhangi bir abonelik için kullanılabilir (eski "yalnızca
+  yanlış kayıt" kısıtlaması S39'da kaldırıldı). Archive/cancel ayrı, ek bir
+  seçenek olarak duruyor.
+- 45 numaralı satırda yenileme tarihi artık kullanıcı onayı beklenmeden,
+  `SubscriptionController.load()` içinde otomatik olarak bir sonraki döneme
+  ilerletilir; eski (gecikmiş) tarih listede kalmaz (S39).
 - 46 numaralı satırda serbest metin tarih girişi yoktur: `DatePicker` yalnız
   geçerli seçimlere izin verir; CSV içe aktarmadaki geçersiz ISO tarihleri ise
   ayrı parser doğrulamasından geçer.

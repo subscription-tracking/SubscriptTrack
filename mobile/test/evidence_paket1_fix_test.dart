@@ -62,9 +62,10 @@ void main() {
   FlutterSecureStorage.setMockInitialValues({});
 
   test(
-      'TEST 34: geçmişte kalan aktif abonelik yüklemede görünür kalır; '
-      'kullanıcı onayıyla sonraki döneme geçer', () async {
+      'TEST 34/45: geçmişte kalan aktif abonelik yüklemede otomatik olarak '
+      'sonraki döneme geçer (kullanıcı onayı gerekmez)', () async {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final threeMonthsAgo = DateTime(now.year, now.month - 3, 15);
     final overdueSub = Subscription(
       id: 'overdue-1',
@@ -88,15 +89,9 @@ void main() {
     final result = controller.allItems.single;
     expect(result.status, SubscriptionStatus.active,
         reason: 'Abonelik gecikmiş olsa da sessizce expired yapılmaz.');
-    expect(result.nextRenewalDate, threeMonthsAgo,
-        reason:
-            'Yükleme, gecikmiş tarihi kullanıcı onayı olmadan değiştirmez.');
-    expect(repo.updateCalls, isEmpty);
-
-    expect(await controller.markRenewed('overdue-1'), isTrue);
-    final tomorrow = DateTime(now.year, now.month, now.day + 1);
-    expect(
-        controller.allItems.single.nextRenewalDate.isBefore(tomorrow), isFalse);
+    expect(result.nextRenewalDate.isBefore(today), isFalse,
+        reason: 'Yükleme sırasında bir sonraki dönem otomatik hesaplanır; '
+            'eski (gecikmiş) tarih listede kalmaz.');
     expect(repo.updateCalls.single.id, 'overdue-1');
   });
 
