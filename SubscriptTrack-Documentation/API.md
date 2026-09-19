@@ -111,6 +111,11 @@ Sistem kategorilerini sıralı döndürür.
 
 ### `POST /subscriptions`
 
+Canlı Supabase uyarlamasında bu işlem, oturumdaki kullanıcının yetkisiyle
+`create_subscription_idempotent` RPC'si üzerinden yürütülür; istek gövdesi
+buradaki abonelik alanlarını, idempotency anahtarı ise tekrar denemelerde aynı
+kaydın döndürülmesini sağlar.
+
 ```json
 {
   "serviceId": "svc_optional",
@@ -145,7 +150,9 @@ Query parametreleri:
 
 ### `PATCH /subscriptions/{id}`
 
-Partial update. Domain geçişleri için genel `status` güncellemesi yerine aksiyon endpoint'leri tercih edilir.
+Partial update. `startDate` ve `nextRenewalAt` birlikte güncellenebilir; istemci
+başlangıç gününü koruyarak sonraki yenilemeyi yeniden hesaplar. Domain geçişleri
+için genel `status` güncellemesi yerine aksiyon endpoint'leri tercih edilir.
 
 ### `POST /subscriptions/{id}/pause`
 

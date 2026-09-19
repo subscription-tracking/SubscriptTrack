@@ -38,6 +38,7 @@ Temel dokümanlar:
 - [`SECURITY.md`](SECURITY.md): Kullanıcı verileri nasıl korunuyor?
 - [`ANALYTICS.md`](ANALYTICS.md): Ürün başarısı nasıl ölçülüyor?
 - [`TESTING.md`](TESTING.md): Doğruluk nasıl doğrulanıyor?
+- [`TEST_TRACEABILITY.md`](TEST_TRACEABILITY.md): Excel test senaryoları hangi otomatik kanıtla eşleşiyor?
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): Ekip geliştirme kuralları neler?
 
 ## Güncel ürün kararı

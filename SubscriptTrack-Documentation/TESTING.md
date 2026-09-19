@@ -129,3 +129,18 @@ Coverage tek kalite ölçütü değildir; domain ve güvenlik kritik yollarında
 - Analytics event kontrolü
 - Crash-free beta
 - Rollback planı
+
+## 11. Excel kabul sözleşmesi
+
+Excel kabul senaryoları ürün kuralını genişletemez. İzlenebilir kaynak
+`TEST_TRACEABILITY.md` dosyasıdır.
+
+- Normal abonelik yaşam döngüsünde fiziksel silme yapılmaz; kullanıcı kaydı
+  iptal eder veya arşivler. Fiziksel silme yalnız yanlış oluşturulmuş kayıt
+  akışında uygulanır ve ilişkili yerel bildirimler iptal edilir.
+- Yenileme tarihi zaman geçmesiyle sessizce ilerletilmez. Kayıt gecikmiş
+  görünür; kullanıcı **Yenilendi** eylemini açıkça onayladığında sonraki tarih
+  hesaplanır.
+- Mobil form tarihleri `DatePicker` ile seçilir. Serbest metin tarih girdisi
+  kabul kriteri değildir; CSV içe aktarmadaki tarih metinleri parser tarafından
+  doğrulanır.

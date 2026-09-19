@@ -53,6 +53,12 @@ Bir bildirimin belirli bir kanala gönderilme denemesidir.
 | `EXPIRED` | Erişim sona ermiştir |
 | `ARCHIVED` | Geçmiş kayıt olarak saklanır ve aktif listelerde varsayılan görünmez |
 
+Başlangıç tarihi bugünden ileride olan `ACTIVE` veya `TRIAL` kayıtlar, kalıcı
+yaşam döngüsü durumunu değiştirmeden istemcide türetilen **Henüz başlamadı**
+sunum durumuyla gösterilir. Bu kayıtlar aktif harcama toplamına ve normal
+yenileme bildirimlerine dahil edilmez; başlangıç günü geldiğinde mevcut kalıcı
+durumlarıyla görünürler.
+
 ### İzin verilen temel geçişler
 
 ```text

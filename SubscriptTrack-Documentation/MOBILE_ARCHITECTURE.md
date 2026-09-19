@@ -35,10 +35,10 @@ mobile/lib/
 │   ├── network/         api_client.dart           — Bearer token, X-Request-ID, Idempotency-Key, retry
 │   │                    token_provider.dart       — abstract + SupabaseTokenProvider
 │   ├── services/        local_notification_service.dart   — flutter_local_notifications, timezone
-│   │                    offline_mutation_queue.dart        — SharedPreferences kuyruk
+│   │                    offline_mutation_queue.dart        — şifreli cihaz kuyruğu
 │   │                    device_token_service.dart          — push token (kullanılmıyor)
 │   │                    notification_read_sync_service.dart — POST /v1/notifications/read-batch
-│   ├── storage/         local_storage.dart        — abonelik JSON cache (SharedPreferences)
+│   ├── storage/         local_storage.dart        — şifreli abonelik JSON cache; eski SharedPreferences kaydını taşır
 │   │                    secure_storage.dart       — hassas veri (flutter_secure_storage)
 │   └── utils/           date_time_utils.dart      — formatDate, formatCurrency, renewalLabel
 │
@@ -126,16 +126,29 @@ status/lifecycle çağrısı → NetworkException
 load() başarılı
   ↓ _replayOfflineQueue()
   queue.peek() → repo çağrısı → başarılıysa queue.removeFirst()
+  offline create gerçek sunucu kimliği alırsa takip eden mutation kimlikleri güncellenir
   Başarısız → head yerinde kalır; sonraki mutation çalıştırılmaz (FIFO korunur)
 ```
+
+Geçmiş `nextRenewalDate` değerleri yükleme sırasında değiştirilmez. Aktif kayıt
+arayüzde **Gecikmiş** olarak görünür; kullanıcı **Yenilendi** eylemini seçerse
+başlangıç gününü koruyan sonraki yenileme tarihi hesaplanır ve kaydedilir.
+
+Fiziksel silme controller katmanında yalnızca `mistakenRecord: true` ile
+çağrılabilir. Tek kayıt ekranındaki **Yanlış kayıt** onayı bu akışı kullanır;
+çoklu seçim ise kayıtları fiziksel silmeden arşivler.
 
 ---
 
 ## 7. Bildirim mimarisi (S6 + S11)
 
 - **Yerel push:** `flutter_local_notifications` — `scheduleRenewalReminders()` N gün önce 09:00
-- **Duplicate guard:** `Object.hashAll(subs + daysBefore + timezone)` — hash değişmezse schedule atlanır
+- **Duplicate guard:** `Object.hashAll(...)` abonelik kimliği, adı, tutarı, para birimi, yenileme/trial tarihi, durumu, kuralı, genel ayarı ve saat dilimini kapsar; bunlardan biri değişmezse schedule atlanır
 - **Settings listener:** `daysBefore` veya `timezone` değişince otomatik yeniden zamanlama
+- **Saat dilimi yenileme:** Uygulama `resumed` durumuna döndüğünde cihazın IANA saat dilimi yeniden okunur; değişmişse yerel bildirim planı yeniden kurulur.
+- **Cold-start yönlendirmesi:** Bildirim payload'ındaki abonelik kimliği, abonelik listesi yüklenene kadar saklanır; yüklendikten sonra detay ekranı açılır.
+- **Plan sınırı:** Düzenli hatırlatmalar ve snooze bildirimleri, cihazda bekleyen en fazla 60 yerel bildirim sınırını aşmaz.
+- **Exact alarm fallback:** Android 12+ exact-alarm izni kapalıysa scheduler hata vermek yerine `inexactAllowWhileIdle` ile planlama yapar.
 - **Push yöntemi:** Yalnızca `flutter_local_notifications` ile cihaz üzeri zamanlama. Uzak push altyapısı kullanılmaz.
 - **Read sync:** `NotificationReadSyncService` → `POST /v1/notifications/read-batch` (best-effort)
 
@@ -146,7 +159,7 @@ load() başarılı
 - Tüm credential'lar `--dart-define` ile inject edilir; kaynak kodda yoktur
 - RLS: `auth.uid() = user_id` her tablo için
 - `ApiClient`: Bearer token her istekte, X-Request-ID UUID trace
-- `OfflineMutationQueue`: payload'da yalnızca ID ve status; kullanıcı verisi queue'ya yazılmaz
+- `OfflineMutationQueue` ve abonelik cache'i `flutter_secure_storage` ile şifreli cihaz depolamasındadır; eski düz metin SharedPreferences kaydı ilk okumada taşınır ve silinir
 - `service_role` key client'a hiçbir zaman gönderilmez
 
 ---

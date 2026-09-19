@@ -58,6 +58,10 @@ Son güncelleme: 14 Eylül 2026
 | S28 | Finansal içgörü ve UX kalitesi | DEVAM EDİYOR |
 | S29 | Offline dayanıklılık ve platform deneyimi | TAMAMLANDI (kod/test; gerçek cihaz matrisi bekliyor) |
 | S30 | Farklılaşma ve ticarileştirme | DEVAM EDİYOR |
+| S35 | Otomatik test süiti stabilizasyonu | TAMAMLANDI |
+| S36 | Senaryo kanıt testlerini güçlendirme | TAMAMLANDI |
+| S37 | Excel kabul kriterleri ve ürün kuralı hizası | TAMAMLANDI |
+| S38 | Otomatik kalite kanıtı ve release kaydı | TAMAMLANDI |
 
 ---
 
@@ -727,6 +731,159 @@ S23 → S24 → S25 → S26
 - S25 tamamlanmadan savings/stats ekranları gerçek veri özelliği kabul edilmemelidir.
 - S26 tamamlanmadan OAuth veya mağaza importu gibi yeni veri girişleri genişletilmemelidir.
 - S30, temel MVP tamamlandıktan sonra yapılmalıdır.
+
+## Release evidence kapanış sprintleri — S31–S34
+
+S14 ve S15–S29 boyunca farklı bölümlerde kalan canlı ortam, cihaz ve mağaza
+kapıları tek bir yürütülebilir kapanış planında toplanmıştır. Ayrıntılı iş
+listesi ve sprint çıkış kanıtları için
+[`SPRINT_31_34_RELEASE_EVIDENCE.md`](SPRINT_31_34_RELEASE_EVIDENCE.md)
+dokümanına bakın.
+
+- **S31:** staging migration + kimliği doğrulanmış CRUD, RLS, Realtime ve
+  offline replay kanıtı
+- **S32:** Android fiziksel cihaz, izin, arka plan, bildirim ve erişilebilirlik
+  kabulü
+- **S33:** iOS cihaz/Simulator, bildirim, biyometri ve erişilebilirlik kabulü
+- **S34:** Play Internal Testing, TestFlight ve release operasyon kapıları
+
+## Canlı ortam gerektirmeyen kalite sprintleri — S35–S38
+
+Bu sprintler, fiziksel cihaz, mağaza, canlı Supabase veya staging erişimi
+gerektirmeden Excel'deki senaryoların otomatik kanıt kalitesini yükseltir.
+S31–S34'ün canlı ortam ve cihaz kabul kapsamını tekrar etmez.
+
+### S35 — Otomatik test süiti stabilizasyonu
+
+**Durum:** TAMAMLANDI (19 Eylül 2026)
+
+**Hedef:** Tüm Flutter test paketinin tek komutla deterministik, zaman aşımı
+olmaksızın tamamlanmasını sağlamak.
+
+**Kapsam:**
+
+- `flutter test --no-pub --reporter compact` komutunun takıldığı widget
+  testlerini izole et ve kök nedeni gider.
+- Tarih seçici, `pumpAndSettle`, animasyon ve platform-channel bağımlılıklarını
+  fake zamanlayıcı/test double ile deterministik hale getir.
+- Her test dosyasının kendi başına ve tüm paket içinde temiz çalıştığını doğrula.
+- CI işine test için açık timeout ve başarısızlıkta okunabilir çıktı ekle.
+
+**Kabul kriterleri:** Temiz bağımlılık ortamında tam Flutter test paketi iki
+ardışık çalıştırmada başarıyla biter; takılma, zaman aşımı veya atlanan test
+olmaz; sonuç/test sayısı release kanıtına yazılır.
+
+**Doğrulama:**
+
+- Tarih seçicinin widget testindeki belirsiz `pumpAndSettle` zinciri kaldırıldı;
+  aynı üretim kuralını çağıran deterministik `SubscriptionFormData`
+  hesaplama testi kullanılıyor.
+- Silme kabul testi, aktif listeyi boşaltan "gelecekte başlayacak" fixture
+  yerine başlamış abonelik fixture'ı kullanacak şekilde düzeltildi.
+- CI test adımına test başına iki dakikalık timeout ve iş seviyesinde 20 dakika
+  sınırı eklendi.
+- `flutter test --no-pub --reporter compact --timeout 2m` iki ardışık çalıştırmada
+  **303/303** başarılı oldu: ilk çalışma 45 sn, ikinci çalışma 35 sn.
+- `flutter analyze --no-pub` doğrulaması hata veya uyarı olmadan tamamlandı.
+
+### S36 — Senaryo kanıt testlerini güçlendirme
+
+**Durum:** TAMAMLANDI (19 Eylül 2026)
+
+**Hedef:** Excel senaryolarını gerçek üretim kodunu denetleyen assertion'larla
+bağlamak; boş/statik kanıtları kaldırmak.
+
+**Kapsam:**
+
+- `expect(true, isTrue)` içeren kanıt testlerini gerçek controller, widget,
+  servis veya repository assertion'larıyla değiştir.
+- Fake repository kullanılan testlerde çağrı sırası, payload, hata ve kalıcılık
+  sonuçlarını açıkça assert et; mümkün olan yerde gerçek local repository kullan.
+- Senaryo 1, 2, 9 ve 10 için ayrı ve isimlendirilmiş kabul testleri ekle:
+  geçerli kayıt, zorunlu alanlar, TRY/USD/EUR gösterimi ve kategori kalıcılığı.
+- Her Excel satırını test dosyası/test adı ve kanıt türüyle eşleyen bir izlenebilirlik
+  tablosu oluştur.
+
+**Kabul kriterleri:** Otomatik olarak doğrulanabilir her Excel senaryosunun
+izlenebilirlik tablosunda en az bir gerçek assertion'a bağlantısı vardır;
+tautolojik assertion kalmaz; testler S35 kalite kapısından geçer.
+
+**Doğrulama:**
+
+- `TEST_TRACEABILITY.md`, Excel'deki 59 senaryonun her birini kaynak testine
+  ve kanıt türüne bağlar.
+- Test 1, 2, 9 ve 10 için doğrudan controller/widget kabul testleri eklendi.
+- Bildirim callback, snooze ve planlama sınırı testlerindeki tautolojik
+  assertion'lar üretim servisinin çağrılabilir API'lerine yönelik assertion'larla
+  değiştirildi.
+- `flutter test --no-pub --reporter compact --timeout 2m`: **306/306 başarılı**
+  (42 sn); `flutter analyze --no-pub`: hata ve uyarı yok.
+
+### S37 — Excel kabul kriterleri ve ürün kuralı hizası
+
+**Durum:** TAMAMLANDI
+
+**Hedef:** Test senaryolarının ürün/domain kararlarıyla çelişmesini önlemek ve
+test edilebilir tek bir kabul tanımı oluşturmak.
+
+**Kapsam:**
+
+- Senaryo 18–21 ve 40'ı normal fiziksel silme yerine archive/cancel ve
+  yalnız yanlış kayıt için fiziksel silme davranışıyla yeniden yaz.
+- Senaryo 45'i otomatik yenileme ilerletme yerine kullanıcı onaylı
+  **Yenilendi** aksiyonu ve gecikmiş durum gösterimi olarak güncelle.
+- Senaryo 46'yı tarih seçici kullanıldığı için "serbest metin tarihi varsa"
+  koşullu hale getir ya da date picker sınır testine dönüştür.
+- Güncellenen her kabul kriterini `DOMAIN.md`, `TESTING.md` ve Excel
+  izlenebilirlik tablosuyla çapraz kontrol et.
+
+**Kabul kriterleri:** Excel, domain ve testler aynı davranışı tarif eder;
+normal akışta veri silme ya da kullanıcı onayı olmadan yenileme tarihi ilerletme
+beklentisi kalmaz.
+
+**Doğrulama (19 Eylül 2026):** Kaynak çalışma kitabı değiştirilmeden
+`Abonelik_Takip_Test_Senaryolari_S37.xlsx` çıktısında 18–21, 40, 45 ve 46
+numaralı satırlar güncellendi ve görsel olarak kontrol edildi. `TESTING.md` ve
+`TEST_TRACEABILITY.md` aynı kabul sözleşmesini tanımlar. Hedefli Flutter
+senaryo testleri ayrıca çalıştırıldı: **35/35 başarılı** (15 sn).
+
+### S38 — Otomatik kalite kanıtı ve release kaydı
+
+**Durum:** TAMAMLANDI
+
+**Hedef:** Canlı ortam gerektirmeyen test sonuçlarını tekrar üretilebilir,
+denetlenebilir bir release kanıt paketine dönüştürmek.
+
+**Kapsam:**
+
+- Tam test, `flutter analyze --no-pub`, format ve secret scan çıktısını
+  zaman damgalı tek bir kanıt kaydında topla.
+- Test toplamını, geçen/atlanan/başarısız testleri ve Excel senaryo eşlemesini
+  `SPRINT_31_34_RELEASE_EVIDENCE.md` içinde ayrı "otomatik kanıt" bölümüyle güncelle.
+- Önceki sonuçlarla fark varsa (test sayısı veya davranış değişikliği) nedeni,
+  ilgili commit ve etkilenen senaryoları kaydet.
+- Bu kanıt paketini canlı/staging ve cihaz kanıtlarından açıkça ayrı tut.
+
+**Kabul kriterleri:** Her CI çalışmasında yeniden üretilebilen otomatik kalite
+çıktısı vardır; hangi senaryonun yalnız kod testiyle, hangisinin canlı/canlı
+cihaz kabulüyle kapanacağı açıkça görünür.
+
+**Doğrulama (19 Eylül 2026):** `SPRINT_31_34_RELEASE_EVIDENCE.md` içindeki
+S38 kaydı; 306/306 Flutter testi, temiz analiz/format, 4/4 secret scan, 7/7
+backend migration testi, Excel’in 59 satırlık izlenebilirlik kaydı ve önceki
+301/301 sonucuna göre +5 test farkını içerir. Cihaz/canlı kabulü açıkça ayrı
+tutulmuştur.
+
+### Bağımlılık ve önerilen sıra
+
+```text
+S35 → S36 → S37 → S38
+```
+
+- S35 bitmeden S36'daki yeni kanıtlar güvenilir kabul edilmez.
+- S36'nın izlenebilirlik tablosu, S37'deki senaryo değişikliklerinin etkisini
+  görünür kılar.
+- S38 yalnız S35–S37'nin doğrulanmış çıktılarını kayıt altına alır.
 
 ## MVP sonrası backlog
 

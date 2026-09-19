@@ -2,11 +2,11 @@
 
 ## Otomatik kapı
 
-- [ ] `flutter analyze` temiz
-- [ ] `flutter test` temiz
-- [ ] Android release App Bundle üretildi
-- [ ] Secret scan temiz
-- [ ] Dependency güncellemeleri gözden geçirildi
+- [x] `flutter analyze` temiz — 0 issue, 19 Eylül 2026
+- [x] `flutter test` temiz — 306/306, 19 Eylül 2026
+- [x] Android release App Bundle üretildi — debug-keystore fallback ile, 18 Eylül 2026
+- [x] Secret scan temiz — 4/4 test geçti; kaynak yollarında credential-benzeri literal bulunmadı, 19 Eylül 2026
+- [x] Dependency güncellemeleri gözden geçirildi — 24 kilitli güncelleme ve iki transitif kullanım dışı uyarısı ayrı yükseltme çalışmasına alındı, 18 Eylül 2026
 
 ## Staging kapısı
 
