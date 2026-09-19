@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../settings/presentation/screens/privacy_policy_screen.dart';
+import '../../../settings/presentation/screens/terms_of_service_screen.dart';
 import '../auth_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   bool _obscure = true;
+  bool _agreedToTerms = false;
 
   @override
   void dispose() {
@@ -29,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_agreedToTerms) return;
     final ok = await widget.controller.signUp(
       _email.text.trim(),
       _password.text,
@@ -115,9 +119,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (v) =>
                         v != _password.text ? 'Şifreler eşleşmiyor' : null,
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 12),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: _agreedToTerms,
+                    onChanged: (v) =>
+                        setState(() => _agreedToTerms = v ?? false),
+                    title: Wrap(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const TermsOfServiceScreen(),
+                            ),
+                          ),
+                          child: Text(
+                            'kullanım şartlarını',
+                            style: TextStyle(
+                              color: colors.primary,
+                              fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        const Text(' ve '),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const PrivacyPolicyScreen(),
+                            ),
+                          ),
+                          child: Text(
+                            'gizlilik politikasını',
+                            style: TextStyle(
+                              color: colors.primary,
+                              fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        const Text(' okudum, kabul ediyorum.'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   FilledButton(
-                    onPressed: widget.controller.loading ? null : _submit,
+                    onPressed: (widget.controller.loading || !_agreedToTerms)
+                        ? null
+                        : _submit,
                     child: widget.controller.loading
                         ? const SizedBox(
                             height: 20,

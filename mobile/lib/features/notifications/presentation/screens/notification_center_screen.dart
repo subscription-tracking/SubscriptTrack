@@ -59,47 +59,59 @@ class NotificationCenterScreen extends StatelessWidget {
                   } catch (_) {}
                 }
 
-                return ListTile(
-                  onTap: () async {
-                    await notif.markRead(n.id);
-                    if (!context.mounted) return;
-                    if (sub != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) => SubscriptionDetailScreen(
-                            subscription: sub!,
-                            controller: subs,
+                return Dismissible(
+                  key: ValueKey(n.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: colors.errorContainer,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(Icons.delete_outline,
+                        color: colors.onErrorContainer),
+                  ),
+                  onDismissed: (_) => notif.dismiss(n.id),
+                  child: ListTile(
+                    onTap: () async {
+                      await notif.markRead(n.id);
+                      if (!context.mounted) return;
+                      if (sub != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => SubscriptionDetailScreen(
+                              subscription: sub!,
+                              controller: subs,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  leading: CircleAvatar(
-                    backgroundColor: read
-                        ? colors.surfaceContainerHighest
-                        : n.type == NotificationType.renewalToday
-                            ? colors.errorContainer
-                            : n.type == NotificationType.renewalSoon
-                                ? colors.tertiaryContainer
-                                : colors.primaryContainer,
-                    child:
-                        Text(n.type.icon, style: const TextStyle(fontSize: 18)),
-                  ),
-                  title: Text(
-                    n.title,
-                    style: TextStyle(
-                      fontWeight: read ? FontWeight.normal : FontWeight.w600,
-                      color: read ? colors.onSurfaceVariant : null,
+                        );
+                      }
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor: read
+                          ? colors.surfaceContainerHighest
+                          : n.type == NotificationType.renewalToday
+                              ? colors.errorContainer
+                              : n.type == NotificationType.renewalSoon
+                                  ? colors.tertiaryContainer
+                                  : colors.primaryContainer,
+                      child: Text(n.type.icon,
+                          style: const TextStyle(fontSize: 18)),
                     ),
+                    title: Text(
+                      n.title,
+                      style: TextStyle(
+                        fontWeight: read ? FontWeight.normal : FontWeight.w600,
+                        color: read ? colors.onSurfaceVariant : null,
+                      ),
+                    ),
+                    subtitle: Text(n.body),
+                    trailing: read
+                        ? null
+                        : CircleAvatar(
+                            radius: 5,
+                            backgroundColor: colors.primary,
+                          ),
                   ),
-                  subtitle: Text(n.body),
-                  trailing: read
-                      ? null
-                      : CircleAvatar(
-                          radius: 5,
-                          backgroundColor: colors.primary,
-                        ),
                 );
               },
             ),

@@ -14,6 +14,9 @@ abstract class AuthDataSource {
   /// Mevcut oturumun şifresini değiştirir (password recovery flow).
   /// Local modda [AuthException] fırlatır.
   Future<void> updatePassword(String newPassword);
+
+  /// Kullanıcının görünen adını günceller.
+  Future<AppUser> updateDisplayName(String name);
 }
 
 abstract interface class SocialAuthDataSource {

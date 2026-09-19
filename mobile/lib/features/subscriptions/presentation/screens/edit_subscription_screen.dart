@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/domain/money.dart';
 import '../../domain/subscription_models.dart';
-import '../../../notifications/domain/notification_rule.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
@@ -44,9 +43,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       trialEndDate: widget.subscription.trialEndDate,
       trialPriceAfter:
           widget.subscription.trialPriceAfter?.amount.toStringAsFixed(2) ?? '',
-      reminderDays: widget.subscription.notificationRules
-          .map((r) => r.daysBefore)
-          .toList(),
+      notificationRules: List.of(widget.subscription.notificationRules),
     );
   }
 
@@ -68,9 +65,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       trialEndDate: _data.isTrial ? _data.trialEndDate : null,
       trialPriceAfter:
           _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
-      notificationRules: _data.reminderDays
-          .map((days) => NotificationRule(daysBefore: days))
-          .toList(),
+      notificationRules: _data.notificationRules,
     );
 
     final ok = await widget.controller.edit(updated);

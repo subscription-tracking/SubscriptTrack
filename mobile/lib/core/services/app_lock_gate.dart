@@ -23,7 +23,9 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
-      widget.service.lock();
+      widget.service.handleBackground();
+    } else if (state == AppLifecycleState.resumed) {
+      widget.service.handleResume();
     }
   }
 

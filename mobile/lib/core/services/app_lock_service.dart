@@ -19,18 +19,55 @@ class AppLockService extends ChangeNotifier {
   bool _enabled = false;
   bool _biometricEnabled = false;
   bool _loaded = false;
+  Duration _lockTimeout = Duration.zero;
+  DateTime? _backgroundedAt;
 
   bool get locked => _locked;
   bool get enabled => _enabled;
   bool get biometricEnabled => _biometricEnabled;
   bool get loaded => _loaded;
 
+  /// S45: arka plandan dönüşte ne kadar süre kilitlenmeden bekleneceği.
+  /// `Duration.zero` = her zamanki gibi anında kilitle.
+  Duration get lockTimeout => _lockTimeout;
+
   Future<void> load() async {
     _enabled = (await _storage.readAppPinHash()) != null;
     _biometricEnabled = await _storage.readBiometricLock();
+    _lockTimeout = Duration(minutes: await _storage.readLockTimeoutMinutes());
     _locked = _enabled;
     _loaded = true;
     notifyListeners();
+  }
+
+  Future<void> setLockTimeout(Duration timeout) async {
+    await _storage.writeLockTimeoutMinutes(timeout.inMinutes);
+    _lockTimeout = timeout;
+    notifyListeners();
+  }
+
+  /// Uygulama arka plana/inaktif duruma geçtiğinde çağrılır. Süre 0 ise
+  /// (varsayılan) eskisi gibi anında kilitler; değilse yalnızca zamanı
+  /// kaydeder — asıl karar [handleResume] içinde geçen süreye göre verilir
+  /// (arka planda kod çalışmadığı için burada bir zamanlayıcı kuramayız).
+  void handleBackground() {
+    if (!_enabled) return;
+    if (_lockTimeout == Duration.zero) {
+      lock();
+      return;
+    }
+    _backgroundedAt = DateTime.now();
+  }
+
+  /// Uygulama ön plana döndüğünde çağrılır; [handleBackground] anında
+  /// kilitlemediyse geçen süreyi [lockTimeout] ile karşılaştırır.
+  void handleResume() {
+    final backgroundedAt = _backgroundedAt;
+    _backgroundedAt = null;
+    if (!_enabled || backgroundedAt == null) return;
+    if (DateTime.now().difference(backgroundedAt) >= _lockTimeout) {
+      lock();
+    }
   }
 
   Future<void> setPin(String pin) async {
@@ -92,6 +129,7 @@ class AppLockService extends ChangeNotifier {
     _enabled = false;
     _biometricEnabled = false;
     _locked = false;
+    _lockTimeout = Duration.zero;
     _loaded = true;
     notifyListeners();
   }

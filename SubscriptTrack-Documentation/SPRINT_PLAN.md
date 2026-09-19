@@ -1,6 +1,6 @@
 # SubscriptTrack Sprint Planı
 
-Son güncelleme: 14 Eylül 2026
+Son güncelleme: 20 Eylül 2026
 
 ## Plan varsayımları
 
@@ -62,6 +62,13 @@ Son güncelleme: 14 Eylül 2026
 | S36 | Senaryo kanıt testlerini güçlendirme | TAMAMLANDI |
 | S37 | Excel kabul kriterleri ve ürün kuralı hizası | TAMAMLANDI |
 | S38 | Otomatik kalite kanıtı ve release kaydı | TAMAMLANDI |
+| S39 | Excel literal davranış hizalama (silme/otomatik yenileme) | TAMAMLANDI |
+| S40 | Backend güvenlik sertleştirme (canlı doğrulamalı) | TAMAMLANDI |
+| S41 | Web preview (telefon mockup) düzeltmesi | TAMAMLANDI |
+| S42 | Profil düzenlenebilirliği | TAMAMLANDI |
+| S43 | Abonelik bazlı bildirim özelleştirmesi | TAMAMLANDI |
+| S44 | Hukuki/uyum: gizlilik politikası, kullanım şartları, KVKK onayı | TAMAMLANDI |
+| S45 | Küçük UX iyileştirmeleri | TAMAMLANDI |
 
 ---
 
@@ -884,6 +891,154 @@ S35 → S36 → S37 → S38
 - S36'nın izlenebilirlik tablosu, S37'deki senaryo değişikliklerinin etkisini
   görünür kılar.
 - S38 yalnız S35–S37'nin doğrulanmış çıktılarını kayıt altına alır.
+
+## S39–S41 — Excel hizalama, güvenlik sertleştirme ve web preview (19–20 Eylül 2026)
+
+Bu üç sprint, canlı ortam erişimi (Supabase Management API + gerçek proje
+kimlik bilgisi) elde edildikten sonra aynı oturumda uçtan uca tamamlanmış,
+kod + test + canlı doğrulama kanıtı taşıyan çalışmalardır.
+
+### S39 — Excel literal davranış hizalama
+
+**Durum:** TAMAMLANDI (19 Eylül 2026)
+
+**Hedef:** S37'de ürün kararı olarak "archive/cancel" ve "kullanıcı onaylı
+yenileme" şeklinde yeniden yazılan 18–21, 40 ve 45 numaralı Excel
+senaryolarını, kullanıcının açık talebiyle literal metne geri hizalamak.
+
+**Yapılanlar:**
+- `mistakenRecord` kısıtlaması `SubscriptionController.delete()`/`deleteMany()`'den kaldırıldı; herhangi bir abonelik için tekli ve toplu **gerçek silme** artık mümkün (archive ayrı, ek bir seçenek olarak duruyor).
+- Liste ekranının seçim çubuğuna "Arşivle" yanına ayrı bir "Sil" butonu eklendi.
+- `SubscriptionController.load()` içine `_advanceOverdueRenewals()` eklendi: gecikmiş aktif abonelikler kullanıcı onayı beklemeden bir sonraki döneme otomatik ilerliyor.
+- `evidence_paket1_fix_test.dart`, `evidence_paket1_date_calc_test.dart`, `evidence_paket3_delete_test.dart`, `evidence_paket6_notif_interaction_test.dart`, `subscription_computed_test.dart`, `subscription_controller_test.dart` yeni davranışa göre güncellendi; bulk-delete için yeni bir kabul testi eklendi.
+- `TEST_TRACEABILITY.md`'deki eski "archive/cancel kullanılıyor" notu kaldırıldı.
+
+**Doğrulama:** `flutter test --no-pub` 306/306, `flutter analyze --no-pub` 0 issue.
+
+### S40 — Backend güvenlik sertleştirme (canlı doğrulamalı)
+
+**Durum:** TAMAMLANDI (19–20 Eylül 2026)
+
+**Hedef:** Migration 001–025'in statik denetiminde ve Supabase'in resmi
+security advisor'ında bulunan açıkları, sadece repoda değil **gerçek
+production veritabanında** (`tdbljrojcmyjwchawfif`) kapatmak ve önce/sonra
+kanıtıyla belgelemek.
+
+**Yapılanlar — `026_security_hardening_followup.sql`:**
+- `record_payment_idempotent` — **gerçek güvenlik açığı**: `p_subscription_id` sahiplik kontrolü yoktu, kimliği doğrulanmış bir kullanıcı başka birinin aboneliğine sahte ödeme kaydı ekleyebiliyordu. `update_subscription_idempotent`'teki aynı desenle düzeltildi.
+- `idempotency_keys` şema çakışması (004: `cache_key`/`status_code`, 015: `user_id`-anahtarlı) yıkıcı olmayan `ADD COLUMN IF NOT EXISTS` ile uzlaştırıldı.
+- `billing_schedules` — RLS açıktı ama policy yoktu; `SubscriptTrack-Documentation/database/rls_policies.sql`'de zaten incelenmiş abonelik-sahipliği policy'si taşındı.
+- `categories`/`services` — default grant'lere bağımlılık kaldırıldı, `authenticated`/`anon`'dan yazma açıkça revoke edildi.
+
+**Yapılanlar — `027_advisor_hardening.sql`:**
+- Yetim `update_subscription_idempotent` overload'ı (022'nin `CREATE OR REPLACE`'i farklı parametre listesiyle eskisini silmek yerine ikinci bir fonksiyon oluşturmuştu) silindi.
+- Tüm direkt-client mutation RPC'lerinden (`create/update_subscription_idempotent`, `record_payment_idempotent`, `request_export_idempotent`) `anon` rolünün EXECUTE yetkisi revoke edildi.
+- Trigger-only fonksiyonlardan (`handle_new_user_profile`, `sync_renewal_occurrence`) hem `anon`/`authenticated` hem de altta yatan `PUBLIC` grant'i revoke edildi (yalnız isimle revoke etmek `PUBLIC` grant'i devrede bıraktığı için yetersizdi).
+- `set_updated_at`'in pinlenmemiş `search_path`'i düzeltildi.
+
+**Doğrulama:** Supabase security advisor önce/sonra karşılaştırması — **16 → 5 bulgu**; kalan 5'in 4'ü kasıtlı (authenticated kendi RPC'sini çağırıyor), 1'i (leaked password protection) Supabase ücretsiz planında kapalı. `backend/test/migrationPlan.test.js`: **15/15 yeşil**. Canlı fonksiyon tanımları önce/sonra çekilerek düzeltmeler doğrudan doğrulandı.
+
+### S41 — Web preview (telefon mockup) düzeltmesi
+
+**Durum:** TAMAMLANDI (19–20 Eylül 2026)
+
+**Hedef:** GitHub Pages'teki `mobile/web/index.html` telefon çerçevesindeki
+sahte "dynamic island"ın gerçek uygulama içeriğiyle (örn. dashboard başlığı)
+görsel çakışmasını gidermek.
+
+**Yapılanlar:**
+- Island için app viewport'unun üstünde ayrı, sabit yükseklikte bir "status band" ayrıldı (önce flexbox tabanlı bir çözüm denendi, Flutter web motorunun host elementi boot anında ölçtüğü ve flex ile hesaplanan yüksekliği sıfır okuduğu görülünce — app küçük bir köşeye sıkışıyordu — sabit piksel boyutlu mutlak konumlamaya geri dönüldü).
+- `flutter build web` ile yerel build alınıp Browser pane'de ekran görüntüsüyle doğrulandı (onboarding + login ekranı), canlı deploy sonrası GitHub Pages'te tekrar kontrol edildi.
+
+**Doğrulama:** Yerel + canlı ekran görüntüsü; konsol/etkileşim regresyonu yok.
+
+---
+
+## S42–S44 — İçerik denetimi kapanışı (20 Eylül 2026)
+
+Bu üç sprint, ekranların içerik denetiminde ("hangi ekranlarımız var / ne
+içermeli" analizi, 20 Eylül 2026) bulunan gerçek içerik eksiklerini kapatır.
+Kod/test gerektirir, cihaz veya mağaza erişimi gerektirmez.
+
+### S42 — Profil düzenlenebilirliği
+
+**Durum:** TAMAMLANDI (20 Eylül 2026)
+
+**Hedef:** `ProfileScreen`'i salt-görüntülemeden (avatar baş harfi + e-posta
++ üye olma tarihi) gerçek anlamda düzenlenebilir hale getirmek.
+
+**Yapılanlar:**
+- İsim (display name) alanı — plan taslağında "profiles tablosuna kolon" öngörülmüştü, ama migration 023 kimliğin bilerek Auth `user_metadata`'da tutulduğunu belirliyor (ayrı bir `profiles` kolonu bu kararla çelişirdi); `AppUser.displayName` zaten `user_metadata.display_name`'den okunuyordu, `AuthDataSource.updateDisplayName()` (Supabase/local/Unavailable repo'ların hepsinde) eklenip aynı alana yazıldı — migration gerekmedi.
+- `AuthController.updateDisplayName()` ve `changePassword({currentPassword, newPassword})` eklendi; şifre değiştirme, `delete_account_screen.dart`'taki mevcut re-auth desenini (`signIn` ile doğrulama) yeniden kullanıyor.
+- `ProfileScreen` StatefulWidget'a çevrildi: isim düzenleme alanı + kaydet butonu, mevcut/yeni/yeni-tekrar şifre alanları + güncelle butonu eklendi.
+- Dashboard karşılaması (`_GreetingRow`) ve `settings_screen.dart`'taki avatar/isim gösterimi, isim varsa onu kullanacak, yoksa e-posta türetilmiş isme düşecek şekilde güncellendi.
+- `test/auth_controller_test.dart`'a `updateDisplayName` ve `changePassword` (başarı + yanlış mevcut şifre) testleri eklendi; `test/app_test.dart`'a eksik olan `AuthController` provider'ı eklendi (yeni `context.watch` regresyonu düzeltildi).
+
+**Doğrulama:** `flutter test --no-pub`: 309/309, `flutter analyze --no-pub`: 0 issue.
+
+### S43 — Abonelik bazlı bildirim özelleştirmesi
+
+**Durum:** TAMAMLANDI (20 Eylül 2026)
+
+**Hedef:** Domain modelinin zaten desteklediği (`Subscription.notificationRules`,
+birden fazla `NotificationRule`) ama hiçbir ekranda düzenlenemeyen abonelik
+bazlı hatırlatma özelleştirmesini UI'ya taşımak (Excel senaryo 31/32'nin
+arkasındaki kabul kriteri).
+
+**Yapılanlar:**
+- Araştırma aşamasında `LocalNotificationService.scheduleRenewalReminders()`'ın zaten abonelik-bazlı kuralları önceliklendirdiği doğrulandı (değişiklik gerekmedi) — asıl eksik yalnızca UI'daydı.
+- `SubscriptionFormData.reminderDays: List<int>` (kayıplı: sadece 4 sabit seçenek, `enabled` durumu round-trip'te kayboluyordu) → `notificationRules: List<NotificationRule>` (kayıpsız) olarak değiştirildi.
+- Form'daki hatırlatma chip'lerine, seçili aboneliğin özel günlerini de gösteren dinamik bir preset listesi ve bir "Özel" chip'i (0-30 arası herhangi bir gün için dialog) eklendi.
+- `add_subscription_screen.dart`/`edit_subscription_screen.dart`'taki kayıplı gün→kural dönüşüm kodu kaldırıldı; form artık `notificationRules`'u doğrudan taşıyor.
+- `SubscriptionDetailScreen`'e salt-okunur "HATIRLATMALAR" bölümü eklendi (etkin kuralları chip olarak gösterir, "Düzenle" ile forma yönlendirir); eskiden orada duran, abonelikten bağımsız statik "24 saat önce hatırlatırız" metni kaldırıldı.
+- `NotificationRule`'a `copyWith`/`==`/`hashCode` eklendi.
+- Yeni testler: `test/subscription_form_test.dart` içine "S43" grubu (5 test: varsayılan kural, çoklu seçim, son kuralın kaldırılamaması, özel gün ekleme, düzenleme round-trip'i), yeni `test/subscription_detail_reminders_test.dart` (3 test: çoklu kural gösterimi, `enabled:false` kuralların gizlenmesi, hiç kural yokken boş durum).
+
+**Kabul kriterleri:** Karşılandı — kullanıcı bir abonelik için "7 gün önce" + "1 gün önce" gibi birden fazla hatırlatma tanımlayabiliyor, özel gün ekleyebiliyor; global ayar yalnızca abonelik bazlı kural yokken devrede.
+
+**Doğrulama:** `flutter test --no-pub`: 317/317, `flutter analyze --no-pub`: 0 issue.
+
+### S44 — Hukuki/uyum: gizlilik politikası, kullanım şartları, KVKK onayı
+
+**Durum:** TAMAMLANDI (20 Eylül 2026)
+
+**Hedef:** Mağaza onayı (Apple/Google) ve KVKK uyumu için eksik olan hukuki
+metin erişimini tamamlamak — `SPRINT_31_34_RELEASE_EVIDENCE.md`'deki S34
+"Privacy policy, terms... yayınla" maddesiyle örtüşür, ama bu sprint yalnız
+**uygulama içi erişim** kısmını kapsar; metinlerin kendisi bir taslaktır ve
+hukuki inceleme/onay S34'te dış adım olarak kalır.
+
+**Yapılanlar:**
+- Barındırma kararı: statik web sayfası/URL yerine **uygulama içi Flutter ekranı** seçildi (yeni bağımlılık gerektirmiyor, offline çalışıyor, tam kontrol sağlıyor).
+- `PrivacyPolicyScreen` ve `TermsOfServiceScreen` eklendi (Türkçe taslak metin: toplanan veriler, Supabase/RLS, KVKK hakları, hesap silme, sorumluluk sınırı — dosya başında "bu bir taslaktır, hukuki inceleme S34'te" notuyla).
+- `PrivacyCenterScreen`'e "Gizlilik Politikası" ve "Kullanım Şartları" tile'ları eklendi.
+- `RegisterScreen`'e onay kutusu eklendi: "kullanım şartlarını" ve "gizlilik politikasını" tıklanabilir linkleri ilgili ekranı açıyor; onay kutusu işaretlenmeden "Kayıt ol" butonu pasif kalıyor (hem UI'da disabled hem `_submit()` içinde ayrıca guard var).
+- Yeni `test/register_screen_test.dart` (4 test): onay olmadan buton pasif + `signUp` çağrılmıyor, onaylanınca aktif + `signUp` çağrılıyor, her iki link kendi ekranını açıyor.
+
+**Kabul kriterleri:** Karşılandı — kayıt formu onay kutusu işaretlenmeden ilerlemiyor; gizlilik merkezinden her iki hukuki metne de erişilebiliyor.
+
+**Doğrulama:** `flutter test --no-pub`: 321/321, `flutter analyze --no-pub`: 0 issue.
+
+### S45 — Küçük UX iyileştirmeleri
+
+**Durum:** TAMAMLANDI (20 Eylül 2026)
+
+**Hedef:** İçerik denetiminde bulunan, tek başına sprint gerektirmeyecek
+kadar küçük ama kullanıcı deneyimini iyileştiren maddeleri toplu kapatmak.
+
+**Yapılanlar:**
+- **CSV örnek format:** `CsvImportScreen`'e "Örnek format nasıl olmalı?" butonu eklendi — parser'ın (`csv_import_parser.dart`) gerçekte beklediği başlıkları (`name,amount,currency,billing_cycle,next_renewal_date,category`) ve örnek satırları gösteren bir dialog, panoya kopyalama seçeneğiyle. Araştırmada bulunan gerçek bir tutarsızlık **belgelendi ama düzeltilmedi** (kapsam dışı, ayrı ele alınmalı): "Veri dışa aktar" ekranı Türkçe başlıklar (`Ad, Tutar, ...`) üretiyor ve bu dosya bugünkü haliyle tekrar içe aktarılamıyor — şablon bilerek gerçek/çalışan formatı gösteriyor, yanlışlıkla export ile "uyumlu" olduğunu iddia etmiyor.
+- **Bildirim tek tek silme:** `NotificationController`'a `_dismissedIds` seti + `dismiss(id)` eklendi (okundu işaretlemeyle aynı `SharedPreferences` kalıcılığı deseni). `NotificationCenterScreen`'deki satırlar `Dismissible` ile sarmalandı (sağdan sola kaydırma).
+- **Kilit süresi:** `AppLockService`'e `lockTimeout` (Hemen/1 dk/5 dk, `SecureStorage`'a kalıcı) eklendi; `handleBackground()`/`handleResume()` çifti arka plana geçiş anını kaydedip öne dönüşte karşılaştırıyor (süre 0 ise eski anında-kilitleme davranışı korunuyor). `AppLockGate` artık `lock()` yerine bu iki metodu çağırıyor. `AppLockSettingsScreen`'e `RadioGroup` ile seçim eklendi.
+- **Takvimde hızlı ekleme:** `AddSubscriptionScreen`'e `initialStartDate` parametresi eklendi (form zaten destekliyordu, sadece ekran parametresi eksikti). `CalendarScreen`'in boş-gün durumuna, seçili tarihle önceden doldurulmuş forma giden "Bu güne abonelik ekle" butonu eklendi.
+- **Canlı marka önizlemesi + kod tekrarının kaldırılması:** Araştırmada `subscription_detail_screen.dart`'taki `_brandColor`'ın `ServiceIdentity` widget'ının (7 marka, gevşek `.contains` eşleşmesi) **daha eksik bir kopyası** olduğu bulundu. `_brandColor` silindi; `ServiceIdentity.colorFor()` adında paylaşılan bir statik metod eklendi, hem detay ekranı hem de yeni form önizlemesi bunu kullanıyor. Form'da isim alanının `prefixIcon`'u artık yazılan isme göre canlı güncellenen bir `ServiceIdentity` avatarı.
+- Yeni testler: `test/app_lock_service_test.dart`'a "S45" grubu (5 test), `test/notification_controller_test.dart`'a "S45" grubu (3 test), yeni `test/s45_ux_widgets_test.dart` (5 test: CSV şablon dialogu + kopyalama, takvim hızlı ekleme, `ServiceIdentity.colorFor` bilinen/bilinmeyen marka).
+
+**Kabul kriterleri:** Karşılandı — her madde bağımsız, mevcut testler kırılmadı, her biri en az bir testle kanıtlandı.
+
+**Doğrulama:** `flutter test --no-pub`: 334/334, `flutter analyze --no-pub`: 0 issue.
+
+---
 
 ## MVP sonrası backlog
 

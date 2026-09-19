@@ -216,6 +216,41 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  /// Oturum içinden şifre değiştirir. Mevcut şifreyi [signIn] ile doğrulayıp
+  /// (delete_account akışındaki aynı re-auth deseni) ardından [updatePassword]
+  /// çağırır — e-posta bağlantısı akışına çıkmadan çalışır.
+  Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    if (_user == null) {
+      _error = 'Oturum bulunamadı.';
+      notifyListeners();
+      return false;
+    }
+    final verified = await signIn(_user!.email, currentPassword);
+    if (!verified) {
+      _error = error ?? 'Mevcut şifre doğrulanamadı.';
+      notifyListeners();
+      return false;
+    }
+    return updatePassword(newPassword);
+  }
+
+  Future<bool> updateDisplayName(String name) async {
+    _setLoading(true);
+    try {
+      _user = await _repo.updateDisplayName(name.trim());
+      _error = null;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<bool> sendPasswordResetEmail(String email) async {
     _setLoading(true);
     try {

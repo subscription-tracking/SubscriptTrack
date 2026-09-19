@@ -210,4 +210,47 @@ void main() {
       expect(ctrl.isRead(id), isFalse);
     });
   });
+
+  group('S45 — tek bildirim kapatma (dismiss)', () {
+    test('dismiss edilen bildirim all listesinden kalkar', () async {
+      final sub1 = _sub('1', 2);
+      final sub2 = _sub('2', 5);
+      final ctrl = NotificationController();
+      ctrl.refresh([sub1, sub2]);
+      expect(ctrl.all.length, 2);
+
+      final dismissedId = ctrl.all.first.id;
+      await ctrl.dismiss(dismissedId);
+
+      expect(ctrl.all.length, 1);
+      expect(ctrl.all.any((n) => n.id == dismissedId), isFalse);
+    });
+
+    test('dismiss edilen bildirim unreadCount\'tan da düşer', () async {
+      final sub = _sub('1', 2);
+      final ctrl = NotificationController();
+      ctrl.refresh([sub]);
+      expect(ctrl.unreadCount, 1);
+
+      await ctrl.dismiss(ctrl.all.first.id);
+
+      expect(ctrl.unreadCount, 0);
+    });
+
+    test('dismiss durumu kalıcıdır (yeniden yükleme sonrası korunur)',
+        () async {
+      final sub = _sub('1', 2);
+      final ctrl = NotificationController();
+      ctrl.refresh([sub]);
+      final id = ctrl.all.first.id;
+      await ctrl.dismiss(id);
+
+      final ctrl2 = NotificationController();
+      await ctrl2.loadReadState();
+      ctrl2.refresh([sub]);
+
+      expect(ctrl2.all.any((n) => n.id == id), isFalse,
+          reason: 'dismiss kaydı SharedPreferences\'tan geri yüklenmeli');
+    });
+  });
 }

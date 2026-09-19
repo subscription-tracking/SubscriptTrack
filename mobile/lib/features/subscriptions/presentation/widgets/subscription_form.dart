@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../settings/presentation/settings_controller.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/service_identity.dart';
+import '../../../notifications/domain/notification_rule.dart';
 import '../../domain/subscription_models.dart';
 
 enum InitialPaymentStatus { paid, unpaid, deferred }
@@ -21,7 +22,7 @@ class SubscriptionFormData {
     this.isTrial = false,
     this.trialEndDate,
     this.trialPriceAfter = '',
-    List<int>? reminderDays,
+    List<NotificationRule>? notificationRules,
     this.initialPaymentStatus = InitialPaymentStatus.unpaid,
     DateTime? initialPaymentDate,
     this.deferredPaymentDate,
@@ -29,7 +30,8 @@ class SubscriptionFormData {
         initialPaymentDate = initialPaymentDate ?? DateTime.now(),
         nextRenewalDate =
             nextRenewalDate ?? _defaultNextRenewalDate(startDate, billingCycle),
-        reminderDays = reminderDays ?? [3];
+        notificationRules =
+            notificationRules ?? [const NotificationRule(daysBefore: 3)];
 
   static DateTime _defaultNextRenewalDate(
     DateTime? startDate,
@@ -56,7 +58,7 @@ class SubscriptionFormData {
   bool isTrial;
   DateTime? trialEndDate;
   String trialPriceAfter;
-  List<int> reminderDays;
+  List<NotificationRule> notificationRules;
   InitialPaymentStatus initialPaymentStatus;
   DateTime initialPaymentDate;
   DateTime? deferredPaymentDate;
@@ -225,6 +227,55 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
+  /// Sabit dört seçenek + o abonelikte zaten seçili olan (örn. bir
+  /// düzenlemeden gelen 14/21 gibi) özel değerler — böylece "Özel" ile
+  /// eklenmiş bir gün, forma tekrar girildiğinde kaybolmuyor.
+  List<int> _reminderPresetDays() {
+    final days = <int>{0, 1, 3, 7};
+    days.addAll(widget.data.notificationRules.map((r) => r.daysBefore));
+    return days.toList()..sort();
+  }
+
+  Future<void> _addCustomReminder() async {
+    final controller = TextEditingController();
+    final days = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Özel hatırlatma günü'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Kaç gün önce?',
+            hintText: '0-30 arası',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final n = int.tryParse(controller.text.trim());
+              if (n != null && n >= 0 && n <= 30) {
+                Navigator.pop(context, n);
+              }
+            },
+            child: const Text('Ekle'),
+          ),
+        ],
+      ),
+    );
+    if (days == null) return;
+    setState(() {
+      if (!widget.data.notificationRules.any((r) => r.daysBefore == days)) {
+        widget.data.notificationRules.add(NotificationRule(daysBefore: days));
+      }
+    });
+  }
+
   static const _popularPresets = <(String, SubscriptionCategory)>[
     // Streaming
     ('Netflix', SubscriptionCategory.streaming),
@@ -330,12 +381,22 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             controller: _name,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Abonelik adı',
               hintText: 'Örn. Netflix',
-              prefixIcon: Icon(Icons.label_outline),
+              // S45: ad yazılırken canlı marka rengi/ikon önizlemesi —
+              // ServiceIdentity'nin detay ekranında zaten kullanılan aynı
+              // marka eşleşmesi.
+              prefixIcon: Padding(
+                padding: const EdgeInsets.all(8),
+                child: ServiceIdentity(
+                  name: widget.data.name,
+                  category: widget.data.category,
+                  size: 28,
+                ),
+              ),
             ),
-            onChanged: (v) => widget.data.name = v,
+            onChanged: (v) => setState(() => widget.data.name = v),
             validator: (v) =>
                 v == null || v.trim().isEmpty ? 'Ad boş olamaz' : null,
           ),
@@ -550,21 +611,37 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
           const SizedBox(height: 16),
           Text('Hatırlatmalar', style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 4),
+          Text(
+            'Birden fazla seçebilirsin; listede yoksa "Özel" ile ekle.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
-            children: [0, 1, 3, 7]
-                .map((days) => FilterChip(
-                      label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
-                      selected: widget.data.reminderDays.contains(days),
-                      onSelected: (selected) => setState(() {
-                        if (selected) {
-                          widget.data.reminderDays.add(days);
-                        } else if (widget.data.reminderDays.length > 1) {
-                          widget.data.reminderDays.remove(days);
-                        }
-                      }),
-                    ))
-                .toList(),
+            runSpacing: 8,
+            children: [
+              ..._reminderPresetDays().map((days) => FilterChip(
+                    label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
+                    selected: widget.data.notificationRules
+                        .any((r) => r.daysBefore == days),
+                    onSelected: (selected) => setState(() {
+                      if (selected) {
+                        widget.data.notificationRules
+                            .add(NotificationRule(daysBefore: days));
+                      } else if (widget.data.notificationRules.length > 1) {
+                        widget.data.notificationRules
+                            .removeWhere((r) => r.daysBefore == days);
+                      }
+                    }),
+                  )),
+              ActionChip(
+                avatar: const Icon(Icons.add, size: 16),
+                label: const Text('Özel'),
+                onPressed: _addCustomReminder,
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           TextFormField(

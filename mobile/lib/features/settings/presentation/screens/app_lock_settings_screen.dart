@@ -13,6 +13,12 @@ class AppLockSettingsScreen extends StatefulWidget {
 class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
   final _pin = TextEditingController();
 
+  static const _lockTimeoutOptions = <(Duration, String)>[
+    (Duration.zero, 'Hemen'),
+    (Duration(minutes: 1), '1 dakika sonra'),
+    (Duration(minutes: 5), '5 dakika sonra'),
+  ];
+
   @override
   void dispose() {
     _pin.dispose();
@@ -77,6 +83,26 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
                     }
                   : null,
             ),
+            if (widget.service.enabled) ...[
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
+                child: Text('Kilit süresi'),
+              ),
+              RadioGroup<Duration>(
+                groupValue: widget.service.lockTimeout,
+                onChanged: (value) {
+                  if (value != null) widget.service.setLockTimeout(value);
+                },
+                child: Column(
+                  children: _lockTimeoutOptions
+                      .map((option) => RadioListTile<Duration>(
+                            title: Text(option.$2),
+                            value: option.$1,
+                          ))
+                      .toList(),
+                ),
+              ),
+            ],
           ]),
         ),
       );

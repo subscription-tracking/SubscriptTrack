@@ -14,18 +14,26 @@ class NotificationController extends ChangeNotifier {
         _repo = repository ?? NotificationRepository();
 
   static const _prefsKey = 'notif_read_ids';
+  static const _dismissedPrefsKey = 'notif_dismissed_ids';
 
   final NotificationReadSyncService? _readSync;
   final NotificationRepository _repo;
 
   final Set<String> _readIds = {};
+  final Set<String> _dismissedIds = {};
   List<AppNotification> _notifications = [];
   bool _loadedFromSupabase = false;
 
-  List<AppNotification> get all => _notifications;
+  /// S45: bildirimler abonelik durumundan her seferinde yeniden üretildiği
+  /// (bkz. [_generate]) için "silme" kalıcı bir kayıt değil, cihazda saklanan
+  /// bir gizleme listesidir — kullanıcı bir bildirimi kapattığında aynı
+  /// stableId bir daha listede görünmez.
+  List<AppNotification> get all =>
+      _notifications.where((n) => !_dismissedIds.contains(n.id)).toList();
 
-  int get unreadCount =>
-      _notifications.where((n) => !_readIds.contains(n.id)).length;
+  int get unreadCount => _notifications
+      .where((n) => !_readIds.contains(n.id) && !_dismissedIds.contains(n.id))
+      .length;
 
   bool isRead(String id) => _readIds.contains(id);
 
@@ -34,6 +42,8 @@ class NotificationController extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final ids = prefs.getStringList(_prefsKey) ?? [];
       _readIds.addAll(ids);
+      final dismissed = prefs.getStringList(_dismissedPrefsKey) ?? [];
+      _dismissedIds.addAll(dismissed);
       notifyListeners();
     } catch (_) {}
   }
@@ -55,6 +65,7 @@ class NotificationController extends ChangeNotifier {
     // Prune stale local IDs that no longer correspond to any notification.
     final currentIds = _notifications.map((n) => n.id).toSet();
     _readIds.removeWhere((id) => !currentIds.contains(id));
+    _dismissedIds.removeWhere((id) => !currentIds.contains(id));
 
     await _saveReadState();
     notifyListeners();
@@ -68,6 +79,7 @@ class NotificationController extends ChangeNotifier {
     _notifications = _generate([...active, ...trials]);
     final currentIds = _notifications.map((n) => n.id).toSet();
     _readIds.removeWhere((id) => !currentIds.contains(id));
+    _dismissedIds.removeWhere((id) => !currentIds.contains(id));
     notifyListeners();
   }
 
@@ -75,6 +87,15 @@ class NotificationController extends ChangeNotifier {
     _readIds.add(id);
     await _saveReadState();
     await _readSync?.syncRead({id});
+    notifyListeners();
+  }
+
+  /// S45: tek bir bildirimi listeden kapatır (swipe-to-dismiss). Bildirimler
+  /// abonelik durumundan türetildiği için bu kalıcı bir "sil" değil, o
+  /// stableId için cihaza özel bir gizleme kaydıdır.
+  Future<void> dismiss(String id) async {
+    _dismissedIds.add(id);
+    await _saveReadState();
     notifyListeners();
   }
 
@@ -93,6 +114,7 @@ class NotificationController extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefsKey, _readIds.toList());
+      await prefs.setStringList(_dismissedPrefsKey, _dismissedIds.toList());
     } catch (_) {}
   }
 

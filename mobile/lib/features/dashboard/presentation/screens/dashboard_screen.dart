@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/domain/money.dart';
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../auth/presentation/auth_controller.dart';
 import '../../../stats/presentation/screens/stats_screen.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
@@ -20,6 +21,10 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SubscriptionController>();
+    final authUser = context.watch<AuthController>().user;
+    final greetingName = authUser?.displayName?.trim().isNotEmpty == true
+        ? authUser!.displayName!.trim()
+        : authUser?.email.split('@').first;
     final active = controller.active;
     final upcoming = controller.upcomingRenewals;
     final trials = controller.trials;
@@ -52,7 +57,7 @@ class DashboardScreen extends StatelessWidget {
             child: ListView(
               padding: AppSpacing.screenWithBottomNav,
               children: [
-                _GreetingRow(),
+                _GreetingRow(name: greetingName),
                 const SizedBox(height: 20),
                 _HeroCard(
                   totals: totals,
@@ -151,6 +156,10 @@ class DashboardScreen extends StatelessWidget {
 // ─── Greeting ────────────────────────────────────────────────────────────────
 
 class _GreetingRow extends StatelessWidget {
+  const _GreetingRow({this.name});
+
+  final String? name;
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -179,7 +188,9 @@ class _GreetingRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Merhaba 👋',
+                (name != null && name!.isNotEmpty)
+                    ? 'Merhaba, $name 👋'
+                    : 'Merhaba 👋',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,

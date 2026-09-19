@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:subscript_track/app/shell/app_shell.dart';
+import 'package:subscript_track/features/auth/presentation/auth_controller.dart';
 import 'package:subscript_track/features/calendar/presentation/screens/calendar_screen.dart';
 import 'package:subscript_track/features/notifications/presentation/notification_controller.dart';
 import 'package:subscript_track/features/subscriptions/presentation/subscription_controller.dart';
@@ -17,6 +18,7 @@ void main() {
           ChangeNotifierProvider(
               create: (_) => SubscriptionController(userId: 'test-user')),
           ChangeNotifierProvider(create: (_) => NotificationController()),
+          ChangeNotifierProvider(create: (_) => AuthController()),
         ],
         child: const MaterialApp(home: AppShell()),
       ),

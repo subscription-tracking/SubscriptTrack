@@ -22,13 +22,27 @@ class ServiceIdentity extends StatelessWidget {
   final SubscriptionCategory category;
   final double size;
 
+  /// S45: bilinen bir marka adı için tam eşleşen rengi döner, yoksa
+  /// kategori rengine düşer — form önizlemesi ve detay ekranındaki marka
+  /// rengi gibi yerlerde ikon çizmeden yalnızca rengi lazım olan
+  /// çağıranlar için (bkz. [ServiceIdentity] kendisi de aynı mantığı kullanır).
+  static Color colorFor(
+    BuildContext context,
+    String name,
+    SubscriptionCategory category,
+  ) {
+    final nameKey = name.trim().toLowerCase();
+    return _brandIcons[nameKey]?.$2 ??
+        _fallbackIcons[nameKey]?.$2 ??
+        _categoryColor(context, category);
+  }
+
   @override
   Widget build(BuildContext context) {
     final nameKey = name.trim().toLowerCase();
     final brand = _brandIcons[nameKey];
     final fallback = _fallbackIcons[nameKey];
-    final color =
-        brand?.$2 ?? fallback?.$2 ?? _categoryColor(context, category);
+    final color = colorFor(context, name, category);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
 
     // Decide the inner content.
