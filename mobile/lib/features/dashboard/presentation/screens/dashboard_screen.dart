@@ -325,21 +325,17 @@ class _HeroCard extends StatelessWidget {
                 ),
               ),
               if (totalActive > 0)
-                _MonthProgressRing(
-                  completed: completedThisMonth,
-                  total: totalActive,
+                GestureDetector(
+                  onTap: onAnalysisTap,
+                  child: _MonthProgressRing(
+                    completed: completedThisMonth,
+                    total: totalActive,
+                  ),
                 )
               else if (onAnalysisTap != null)
                 _AnalysisPill(onTap: onAnalysisTap!),
             ],
           ),
-          if (totalActive > 0 && onAnalysisTap != null) ...[
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: _AnalysisPill(onTap: onAnalysisTap!),
-            ),
-          ],
           if (onAnalysisTap != null) ...[
             const SizedBox(height: 10),
             Text(
@@ -682,8 +678,10 @@ class _NextPaymentCard extends StatelessWidget {
           ),
         );
 
+    final daysLabel = days < 0 ? '${days.abs()} gün geçti' : '$days gün kaldı';
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark
             ? statusColors.warning.withValues(alpha: 0.12)
@@ -694,21 +692,6 @@ class _NextPaymentCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: statusColors.warning.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Text(
-              days < 0 ? '${days.abs()} gün geçti' : '$days gün kaldı',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: urgent ? cs.error : statusColors.warning,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-          const SizedBox(height: 12),
           InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: openDetail,
@@ -732,9 +715,10 @@ class _NextPaymentCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        DateTimeUtils.formatDate(subscription.nextRenewalDate),
+                        '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · $daysLabel',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
+                              color: urgent ? cs.error : statusColors.warning,
+                              fontWeight: FontWeight.w600,
                             ),
                       ),
                     ],
@@ -750,13 +734,15 @@ class _NextPaymentCard extends StatelessWidget {
                         color: cs.onSurface,
                       ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 2),
                 Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          OutlinedButton.icon(
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
             onPressed: openDetail,
             style: OutlinedButton.styleFrom(
               foregroundColor: statusColors.warning,
@@ -766,6 +752,7 @@ class _NextPaymentCard extends StatelessWidget {
             ),
             icon: const Icon(Icons.notifications_active_outlined, size: 16),
             label: const Text('Hatırlat'),
+          ),
           ),
         ],
       ),
@@ -1053,11 +1040,14 @@ class _CategoryDonutCard extends StatelessWidget {
   final List<Subscription> active;
   final VoidCallback onViewAll;
 
+  // S46 fix: Üretkenlik/Araçlar öncekinde çok soluktu (ACC7FF/FFD1AA) — beyaz
+  // kart zemininde donut diliminin "kesilmiş/kaybolmuş" görünmesine yol
+  // açıyordu. Dördü de artık benzer doygunlukta, birbirinden net ayrılıyor.
   static const _groupColors = {
     'Eğlence': Color(0xFFFF6B6B),
-    'Müzik': Color(0xFF4ECDC4),
-    'Üretkenlik': Color(0xFFACC7FF),
-    'Araçlar': Color(0xFFFFD1AA),
+    'Müzik': Color(0xFF2BB3A3),
+    'Üretkenlik': Color(0xFF5B67CA),
+    'Araçlar': Color(0xFFF2994A),
   };
 
   @override
