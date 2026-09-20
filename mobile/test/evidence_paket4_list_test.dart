@@ -154,7 +154,7 @@ void main() {
       ]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.text('Aktif 3'));
       await tester.pumpAndSettle();
 
       expect(find.text('Netflix'), findsOneWidget);
@@ -169,16 +169,11 @@ void main() {
       final ctrl = await _loadedCtrl([]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      // Varsayılan açılan sekme artık "Tümü" (index 0) — boş listede zaten
-      // yönlendirici boş durum mesajını gösteriyor.
-      expect(find.text('Henüz abonelik yok'), findsOneWidget);
+      // Varsayılan açılan sekme Aktif; boş durumda net bir yönlendirme verir.
+      expect(find.text('Aktif abonelik yok'), findsOneWidget);
       expect(find.text('Abonelik ekle'), findsOneWidget,
           reason: 'Kullanıcıyı yönlendiren bir aksiyon butonu da var.');
 
-      await tester.tap(find.text('Aktif (0)'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Aktif abonelik yok'), findsOneWidget);
       expect(find.text('Abonelik ekle'), findsOneWidget,
           reason: 'Kullanıcıyı yönlendiren bir aksiyon butonu da var.');
     });
@@ -205,7 +200,7 @@ void main() {
       ]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.text('Aktif 3'));
       await tester.pumpAndSettle();
 
       final names = tester
@@ -221,7 +216,7 @@ void main() {
   group('TEST 25 — Süresi geçmiş/iptal edilmiş aboneliklerin ayrı gösterimi',
       () {
     testWidgets(
-        'İptal ve süresi dolmuş abonelikler ayrı sekmelerde, aktiften görsel olarak ayrılıyor',
+        'İptal ve süresi dolmuş abonelikler Geçmiş sekmesinde aktiften ayrılıyor',
         (tester) async {
       final ctrl = await _loadedCtrl([
         _sub('1', 'AktifOlan'),
@@ -231,15 +226,10 @@ void main() {
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
 
-      expect(find.text('Aktif (1)'), findsOneWidget);
-      expect(find.text('İptal (1)'), findsOneWidget);
-      expect(find.text('Süresi doldu (1)'), findsOneWidget);
+      expect(find.text('Aktif 1'), findsOneWidget);
+      expect(find.text('Geçmiş 2'), findsOneWidget);
 
-      // Sekme çubuğu yatay kaydırılabilir; "Tümü" sekmesinin eklenmesiyle
-      // "İptal" varsayılan 800px test görünümünün dışına kayabiliyor.
-      await tester.ensureVisible(find.text('İptal (1)'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('İptal (1)'));
+      await tester.tap(find.text('Geçmiş 2'));
       await tester.pumpAndSettle();
       expect(find.text('IptalOlan'), findsOneWidget);
       expect(find.text('AktifOlan'), findsNothing,
@@ -257,7 +247,7 @@ void main() {
       ]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.text('Aktif 3'));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'net');
@@ -278,9 +268,8 @@ void main() {
       ]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (2)'));
+      await tester.tap(find.byTooltip('Filtrele ve sırala'));
       await tester.pumpAndSettle();
-
       await tester.tap(find.text(SubscriptionCategory.streaming.label).first);
       await tester.pumpAndSettle();
 
@@ -300,15 +289,12 @@ void main() {
       ]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.byTooltip('Filtrele ve sırala'));
       await tester.pumpAndSettle();
+      expect(find.text('Fiyat: artan'), findsOneWidget);
+      expect(find.text('Fiyat: azalan'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.sort));
-      await tester.pumpAndSettle();
-      expect(find.text('Fiyat: Artan'), findsOneWidget);
-      expect(find.text('Fiyat: Azalan'), findsOneWidget);
-
-      await tester.tap(find.text('Fiyat: Artan'));
+      await tester.tap(find.text('Fiyat: artan'));
       await tester.pumpAndSettle();
       var names = tester
           .widgetList<Text>(find.byType(Text))
@@ -319,9 +305,9 @@ void main() {
       expect(names, ['Ucuz', 'Orta', 'Pahalı'],
           reason: 'Artan sıralama: düşükten yükseğe.');
 
-      await tester.tap(find.byIcon(Icons.sort));
+      await tester.tap(find.byTooltip('Filtrele ve sırala'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Fiyat: Azalan'));
+      await tester.tap(find.text('Fiyat: azalan'));
       await tester.pumpAndSettle();
       names = tester
           .widgetList<Text>(find.byType(Text))
@@ -342,7 +328,7 @@ void main() {
           await _loadedCtrl([_sub('1', 'Netflix'), _sub('2', 'Spotify')]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (2)'));
+      await tester.tap(find.text('Aktif 2'));
       await tester.pumpAndSettle();
 
       await tester.enterText(

@@ -101,75 +101,33 @@ void main() {
       await tester.pumpWidget(buildForm());
     }
 
-    testWidgets('varsayılan olarak tek kural (3 gün önce) seçili',
-        (tester) async {
+    testWidgets('varsayılan olarak tek kural (3 gün) seçili', (tester) async {
       await pumpTallForm(tester);
       expect(data.notificationRules, [const NotificationRule(daysBefore: 3)]);
-      final chip = tester
-          .widget<FilterChip>(find.widgetWithText(FilterChip, '3 gün önce'));
+      final chip =
+          tester.widget<FilterChip>(find.widgetWithText(FilterChip, '3 gün'));
       expect(chip.selected, isTrue);
     });
 
-    testWidgets('birden fazla hazır seçenek aynı anda seçilebilir',
+    testWidgets('başka bir seçenek seçilince öncekinin yerine geçer',
         (tester) async {
       await pumpTallForm(tester);
 
-      await tester.tap(find.widgetWithText(FilterChip, '7 gün önce'));
-      await tester.pump();
-      await tester.tap(find.widgetWithText(FilterChip, 'Bugün'));
+      await tester.tap(find.widgetWithText(FilterChip, '7 gün'));
       await tester.pump();
 
-      final days = data.notificationRules.map((r) => r.daysBefore).toSet();
-      expect(days, {3, 7, 0}, reason: 'varsayılan (3) korunur, 7 ve 0 eklenir');
+      expect(data.notificationRules, [const NotificationRule(daysBefore: 7)],
+          reason: 'tekli seçim: yeni seçilen öncekinin yerine geçer');
     });
 
-    testWidgets('son kalan kural kaldırılamaz', (tester) async {
+    testWidgets('seçili chip tekrar tıklanırsa seçili kalır', (tester) async {
       await pumpTallForm(tester);
 
-      await tester.tap(find.widgetWithText(FilterChip, '3 gün önce'));
+      await tester.tap(find.widgetWithText(FilterChip, '3 gün'));
       await tester.pump();
 
       expect(data.notificationRules.length, 1,
-          reason: 'tek kalan kural seçimi kaldırılamamalı');
-    });
-
-    testWidgets(
-        'Özel ile 0-30 dışı bir değer reddedilir, geçerli değer eklenir',
-        (tester) async {
-      await pumpTallForm(tester);
-
-      await tester.tap(find.widgetWithText(ActionChip, 'Özel'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.descendant(
-            of: find.byType(AlertDialog), matching: find.byType(TextField)),
-        '14',
-      );
-      await tester.tap(find.widgetWithText(FilledButton, 'Ekle'));
-      await tester.pumpAndSettle();
-
-      expect(
-        data.notificationRules.any((r) => r.daysBefore == 14),
-        isTrue,
-        reason: 'özel gün eklendi',
-      );
-      expect(find.widgetWithText(FilterChip, '14 gün önce'), findsOneWidget,
-          reason: 'yeni eklenen özel gün de bir chip olarak görünür');
-    });
-
-    testWidgets(
-        'mevcut abonelikten gelen özel bir gün (ör. 14) forma girince chip olarak görünür',
-        (tester) async {
-      data = SubscriptionFormData(
-        notificationRules: const [NotificationRule(daysBefore: 14)],
-      );
-      formKey = GlobalKey<FormState>();
-      await pumpTallForm(tester);
-
-      final chip = tester
-          .widget<FilterChip>(find.widgetWithText(FilterChip, '14 gün önce'));
-      expect(chip.selected, isTrue,
-          reason: 'düzenleme akışında özel gün kaybolmamalı (round-trip)');
+          reason: 'tekli seçimde en az bir kural her zaman kalır');
     });
   });
 }

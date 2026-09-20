@@ -228,54 +228,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
-  /// Sabit dört seçenek + o abonelikte zaten seçili olan (örn. bir
-  /// düzenlemeden gelen 14/21 gibi) özel değerler — böylece "Özel" ile
-  /// eklenmiş bir gün, forma tekrar girildiğinde kaybolmuyor.
-  List<int> _reminderPresetDays() {
-    final days = <int>{0, 1, 3, 7};
-    days.addAll(widget.data.notificationRules.map((r) => r.daysBefore));
-    return days.toList()..sort();
-  }
-
-  Future<void> _addCustomReminder() async {
-    final controller = TextEditingController();
-    final days = await showDialog<int>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Özel hatırlatma günü'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Kaç gün önce?',
-            hintText: '0-30 arası',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final n = int.tryParse(controller.text.trim());
-              if (n != null && n >= 0 && n <= 30) {
-                Navigator.pop(context, n);
-              }
-            },
-            child: const Text('Ekle'),
-          ),
-        ],
-      ),
-    );
-    if (days == null) return;
-    setState(() {
-      if (!widget.data.notificationRules.any((r) => r.daysBefore == days)) {
-        widget.data.notificationRules.add(NotificationRule(daysBefore: days));
-      }
-    });
-  }
+  static const _reminderPresetDays = [1, 3, 7];
 
   static const _popularPresets = <(String, SubscriptionCategory)>[
     // Streaming
@@ -342,13 +295,13 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                 ),
               ),
               SizedBox(
-                height: 42,
+                height: 56,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   itemCount: _popularPresets.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
                   itemBuilder: (context, index) {
                     final preset = _popularPresets[index];
                     final isSelected =
@@ -357,14 +310,25 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                       avatar: ServiceIdentity(
                         name: preset.$1,
                         category: preset.$2,
-                        size: 22,
+                        size: 26,
                       ),
                       label: Text(
                         preset.$1,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight:
                               isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : outlineColor,
+                          width: isSelected ? 1.5 : 1,
                         ),
                       ),
                       selected: isSelected,
@@ -386,7 +350,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
-                  labelText: 'Abonelik adı',
+                  labelText: 'Servis',
                   hintText: 'Örn. Netflix',
                   // S45: ad yazılırken canlı marka rengi/ikon önizlemesi —
                   // ServiceIdentity'nin detay ekranında zaten kullanılan aynı
@@ -399,6 +363,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                       size: 28,
                     ),
                   ),
+                  suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                 ),
                 onChanged: (v) => setState(() => widget.data.name = v),
                 validator: (v) =>
@@ -406,16 +371,18 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               ),
               const SizedBox(height: 16),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 80,
+                    width: 110,
                     child: DropdownButtonFormField<String>(
                       initialValue: widget.data.currency,
-                      decoration: const InputDecoration(labelText: 'Para'),
+                      decoration:
+                          const InputDecoration(labelText: 'Para birimi'),
                       items: _currencyOptions
                           .map((c) => DropdownMenuItem(
                                 value: c.$1,
-                                child: Text(c.$2),
+                                child: Text('${c.$2} ${c.$1}'),
                               ))
                           .toList(),
                       onChanged: (v) =>
@@ -429,10 +396,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Tutar',
-                        prefixIcon: Icon(Icons.payments_outlined),
-                      ),
+                      decoration: const InputDecoration(labelText: 'Tutar'),
                       onChanged: (v) => widget.data.amount = v,
                       validator: (v) {
                         if (v == null || v.trim().isEmpty) return 'Tutar gir';
@@ -447,10 +411,11 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               const SizedBox(height: 16),
               DropdownButtonFormField<BillingCycle>(
                 initialValue: widget.data.billingCycle,
-                decoration: const InputDecoration(
-                  labelText: 'Ödeme döngüsü',
-                  prefixIcon: Icon(Icons.repeat),
-                ),
+                decoration: const InputDecoration(labelText: 'Ödeme döngüsü'),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                 items: BillingCycle.values
                     .map(
                         (c) => DropdownMenuItem(value: c, child: Text(c.label)))
@@ -469,7 +434,6 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               Text('Yenileme', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 12),
               _DateTile(
-                icon: Icons.calendar_today_outlined,
                 label: 'Sonraki ödeme',
                 value: _formatDate(widget.data.nextRenewalDate),
                 onTap: _pickNextRenewalDate,
@@ -481,27 +445,20 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [
-                  ..._reminderPresetDays().map((days) => FilterChip(
-                        label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
-                        selected: widget.data.notificationRules
-                            .any((r) => r.daysBefore == days),
-                        onSelected: (selected) => setState(() {
-                          if (selected) {
-                            widget.data.notificationRules
-                                .add(NotificationRule(daysBefore: days));
-                          } else if (widget.data.notificationRules.length > 1) {
-                            widget.data.notificationRules
-                                .removeWhere((r) => r.daysBefore == days);
-                          }
-                        }),
-                      )),
-                  ActionChip(
-                    avatar: const Icon(Icons.add, size: 16),
-                    label: const Text('Özel'),
-                    onPressed: _addCustomReminder,
-                  ),
-                ],
+                children: _reminderPresetDays.map((days) {
+                  final selected = widget.data.notificationRules
+                      .any((r) => r.daysBefore == days);
+                  return FilterChip(
+                    label: Text('$days gün'),
+                    selected: selected,
+                    showCheckmark: false,
+                    onSelected: (_) => setState(() {
+                      widget.data.notificationRules = [
+                        NotificationRule(daysBefore: days),
+                      ];
+                    }),
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -709,14 +666,14 @@ class _FormSection extends StatelessWidget {
 
 class _DateTile extends StatelessWidget {
   const _DateTile({
-    required this.icon,
+    this.icon,
     required this.label,
     required this.value,
     required this.onTap,
     required this.outlineColor,
   });
 
-  final IconData icon;
+  final IconData? icon;
   final String label;
   final String value;
   final VoidCallback onTap;
@@ -725,7 +682,7 @@ class _DateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: Icon(icon),
+        leading: icon == null ? null : Icon(icon),
         title: Text(label),
         subtitle: Text(value),
         trailing: const Icon(Icons.chevron_right),
