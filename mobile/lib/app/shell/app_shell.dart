@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/stats/presentation/screens/stats_screen.dart';
 import '../../features/subscriptions/presentation/screens/subscription_list_screen.dart';
 import '../../features/subscriptions/presentation/screens/add_subscription_screen.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
@@ -30,7 +30,10 @@ class _AppShellState extends State<AppShell> {
             onViewAllSubscriptions: () => setState(() => _index = 1),
           ),
         1 => const SubscriptionListScreen(),
-        2 => const CalendarScreen(),
+        2 => StatsScreen(
+            controller: context.watch<SubscriptionController>(),
+            embedded: true,
+          ),
         _ => const ProfileTab(),
       },
       bottomNavigationBar: BottomNavigation(

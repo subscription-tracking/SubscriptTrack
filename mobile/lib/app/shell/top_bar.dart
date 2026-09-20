@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/notifications/presentation/screens/notification_center_screen.dart';
 
@@ -30,18 +31,37 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            'SubscriptTrack',
-            style: TextStyle(
-              color: cs.primary,
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-              letterSpacing: -0.5,
+          Flexible(
+            child: Text(
+              'SubscriptTrack',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: cs.primary,
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
             ),
           ),
         ],
       ),
       actions: [
+        IconButton(
+          icon: Icon(
+            Icons.calendar_month_outlined,
+            color: cs.onSurfaceVariant,
+          ),
+          tooltip: 'Takvim',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => Scaffold(
+                appBar: AppBar(title: const Text('Takvim')),
+                body: const CalendarScreen(),
+              ),
+            ),
+          ),
+        ),
         Badge(
           isLabelVisible: unread > 0,
           label: Text('$unread'),

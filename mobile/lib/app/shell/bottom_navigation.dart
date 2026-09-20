@@ -15,8 +15,8 @@ class BottomNavigation extends StatelessWidget {
   static const _items = [
     (Icons.home_rounded, Icons.home_outlined, 'Ana Sayfa'),
     (Icons.grid_view_rounded, Icons.grid_view_outlined, 'Abonelikler'),
-    (Icons.calendar_month_rounded, Icons.calendar_month_outlined, 'Takvim'),
-    (Icons.settings_rounded, Icons.settings_outlined, 'Ayarlar'),
+    (Icons.bar_chart_rounded, Icons.bar_chart_outlined, 'İstatistikler'),
+    (Icons.person_rounded, Icons.person_outline, 'Profil'),
   ];
 
   @override
@@ -44,50 +44,56 @@ class BottomNavigation extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(_items.length, (i) {
                 final active = i == currentIndex;
                 final item = _items[i];
-                return Semantics(
-                  label: item.$3,
-                  button: true,
-                  selected: active,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => onChanged(i),
-                      borderRadius: BorderRadius.circular(100),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        constraints: const BoxConstraints(minHeight: 48),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: active ? 16 : 18,
-                          vertical: 10,
-                        ),
-                        decoration: active
-                            ? BoxDecoration(
-                                color: cs.onSurface.withValues(alpha: 0.09),
-                                borderRadius: BorderRadius.circular(100),
-                              )
-                            : null,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(active ? item.$1 : item.$2,
-                                color:
-                                    active ? cs.primary : cs.onSurfaceVariant,
-                                size: 22),
-                            if (active) ...[
-                              const SizedBox(width: 6),
-                              Text(item.$3,
-                                  style: TextStyle(
-                                      color: cs.primary,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.2)),
+                return Expanded(
+                  child: Semantics(
+                    label: item.$3,
+                    button: true,
+                    selected: active,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => onChanged(i),
+                        borderRadius: BorderRadius.circular(100),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: active ? 10 : 18,
+                            vertical: 10,
+                          ),
+                          decoration: active
+                              ? BoxDecoration(
+                                  color: cs.onSurface.withValues(alpha: 0.09),
+                                  borderRadius: BorderRadius.circular(100),
+                                )
+                              : null,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(active ? item.$1 : item.$2,
+                                  color: active
+                                      ? cs.primary
+                                      : cs.onSurfaceVariant,
+                                  size: 22),
+                              if (active) ...[
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(item.$3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: cs.primary,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.2)),
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ),

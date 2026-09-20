@@ -6,6 +6,7 @@ import 'package:subscript_track/app/shell/app_shell.dart';
 import 'package:subscript_track/features/auth/presentation/auth_controller.dart';
 import 'package:subscript_track/features/calendar/presentation/screens/calendar_screen.dart';
 import 'package:subscript_track/features/notifications/presentation/notification_controller.dart';
+import 'package:subscript_track/features/stats/presentation/screens/stats_screen.dart';
 import 'package:subscript_track/features/subscriptions/presentation/subscription_controller.dart';
 
 void main() {
@@ -27,9 +28,18 @@ void main() {
     expect(find.text('Merhaba 👋'), findsOneWidget);
     expect(find.text('Ana Sayfa'), findsWidgets);
 
-    await tester.tap(find.bySemanticsLabel('Takvim'));
+    // Takvim artık üst çubukta bildirim zilinin yanında bir simge.
+    await tester.tap(find.byTooltip('Takvim'));
     await tester.pumpAndSettle();
     expect(find.byType(CalendarScreen), findsOneWidget);
+    Navigator.of(tester.element(find.byType(CalendarScreen))).pop();
+    await tester.pumpAndSettle();
+
+    // Navbar 4. sekme artık "İstatistikler".
+    await tester.tap(find.bySemanticsLabel('İstatistikler'));
+    await tester.pumpAndSettle();
+    expect(find.byType(StatsScreen), findsOneWidget);
+
     await tester.binding.setSurfaceSize(null);
   });
 }
