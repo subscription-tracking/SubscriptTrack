@@ -151,6 +151,15 @@ class ProfileTab extends StatelessWidget {
           ),
         ),
 
+        // ── Uygulama ───────────────────────────────────────────────────────
+        const _SectionLabel('Uygulama'),
+        _SettingTile(
+          icon: Icons.replay_outlined,
+          label: 'Tanıtım turunu yeniden başlat',
+          value: 'Onboarding ekranlarını tekrar göster',
+          onTap: auth.restartOnboarding,
+        ),
+
         // ── Veri & Gizlilik ────────────────────────────────────────────────
         const _SectionLabel('Veri & Gizlilik'),
         _SettingTile(
