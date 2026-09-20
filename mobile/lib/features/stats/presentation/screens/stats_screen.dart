@@ -9,14 +9,22 @@ import '../../../../shared/design/app_tokens.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 
 class StatsScreen extends StatelessWidget {
-  const StatsScreen({required this.controller, super.key});
+  const StatsScreen({
+    required this.controller,
+    this.embedded = false,
+    super.key,
+  });
 
   final SubscriptionController controller;
+
+  /// true when shown as a bottom-nav tab (shared TopBar already provides
+  /// the app bar); false when pushed as its own route.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Harcama analizi')),
+      appBar: embedded ? null : AppBar(title: const Text('Harcama analizi')),
       body: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
