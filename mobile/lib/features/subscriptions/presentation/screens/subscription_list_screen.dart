@@ -670,7 +670,7 @@ class _TabView extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       onRefresh: onRefresh,
       child: ListView.separated(
-        padding: AppSpacing.screenWithBottomNav,
+        padding: AppSpacing.screenWithBottomNav(context),
         itemCount: items.length + (controller.hasMore ? 1 : 0),
         separatorBuilder: (_, __) => const SizedBox(height: 8),
         itemBuilder: (context, i) {

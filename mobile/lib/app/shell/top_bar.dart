@@ -5,6 +5,7 @@ import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
+import '../../shared/design/app_tokens.dart';
 
 /// The shared top bar for every tab — same tall, icon + subtitle + title
 /// layout everywhere (the style the dashboard originally introduced), so
@@ -28,7 +29,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
     final cs = Theme.of(context).colorScheme;
 
     return AppBar(
-      toolbarHeight: 88,
+      toolbarHeight: AppSizes.topBarHeight,
       titleSpacing: 20,
       backgroundColor: cs.surfaceContainerLowest,
       surfaceTintColor: Colors.transparent,
@@ -119,5 +120,5 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(88);
+  Size get preferredSize => const Size.fromHeight(AppSizes.topBarHeight);
 }
