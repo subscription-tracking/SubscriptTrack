@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/screens/subscription_detail_screen.dart';
@@ -8,12 +7,26 @@ import '../../domain/app_notification.dart';
 import '../notification_controller.dart';
 
 class NotificationCenterScreen extends StatelessWidget {
-  const NotificationCenterScreen({super.key});
+  const NotificationCenterScreen({
+    required this.notificationController,
+    required this.subscriptionController,
+    super.key,
+  });
+
+  final NotificationController notificationController;
+  final SubscriptionController subscriptionController;
 
   @override
   Widget build(BuildContext context) {
-    final notif = context.watch<NotificationController>();
-    final subs = context.read<SubscriptionController>();
+    return AnimatedBuilder(
+      animation: notificationController,
+      builder: (context, _) => _buildContent(context),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final notif = notificationController;
+    final subs = subscriptionController;
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
