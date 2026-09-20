@@ -322,14 +322,18 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                       ),
                       padding:
                           const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.surfaceContainerHigh,
+                      selectedColor:
+                          Theme.of(context).colorScheme.surfaceContainerHigh,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
-                        side: BorderSide(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : outlineColor,
-                          width: isSelected ? 1.5 : 1,
-                        ),
+                      ),
+                      side: BorderSide(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : outlineColor,
+                        width: isSelected ? 2 : 1,
                       ),
                       selected: isSelected,
                       showCheckmark: false,
