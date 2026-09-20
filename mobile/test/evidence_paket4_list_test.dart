@@ -169,11 +169,16 @@ void main() {
       final ctrl = await _loadedCtrl([]);
       await tester.pumpWidget(_wrap(ctrl));
       await tester.pumpAndSettle();
-      // Varsayılan açılan sekme "Deneme" (index 0); asıl "Aktif" sekmesine geçip bakıyoruz.
+      // Varsayılan açılan sekme artık "Tümü" (index 0) — boş listede zaten
+      // yönlendirici boş durum mesajını gösteriyor.
+      expect(find.text('Henüz abonelik yok'), findsOneWidget);
+      expect(find.text('Abonelik ekle'), findsOneWidget,
+          reason: 'Kullanıcıyı yönlendiren bir aksiyon butonu da var.');
+
       await tester.tap(find.text('Aktif (0)'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Henüz abonelik yok'), findsOneWidget);
+      expect(find.text('Aktif abonelik yok'), findsOneWidget);
       expect(find.text('Abonelik ekle'), findsOneWidget,
           reason: 'Kullanıcıyı yönlendiren bir aksiyon butonu da var.');
     });
@@ -230,6 +235,10 @@ void main() {
       expect(find.text('İptal (1)'), findsOneWidget);
       expect(find.text('Süresi doldu (1)'), findsOneWidget);
 
+      // Sekme çubuğu yatay kaydırılabilir; "Tümü" sekmesinin eklenmesiyle
+      // "İptal" varsayılan 800px test görünümünün dışına kayabiliyor.
+      await tester.ensureVisible(find.text('İptal (1)'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('İptal (1)'));
       await tester.pumpAndSettle();
       expect(find.text('IptalOlan'), findsOneWidget);
