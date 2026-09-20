@@ -13,15 +13,24 @@ void main() {
   testWidgets('authenticated shell renders dashboard and navigates',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
+    // Providers are nested INSIDE `home`, not above MaterialApp — this
+    // mirrors production (AuthenticatedShell creates them as the content of
+    // the '/home' GoRoute). A screen pushed via Navigator.push becomes a
+    // sibling route in the Navigator's Overlay, not a descendant of `home`,
+    // so any screen relying on ancestor Provider lookup instead of an
+    // explicit constructor parameter would throw ProviderNotFoundException
+    // here — catching the exact bug this test used to miss.
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-              create: (_) => SubscriptionController(userId: 'test-user')),
-          ChangeNotifierProvider(create: (_) => NotificationController()),
-          ChangeNotifierProvider(create: (_) => AuthController()),
-        ],
-        child: const MaterialApp(home: AppShell()),
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+                create: (_) => SubscriptionController(userId: 'test-user')),
+            ChangeNotifierProvider(create: (_) => NotificationController()),
+            ChangeNotifierProvider(create: (_) => AuthController()),
+          ],
+          child: const AppShell(),
+        ),
       ),
     );
 
@@ -33,6 +42,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CalendarScreen), findsOneWidget);
     Navigator.of(tester.element(find.byType(CalendarScreen))).pop();
+    await tester.pumpAndSettle();
+
+    // Bildirim zili de aynı şekilde push edilir — aynı hatanın orada da
+    // olmadığını doğruluyoruz.
+    await tester.tap(find.byIcon(Icons.notifications_outlined));
+    await tester.pumpAndSettle();
+    expect(find.text('Bildirimler'), findsOneWidget);
+    Navigator.of(tester.element(find.text('Bildirimler'))).pop();
     await tester.pumpAndSettle();
 
     // Navbar 4. sekme artık "İstatistikler".

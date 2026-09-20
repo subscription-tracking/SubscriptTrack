@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/notifications/presentation/screens/notification_center_screen.dart';
+import '../../features/subscriptions/presentation/subscription_controller.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   const TopBar({this.title, super.key});
@@ -52,15 +53,18 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
             color: cs.onSurfaceVariant,
           ),
           tooltip: 'Takvim',
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => Scaffold(
-                appBar: AppBar(title: const Text('Takvim')),
-                body: const CalendarScreen(),
+          onPressed: () {
+            final subscriptions = context.read<SubscriptionController>();
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => Scaffold(
+                  appBar: AppBar(title: const Text('Takvim')),
+                  body: CalendarScreen(controller: subscriptions),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
         Badge(
           isLabelVisible: unread > 0,
@@ -72,12 +76,19 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
               Icons.notifications_outlined,
               color: cs.onSurfaceVariant,
             ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const NotificationCenterScreen(),
-              ),
-            ),
+            onPressed: () {
+              final notifController = context.read<NotificationController>();
+              final subsController = context.read<SubscriptionController>();
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => NotificationCenterScreen(
+                    notificationController: notifController,
+                    subscriptionController: subsController,
+                  ),
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(width: 8),

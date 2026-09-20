@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
@@ -10,7 +9,9 @@ import '../widgets/calendar_event_item.dart';
 import '../../../../shared/design/app_tokens.dart';
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+  const CalendarScreen({required this.controller, super.key});
+
+  final SubscriptionController controller;
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -40,7 +41,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final subscriptions = context.watch<SubscriptionController>();
+    return AnimatedBuilder(
+      animation: widget.controller,
+      builder: (context, _) => _buildContent(context),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final subscriptions = widget.controller;
     final cal = CalendarController(subscriptions: subscriptions);
     final renewalDays =
         cal.renewalDaysInMonth(_focusedMonth.year, _focusedMonth.month);

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:subscript_track/core/datasources/subscription_data_source.dart';
@@ -105,10 +104,7 @@ void main() {
       await controller.load();
 
       await tester.pumpWidget(MaterialApp(
-        home: ChangeNotifierProvider<SubscriptionController>.value(
-          value: controller,
-          child: const Scaffold(body: CalendarScreen()),
-        ),
+        home: Scaffold(body: CalendarScreen(controller: controller)),
       ));
       await tester.pumpAndSettle();
 
