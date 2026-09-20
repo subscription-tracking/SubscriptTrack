@@ -11,7 +11,10 @@ abstract final class AppSpacing {
   static const xl = 24.0;
   static const xxl = 32.0;
   static const screen = EdgeInsets.symmetric(horizontal: lg);
-  static const screenWithBottomNav = EdgeInsets.fromLTRB(lg, xs, lg, 260);
+  // Bottom clears the docked bottom nav (64 + safe-area inset) with room to
+  // spare; top/bottom are shared across every tab so scroll padding doesn't
+  // visibly jump between screens.
+  static const screenWithBottomNav = EdgeInsets.fromLTRB(lg, md, lg, 100);
 }
 
 abstract final class AppRadius {

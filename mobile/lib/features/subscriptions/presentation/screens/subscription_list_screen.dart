@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../shared/design/app_tokens.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../../../shared/widgets/subscription_status_chip.dart';
@@ -669,7 +670,7 @@ class _TabView extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       onRefresh: onRefresh,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+        padding: AppSpacing.screenWithBottomNav,
         itemCount: items.length + (controller.hasMore ? 1 : 0),
         separatorBuilder: (_, __) => const SizedBox(height: 8),
         itemBuilder: (context, i) {
