@@ -34,7 +34,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Merhaba 👋'), findsOneWidget);
+    expect(find.text('Merhaba'), findsOneWidget);
     expect(find.text('Ana Sayfa'), findsWidgets);
 
     // Takvim artık üst çubukta bildirim zilinin yanında bir simge.

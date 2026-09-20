@@ -213,7 +213,7 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.text('Aktif 3'));
       await tester.pumpAndSettle();
     }
 
