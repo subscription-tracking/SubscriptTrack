@@ -93,6 +93,8 @@ void main() {
         .widget<FilledButton>(find.widgetWithText(FilledButton, 'Kayıt ol'));
     expect(button.onPressed, isNotNull);
 
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Kayıt ol'));
+    await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Kayıt ol'));
     await tester.pumpAndSettle();
     expect(source.signUpCalls, 1);
