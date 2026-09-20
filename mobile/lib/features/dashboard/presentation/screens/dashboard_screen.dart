@@ -16,9 +16,31 @@ import '../../../../shared/widgets/app_animated_money.dart';
 import '../../../../shared/widgets/service_identity.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key, this.onViewAllSubscriptions});
+  const DashboardScreen({
+    super.key,
+    this.onViewAllSubscriptions,
+    this.onOpenStats,
+  });
 
   final VoidCallback? onViewAllSubscriptions;
+
+  /// Switches to the navbar's İstatistikler tab. When not supplied (e.g. in
+  /// a test that renders DashboardScreen on its own, without AppShell),
+  /// falls back to pushing StatsScreen as its own route.
+  final VoidCallback? onOpenStats;
+
+  void _openStats(BuildContext context, SubscriptionController controller) {
+    if (onOpenStats != null) {
+      onOpenStats!();
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => StatsScreen(controller: controller),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,13 +98,7 @@ class DashboardScreen extends StatelessWidget {
                   totalActive: active.length,
                   onAnalysisTap: active.isEmpty
                       ? null
-                      : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  StatsScreen(controller: controller),
-                            ),
-                          ),
+                      : () => _openStats(context, controller),
                 ),
                 const SizedBox(height: 12),
                 _StatChipsRow(
@@ -131,12 +147,7 @@ class DashboardScreen extends StatelessWidget {
                   // özet bir donut grafik + oraya link.
                   _CategoryDonutCard(
                     active: active,
-                    onViewAll: () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (_) => StatsScreen(controller: controller),
-                      ),
-                    ),
+                    onViewAll: () => _openStats(context, controller),
                   ),
                   const SizedBox(height: 28),
                   _HealthInsights(active: active, controller: controller),

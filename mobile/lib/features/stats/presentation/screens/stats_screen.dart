@@ -89,7 +89,7 @@ class StatsScreen extends StatelessWidget {
                             MaterialPageRoute<void>(
                                 builder: (_) =>
                                     SavingsScreen(controller: controller))),
-                        icon: const Icon(Icons.savings_outlined),
+                        icon: const Icon(Icons.trending_down_rounded),
                         label: const Text('Tasarruf analizine git')),
                   ]),
             );

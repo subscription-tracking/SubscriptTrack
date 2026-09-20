@@ -114,7 +114,7 @@ class SavingsScreen extends StatelessWidget {
                   ...controller.savingsEvents.map((event) => Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
-                          leading: const Icon(Icons.savings_outlined),
+                          leading: const Icon(Icons.trending_down_rounded),
                           title: Text(event.eventType == 'PAUSED'
                               ? 'Abonelik duraklatıldı'
                               : 'Abonelik iptal edildi'),

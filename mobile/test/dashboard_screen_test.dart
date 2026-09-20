@@ -194,7 +194,9 @@ void main() {
         reason: 'kategori yüzdeleri gösterilmeli');
   });
 
-  testWidgets('"Tüm kategoriler" StatsScreen\'i açar', (tester) async {
+  testWidgets(
+      '"Tüm kategoriler" onOpenStats verilmediğinde StatsScreen\'i push eder',
+      (tester) async {
     final subs = [_sub('1', 'Netflix', daysUntilRenewal: 5)];
     final controller =
         SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
@@ -207,6 +209,45 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(StatsScreen), findsOneWidget);
+  });
+
+  testWidgets(
+      '"Tüm kategoriler" onOpenStats verildiğinde StatsScreen push etmez, '
+      'callback\'i çağırır (navbar sekmesine geçiş)', (tester) async {
+    final subs = [_sub('1', 'Netflix', daysUntilRenewal: 5)];
+    final controller =
+        SubscriptionController(userId: 'u1', repository: _FakeRepo(subs));
+    await controller.load();
+    var openStatsCalled = false;
+
+    await pumpTall(
+      tester,
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SubscriptionController>.value(
+                value: controller),
+            ChangeNotifierProvider<AuthController>(
+              create: (_) => AuthController(repository: _FakeAuthDataSource()),
+            ),
+          ],
+          child: Scaffold(
+            body: DashboardScreen(
+              onOpenStats: () => openStatsCalled = true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Tüm kategoriler'));
+    await tester.pumpAndSettle();
+
+    expect(openStatsCalled, isTrue);
+    expect(find.byType(StatsScreen), findsNothing,
+        reason:
+            'stats tabına geçiş callback ile yapılmalı, ayrı bir StatsScreen push edilmemeli');
   });
 
   testWidgets('ödeme kaydı olmayan aktif abonelikler için sayaç 0/N gösterir',

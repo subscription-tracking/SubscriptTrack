@@ -47,6 +47,7 @@ class _AppShellState extends State<AppShell> {
       body: switch (_index) {
         0 => DashboardScreen(
             onViewAllSubscriptions: () => setState(() => _index = 1),
+            onOpenStats: () => setState(() => _index = 2),
           ),
         1 => const SubscriptionListScreen(),
         2 => StatsScreen(controller: subscriptions, embedded: true),
