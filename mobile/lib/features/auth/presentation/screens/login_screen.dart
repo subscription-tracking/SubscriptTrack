@@ -44,6 +44,24 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  static const _testEmail = 'testkullanici@subscripttrack.app';
+  static const _testPassword = 'Test1234!';
+
+  Future<void> _quickTestLogin() async {
+    _email.text = _testEmail;
+    _password.text = _testPassword;
+    final ok = await widget.controller.signIn(_testEmail, _testPassword);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.controller.error ?? 'Giriş başarısız.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      widget.controller.clearError();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -151,6 +169,32 @@ class _LoginScreenState extends State<LoginScreen> {
                           : () => _socialSignIn('apple'),
                       icon: const Icon(Icons.apple),
                       label: const Text('Apple ile devam et'),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: colors.outlineVariant)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('veya',
+                              style: text.bodySmall
+                                  ?.copyWith(color: colors.onSurfaceVariant)),
+                        ),
+                        Expanded(child: Divider(color: colors.outlineVariant)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed:
+                          widget.controller.loading ? null : _quickTestLogin,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52),
+                        foregroundColor: colors.primary,
+                        side: BorderSide(
+                            color: colors.primary.withValues(alpha: 0.4)),
+                      ),
+                      icon: const Icon(Icons.bolt_rounded),
+                      label: const Text('Test hesabıyla gir'),
                     ),
                     const SizedBox(height: 12),
                     TextButton(
