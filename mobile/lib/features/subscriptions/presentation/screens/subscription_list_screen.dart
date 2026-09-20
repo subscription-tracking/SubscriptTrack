@@ -34,7 +34,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 6, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
     _search.addListener(() => setState(() {}));
   }
 
@@ -143,6 +143,119 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     await controller.deleteMany(ids);
   }
 
+  Future<void> _showFilterSheet(SubscriptionController controller) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Filtrele ve sırala',
+                    style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 20),
+                Text('Kategori', style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _FilterChip(
+                      label: 'Tümü',
+                      selected: _filterCategory == null,
+                      onTap: () {
+                        setState(() => _filterCategory = null);
+                        setSheetState(() {});
+                        Navigator.pop(sheetContext);
+                      },
+                    ),
+                    ...SubscriptionCategory.values
+                        .map((category) => _FilterChip(
+                              label: category.label,
+                              selected: _filterCategory == category,
+                              onTap: () {
+                                setState(() => _filterCategory = category);
+                                setSheetState(() {});
+                                Navigator.pop(sheetContext);
+                              },
+                            )),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text('Sıralama', style: Theme.of(context).textTheme.titleSmall),
+                RadioGroup<_SortOption>(
+                  groupValue: _sort,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _sort = value);
+                    setSheetState(() {});
+                    Navigator.pop(sheetContext);
+                  },
+                  child: Column(
+                    children: _SortOption.values
+                        .map((option) => RadioListTile<_SortOption>(
+                              contentPadding: EdgeInsets.zero,
+                              value: option,
+                              title: Text(_sortLabel(option)),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (controller.archived.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.pop(sheetContext);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => ArchivedSubscriptionsScreen(
+                                  controller: controller),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.archive_outlined),
+                        label: const Text('Arşiv'),
+                      ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.pop(sheetContext);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                CsvImportScreen(controller: controller),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.upload_file_outlined),
+                      label: const Text('CSV içe aktar'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _sortLabel(_SortOption option) => switch (option) {
+        _SortOption.date => 'Yenileme tarihine göre',
+        _SortOption.amountAsc => 'Fiyat: artan',
+        _SortOption.amountDesc => 'Fiyat: azalan',
+        _SortOption.name => 'İsme göre',
+      };
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SubscriptionController>();
@@ -151,9 +264,11 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    final nonArchived = controller.allItems
-        .where((s) => s.status != SubscriptionStatus.archived)
-        .toList();
+    final history = [
+      ...controller.paused,
+      ...controller.cancelled,
+      ...controller.expired,
+    ];
 
     return Scaffold(
       body: Column(
@@ -181,58 +296,22 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   onDelete: () => _confirmBulkDelete(controller),
                 )
               : _Header(
-                  controller: controller,
                   searchController: _search,
-                  filterCategory: _filterCategory,
-                  sortOption: _sort,
-                  onCategoryChanged: (c) => setState(() => _filterCategory = c),
-                  onSortChanged: (s) => setState(() => _sort = s),
-                  onArchiveTap: controller.archived.isEmpty
-                      ? null
-                      : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => ArchivedSubscriptionsScreen(
-                                  controller: controller),
-                            ),
-                          ),
-                  onImportTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                          builder: (_) =>
-                              CsvImportScreen(controller: controller))),
+                  onFilterTap: () => _showFilterSheet(controller),
                   onAddTap: () => _openAdd(context, controller),
                 ),
           _PillTabBar(
             controller: _tabs,
             tabs: [
-              _PillTab('Tümü', nonArchived.length),
               _PillTab('Aktif', controller.active.length),
               _PillTab('Deneme', controller.trials.length),
-              _PillTab('Duraklatıldı', controller.paused.length),
-              _PillTab('İptal', controller.cancelled.length),
-              _PillTab('Süresi doldu', controller.expired.length),
+              _PillTab('Geçmiş', history.length),
             ],
           ),
           Expanded(
             child: TabBarView(
               controller: _tabs,
               children: [
-                _TabView(
-                  items: _filtered(nonArchived),
-                  allEmpty: nonArchived.isEmpty,
-                  emptyMessage: 'Henüz abonelik yok',
-                  emptyDetail:
-                      'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
-                  controller: controller,
-                  onRefresh: controller.load,
-                  onAdd: () => _openAdd(context, controller),
-                  showAddButton: true,
-                  selectionMode: _selectionMode,
-                  selectedIds: _selectedIds,
-                  onLongPress: _enterSelectionMode,
-                  onToggleSelect: _toggleSelected,
-                ),
                 _TabView(
                   items: _filtered(controller.active),
                   allEmpty: controller.active.isEmpty,
@@ -247,6 +326,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   selectedIds: _selectedIds,
                   onLongPress: _enterSelectionMode,
                   onToggleSelect: _toggleSelected,
+                  showStatus: false,
                 ),
                 _TabView(
                   items: _filtered(controller.trials),
@@ -264,36 +344,15 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                   onToggleSelect: _toggleSelected,
                 ),
                 _TabView(
-                  items: _filtered(controller.paused),
-                  allEmpty: controller.paused.isEmpty,
-                  emptyMessage: 'Duraklatılmış abonelik yok',
-                  emptyDetail: 'Aboneliği detay sayfasından duraklatabilirsin.',
+                  items: _filtered(history),
+                  allEmpty: history.isEmpty,
+                  emptyMessage: 'Geçmiş abonelik yok',
+                  emptyDetail:
+                      'Duraklatılan, iptal edilen ve süresi dolan kayıtlar burada görünür.',
                   controller: controller,
                   onRefresh: controller.load,
-                  selectionMode: _selectionMode,
-                  selectedIds: _selectedIds,
-                  onLongPress: _enterSelectionMode,
-                  onToggleSelect: _toggleSelected,
-                ),
-                _TabView(
-                  items: _filtered(controller.cancelled),
-                  allEmpty: controller.cancelled.isEmpty,
-                  emptyMessage: 'İptal edilmiş abonelik yok',
-                  emptyDetail: 'İptal ettiğin abonelikler burada görünür.',
-                  controller: controller,
-                  onRefresh: controller.load,
-                  selectionMode: _selectionMode,
-                  selectedIds: _selectedIds,
-                  onLongPress: _enterSelectionMode,
-                  onToggleSelect: _toggleSelected,
-                ),
-                _TabView(
-                  items: _filtered(controller.expired),
-                  allEmpty: controller.expired.isEmpty,
-                  emptyMessage: 'Süresi dolmuş abonelik yok',
-                  emptyDetail: 'Süresi dolan abonelikler burada görünür.',
-                  controller: controller,
-                  onRefresh: controller.load,
+                  onAdd: () => _openAdd(context, controller),
+                  showAddButton: true,
                   selectionMode: _selectionMode,
                   selectedIds: _selectedIds,
                   onLongPress: _enterSelectionMode,
@@ -321,25 +380,13 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
 
 class _Header extends StatelessWidget {
   const _Header({
-    required this.controller,
     required this.searchController,
-    required this.filterCategory,
-    required this.sortOption,
-    required this.onCategoryChanged,
-    required this.onSortChanged,
-    this.onArchiveTap,
-    required this.onImportTap,
+    required this.onFilterTap,
     required this.onAddTap,
   });
 
-  final SubscriptionController controller;
   final TextEditingController searchController;
-  final SubscriptionCategory? filterCategory;
-  final _SortOption sortOption;
-  final ValueChanged<SubscriptionCategory?> onCategoryChanged;
-  final ValueChanged<_SortOption> onSortChanged;
-  final VoidCallback? onArchiveTap;
-  final VoidCallback onImportTap;
+  final VoidCallback onFilterTap;
   final VoidCallback onAddTap;
 
   @override
@@ -351,60 +398,19 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Abonelikler',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${controller.active.length} aktif abonelik',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
+              const Spacer(),
               IconButton.filledTonal(
                 onPressed: onAddTap,
                 icon: const Icon(Icons.add_rounded),
                 tooltip: 'Abonelik ekle',
               ),
               const SizedBox(width: 4),
-              PopupMenuButton<_SortOption>(
-                icon: Icon(Icons.sort,
+              IconButton(
+                icon: Icon(Icons.tune_rounded,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                onSelected: onSortChanged,
-                itemBuilder: (ctx) => [
-                  _sortItem(ctx, _SortOption.date, 'Tarihe göre', sortOption),
-                  _sortItem(
-                      ctx, _SortOption.amountAsc, 'Fiyat: Artan', sortOption),
-                  _sortItem(
-                      ctx, _SortOption.amountDesc, 'Fiyat: Azalan', sortOption),
-                  _sortItem(ctx, _SortOption.name, 'İsme göre', sortOption),
-                ],
+                onPressed: onFilterTap,
+                tooltip: 'Filtrele ve sırala',
               ),
-              if (MediaQuery.sizeOf(context).width >= 360)
-                IconButton(
-                    icon: const Icon(Icons.upload_file_outlined),
-                    onPressed: onImportTap,
-                    tooltip: 'CSV içe aktar'),
-              if (onArchiveTap != null)
-                Badge(
-                  label: Text('${controller.archived.length}'),
-                  child: IconButton(
-                    icon: Icon(Icons.archive_outlined,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    onPressed: onArchiveTap,
-                    tooltip: 'Arşiv',
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 16),
@@ -423,48 +429,8 @@ class _Header extends StatelessWidget {
                   : null,
             ),
           ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _FilterChip(
-                  label: 'Tümü',
-                  selected: filterCategory == null,
-                  onTap: () => onCategoryChanged(null),
-                ),
-                const SizedBox(width: 6),
-                ...SubscriptionCategory.values.map((c) => Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: _FilterChip(
-                        label: c.label,
-                        selected: filterCategory == c,
-                        onTap: () =>
-                            onCategoryChanged(filterCategory == c ? null : c),
-                      ),
-                    )),
-              ],
-            ),
-          ),
         ],
       ),
-    );
-  }
-
-  PopupMenuItem<_SortOption> _sortItem(BuildContext context, _SortOption opt,
-      String label, _SortOption current) {
-    final cs = Theme.of(context).colorScheme;
-    return PopupMenuItem(
-      value: opt,
-      child: Row(children: [
-        Icon(
-          opt == current ? Icons.radio_button_checked : Icons.radio_button_off,
-          size: 18,
-          color: opt == current ? cs.primary : cs.onSurfaceVariant,
-        ),
-        const SizedBox(width: 8),
-        Text(label),
-      ]),
     );
   }
 }
@@ -582,11 +548,12 @@ class _PillTabBarState extends State<_PillTabBar> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      '${tab.label} (${tab.count})',
+                      '${tab.label} ${tab.count}',
                       style: TextStyle(
                         color: selected ? cs.onPrimary : cs.onSurfaceVariant,
                         fontSize: 13,
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w500,
                       ),
                     ),
                   ),
@@ -659,6 +626,7 @@ class _TabView extends StatelessWidget {
     this.selectedIds = const {},
     this.onLongPress,
     this.onToggleSelect,
+    this.showStatus = true,
   });
 
   final List<Subscription> items;
@@ -673,6 +641,7 @@ class _TabView extends StatelessWidget {
   final Set<String> selectedIds;
   final ValueChanged<String>? onLongPress;
   final ValueChanged<String>? onToggleSelect;
+  final bool showStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -734,6 +703,7 @@ class _TabView extends StatelessWidget {
               }
             },
             onLongPress: () => onLongPress?.call(sub.id),
+            showStatus: showStatus,
           );
         },
       ),
@@ -750,6 +720,7 @@ class _SubscriptionTile extends StatelessWidget {
     this.selectionMode = false,
     this.selected = false,
     this.onLongPress,
+    this.showStatus = true,
   });
 
   final Subscription subscription;
@@ -757,6 +728,7 @@ class _SubscriptionTile extends StatelessWidget {
   final bool selectionMode;
   final bool selected;
   final VoidCallback? onLongPress;
+  final bool showStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -814,81 +786,92 @@ class _SubscriptionTile extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: 2),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          subscription.category.label,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                    fontSize: 11,
-                                  ),
-                        ),
-                        SubscriptionStatusChip(
-                          status: subscription.status,
-                          isNotStarted: subscription.isNotStarted,
-                          daysUntilRenewal: days,
-                        ),
-                      ],
-                    ),
+                    if (showStatus)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            subscription.category.label,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                      fontSize: 11,
+                                    ),
+                          ),
+                          SubscriptionStatusChip(
+                            status: subscription.status,
+                            isNotStarted: subscription.isNotStarted,
+                            daysUntilRenewal: days,
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        '${subscription.category.label} · ${DateTimeUtils.formatDate(subscription.nextRenewalDate)}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 11,
+                            ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
               Flexible(
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    DateTimeUtils.formatCurrency(
-                      subscription.amount.amount,
-                      symbol: subscription.currency,
-                    ),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: isCancelled || isPaused
-                              ? cs.onSurfaceVariant
-                              : cs.primary,
-                        ),
-                  ),
-                  const SizedBox(height: 2),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (isPaused)
-                        Icon(Icons.pause_circle_outline,
-                            size: 11, color: cs.onSurfaceVariant),
-                      if (isCancelled)
-                        Icon(Icons.cancel_outlined,
-                            size: 11, color: statusColors.success),
-                      const SizedBox(width: 2),
-                      Flexible(
-                        child: Text(
-                        isPaused
-                            ? 'Duraklatıldı'
-                            : isCancelled
-                                ? 'İptal edildi'
-                                : '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · ${DateTimeUtils.renewalLabel(days)}',
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.right,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: isPaused
-                                  ? cs.onSurfaceVariant
-                                  : isCancelled
-                                      ? statusColors.success
-                                      : urgent
-                                          ? cs.error
-                                          : cs.onSurfaceVariant,
-                              fontSize: 10,
-                            ),
-                        ),
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      DateTimeUtils.formatCurrency(
+                        subscription.amount.amount,
+                        symbol: subscription.currency,
                       ),
-                    ],
-                  ),
-                ],
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: isCancelled || isPaused
+                                ? cs.onSurfaceVariant
+                                : cs.primary,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isPaused)
+                          Icon(Icons.pause_circle_outline,
+                              size: 11, color: cs.onSurfaceVariant),
+                        if (isCancelled)
+                          Icon(Icons.cancel_outlined,
+                              size: 11, color: statusColors.success),
+                        const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            isPaused
+                                ? 'Duraklatıldı'
+                                : isCancelled
+                                    ? 'İptal edildi'
+                                    : '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · ${DateTimeUtils.renewalLabel(days)}',
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: isPaused
+                                          ? cs.onSurfaceVariant
+                                          : isCancelled
+                                              ? statusColors.success
+                                              : urgent
+                                                  ? cs.error
+                                                  : cs.onSurfaceVariant,
+                                      fontSize: 10,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],

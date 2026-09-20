@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/domain/money.dart';
 import '../../../../core/utils/date_time_utils.dart';
-import '../../../auth/presentation/auth_controller.dart';
 import '../../../stats/presentation/screens/stats_screen.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
@@ -44,11 +43,6 @@ class DashboardScreen extends StatelessWidget {
     final completedThisMonth =
         active.where((s) => paidSubscriptionIdsThisMonth.contains(s.id)).length;
 
-    final user = context.watch<AuthController>().user;
-    final greetingName = user?.displayName?.trim().isNotEmpty == true
-        ? user!.displayName!.trim()
-        : user?.email.split('@').first;
-
     final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
@@ -75,8 +69,6 @@ class DashboardScreen extends StatelessWidget {
             child: ListView(
               padding: AppSpacing.screenWithBottomNav,
               children: [
-                _GreetingHeader(name: greetingName),
-                const SizedBox(height: 20),
                 _HeroCard(
                   totals: totals,
                   monthChangeLabel: monthChangeLabel,
@@ -182,71 +174,6 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ],
             ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Greeting Header ────────────────────────────────────────────────────────
-
-class _GreetingHeader extends StatelessWidget {
-  const _GreetingHeader({this.name});
-
-  final String? name;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final now = DateTime.now();
-    const months = [
-      'Ocak',
-      'Şubat',
-      'Mart',
-      'Nisan',
-      'Mayıs',
-      'Haziran',
-      'Temmuz',
-      'Ağustos',
-      'Eylül',
-      'Ekim',
-      'Kasım',
-      'Aralık',
-    ];
-    const days = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
-    final date =
-        '${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
-    final greeting = name?.isNotEmpty == true ? 'Merhaba, $name' : 'Merhaba';
-
-    return Row(
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: cs.primary.withValues(alpha: 0.16),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(Icons.bolt_rounded, color: cs.primary, size: 18),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(date, style: Theme.of(context).textTheme.labelSmall),
-              const SizedBox(height: 2),
-              Text(
-                greeting,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-            ],
           ),
         ),
       ],
