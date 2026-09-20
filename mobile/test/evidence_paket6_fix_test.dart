@@ -190,8 +190,8 @@ void main() {
 
       await tester.enterText(find.byType(TextFormField).first, 'Netflix');
       await tester.enterText(find.byType(TextFormField).at(1), '50');
-      await tester.ensureVisible(find.text('Kaydet'));
-      await tester.tap(find.text('Kaydet'));
+      await tester.ensureVisible(find.text('Aboneliği kaydet'));
+      await tester.tap(find.text('Aboneliği kaydet'));
       await tester.pumpAndSettle();
 
       expect(controller.allItems.length, 1,

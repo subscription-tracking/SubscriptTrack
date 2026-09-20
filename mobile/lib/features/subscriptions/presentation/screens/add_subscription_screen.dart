@@ -145,25 +145,35 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Abonelik ekle')),
+      appBar: AppBar(title: const Text('Yeni abonelik')),
+      // Form içeriği, sabit eylem alanının ve Android sistem gezinmesinin
+      // altında kalmasın diye alttaki alan SafeArea içinde tutulur.
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+        child: ListenableBuilder(
+          listenable: widget.controller,
+          builder: (context, _) => FilledButton(
+            onPressed: widget.controller.loading ? null : _save,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+            ),
+            child: widget.controller.loading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text('Aboneliği kaydet'),
+          ),
+        ),
+      ),
       body: ListenableBuilder(
         listenable: widget.controller,
         builder: (context, _) => ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
           children: [
             SubscriptionForm(formKey: _formKey, data: _data),
-            const SizedBox(height: 28),
-            FilledButton(
-              onPressed: widget.controller.loading ? null : _save,
-              child: widget.controller.loading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Text('Kaydet'),
-            ),
           ],
         ),
       ),
