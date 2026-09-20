@@ -84,6 +84,24 @@ void main() {
     controller.dispose();
   });
 
+  test('restartOnboarding sets onboardingNeeded and notifies listeners',
+      () async {
+    SharedPreferences.setMockInitialValues({'onboarding_done': true});
+    FlutterSecureStorage.setMockInitialValues({});
+    final source = _FakeAuthDataSource();
+    final controller = AuthController(repository: source);
+    await controller.init();
+    expect(controller.onboardingNeeded, isFalse);
+
+    var notified = false;
+    controller.addListener(() => notified = true);
+    controller.restartOnboarding();
+
+    expect(controller.onboardingNeeded, isTrue);
+    expect(notified, isTrue);
+    controller.dispose();
+  });
+
   test('updateDisplayName persists the new name on the current user', () async {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});

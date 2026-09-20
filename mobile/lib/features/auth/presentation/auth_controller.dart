@@ -121,6 +121,12 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Kullanıcının isteğiyle (Ayarlar'dan) tanıtım turunu yeniden gösterir.
+  void restartOnboarding() {
+    _onboardingNeeded = true;
+    notifyListeners();
+  }
+
   Future<bool> signUp(String email, String password) async {
     _setLoading(true);
     try {
