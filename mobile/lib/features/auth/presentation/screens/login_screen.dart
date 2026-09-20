@@ -50,7 +50,21 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _quickTestLogin() async {
     _email.text = _testEmail;
     _password.text = _testPassword;
-    final ok = await widget.controller.signIn(_testEmail, _testPassword);
+    var ok = await widget.controller.signIn(_testEmail, _testPassword);
+    // Test hesabı bu cihaz/backend'de henüz kayıtlı değilse (ör. yerel auth
+    // modunda temiz bir kurulum, ya da Supabase projesinde bu hesap yoksa),
+    // sessizce oluşturup tekrar dene — kullanıcı "hatalı şifre" ile karşılaşmasın.
+    if (!ok) {
+      widget.controller.clearError();
+      final signedUp =
+          await widget.controller.signUp(_testEmail, _testPassword);
+      if (!signedUp) {
+        widget.controller.clearError();
+        ok = await widget.controller.signIn(_testEmail, _testPassword);
+      } else {
+        ok = true;
+      }
+    }
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
