@@ -38,20 +38,25 @@ class AmbientBackground extends StatelessWidget {
           ),
         ),
         Positioned.fill(
-          child: IgnorePointer(
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -120,
-                  right: -90,
-                  child: _blob(accentColor, 220, 0.16),
-                ),
-                Positioned(
-                  bottom: -90,
-                  left: -100,
-                  child: _blob(accentColor, 200, 0.12),
-                ),
-              ],
+          // RepaintBoundary: without this, anything that repaints inside
+          // `child` (a blinking text cursor, a setState from typing) forces
+          // the expensive blur below to re-rasterize on the same frame.
+          child: RepaintBoundary(
+            child: IgnorePointer(
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: -120,
+                    right: -90,
+                    child: _blob(accentColor, 220, 0.16),
+                  ),
+                  Positioned(
+                    bottom: -90,
+                    left: -100,
+                    child: _blob(accentColor, 200, 0.12),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -61,7 +66,7 @@ class AmbientBackground extends StatelessWidget {
   }
 
   Widget _blob(Color color, double size, double opacity) => ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        imageFilter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
         child: Container(
           width: size,
           height: size,

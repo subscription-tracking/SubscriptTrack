@@ -102,10 +102,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: 1,
+            // RepaintBoundary: the blur below is expensive to rasterize,
+            // and without this it gets re-composited every frame just
+            // because a sibling (the floating icons / pulsing badge) is
+            // animating.
+            child: RepaintBoundary(
+              child: IgnorePointer(
                 child: Stack(
                   children: [
                     Positioned(
@@ -238,7 +240,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _blob(Color color, double size, double opacity) => ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        imageFilter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
         child: Container(
           width: size,
           height: size,
@@ -349,16 +351,21 @@ class _BobState extends State<_Bob> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (context, child) {
-        final t = _ctrl.value * 2 * math.pi + widget.phase;
-        return Transform.translate(
-          offset: Offset(0, math.sin(t) * _Bob._amplitude),
-          child: child,
-        );
-      },
-      child: widget.child,
+    // RepaintBoundary turns the per-frame offset change into a cheap
+    // compositor-layer transform instead of repainting the icon (and
+    // anything sharing its layer) every frame.
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (context, child) {
+          final t = _ctrl.value * 2 * math.pi + widget.phase;
+          return Transform.translate(
+            offset: Offset(0, math.sin(t) * _Bob._amplitude),
+            child: child,
+          );
+        },
+        child: widget.child,
+      ),
     );
   }
 }
@@ -604,28 +611,30 @@ class _CalendarIllustrationState extends State<_CalendarIllustration>
           Positioned(
             right: 22,
             bottom: 34,
-            child: AnimatedBuilder(
-              animation: _pulse,
-              builder: (context, child) {
-                final scale = 1 + _pulse.value * 0.18;
-                return Transform.scale(scale: scale, child: child);
-              },
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: accent,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: cs.surface, width: 3),
-                  boxShadow: [
-                    BoxShadow(
-                      color: accent.withValues(alpha: 0.5),
-                      blurRadius: 16,
-                    ),
-                  ],
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _pulse,
+                builder: (context, child) {
+                  final scale = 1 + _pulse.value * 0.18;
+                  return Transform.scale(scale: scale, child: child);
+                },
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: accent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: cs.surface, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.5),
+                        blurRadius: 16,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.notifications_rounded,
+                      size: 15, color: Colors.white),
                 ),
-                child: const Icon(Icons.notifications_rounded,
-                    size: 15, color: Colors.white),
               ),
             ),
           ),
