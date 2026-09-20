@@ -44,51 +44,49 @@ class StatsScreen extends StatelessWidget {
                 .toList();
             return RefreshIndicator(
               onRefresh: controller.load,
-              child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerRight,
-                      child: _PeriodButton(),
-                    ),
-                    const SizedBox(height: 16),
-                    _Summary(
-                        monthly: monthly, currency: currency, trend: trend),
-                    if (totals.length > 1)
-                      Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                              '${totals.keys.join(', ')} tutarları ayrı hesaplanır.',
-                              style: Theme.of(context).textTheme.bodySmall)),
-                    const SizedBox(height: 24),
-                    _Trend(trend: trend, currency: currency),
-                    const SizedBox(height: 24),
-                    _Review(
-                        items: due,
-                        currency: currency,
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    SavingsScreen(controller: controller)))),
-                    const SizedBox(height: 24),
-                    Text('Kategoriler',
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 12),
-                    _Categories(
-                        entries: categories.entries.take(3).toList(),
-                        total: monthly,
-                        currency: currency),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    SavingsScreen(controller: controller))),
-                        icon: const Icon(Icons.savings_outlined),
-                        label: const Text('Tasarruf analizine git')),
-                  ]),
+              child:
+                  ListView(padding: AppSpacing.screenWithBottomNav, children: [
+                const Align(
+                  alignment: Alignment.centerRight,
+                  child: _PeriodButton(),
+                ),
+                const SizedBox(height: 16),
+                _Summary(monthly: monthly, currency: currency, trend: trend),
+                if (totals.length > 1)
+                  Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                          '${totals.keys.join(', ')} tutarları ayrı hesaplanır.',
+                          style: Theme.of(context).textTheme.bodySmall)),
+                const SizedBox(height: 24),
+                _Trend(trend: trend, currency: currency),
+                const SizedBox(height: 24),
+                _Review(
+                    items: due,
+                    currency: currency,
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                            builder: (_) =>
+                                SavingsScreen(controller: controller)))),
+                const SizedBox(height: 24),
+                Text('Kategoriler',
+                    style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 12),
+                _Categories(
+                    entries: categories.entries.take(3).toList(),
+                    total: monthly,
+                    currency: currency),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                            builder: (_) =>
+                                SavingsScreen(controller: controller))),
+                    icon: const Icon(Icons.savings_outlined),
+                    label: const Text('Tasarruf analizine git')),
+              ]),
             );
           },
         ),

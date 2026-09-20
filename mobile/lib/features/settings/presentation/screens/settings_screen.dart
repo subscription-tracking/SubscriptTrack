@@ -32,7 +32,7 @@ class ProfileTab extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
       children: [
         // ── Avatar + Name ──────────────────────────────────────────────────
         Padding(
