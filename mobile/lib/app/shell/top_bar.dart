@@ -6,6 +6,9 @@ import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
 
+/// The shared top bar for every tab — same style and height everywhere, so
+/// switching tabs doesn't visually jump. Per-page content (like the
+/// dashboard's "Merhaba" greeting) lives in that page's own body instead.
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   const TopBar({this.title, super.key});
 
@@ -17,6 +20,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
     final cs = Theme.of(context).colorScheme;
 
     return AppBar(
+      titleSpacing: 20,
       backgroundColor: cs.surfaceContainerLowest,
       surfaceTintColor: Colors.transparent,
       elevation: 0,

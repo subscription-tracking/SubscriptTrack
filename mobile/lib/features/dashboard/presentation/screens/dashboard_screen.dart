@@ -24,10 +24,6 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SubscriptionController>();
-    final authUser = context.watch<AuthController>().user;
-    final greetingName = authUser?.displayName?.trim().isNotEmpty == true
-        ? authUser!.displayName!.trim()
-        : authUser?.email.split('@').first;
     final active = controller.active;
     final upcoming = controller.upcomingRenewals;
     final trials = controller.trials;
@@ -47,6 +43,11 @@ class DashboardScreen extends StatelessWidget {
         .toSet();
     final completedThisMonth =
         active.where((s) => paidSubscriptionIdsThisMonth.contains(s.id)).length;
+
+    final user = context.watch<AuthController>().user;
+    final greetingName = user?.displayName?.trim().isNotEmpty == true
+        ? user!.displayName!.trim()
+        : user?.email.split('@').first;
 
     final cs = Theme.of(context).colorScheme;
     return Column(
@@ -74,7 +75,7 @@ class DashboardScreen extends StatelessWidget {
             child: ListView(
               padding: AppSpacing.screenWithBottomNav,
               children: [
-                _GreetingRow(name: greetingName),
+                _GreetingHeader(name: greetingName),
                 const SizedBox(height: 20),
                 _HeroCard(
                   totals: totals,
@@ -188,17 +189,18 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
-// ─── Greeting ────────────────────────────────────────────────────────────────
+// ─── Greeting Header ────────────────────────────────────────────────────────
 
-class _GreetingRow extends StatelessWidget {
-  const _GreetingRow({this.name});
+class _GreetingHeader extends StatelessWidget {
+  const _GreetingHeader({this.name});
 
   final String? name;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final now = DateTime.now();
-    final months = [
+    const months = [
       'Ocak',
       'Şubat',
       'Mart',
@@ -210,31 +212,39 @@ class _GreetingRow extends StatelessWidget {
       'Eylül',
       'Ekim',
       'Kasım',
-      'Aralık'
+      'Aralık',
     ];
-    final days = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
-    final dateStr =
+    const days = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
+    final date =
         '${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
+    final greeting = name?.isNotEmpty == true ? 'Merhaba, $name' : 'Merhaba';
 
     return Row(
       children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: cs.primary.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(Icons.bolt_rounded, color: cs.primary, size: 18),
+        ),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                (name != null && name!.isNotEmpty)
-                    ? 'Merhaba, $name 👋'
-                    : 'Merhaba 👋',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
+              Text(date, style: Theme.of(context).textTheme.labelSmall),
               const SizedBox(height: 2),
               Text(
-                dateStr,
-                style: Theme.of(context).textTheme.bodySmall,
+                greeting,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
               ),
             ],
           ),
