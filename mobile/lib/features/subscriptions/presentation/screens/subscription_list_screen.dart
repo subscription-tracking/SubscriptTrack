@@ -34,7 +34,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 5, vsync: this);
+    _tabs = TabController(length: 6, vsync: this);
     _search.addListener(() => setState(() {}));
   }
 
@@ -151,6 +151,10 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
+    final nonArchived = controller.allItems
+        .where((s) => s.status != SubscriptionStatus.archived)
+        .toList();
+
     return Scaffold(
       body: Column(
         children: [
@@ -199,22 +203,15 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                               CsvImportScreen(controller: controller))),
                   onAddTap: () => _openAdd(context, controller),
                 ),
-          TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelPadding: const EdgeInsets.symmetric(horizontal: 14),
+          _PillTabBar(
             controller: _tabs,
-            indicatorColor: Theme.of(context).colorScheme.primary,
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor:
-                Theme.of(context).colorScheme.onSurfaceVariant,
-            dividerColor: Theme.of(context).colorScheme.outlineVariant,
             tabs: [
-              Tab(text: 'Deneme (${controller.trials.length})'),
-              Tab(text: 'Aktif (${controller.active.length})'),
-              Tab(text: 'Duraklatıldı (${controller.paused.length})'),
-              Tab(text: 'İptal (${controller.cancelled.length})'),
-              Tab(text: 'Süresi doldu (${controller.expired.length})'),
+              _PillTab('Tümü', nonArchived.length),
+              _PillTab('Aktif', controller.active.length),
+              _PillTab('Deneme', controller.trials.length),
+              _PillTab('Duraklatıldı', controller.paused.length),
+              _PillTab('İptal', controller.cancelled.length),
+              _PillTab('Süresi doldu', controller.expired.length),
             ],
           ),
           Expanded(
@@ -222,11 +219,11 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
               controller: _tabs,
               children: [
                 _TabView(
-                  items: _filtered(controller.trials),
-                  allEmpty: controller.trials.isEmpty,
-                  emptyMessage: 'Deneme aboneliği yok',
+                  items: _filtered(nonArchived),
+                  allEmpty: nonArchived.isEmpty,
+                  emptyMessage: 'Henüz abonelik yok',
                   emptyDetail:
-                      'Ücretsiz denemelerini burada takip edebilirsin.',
+                      'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
                   controller: controller,
                   onRefresh: controller.load,
                   onAdd: () => _openAdd(context, controller),
@@ -239,9 +236,24 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                 _TabView(
                   items: _filtered(controller.active),
                   allEmpty: controller.active.isEmpty,
-                  emptyMessage: 'Henüz abonelik yok',
+                  emptyMessage: 'Aktif abonelik yok',
                   emptyDetail:
                       'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
+                  controller: controller,
+                  onRefresh: controller.load,
+                  onAdd: () => _openAdd(context, controller),
+                  showAddButton: true,
+                  selectionMode: _selectionMode,
+                  selectedIds: _selectedIds,
+                  onLongPress: _enterSelectionMode,
+                  onToggleSelect: _toggleSelected,
+                ),
+                _TabView(
+                  items: _filtered(controller.trials),
+                  allEmpty: controller.trials.isEmpty,
+                  emptyMessage: 'Deneme aboneliği yok',
+                  emptyDetail:
+                      'Ücretsiz denemelerini burada takip edebilirsin.',
                   controller: controller,
                   onRefresh: controller.load,
                   onAdd: () => _openAdd(context, controller),
@@ -510,6 +522,84 @@ class _SelectionBar extends StatelessWidget {
   }
 }
 
+// ─── Pill Tab Bar (durum sekmeleri) ──────────────────────────────────────────
+
+class _PillTab {
+  const _PillTab(this.label, this.count);
+  final String label;
+  final int count;
+}
+
+class _PillTabBar extends StatefulWidget {
+  const _PillTabBar({required this.controller, required this.tabs});
+
+  final TabController controller;
+  final List<_PillTab> tabs;
+
+  @override
+  State<_PillTabBar> createState() => _PillTabBarState();
+}
+
+class _PillTabBarState extends State<_PillTabBar> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() => setState(() {});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 40,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            for (var i = 0; i < widget.tabs.length; i++) ...[
+              if (i > 0) const SizedBox(width: 8),
+              Builder(builder: (context) {
+                final tab = widget.tabs[i];
+                final selected = widget.controller.index == i;
+                return GestureDetector(
+                  onTap: () => widget.controller.animateTo(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: selected ? cs.primary : cs.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${tab.label} (${tab.count})',
+                      style: TextStyle(
+                        color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+                        fontSize: 13,
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _FilterChip extends StatelessWidget {
   const _FilterChip({
     required this.label,
@@ -748,7 +838,8 @@ class _SubscriptionTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Column(
+              Flexible(
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
@@ -774,12 +865,15 @@ class _SubscriptionTile extends StatelessWidget {
                         Icon(Icons.cancel_outlined,
                             size: 11, color: statusColors.success),
                       const SizedBox(width: 2),
-                      Text(
+                      Flexible(
+                        child: Text(
                         isPaused
                             ? 'Duraklatıldı'
                             : isCancelled
                                 ? 'İptal edildi'
-                                : DateTimeUtils.renewalLabel(days),
+                                : '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · ${DateTimeUtils.renewalLabel(days)}',
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: isPaused
                                   ? cs.onSurfaceVariant
@@ -790,10 +884,12 @@ class _SubscriptionTile extends StatelessWidget {
                                           : cs.onSurfaceVariant,
                               fontSize: 10,
                             ),
+                        ),
                       ),
                     ],
                   ),
                 ],
+                ),
               ),
             ],
           ),
