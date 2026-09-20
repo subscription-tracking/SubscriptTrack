@@ -144,9 +144,8 @@ void main() {
 
     // Sadece en yakın tarihli (Netflix, 2 gün) gösterilmeli; diğer ikisi
     // (Spotify, iCloud) ne "sıradaki ödeme" kartında ne başka bir bölümde
-    // görünmemeli. Netflix ayrıca "Bu ayın içgörüsü" bölümünde de (7 gün
-    // içinde yenileniyor diye) geçtiği için >=1 olarak kontrol ediyoruz.
-    expect(find.text('Netflix'), findsWidgets);
+    // görünmemeli.
+    expect(find.text('Netflix'), findsOneWidget);
     expect(find.text('Spotify'), findsNothing);
     expect(find.text('iCloud'), findsNothing);
   });

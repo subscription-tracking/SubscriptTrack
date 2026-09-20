@@ -149,8 +149,6 @@ class DashboardScreen extends StatelessWidget {
                     active: active,
                     onViewAll: () => _openStats(context, controller),
                   ),
-                  const SizedBox(height: 28),
-                  _HealthInsights(active: active, controller: controller),
                 ],
                 if (controller.savingsEvents.isNotEmpty) ...[
                   const SizedBox(height: 28),
@@ -747,73 +745,6 @@ class _EmptyRenewalsCard extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HealthInsights extends StatelessWidget {
-  const _HealthInsights({required this.active, required this.controller});
-
-  final List<Subscription> active;
-  final SubscriptionController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final amounts = active.map((s) => s.monthlyAmount.amount).toList()..sort();
-    final median = amounts[amounts.length ~/ 2];
-    final flagged = active.where((s) {
-      final expensive = s.monthlyAmount.amount >= median * 1.5 && median > 0;
-      final soon = s.daysUntilRenewal >= 0 && s.daysUntilRenewal <= 7;
-      return expensive || soon;
-    }).toList();
-    if (flagged.isEmpty) return const SizedBox.shrink();
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(Icons.insights_outlined,
-                color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Text('Bu ayın içgörüsü',
-                style: Theme.of(context).textTheme.titleSmall),
-          ]),
-          const SizedBox(height: 8),
-          Text('${flagged.length} aboneliği yenilemeden önce gözden geçir.',
-              style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          ...flagged.take(3).map((s) => ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                title: Text(s.name),
-                subtitle: Text(s.daysUntilRenewal <= 7
-                    ? '7 gün içinde yenileniyor'
-                    : 'Ortalamanın üzerinde aylık maliyet'),
-                trailing: Text(DateTimeUtils.formatCurrency(
-                    s.monthlyAmount.amount,
-                    symbol: s.currency)),
-                onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                        builder: (_) => SubscriptionDetailScreen(
-                            subscription: s, controller: controller))),
-              )),
-          OutlinedButton.icon(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => SubscriptionDetailScreen(
-                  subscription: flagged.first,
-                  controller: controller,
-                ),
-              ),
-            ),
-            icon: const Icon(Icons.visibility_outlined),
-            label: const Text('İncele'),
-          ),
-        ]),
       ),
     );
   }
