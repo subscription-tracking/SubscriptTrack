@@ -94,6 +94,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   late final TextEditingController _name;
   late final TextEditingController _amount;
   late final TextEditingController _notes;
+  bool _showDetails = false;
 
   @override
   void initState() {
@@ -323,275 +324,337 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              'Popüler Servisler',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: .6),
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-            ),
-          ),
-          SizedBox(
-            height: 42,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              itemCount: _popularPresets.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final preset = _popularPresets[index];
-                final isSelected =
-                    currentName == preset.$1.trim().toLowerCase();
-                return ChoiceChip(
-                  avatar: ServiceIdentity(
-                    name: preset.$1,
-                    category: preset.$2,
-                    size: 22,
-                  ),
-                  label: Text(
-                    preset.$1,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                  ),
-                  selected: isSelected,
-                  showCheckmark: false,
-                  onSelected: (_) {
-                    setState(() {
-                      _name.text = preset.$1;
-                      widget.data.name = preset.$1;
-                      widget.data.category = preset.$2;
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _name,
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: 'Abonelik adı',
-              hintText: 'Örn. Netflix',
-              // S45: ad yazılırken canlı marka rengi/ikon önizlemesi —
-              // ServiceIdentity'nin detay ekranında zaten kullanılan aynı
-              // marka eşleşmesi.
-              prefixIcon: Padding(
-                padding: const EdgeInsets.all(8),
-                child: ServiceIdentity(
-                  name: widget.data.name,
-                  category: widget.data.category,
-                  size: 28,
-                ),
-              ),
-            ),
-            onChanged: (v) => setState(() => widget.data.name = v),
-            validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Ad boş olamaz' : null,
-          ),
-          const SizedBox(height: 16),
-          Row(
+          _FormSection(
+            outlineColor: outlineColor,
             children: [
-              SizedBox(
-                width: 80,
-                child: DropdownButtonFormField<String>(
-                  initialValue: widget.data.currency,
-                  decoration: const InputDecoration(labelText: 'Para'),
-                  items: _currencyOptions
-                      .map((c) => DropdownMenuItem(
-                            value: c.$1,
-                            child: Text(c.$2),
-                          ))
-                      .toList(),
-                  onChanged: (v) =>
-                      setState(() => widget.data.currency = v ?? 'TRY'),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Popüler servisler',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: .6),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextFormField(
-                  controller: _amount,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Tutar',
-                    prefixIcon: Icon(Icons.payments_outlined),
-                  ),
-                  onChanged: (v) => widget.data.amount = v,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Tutar gir';
-                    final n = double.tryParse(v.replaceAll(',', '.'));
-                    if (n == null || n <= 0) return 'Geçerli tutar gir';
-                    return null;
+              SizedBox(
+                height: 42,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  itemCount: _popularPresets.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final preset = _popularPresets[index];
+                    final isSelected =
+                        currentName == preset.$1.trim().toLowerCase();
+                    return ChoiceChip(
+                      avatar: ServiceIdentity(
+                        name: preset.$1,
+                        category: preset.$2,
+                        size: 22,
+                      ),
+                      label: Text(
+                        preset.$1,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                      selected: isSelected,
+                      showCheckmark: false,
+                      onSelected: (_) {
+                        setState(() {
+                          _name.text = preset.$1;
+                          widget.data.name = preset.$1;
+                          widget.data.category = preset.$2;
+                        });
+                      },
+                    );
                   },
                 ),
               ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _name,
+                textCapitalization: TextCapitalization.words,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                  labelText: 'Abonelik adı',
+                  hintText: 'Örn. Netflix',
+                  // S45: ad yazılırken canlı marka rengi/ikon önizlemesi —
+                  // ServiceIdentity'nin detay ekranında zaten kullanılan aynı
+                  // marka eşleşmesi.
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: ServiceIdentity(
+                      name: widget.data.name,
+                      category: widget.data.category,
+                      size: 28,
+                    ),
+                  ),
+                ),
+                onChanged: (v) => setState(() => widget.data.name = v),
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Ad boş olamaz' : null,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 80,
+                    child: DropdownButtonFormField<String>(
+                      initialValue: widget.data.currency,
+                      decoration: const InputDecoration(labelText: 'Para'),
+                      items: _currencyOptions
+                          .map((c) => DropdownMenuItem(
+                                value: c.$1,
+                                child: Text(c.$2),
+                              ))
+                          .toList(),
+                      onChanged: (v) =>
+                          setState(() => widget.data.currency = v ?? 'TRY'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _amount,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Tutar',
+                        prefixIcon: Icon(Icons.payments_outlined),
+                      ),
+                      onChanged: (v) => widget.data.amount = v,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Tutar gir';
+                        final n = double.tryParse(v.replaceAll(',', '.'));
+                        if (n == null || n <= 0) return 'Geçerli tutar gir';
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<BillingCycle>(
+                initialValue: widget.data.billingCycle,
+                decoration: const InputDecoration(
+                  labelText: 'Ödeme döngüsü',
+                  prefixIcon: Icon(Icons.repeat),
+                ),
+                items: BillingCycle.values
+                    .map(
+                        (c) => DropdownMenuItem(value: c, child: Text(c.label)))
+                    .toList(),
+                onChanged: (v) => setState(() {
+                  widget.data.billingCycle = v ?? BillingCycle.monthly;
+                  _autoSetNextRenewal();
+                }),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<BillingCycle>(
-            initialValue: widget.data.billingCycle,
-            decoration: const InputDecoration(
-              labelText: 'Ödeme döngüsü',
-              prefixIcon: Icon(Icons.repeat),
-            ),
-            items: BillingCycle.values
-                .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
-                .toList(),
-            onChanged: (v) => setState(() {
-              widget.data.billingCycle = v ?? BillingCycle.monthly;
-              _autoSetNextRenewal();
-            }),
+          _FormSection(
+            outlineColor: outlineColor,
+            children: [
+              Text('Yenileme', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 12),
+              _DateTile(
+                icon: Icons.calendar_today_outlined,
+                label: 'Sonraki ödeme',
+                value: _formatDate(widget.data.nextRenewalDate),
+                onTap: _pickNextRenewalDate,
+                outlineColor: outlineColor,
+              ),
+              const SizedBox(height: 16),
+              Text('Hatırlat', style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ..._reminderPresetDays().map((days) => FilterChip(
+                        label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
+                        selected: widget.data.notificationRules
+                            .any((r) => r.daysBefore == days),
+                        onSelected: (selected) => setState(() {
+                          if (selected) {
+                            widget.data.notificationRules
+                                .add(NotificationRule(daysBefore: days));
+                          } else if (widget.data.notificationRules.length > 1) {
+                            widget.data.notificationRules
+                                .removeWhere((r) => r.daysBefore == days);
+                          }
+                        }),
+                      )),
+                  ActionChip(
+                    avatar: const Icon(Icons.add, size: 16),
+                    label: const Text('Özel'),
+                    onPressed: _addCustomReminder,
+                  ),
+                ],
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          SwitchListTile.adaptive(
+          ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Ücretsiz deneme'),
-            subtitle: const Text('Deneme bitişinde ücretli döneme geçer'),
-            value: widget.data.isTrial,
-            onChanged: (value) => setState(() => widget.data.isTrial = value),
+            leading: const Icon(Icons.tune_rounded),
+            title: const Text('Diğer ayrıntılar'),
+            subtitle: const Text('Kategori, deneme, kart ve not'),
+            trailing:
+                Icon(_showDetails ? Icons.expand_less : Icons.chevron_right),
+            onTap: () => setState(() => _showDetails = !_showDetails),
           ),
-          if (widget.data.isTrial) ...[
-            _DateTile(
-              icon: Icons.hourglass_bottom_outlined,
-              label: 'Deneme bitiş tarihi',
-              value: widget.data.trialEndDate == null
-                  ? 'Tarih seç'
-                  : _formatDate(widget.data.trialEndDate!),
-              onTap: _pickTrialEndDate,
-              outlineColor: outlineColor,
+          if (_showDetails) ...[
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Ücretsiz deneme'),
+              subtitle: const Text('Deneme bitişinde ücretli döneme geçer'),
+              value: widget.data.isTrial,
+              onChanged: (value) => setState(() => widget.data.isTrial = value),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              initialValue: widget.data.trialPriceAfter,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Trial sonrası fiyat',
-                prefixIcon: Icon(Icons.payments_outlined),
+            if (widget.data.isTrial) ...[
+              _DateTile(
+                icon: Icons.hourglass_bottom_outlined,
+                label: 'Deneme bitiş tarihi',
+                value: widget.data.trialEndDate == null
+                    ? 'Tarih seç'
+                    : _formatDate(widget.data.trialEndDate!),
+                onTap: _pickTrialEndDate,
+                outlineColor: outlineColor,
               ),
-              onChanged: (v) => widget.data.trialPriceAfter = v,
-              validator: (v) {
-                if (!widget.data.isTrial) return null;
-                if (widget.data.trialEndDate == null) {
-                  return 'Trial bitiş tarihi seç';
+              const SizedBox(height: 12),
+              TextFormField(
+                initialValue: widget.data.trialPriceAfter,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Trial sonrası fiyat',
+                  prefixIcon: Icon(Icons.payments_outlined),
+                ),
+                onChanged: (v) => widget.data.trialPriceAfter = v,
+                validator: (v) {
+                  if (!widget.data.isTrial) return null;
+                  if (widget.data.trialEndDate == null) {
+                    return 'Trial bitiş tarihi seç';
+                  }
+                  final n = double.tryParse((v ?? '').replaceAll(',', '.'));
+                  return n == null || n <= 0
+                      ? 'Geçerli trial sonrası fiyatı gir'
+                      : null;
+                },
+              ),
+            ],
+            const SizedBox(height: 16),
+            DropdownButtonFormField<SubscriptionCategory>(
+              initialValue: widget.data.category,
+              decoration: const InputDecoration(
+                labelText: 'Kategori',
+                prefixIcon: Icon(Icons.category_outlined),
+              ),
+              items: SubscriptionCategory.values
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
+                  .toList(),
+              onChanged: (v) => setState(
+                  () => widget.data.category = v ?? SubscriptionCategory.other),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: paymentMethods.contains(widget.data.paymentMethod)
+                  ? widget.data.paymentMethod
+                  : null,
+              decoration: const InputDecoration(
+                labelText: 'Ödeme Yöntemi / Kart (opsiyonel)',
+                prefixIcon: Icon(Icons.credit_card_outlined),
+              ),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Seçilmedi'),
+                ),
+                ...paymentMethods.map(
+                  (pm) => DropdownMenuItem<String?>(
+                    value: pm,
+                    child: Text(pm),
+                  ),
+                ),
+                const DropdownMenuItem<String?>(
+                  value: '__ADD_NEW__',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add, size: 18),
+                      SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          '+ Yeni Kart',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (v) {
+                if (v == '__ADD_NEW__') {
+                  _showQuickAddPaymentMethod();
+                } else {
+                  setState(() => widget.data.paymentMethod = v);
                 }
-                final n = double.tryParse((v ?? '').replaceAll(',', '.'));
-                return n == null || n <= 0
-                    ? 'Geçerli trial sonrası fiyatı gir'
-                    : null;
               },
             ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<InitialPaymentStatus>(
+              initialValue: widget.data.initialPaymentStatus,
+              decoration: const InputDecoration(
+                labelText: 'İlk ödeme durumu',
+                prefixIcon: Icon(Icons.fact_check_outlined),
+              ),
+              items: const [
+                DropdownMenuItem(
+                    value: InitialPaymentStatus.paid, child: Text('Ödendi')),
+                DropdownMenuItem(
+                    value: InitialPaymentStatus.unpaid,
+                    child: Text('Ödenmedi')),
+                DropdownMenuItem(
+                    value: InitialPaymentStatus.deferred,
+                    child: Text('Ertelendi')),
+              ],
+              onChanged: (v) => setState(() => widget.data
+                  .initialPaymentStatus = v ?? InitialPaymentStatus.unpaid),
+            ),
+            const SizedBox(height: 8),
+            if (widget.data.initialPaymentStatus == InitialPaymentStatus.paid)
+              _DateTile(
+                icon: Icons.event_available_outlined,
+                label: 'Ödeme tarihi',
+                value: _formatDate(widget.data.initialPaymentDate),
+                onTap: _pickInitialPaymentDate,
+                outlineColor: outlineColor,
+              ),
+            if (widget.data.initialPaymentStatus ==
+                InitialPaymentStatus.deferred)
+              _DateTile(
+                icon: Icons.event_repeat_outlined,
+                label: 'Ertelenen ödeme tarihi',
+                value: widget.data.deferredPaymentDate == null
+                    ? 'Tarih seç'
+                    : _formatDate(widget.data.deferredPaymentDate!),
+                onTap: _pickDeferredPaymentDate,
+                outlineColor: outlineColor,
+              ),
           ],
-          const SizedBox(height: 16),
-          DropdownButtonFormField<SubscriptionCategory>(
-            initialValue: widget.data.category,
-            decoration: const InputDecoration(
-              labelText: 'Kategori',
-              prefixIcon: Icon(Icons.category_outlined),
-            ),
-            items: SubscriptionCategory.values
-                .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
-                .toList(),
-            onChanged: (v) => setState(
-                () => widget.data.category = v ?? SubscriptionCategory.other),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String?>(
-            initialValue: paymentMethods.contains(widget.data.paymentMethod)
-                ? widget.data.paymentMethod
-                : null,
-            decoration: const InputDecoration(
-              labelText: 'Ödeme Yöntemi / Kart (opsiyonel)',
-              prefixIcon: Icon(Icons.credit_card_outlined),
-            ),
-            items: [
-              const DropdownMenuItem<String?>(
-                value: null,
-                child: Text('Seçilmedi'),
-              ),
-              ...paymentMethods.map(
-                (pm) => DropdownMenuItem<String?>(
-                  value: pm,
-                  child: Text(pm),
-                ),
-              ),
-              const DropdownMenuItem<String?>(
-                value: '__ADD_NEW__',
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add, size: 18),
-                    SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        '+ Yeni Kart',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            onChanged: (v) {
-              if (v == '__ADD_NEW__') {
-                _showQuickAddPaymentMethod();
-              } else {
-                setState(() => widget.data.paymentMethod = v);
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<InitialPaymentStatus>(
-            initialValue: widget.data.initialPaymentStatus,
-            decoration: const InputDecoration(
-              labelText: 'İlk ödeme durumu',
-              prefixIcon: Icon(Icons.fact_check_outlined),
-            ),
-            items: const [
-              DropdownMenuItem(
-                  value: InitialPaymentStatus.paid, child: Text('Ödendi')),
-              DropdownMenuItem(
-                  value: InitialPaymentStatus.unpaid, child: Text('Ödenmedi')),
-              DropdownMenuItem(
-                  value: InitialPaymentStatus.deferred,
-                  child: Text('Ertelendi')),
-            ],
-            onChanged: (v) => setState(() => widget.data.initialPaymentStatus =
-                v ?? InitialPaymentStatus.unpaid),
-          ),
-          const SizedBox(height: 8),
-          if (widget.data.initialPaymentStatus == InitialPaymentStatus.paid)
-            _DateTile(
-              icon: Icons.event_available_outlined,
-              label: 'Ödeme tarihi',
-              value: _formatDate(widget.data.initialPaymentDate),
-              onTap: _pickInitialPaymentDate,
-              outlineColor: outlineColor,
-            ),
-          if (widget.data.initialPaymentStatus == InitialPaymentStatus.deferred)
-            _DateTile(
-              icon: Icons.event_repeat_outlined,
-              label: 'Ertelenen ödeme tarihi',
-              value: widget.data.deferredPaymentDate == null
-                  ? 'Tarih seç'
-                  : _formatDate(widget.data.deferredPaymentDate!),
-              onTap: _pickDeferredPaymentDate,
-              outlineColor: outlineColor,
-            ),
           const SizedBox(height: 16),
           _DateTile(
             icon: Icons.play_arrow_outlined,
@@ -599,49 +662,6 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             value: _formatDate(widget.data.startDate),
             onTap: _pickStartDate,
             outlineColor: outlineColor,
-          ),
-          const SizedBox(height: 12),
-          _DateTile(
-            icon: Icons.calendar_today_outlined,
-            label: 'Sonraki yenileme',
-            value: _formatDate(widget.data.nextRenewalDate),
-            onTap: _pickNextRenewalDate,
-            outlineColor: outlineColor,
-          ),
-          const SizedBox(height: 16),
-          Text('Hatırlatmalar', style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 4),
-          Text(
-            'Birden fazla seçebilirsin; listede yoksa "Özel" ile ekle.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              ..._reminderPresetDays().map((days) => FilterChip(
-                    label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
-                    selected: widget.data.notificationRules
-                        .any((r) => r.daysBefore == days),
-                    onSelected: (selected) => setState(() {
-                      if (selected) {
-                        widget.data.notificationRules
-                            .add(NotificationRule(daysBefore: days));
-                      } else if (widget.data.notificationRules.length > 1) {
-                        widget.data.notificationRules
-                            .removeWhere((r) => r.daysBefore == days);
-                      }
-                    }),
-                  )),
-              ActionChip(
-                avatar: const Icon(Icons.add, size: 16),
-                label: const Text('Özel'),
-                onPressed: _addCustomReminder,
-              ),
-            ],
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -657,6 +677,31 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             onChanged: (v) => widget.data.notes = v,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A bordered rounded group — used to visually cluster related fields
+/// ("Servis" info, "Yenileme") the way the reference design does, instead
+/// of one long flat list of fields.
+class _FormSection extends StatelessWidget {
+  const _FormSection({required this.children, required this.outlineColor});
+
+  final List<Widget> children;
+  final Color outlineColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: outlineColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }

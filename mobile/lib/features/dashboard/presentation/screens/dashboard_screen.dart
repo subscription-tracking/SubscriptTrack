@@ -970,38 +970,47 @@ class _CategoryDonutCard extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(
-                width: 84,
-                height: 84,
+                width: 112,
+                height: 112,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     CustomPaint(
-                      size: const Size(84, 84),
+                      size: const Size(112, 112),
                       painter: _DonutPainter(
                         slices: slices,
                         trackColor: cs.outlineVariant,
                       ),
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          DateTimeUtils.formatCurrency(total,
-                              symbol: primaryCurrency),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                          textAlign: TextAlign.center,
+                    Padding(
+                      // Ring inner hole is tight — shrink the label to fit
+                      // instead of letting it clip/overlap the arc.
+                      padding: const EdgeInsets.all(14),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              DateTimeUtils.formatCurrency(total,
+                                  symbol: primaryCurrency),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w800),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                            ),
+                            Text(
+                              'toplam',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(color: cs.onSurfaceVariant),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'toplam',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -1089,10 +1098,13 @@ class _DonutPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final strokeWidth = size.width * 0.22;
+    final strokeWidth = size.width * 0.16;
     final center = size.center(Offset.zero);
     final radius = (size.width - strokeWidth) / 2;
     final rect = Rect.fromCircle(center: center, radius: radius);
+    // A hairline gap between slices reads as separate segments instead of
+    // one smeared ring — worth more at this larger size than it was at 84px.
+    const gap = 0.02;
 
     canvas.drawCircle(
       center,
@@ -1105,8 +1117,9 @@ class _DonutPainter extends CustomPainter {
 
     var startAngle = -math.pi / 2;
     for (final slice in slices) {
-      final sweep = 2 * math.pi * slice.$1;
-      if (sweep <= 0) continue;
+      final sweepFraction = slice.$1;
+      if (sweepFraction <= 0) continue;
+      final sweep = 2 * math.pi * (sweepFraction - gap).clamp(0.0, 1.0);
       canvas.drawArc(
         rect,
         startAngle,
@@ -1116,9 +1129,9 @@ class _DonutPainter extends CustomPainter {
           ..color = slice.$2
           ..style = PaintingStyle.stroke
           ..strokeWidth = strokeWidth
-          ..strokeCap = StrokeCap.butt,
+          ..strokeCap = StrokeCap.round,
       );
-      startAngle += sweep;
+      startAngle += 2 * math.pi * sweepFraction;
     }
   }
 
