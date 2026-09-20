@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/service_identity.dart';
@@ -196,8 +197,12 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
                       MaterialPageRoute<void>(
                           builder: (_) =>
                               CsvImportScreen(controller: controller))),
+                  onAddTap: () => _openAdd(context, controller),
                 ),
           TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 14),
             controller: _tabs,
             indicatorColor: Theme.of(context).colorScheme.primary,
             labelColor: Theme.of(context).colorScheme.primary,
@@ -312,6 +317,7 @@ class _Header extends StatelessWidget {
     required this.onSortChanged,
     this.onArchiveTap,
     required this.onImportTap,
+    required this.onAddTap,
   });
 
   final SubscriptionController controller;
@@ -322,24 +328,42 @@ class _Header extends StatelessWidget {
   final ValueChanged<_SortOption> onSortChanged;
   final VoidCallback? onArchiveTap;
   final VoidCallback onImportTap;
+  final VoidCallback onAddTap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
-                child: Text(
-                  'Aboneliklerim',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Abonelikler',
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${controller.active.length} aktif abonelik',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
+              IconButton.filledTonal(
+                onPressed: onAddTap,
+                icon: const Icon(Icons.add_rounded),
+                tooltip: 'Abonelik ekle',
+              ),
+              const SizedBox(width: 4),
               PopupMenuButton<_SortOption>(
                 icon: Icon(Icons.sort,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -354,10 +378,11 @@ class _Header extends StatelessWidget {
                   _sortItem(ctx, _SortOption.name, 'İsme göre', sortOption),
                 ],
               ),
-              IconButton(
-                  icon: const Icon(Icons.upload_file_outlined),
-                  onPressed: onImportTap,
-                  tooltip: 'CSV içe aktar'),
+              if (MediaQuery.sizeOf(context).width >= 360)
+                IconButton(
+                    icon: const Icon(Icons.upload_file_outlined),
+                    onPressed: onImportTap,
+                    tooltip: 'CSV içe aktar'),
               if (onArchiveTap != null)
                 Badge(
                   label: Text('${controller.archived.length}'),
@@ -370,12 +395,11 @@ class _Header extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
-          // Always-visible search bar
+          const SizedBox(height: 16),
           TextField(
             controller: searchController,
             decoration: InputDecoration(
-              hintText: 'Abonelik ara...',
+              hintText: 'Aboneliklerinde ara',
               prefixIcon: Icon(Icons.search,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20),
@@ -387,8 +411,7 @@ class _Header extends StatelessWidget {
                   : null,
             ),
           ),
-          const SizedBox(height: 10),
-          // Category filter chips
+          const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -587,7 +610,7 @@ class _TabView extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       onRefresh: onRefresh,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
         itemCount: items.length + (controller.hasMore ? 1 : 0),
         separatorBuilder: (_, __) => const SizedBox(height: 8),
         itemBuilder: (context, i) {
@@ -653,6 +676,7 @@ class _SubscriptionTile extends StatelessWidget {
     final isCancelled = subscription.status == SubscriptionStatus.cancelled;
 
     final cs = Theme.of(context).colorScheme;
+    final statusColors = context.statusColors;
     return Material(
       color: cs.surfaceContainer,
       borderRadius: BorderRadius.circular(20),
@@ -661,7 +685,7 @@ class _SubscriptionTile extends StatelessWidget {
         onTap: onTap,
         onLongPress: onLongPress,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
@@ -700,18 +724,25 @@ class _SubscriptionTile extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      subscription.category.label,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            fontSize: 11,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
-                    SubscriptionStatusChip(
-                      status: subscription.status,
-                      isNotStarted: subscription.isNotStarted,
-                      daysUntilRenewal: days,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          subscription.category.label,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                    fontSize: 11,
+                                  ),
+                        ),
+                        SubscriptionStatusChip(
+                          status: subscription.status,
+                          isNotStarted: subscription.isNotStarted,
+                          daysUntilRenewal: days,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -740,8 +771,8 @@ class _SubscriptionTile extends StatelessWidget {
                         Icon(Icons.pause_circle_outline,
                             size: 11, color: cs.onSurfaceVariant),
                       if (isCancelled)
-                        const Icon(Icons.cancel_outlined,
-                            size: 11, color: Color(0xFF16A36A)),
+                        Icon(Icons.cancel_outlined,
+                            size: 11, color: statusColors.success),
                       const SizedBox(width: 2),
                       Text(
                         isPaused
@@ -753,7 +784,7 @@ class _SubscriptionTile extends StatelessWidget {
                               color: isPaused
                                   ? cs.onSurfaceVariant
                                   : isCancelled
-                                      ? const Color(0xFF16A36A)
+                                      ? statusColors.success
                                       : urgent
                                           ? cs.error
                                           : cs.onSurfaceVariant,
@@ -806,14 +837,13 @@ class _OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = cs.brightness == Brightness.dark;
+    final statusColors = context.statusColors;
     final label = lastSyncAt == null
         ? 'Çevrimdışı — önbellek gösteriliyor'
         : 'Çevrimdışı — ${_rel(lastSyncAt!)} önce güncellendi';
     return MaterialBanner(
-      backgroundColor: isDark ? const Color(0xFF2A1F00) : cs.tertiaryContainer,
-      content: Text(label, style: TextStyle(color: cs.tertiary)),
+      backgroundColor: statusColors.warning.withValues(alpha: 0.12),
+      content: Text(label, style: TextStyle(color: statusColors.warning)),
       actions: [
         TextButton(onPressed: onRetry, child: const Text('Yenile')),
       ],
