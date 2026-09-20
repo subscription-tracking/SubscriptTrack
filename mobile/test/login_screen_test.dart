@@ -53,7 +53,8 @@ void main() {
     final source = _FakeAuthDataSource();
     final controller = AuthController(repository: source);
 
-    await pumpTall(tester, MaterialApp(home: LoginScreen(controller: controller)));
+    await pumpTall(
+        tester, MaterialApp(home: LoginScreen(controller: controller)));
     await tester.pump();
 
     await tester.enterText(
@@ -69,7 +70,8 @@ void main() {
     final source = _FakeAuthDataSource();
     final controller = AuthController(repository: source);
 
-    await pumpTall(tester, MaterialApp(home: LoginScreen(controller: controller)));
+    await pumpTall(
+        tester, MaterialApp(home: LoginScreen(controller: controller)));
     await tester.pump();
 
     await tester.enterText(find.byType(TextFormField).at(0), 'gecersiz');
@@ -79,6 +81,22 @@ void main() {
 
     expect(find.text('Geçerli bir e-posta gir'), findsOneWidget);
     expect(source.signInCalls, 0);
+  });
+
+  testWidgets('"Test hesabıyla gir" test hesabı bilgileriyle signIn çağırır',
+      (tester) async {
+    final source = _FakeAuthDataSource();
+    final controller = AuthController(repository: source);
+
+    await pumpTall(
+        tester, MaterialApp(home: LoginScreen(controller: controller)));
+    await tester.pump();
+
+    await tester.tap(find.text('Test hesabıyla gir'));
+    await tester.pumpAndSettle();
+
+    expect(source.signInCalls, 1);
+    expect(source.user?.email, 'testkullanici@subscripttrack.app');
   });
 
   testWidgets('"Hesabın yok mu? Kayıt ol" onRegisterTap çağırır',
