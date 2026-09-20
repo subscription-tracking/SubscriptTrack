@@ -67,7 +67,7 @@ class DashboardScreen extends StatelessWidget {
             backgroundColor: cs.surfaceContainer,
             onRefresh: controller.load,
             child: ListView(
-              padding: AppSpacing.screenWithBottomNav,
+              padding: AppSpacing.screenWithBottomNav(context),
               children: [
                 _HeroCard(
                   totals: totals,

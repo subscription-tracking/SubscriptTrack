@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/design/app_tokens.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../settings_controller.dart';
@@ -32,7 +33,13 @@ class ProfileTab extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
+      padding: EdgeInsets.fromLTRB(
+          0,
+          0,
+          0,
+          AppSizes.bottomNavHeight +
+              MediaQuery.paddingOf(context).bottom +
+              AppSpacing.xl),
       children: [
         // ── Avatar + Name ──────────────────────────────────────────────────
         Padding(
