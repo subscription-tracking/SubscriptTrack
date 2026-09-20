@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -108,14 +109,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Stack(
                   children: [
                     Positioned(
-                      top: -60,
-                      right: -50,
-                      child: _blob(_currentAccent, 220, 0.18),
+                      top: -120,
+                      right: -90,
+                      child: _blob(_currentAccent, 220, 0.16),
                     ),
                     Positioned(
-                      bottom: 120,
-                      left: -70,
-                      child: _blob(_currentAccent, 180, 0.12),
+                      bottom: 100,
+                      left: -100,
+                      child: _blob(_currentAccent, 180, 0.1),
                     ),
                   ],
                 ),
@@ -236,13 +237,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _blob(Color color, double size, double opacity) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color.withValues(alpha: opacity), Colors.transparent],
+  Widget _blob(Color color, double size, double opacity) => ImageFiltered(
+        imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                color.withValues(alpha: opacity),
+                color.withValues(alpha: 0),
+              ],
+              stops: const [0.3, 1.0],
+            ),
           ),
         ),
       );
