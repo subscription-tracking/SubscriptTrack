@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/domain/money.dart';
 import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/notifications/domain/notification_rule.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/settings/presentation/settings_controller.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
@@ -13,6 +15,11 @@ import '../../core/services/device_token_service.dart';
 import '../../core/services/local_notification_service.dart';
 import '../../core/services/notification_read_sync_service.dart';
 import 'app_shell.dart';
+
+/// Login ekranındaki "Test hesabıyla gir" kısayolu — boş bir panelle test
+/// etmek anlamsız olduğundan, bu hesap ilk kez giriş yapıp hiç aboneliği
+/// yokken birkaç örnek abonelik ekleriz.
+const _testAccountEmail = 'testkullanici@subscripttrack.app';
 
 class AuthenticatedShell extends StatefulWidget {
   const AuthenticatedShell({super.key});
@@ -54,7 +61,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     _subs!.addListener(_onSubscriptionsChanged);
     SettingsController.instance.addListener(_onSettingsChanged);
     WidgetsBinding.instance.addObserver(this);
-    _subs!.load();
+    _subs!.load().then((_) => _seedTestAccountIfEmpty(user.email));
     _notif!.load(user.id).catchError((_) {});
     LocalNotificationService.onNotificationTap = _handleNotificationTap;
     LocalNotificationService.onSnoozeRequested = _handleSnoozeRequested;
@@ -62,6 +69,50 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
       _registerDeviceToken();
       _handleColdStartNotification();
     });
+  }
+
+  Future<void> _seedTestAccountIfEmpty(String email) async {
+    if (email.trim().toLowerCase() != _testAccountEmail) return;
+    final subs = _subs;
+    if (subs == null || subs.allItems.isNotEmpty) return;
+
+    final now = DateTime.now();
+    const samples = [
+      (
+        name: 'Netflix',
+        category: SubscriptionCategory.streaming,
+        amount: '249.99',
+        cycle: BillingCycle.monthly,
+        daysUntilRenewal: 12,
+      ),
+      (
+        name: 'Spotify',
+        category: SubscriptionCategory.music,
+        amount: '59.99',
+        cycle: BillingCycle.monthly,
+        daysUntilRenewal: 4,
+      ),
+      (
+        name: 'iCloud+',
+        category: SubscriptionCategory.cloud,
+        amount: '32.99',
+        cycle: BillingCycle.monthly,
+        daysUntilRenewal: 20,
+      ),
+    ];
+    for (final sample in samples) {
+      final nextRenewal = now.add(Duration(days: sample.daysUntilRenewal));
+      await subs.add(
+        name: sample.name,
+        amount: Money.parse(sample.amount),
+        currency: 'TRY',
+        billingCycle: sample.cycle,
+        startDate: now,
+        nextRenewalDate: nextRenewal,
+        category: sample.category,
+        notificationRules: const [NotificationRule(daysBefore: 3)],
+      );
+    }
   }
 
   /// Uygulama, kapalıyken bir bildirime dokunularak açıldıysa (Test 35'in
