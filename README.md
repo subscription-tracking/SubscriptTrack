@@ -1,150 +1,136 @@
 # SubscriptTrack
 
-SubscriptTrack, dijital abonelikleri iOS ve Android'de takip etmeye yönelik bir mobil uygulamadır. Yenilemeleri ve denemeleri görünür kılar, yaklaşan ödemeler için hatırlatma sunar ve iptal edilen aboneliklerin tahmini tasarrufunu para birimi bazında gösterir.
+SubscriptTrack, kullanıcıların dijital aboneliklerini tek yerde takip ettiği iOS ve Android uygulamasıdır. Kullanıcı; yenileme tarihlerini, deneme sürelerini, para birimi bazlı tahmini harcamalarını, ödeme geçmişini ve tasarruflarını yönetir.
 
-> Web hedefi yalnızca geliştirme, demo ve UI önizlemesi içindir. Ürünün web üzerinde abonelik dashboard'u yoktur ve bu kapsamda geliştirilmeyecektir. Tanıtım, yardım, iptal rehberleri ve yasal sayfalar için bağımsız bir web sitesi ileride ayrıca konumlanır.
+> Banka veya kredi kartı bağlamaz. Karttan para çekmez. Kullanıcı yalnızca kendi yazdığı ödeme yöntemi etiketlerini saklayabilir.
 
-## Öne çıkanlar
+## Güncel durum
 
-- Abonelik, deneme, yenileme tarihi ve fatura döngüsü takibi
-- Para birimi bazında aylık/yıllık tahmini toplamlar
-- Takvim, yaklaşan yenilemeler ve bildirim merkezi
-- İptal, duraklatma ve arşivleme ile geçmişi koruyan yaşam döngüsü
-- Supabase yapılandırılmadığında cihazda çalışan yerel mod
-- Flutter ile iOS ve Android için tek kod tabanı
+| Alan | Durum |
+|---|---|
+| Mobil istemci | Flutter 3.44.8 / Dart 3.12.2 |
+| Backend | Supabase Auth, PostgreSQL, RLS, Realtime ve Edge Functions |
+| Android release APK | [Güncel APK](outputs/apk/SubscriptTrack-latest-release.apk) |
+| Web önizleme | [GitHub Pages](https://subscription-tracking.github.io/SubscriptTrack/) |
+| Teknik rapor | [Teknoloji ve özellik envanteri](outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx) |
+| Güncel teknik durum | [CURRENT_STATUS.md](SubscriptTrack-Documentation/CURRENT_STATUS.md) |
 
-## Hızlı başlangıç
+## Ürün neleri yapıyor
 
-Gerekenler:
+- E-posta ile kayıt, giriş ve oturum yönetimi
+- Şifre sıfırlama ve e-posta değiştirme akışları
+- Manuel abonelik ekleme, düzenleme, durum değiştirme ve arşivleme
+- Netflix, Spotify ve benzeri servisler için servis kataloğu önerileri
+- Aylık/yıllık toplamları para birimine göre ayrı hesaplama
+- Takvim, yaklaşan yenilemeler ve ücretsiz deneme takibi
+- Ödeme geçmişine kayıt ekleme, düzenleme ve silme
+- “Ödendi ve yenilendi” ile sonraki yenileme tarihini ilerletme
+- Kullanıcının tanımladığı ödeme yöntemi etiketleri
+- Cihaz üzerinde yerel yenileme ve trial bildirimleri
+- Çevrimdışı son veriyi görüntüleme ve başarısız yazmaları kuyruğa alma
+- CSV içe/dışa aktarma
+- Destek ticket oluşturma
+- Hesap ve ilişkili verileri silme
+- Supabase Realtime ile abonelik değişikliklerini dinleme
 
-- Flutter SDK (proje şu anda Flutter 3.44.8 / Dart 3.12.2 ile doğrulanmıştır)
-- Android için Android Studio; iOS için macOS + Xcode
-- İsteğe bağlı: Supabase projesi
+## Bilinçli ürün sınırları
 
-Repoyu aldıktan sonra bir kez bağımlılıkları kurun:
+- FCM/APNs uzak push sistemi yoktur; bildirimler cihazda planlanır.
+- Banka, kredi kartı veya ödeme sağlayıcısı entegrasyonu yoktur.
+- Uygulama içinde kart numarası, CVV veya finansal erişim bilgisi tutulmaz.
+- Web yüzü tam abonelik dashboard’u değildir; mobil uygulama ana üründür.
+- Google/Apple giriş kod yolu mevcut olsa da sağlayıcı ayarı ve canlı OAuth kabulü ayrıca gerekir.
 
-```bash
-git clone https://github.com/Krayirhan/SubscriptTrack.git
-cd SubscriptTrack
-```
+## Teknoloji yığını
 
-Windows:
+| Katman | Teknoloji |
+|---|---|
+| Mobil | Flutter, Dart, Material UI |
+| Durum | Provider, ChangeNotifier |
+| Navigasyon | go_router |
+| Kimlik | Supabase Auth |
+| Veri | Supabase PostgREST, PostgreSQL, RPC |
+| Güvenlik | JWT, Row Level Security, secure storage |
+| Canlı senkron | Supabase Realtime |
+| Sunucu | Deno TypeScript Edge Functions |
+| Yerel bildirim | flutter_local_notifications, timezone |
+| Para | Money/minor unit |
+| CI/CD | GitHub Actions, GitHub Pages |
 
-```bat
-setup.bat
-```
-
-macOS / Linux:
-
-```bash
-chmod +x setup.sh start-web.sh
-./setup.sh
-```
-
-Kurulum scripti Flutter'ı kontrol eder, gerekirse `mobile/.env` dosyasını şablondan oluşturur ve `flutter pub get` çalıştırır. Supabase bilgileri yoksa kurulum durmaz: uygulama yerel modda çalışır.
-
-## Web'de başlatma
-
-Bu komutlar Flutter uygulamasını Chrome'da geliştirici önizlemesi olarak açar:
-
-Windows:
-
-```bat
-start-web.bat
-```
-
-macOS / Linux:
-
-```bash
-./start-web.sh
-```
-
-Alternatif olarak `mobile/` içinden:
-
-```bash
-make web
-# veya Make olmadan
-flutter run -d chrome
-```
-
-`mobile/.env` varsa komutlar onu `--dart-define-from-file` ile yükler; yoksa yerel modda başlar. Headless geliştirme sunucusu için:
-
-```bash
-cd mobile
-make web-server
-```
-
-GitHub Pages üzerinde Supabase bağlı canlı önizleme yayınlamak için [GitHub Pages + Supabase rehberini](SubscriptTrack-Documentation/GITHUB_PAGES_SUPABASE.md) izleyin.
-
-## Mobilde başlatma
-
-Önce bağlı/emülatör cihazları görün:
-
-```bash
-cd mobile
-flutter devices
-flutter run
-```
-
-Android release APK üretmek için:
-
-```bash
-make android
-```
-
-Bağlı Android cihaza kurmak için:
-
-```bash
-make install
-```
-
-## Supabase ile çalışma
-
-Bulut kimlik doğrulama ve senkronizasyon için `mobile/.env.example` dosyasını `mobile/.env` olarak kopyalayıp şu değerleri girin:
-
-```env
-SUPABASE_URL=https://your-project-ref.supabase.co
-SUPABASE_ANON_KEY=your-anon-or-publishable-key
-```
-
-Bu dosya Git tarafından izlenmez. `SUPABASE_URL` veya `SUPABASE_ANON_KEY` yoksa uygulama yerel auth ve cihaz içi depolama fallback'iyle çalışır. İstemciye `service_role` anahtarı eklemeyin.
-
-## Doğrulama
-
-Flutter kurulu bir ortamda:
-
-```bash
-cd mobile
-flutter analyze --no-pub
-flutter test --no-pub
-```
-
-## Proje yapısı
+## Kod yapısı
 
 ```text
-mobile/                         Flutter uygulaması (Android · Web önizleme)
-SubscriptTrack-Documentation/   Ürün, domain, API ve mimari dokümantasyonu
-setup.bat / setup.sh            İlk kurulum (Flutter kontrolü + bağımlılıklar)
-start-web.bat / start-web.sh    Chrome'da web önizlemeyi başlatma
+mobile/lib/
+  app/                  router, shell, tema
+  core/                 config, domain, network, storage, servisler
+  features/auth/        kayıt, giriş, şifre ve e-posta akışları
+  features/subscriptions/ abonelik domain, repository ve ekranlar
+  features/dashboard/  özetler ve yaklaşan yenilemeler
+  features/calendar/   takvim
+  features/notifications/ uygulama içi bildirimler
+  features/stats/      istatistik ve ödeme geçmişi
+  features/savings/    tasarruf olayları
+  features/settings/   profil, export, payment label, destek
+
+backend/
+  migrations/           PostgreSQL ve RLS migration’ları
+  supabase/functions/   delete, export, payment, support/catalog
+  scripts/               canlı inventory ve authenticated smoke testleri
 ```
 
-## Mimari sınırlar
+## Temel akış
 
-- Mobil istemci veritabanına doğrudan bağlanmaz; API sözleşmesi kullanılır.
-- Para hesapları floating point ile yapılmaz.
-- Tarihler UTC saklanır, kullanıcıya IANA zaman diliminde gösterilir.
-- Normal akışta silme yerine cancel, expire veya archive kullanılır.
-- Web önizlemesi ürünün web dashboard'u olduğu anlamına gelmez.
+```text
+Flutter ekranı
+  → Controller
+  → Repository / Supabase Function
+  → Auth, PostgREST, RPC veya Realtime
+  → PostgreSQL
+  → Cache ve UI güncellemesi
+```
+
+## Geliştirme
+
+Supabase bağlantılı mobil çalıştırma:
+
+```bash
+cd mobile
+flutter pub get
+flutter run --dart-define-from-file=.env
+```
+
+Kalite kontrolleri:
+
+```bash
+flutter analyze --no-pub
+flutter test --no-pub
+flutter build apk --release --dart-define-from-file=.env
+```
+
+Authenticated smoke testleri gerçek test hesabı ister ve açık onay olmadan uzak projede yazma yapmaz:
+
+```bash
+cd backend
+S31_SMOKE_CONFIRM=run node scripts/authenticated-subscription-smoke.mjs
+S31_SMOKE_CONFIRM=run node scripts/authenticated-feature-smoke.mjs
+```
 
 ## Dokümantasyon
 
-Başlangıç noktası: [dokümantasyon indeksi](SubscriptTrack-Documentation/docs/INDEX.md).
+Güncel dokümanların indeksi: [SubscriptTrack-Documentation/docs/INDEX.md](SubscriptTrack-Documentation/docs/INDEX.md)
 
-- [Ürün gereksinimleri](SubscriptTrack-Documentation/PRODUCT.md)
+Temel belgeler:
+
+- [Güncel durum](SubscriptTrack-Documentation/CURRENT_STATUS.md)
+- [Ürün kapsamı](SubscriptTrack-Documentation/PRODUCT.md)
 - [Sistem mimarisi](SubscriptTrack-Documentation/ARCHITECTURE.md)
-- [Domain kuralları](SubscriptTrack-Documentation/DOMAIN.md)
-- [API sözleşmesi](SubscriptTrack-Documentation/API.md)
 - [Mobil mimari](SubscriptTrack-Documentation/MOBILE_ARCHITECTURE.md)
-- [Dağıtım rehberi](SubscriptTrack-Documentation/DEPLOYMENT.md)
-- [GitHub Pages + Supabase](SubscriptTrack-Documentation/GITHUB_PAGES_SUPABASE.md)
-- [Katkı rehberi](SubscriptTrack-Documentation/CONTRIBUTING.md)
+- [API sözleşmesi](SubscriptTrack-Documentation/API.md)
+- [Veri modeli](SubscriptTrack-Documentation/DATA_MODEL.md)
+- [Bildirimler](SubscriptTrack-Documentation/NOTIFICATIONS.md)
+- [Güvenlik](SubscriptTrack-Documentation/SECURITY.md)
+- [Deployment](SubscriptTrack-Documentation/DEPLOYMENT.md)
+- [Test stratejisi](SubscriptTrack-Documentation/TESTING.md)
+
+Tarihli sprint ve release kayıtları [SubscriptTrack-Documentation/archive](SubscriptTrack-Documentation/archive) altında tutulur.
+
