@@ -6,11 +6,13 @@ Kullanıcıyı doğru zamanda, doğru kanaldan ve tekrar etmeyen biçimde yakla�
 
 ## 2. Kanallar
 
-- Push notification
+- Cihaz üzerinde yerel bildirim (`flutter_local_notifications`)
 - Uygulama içi kalıcı bildirim
-- E-posta
+- E-posta: Supabase Auth akışları için kullanılabilir; yenileme e-postası bu sürümde aktif bir kanal değildir
 
-Push birincil kanaldır. E-posta kullanıcı tercihine bağlıdır.
+Bu sürümde FCM/APNs tabanlı uzak push veya cihaz token gönderimi yoktur. Birincil
+hatırlatma kanalı, abonelik kaydı üzerinden cihazda zamanlanan yerel bildirimin
+kendisidir.
 
 ## 3. Bildirim tipleri
 
@@ -25,15 +27,17 @@ Push birincil kanaldır. E-posta kullanıcı tercihine bağlıdır.
 
 MVP için ilk ikisi zorunludur.
 
-## 4. Üretim akışı
+## 4. Mevcut üretim akışı
 
 ```text
-1. Renewal occurrences oluşturulur.
-2. Kullanıcı ve abonelik kuralları çözülür.
-3. Bildirim teslimat kayıtları unique constraint ile oluşturulur.
-4. Worker uygun kanala gönderir.
-5. Sonuç ve hata kaydedilir.
-6. Uygun hatalar kontrollü tekrar denenir.
+1. Mobil uygulama abonelik ve bildirim kurallarını yükler.
+2. Cihaz timezone’ı okunur ve geçmiş tarihler elenir.
+3. Yenileme ve trial adayları yerel scheduler’a yazılır.
+4. Bildirim payload’ı abonelik kimliğini taşır.
+5. Kullanıcı bildirime dokununca ilgili detay ekranına gider veya 30 dakika erteler.
+
+Sunucu worker/outbox modeli gelecekteki uzak bildirim kapsamıdır; mevcut mobil
+uygulamanın çalışma yolu değildir.
 ```
 
 ## 5. Zamanlama

@@ -67,19 +67,20 @@ Sorumluluklar:
 - Audit ve teslimat kayıtları
 - Unique constraint'lerle tekrar engelleme
 
-### 4.4 Job ve bildirim katmanı
+### 4.4 Bildirim katmanı
 
-Önerilen yapı:
+Üretimde uygulanan yapı:
 
 ```text
-Renewal generator
-→ notification outbox
-→ channel worker
-→ provider
-→ delivery result
+Mobil abonelik listesi
+→ timezone ve bildirim kuralları
+→ flutter_local_notifications ile cihazda zamanlama
+→ kullanıcı tıklaması veya erteleme
 ```
 
-Cron yalnızca doğrudan e-posta gönderen tek parça bir işlem olmamalıdır. İşler kayıt altına alınmalı ve kontrollü tekrar denenmelidir.
+Bu sürümde FCM/APNs veya uzak e-posta worker’ı kullanılmaz. Uzak push/outbox
+gelecekte ayrıca kapsamlandırılabilir; mevcut ürün davranışı cihaz üzerindeki
+yerel bildirimdir.
 
 ### 4.5 Web sitesi
 

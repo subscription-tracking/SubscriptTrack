@@ -1,6 +1,8 @@
 # Dokümantasyon İndeksi
 
-- [`../SPRINT_PLAN.md`](../SPRINT_PLAN.md) — Uygulama geliştirme sprintleri, görevler ve kabul kriterleri
+- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) — Güncel ürün ve teknik durum
+- [`../archive/SPRINT_PLAN.md`](../archive/SPRINT_PLAN.md) — Tarihli sprint geçmişi ve kabul kriterleri
+- [`../../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx`](../../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx) — Güncel teknoloji ve özellik raporu
 
 ## Ürün
 
@@ -23,6 +25,8 @@
 - [`../SECURITY.md`](../SECURITY.md) — Güvenlik ve gizlilik
 - [`../TESTING.md`](../TESTING.md) — Test stratejisi
 - [`../CONTRIBUTING.md`](../CONTRIBUTING.md) — Ekip geliştirme kuralları
+- [`../DEPLOYMENT.md`](../DEPLOYMENT.md) — Build, Supabase ve yayınlama
+- [`../GITHUB_PAGES_SUPABASE.md`](../GITHUB_PAGES_SUPABASE.md) — GitHub Pages Auth yapılandırması
 
 ## Mimari karar kayıtları
 

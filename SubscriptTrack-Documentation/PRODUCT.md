@@ -39,8 +39,8 @@ Görünürlük → yaklaşan risk → karar → tasarruf → tekrar kullanım
 |---|---|
 | Birincil platform | iOS ve Android mobil uygulama |
 | Destekleyici platform | Pazarlama, SEO, yardım ve iptal rehberi odaklı web sitesi |
-| Birincil bildirim | Mobil push bildirim |
-| İkincil bildirim | Uygulama içi bildirim ve isteğe bağlı e-posta |
+| Birincil bildirim | Cihaz üzerinde zamanlanan yerel bildirim |
+| İkincil bildirim | Uygulama içi bildirim; yenileme e-postası bu sürümde aktif değil |
 | Veri yaklaşımı | Bulut senkronizasyonlu; çevrimdışı son veriyi görüntüleyebilme |
 | Para birimi | Kullanıcı girişi; MVP'de otomatik kur dönüşümü yok |
 | Banka bağlantısı | Kalıcı non-goal |
