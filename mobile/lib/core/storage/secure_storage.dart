@@ -32,7 +32,10 @@ class SecureStorage {
 
   Future<int> readLockTimeoutMinutes() async {
     final raw = await _storage.read(key: keyLockTimeoutMinutes);
-    return int.tryParse(raw ?? '') ?? 0;
+    // Yeni PIN kurulumlarında kısa uygulama geçişlerinde kilitlenmemesi için
+    // güvenli varsayılan beş dakikadır. Kullanıcı "Hemen" seçerse değer 0
+    // olarak açıkça saklanır ve korunur.
+    return raw == null ? 5 : (int.tryParse(raw) ?? 5);
   }
 
   Future<void> writeBiometricLock(bool enabled) => _storage.write(

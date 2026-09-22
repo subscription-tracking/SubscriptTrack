@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/domain/money.dart';
 import '../../../../core/services/local_notification_service.dart';
+import '../../../../shared/design/responsive.dart';
 import '../../../settings/presentation/screens/notification_preferences_screen.dart';
 import '../../../settings/presentation/settings_controller.dart';
 import '../subscription_controller.dart';
@@ -122,7 +123,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
         );
         await widget.controller.recordPayment(
           subscriptionId: created.id,
-          amount: amount.amount,
+          amount: amount,
           currency: _data.currency,
           paidAt: _data.initialPaymentDate,
         );
@@ -170,11 +171,13 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       ),
       body: ListenableBuilder(
         listenable: widget.controller,
-        builder: (context, _) => ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-          children: [
-            SubscriptionForm(formKey: _formKey, data: _data),
-          ],
+        builder: (context, _) => ResponsiveCenter(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+            children: [
+              SubscriptionForm(formKey: _formKey, data: _data),
+            ],
+          ),
         ),
       ),
     );

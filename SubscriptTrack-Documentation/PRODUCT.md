@@ -169,7 +169,7 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 - Dil ve tema
 - Push, uygulama içi ve e-posta tercihleri
 - Varsayılan bildirim günü
-- Veri dışa aktarma
+- Veri dışa aktarma (aynı şema ile tekrar içe aktarılabilir CSV)
 - Hesap silme
 
 ## 7. Sistem kategorileri

@@ -163,14 +163,18 @@ class LocalNotificationService {
   }
 
   /// [timezone] boş string ise cihaz yerel saat dilimi kullanılır.
+  /// [reminderHour] 0-23 arası, hatırlatmaların planlandığı yerel saat
+  /// (varsayılan 09:00) — kullanıcı ayarlardan özelleştirebilir (Test 31).
   static Future<void> scheduleRenewalReminders(
     List<Subscription> subscriptions,
     int daysBefore, {
     String timezone = '',
     List<Subscription> trials = const [],
     List<NotificationRule> rules = const [],
+    int reminderHour = 9,
   }) async {
     if (kIsWeb || !_initialized) return;
+    final hour = reminderHour >= 0 && reminderHour <= 23 ? reminderHour : 9;
     final scheduleMode = await _androidScheduleMode();
     // Deduplicate: skip reschedule if inputs haven't changed.
     final hash = scheduleFingerprint(
@@ -179,6 +183,7 @@ class LocalNotificationService {
       timezone: timezone,
       trials: trials,
       rules: rules,
+      reminderHour: hour,
     );
     if (hash == _lastScheduleHash) return;
     _lastScheduleHash = hash;
@@ -208,7 +213,7 @@ class LocalNotificationService {
           reminderDay.year,
           reminderDay.month,
           reminderDay.day,
-          9, // 09:00
+          hour,
         );
 
         if (scheduled.isBefore(now)) continue;
@@ -241,7 +246,7 @@ class LocalNotificationService {
       for (final days in const [7, 3, 1]) {
         final reminder = end.subtract(Duration(days: days));
         final scheduled = tz.TZDateTime(
-            location, reminder.year, reminder.month, reminder.day, 9);
+            location, reminder.year, reminder.month, reminder.day, hour);
         if (scheduled.isBefore(now)) continue;
         final dateKey =
             '${end.year}${end.month.toString().padLeft(2, '0')}${end.day.toString().padLeft(2, '0')}';
@@ -309,10 +314,12 @@ class LocalNotificationService {
     String timezone = '',
     List<Subscription> trials = const [],
     List<NotificationRule> rules = const [],
+    int reminderHour = 9,
   }) =>
       Object.hashAll([
         daysBefore,
         timezone,
+        reminderHour,
         ...rules.expand((r) => [r.daysBefore, r.enabled]),
         ...subscriptions.expand(
           (s) => [

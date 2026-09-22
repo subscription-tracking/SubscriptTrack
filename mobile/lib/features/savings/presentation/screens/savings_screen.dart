@@ -121,7 +121,7 @@ class SavingsScreen extends StatelessWidget {
                           subtitle:
                               Text(DateTimeUtils.formatDate(event.effectiveAt)),
                           trailing: Text(
-                            '${DateTimeUtils.formatCurrency(event.annualAmount, symbol: event.currency)}/yıl',
+                            '${DateTimeUtils.formatCurrency(event.annualAmount.amount, symbol: event.currency)}/yıl',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),

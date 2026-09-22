@@ -140,6 +140,9 @@ class AuthRepository implements AuthDataSource {
     return updated;
   }
 
+  Future<AppUser> updateEmail(String email) =>
+      Future.error(const AuthException('Local modda e-posta değiştirilemez.'));
+
   // ---- private helpers ----
 
   // SHA-256 with a fixed per-installation salt derived from the user's email.
@@ -199,5 +202,8 @@ class UnavailableAuthRepository implements AuthDataSource {
 
   @override
   Future<AppUser> updateDisplayName(String name) =>
+      Future.error(const AuthException(_message));
+
+  Future<AppUser> updateEmail(String email) =>
       Future.error(const AuthException(_message));
 }

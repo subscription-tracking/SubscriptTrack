@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../../core/utils/date_time_utils.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../../data/supabase_export_repository.dart';
@@ -20,14 +19,17 @@ class ExportDataScreen extends StatelessWidget {
     final buf = StringBuffer();
     buf.write(
       [
-        'Ad',
-        'Tutar',
-        'Para Birimi',
-        'Döngü',
-        'Kategori',
-        'Durum',
-        'Sonraki Yenileme',
-        'Notlar',
+        'name',
+        'amount',
+        'currency',
+        'billing_cycle',
+        'next_renewal_date',
+        'category',
+        'status',
+        'notes',
+        'payment_method',
+        'trial_end_date',
+        'trial_price_after',
       ].map(_csvField).join(','),
     );
     buf.write(eol);
@@ -41,11 +43,14 @@ class ExportDataScreen extends StatelessWidget {
           s.name,
           s.amount.amount.toStringAsFixed(2),
           s.currency,
-          s.billingCycle.label,
-          s.category.label,
-          s.status.label,
-          DateTimeUtils.formatDate(s.nextRenewalDate),
+          s.billingCycle.key,
+          s.nextRenewalDate.toIso8601String().substring(0, 10),
+          s.category.key,
+          s.status.key,
           s.notes ?? '',
+          s.paymentMethod ?? '',
+          s.trialEndDate?.toIso8601String().substring(0, 10) ?? '',
+          s.trialPriceAfter?.decimalString ?? '',
         ].map(_csvField).join(','),
       );
       buf.write(eol);
@@ -77,9 +82,12 @@ class ExportDataScreen extends StatelessWidget {
       await Share.share(url,
           subject: 'SubscriptTrack güvenli export bağlantısı');
     } catch (e) {
+      final message = e is ExportException
+          ? e.message
+          : 'Bulut export şu anda oluşturulamadı. Lütfen tekrar dene.';
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Bulut export oluşturulamadı: $e')),
+          SnackBar(content: Text(message)),
         );
       }
     }
@@ -109,12 +117,12 @@ class ExportDataScreen extends StatelessWidget {
                         Icon(Icons.table_chart_outlined,
                             color: Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 12),
-                        const Text('CSV Formatı',
+                        const Text('İçe aktarılabilir CSV',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ]),
                       const SizedBox(height: 8),
                       Text(
-                        '$total abonelik (aktif + duraklatıldı + iptal)',
+                        '$total abonelik; dışa aktarılan dosya tekrar içe aktarılabilir.',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

@@ -13,9 +13,8 @@ import '../../presentation/subscription_controller.dart';
 /// Tutar, ...) AYNI DEĞİL; o dosya bugün olduğu haliyle tekrar içe
 /// aktarılamaz. Şablon bilerek gerçek parser formatını gösteriyor.
 const _csvTemplate =
-    'name,amount,currency,billing_cycle,next_renewal_date,category\n'
-    'Netflix,149.99,TRY,monthly,2026-10-16,streaming\n'
-    'Spotify,59.99,TRY,monthly,2026-10-20,music';
+    'name,amount,currency,billing_cycle,next_renewal_date,category,status,notes,payment_method,trial_end_date,trial_price_after\n'
+    'Netflix,149.99,TRY,monthly,2026-10-16,streaming,active,,,,';
 
 class CsvImportScreen extends StatefulWidget {
   const CsvImportScreen({required this.controller, super.key});
@@ -54,8 +53,20 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
         startDate: DateTime.now(),
         nextRenewalDate: row.nextRenewalDate,
         category: row.category,
+        notes: row.notes,
+        paymentMethod: row.paymentMethod,
+        trialEndDate: row.trialEndDate,
+        trialPriceAfter: row.trialPriceAfter,
       );
-      if (ok) added++;
+      if (ok) {
+        final created = widget.controller.allItems.lastWhere(
+          (item) => item.name == row.name,
+        );
+        if (created.status != row.status) {
+          await widget.controller.edit(created.copyWith(status: row.status));
+        }
+        added++;
+      }
     }
     if (!mounted) return;
     setState(() => _importing = false);
@@ -75,8 +86,9 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Sütunlar: name, amount, currency, billing_cycle, '
-                'next_renewal_date (YYYY-AA-GG), category',
+                'Gerekli sütunlar: name, amount, currency, billing_cycle, '
+                'next_renewal_date (YYYY-AA-GG), category. Diğer sütunlar '
+                'dışa aktarılan dosyadaki isteğe bağlı alanlardır.',
               ),
               const SizedBox(height: 12),
               Container(

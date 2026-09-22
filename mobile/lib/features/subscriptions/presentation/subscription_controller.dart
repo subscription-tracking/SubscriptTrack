@@ -51,6 +51,8 @@ class SubscriptionController extends ChangeNotifier {
   int _pendingMutationCount = 0;
   List<SavingsEvent> _savingsEvents = [];
   List<PaymentEvent> _paymentEvents = [];
+  static const _pageSize = 50;
+  int _visibleLimit = _pageSize;
 
   List<Subscription> get active => _items
       .where((s) => s.status == SubscriptionStatus.active && !s.isNotStarted)
@@ -79,6 +81,12 @@ class SubscriptionController extends ChangeNotifier {
       _items.where((s) => s.status == SubscriptionStatus.archived).toList();
 
   List<Subscription> get allItems => List.unmodifiable(_items);
+  List<Subscription> _page(List<Subscription> items) => items.take(_visibleLimit).toList();
+  List<Subscription> get visibleActive => _page(active);
+  List<Subscription> get visibleTrials => _page(trials);
+  List<Subscription> get visiblePaused => _page(paused);
+  List<Subscription> get visibleCancelled => _page(cancelled);
+  List<Subscription> get visibleExpired => _page(expired);
 
   List<Subscription> get upcomingRenewals => active
       .where((s) => s.daysUntilRenewal >= 0 && s.daysUntilRenewal <= 30)
@@ -130,7 +138,7 @@ class SubscriptionController extends ChangeNotifier {
 
   Future<bool> recordPayment({
     required String subscriptionId,
-    required double amount,
+    required Money amount,
     required String currency,
     DateTime? paidAt,
   }) async {
@@ -153,20 +161,48 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
+  Future<bool> deletePayment(String id) async {
+    try {
+      await _paymentEventsRepo.delete(userId: _userId, id: id);
+      _paymentEvents = _paymentEvents.where((event) => event.id != id).toList();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updatePayment({required PaymentEvent event}) async {
+    try {
+      final updated = await _paymentEventsRepo.update(userId: _userId, event: event);
+      _paymentEvents = _paymentEvents.map((e) => e.id == updated.id ? updated : e).toList();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   Map<String, Money> get savingsByCurrency {
     final result = <String, Money>{};
     for (final event in _savingsEvents) {
       final current = result[event.currency];
-      result[event.currency] = current == null
-          ? Money.parse(event.annualAmount.toStringAsFixed(2))
-          : current + Money.parse(event.annualAmount.toStringAsFixed(2));
+      result[event.currency] =
+          current == null ? event.annualAmount : current + event.annualAmount;
     }
     return result;
   }
 
-  // Supabase loads all items at once — no pagination.
-  bool get hasMore => false;
-  Future<void> loadMore() async {}
+  bool get hasMore => _visibleLimit < _items.length;
+  Future<void> loadMore() async {
+    if (!hasMore) return;
+    _visibleLimit = (_visibleLimit + _pageSize).clamp(0, _items.length);
+    notifyListeners();
+  }
 
   Future<void> load() async {
     if (_loading) return;
@@ -175,6 +211,7 @@ class SubscriptionController extends ChangeNotifier {
     notifyListeners();
     try {
       _items = await _repo.getAll(_userId);
+      _visibleLimit = _pageSize;
       // Optional datasets must not force the primary dashboard into offline
       // mode when one secondary table is unavailable.
       try {
@@ -318,6 +355,23 @@ class SubscriptionController extends ChangeNotifier {
     return edit(updated);
   }
 
+  /// Kullanıcı ödeme yaptığını onayladığında ödeme geçmişine manuel kayıt
+  /// ekler ve aboneliğin bir sonraki yenilemesini ileri taşır. Bu işlem hiçbir
+  /// banka/kart tahsilatı yapmaz.
+  Future<bool> markPaidAndRenewed(String id) async {
+    final current = _findById(id);
+    if (current == null || current.status != SubscriptionStatus.active) {
+      return false;
+    }
+    final recorded = await recordPayment(
+      subscriptionId: id,
+      amount: current.amount,
+      currency: current.currency,
+    );
+    if (!recorded) return false;
+    return markRenewed(id);
+  }
+
   Future<void> _applyMutation(OfflineMutation mutation) async {
     final id = mutation.payload['id'] as String?;
     if (id == null) {
@@ -408,7 +462,54 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
+  /// Test 12: art arda hızlıca tetiklenen `add()` çağrılarının (ör. çift
+  /// dokunma veya arka planda eşzamanlı senkron) `_items`/cache üzerinde
+  /// birbirini ezmesini engellemek için tüm ekleme işlemleri bu kilitten
+  /// SIRAYLA geçer — bir önceki `add()` tamamlanmadan bir sonraki başlamaz.
+  Future<void> _addLock = Future<void>.value();
+
+  Future<T> _serializeAdd<T>(Future<T> Function() action) {
+    final completer = Completer<T>();
+    _addLock = _addLock.then((_) async {
+      try {
+        completer.complete(await action());
+      } catch (e, st) {
+        completer.completeError(e, st);
+      }
+    });
+    return completer.future;
+  }
+
   Future<bool> add({
+    required String name,
+    required Money amount,
+    required String currency,
+    required BillingCycle billingCycle,
+    required DateTime startDate,
+    required DateTime nextRenewalDate,
+    required SubscriptionCategory category,
+    String? notes,
+    String? paymentMethod,
+    DateTime? trialEndDate,
+    Money? trialPriceAfter,
+    List<NotificationRule> notificationRules = const [],
+  }) =>
+      _serializeAdd(() => _addInternal(
+            name: name,
+            amount: amount,
+            currency: currency,
+            billingCycle: billingCycle,
+            startDate: startDate,
+            nextRenewalDate: nextRenewalDate,
+            category: category,
+            notes: notes,
+            paymentMethod: paymentMethod,
+            trialEndDate: trialEndDate,
+            trialPriceAfter: trialPriceAfter,
+            notificationRules: notificationRules,
+          ));
+
+  Future<bool> _addInternal({
     required String name,
     required Money amount,
     required String currency,
@@ -632,8 +733,8 @@ class SubscriptionController extends ChangeNotifier {
                 userId: _userId,
                 subscriptionId: id,
                 eventType: 'PAUSED',
-                monthlyAmount: sub.monthlyAmount.amount,
-                annualAmount: (sub.monthlyAmount * 12).amount,
+                monthlyAmount: sub.monthlyAmount,
+                annualAmount: sub.monthlyAmount * 12,
                 currency: sub.currency,
               ),
     );
@@ -656,8 +757,8 @@ class SubscriptionController extends ChangeNotifier {
                 userId: _userId,
                 subscriptionId: id,
                 eventType: 'CANCELLED',
-                monthlyAmount: sub.monthlyAmount.amount,
-                annualAmount: (sub.monthlyAmount * 12).amount,
+                monthlyAmount: sub.monthlyAmount,
+                annualAmount: sub.monthlyAmount * 12,
                 currency: sub.currency,
               ),
     );

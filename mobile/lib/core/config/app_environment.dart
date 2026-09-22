@@ -15,6 +15,12 @@ abstract final class EnvironmentConfig {
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 
+  /// Social OAuth only has a usable implementation when the production
+  /// authentication provider is configured. The individual provider switches
+  /// still live in Supabase, so this deliberately does not claim that Google
+  /// or Apple is enabled before Supabase can handle the request.
+  static bool get isSocialSignInAvailable => isSupabaseConfigured;
+
   /// Local auth fallback — active whenever Supabase is not configured.
   /// Pass --dart-define=ENABLE_LOCAL_AUTH=false to explicitly disable.
   static const enableLocalAuth =

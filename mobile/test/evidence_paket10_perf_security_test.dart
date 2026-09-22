@@ -93,7 +93,7 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (500)'));
+      await tester.tap(find.byKey(const Key('subscription-status-tab-Aktif')));
       await tester.pumpAndSettle();
       sw.stop();
 
@@ -120,7 +120,7 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (500)'));
+      await tester.tap(find.byKey(const Key('subscription-status-tab-Aktif')));
       await tester.pumpAndSettle();
 
       // "Servis N" metinlerinden kaçı GERÇEKTEN widget ağacında?
@@ -147,7 +147,7 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (500)'));
+      await tester.tap(find.byKey(const Key('subscription-status-tab-Aktif')));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'Servis 499');

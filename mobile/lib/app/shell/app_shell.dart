@@ -93,8 +93,8 @@ class _AppShellState extends State<AppShell> {
         );
       default:
         return const TopBar(
-          icon: Icons.person_rounded,
-          title: 'Profil',
+          icon: Icons.settings_outlined,
+          title: 'Ayarlar',
         );
     }
   }

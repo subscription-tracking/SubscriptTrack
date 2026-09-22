@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../shared/design/responsive.dart';
 import '../../../../shared/widgets/app_animated_money.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../domain/subscription_models.dart';
@@ -30,86 +31,88 @@ class SubscriptionDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: cs.surfaceContainerLowest,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: _HeroHeader(
-              subscription: subscription,
-              brandColor: brandColor,
-              onBack: () => Navigator.pop(context),
-              onEdit: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => EditSubscriptionScreen(
+      body: ResponsiveCenter(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: _HeroHeader(
+                subscription: subscription,
+                brandColor: brandColor,
+                onBack: () => Navigator.pop(context),
+                onEdit: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => EditSubscriptionScreen(
+                      subscription: subscription,
+                      controller: controller,
+                    ),
+                  ),
+                ),
+                onMenuAction: (action) => _handleAction(context, action),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _NextPaymentCard(
+                    subscription: subscription,
+                    daysLeft: daysLeft,
+                  ),
+                  const SizedBox(height: 16),
+                  _GridCategoryAndCycle(subscription: subscription),
+                  const SizedBox(height: 24),
+                  _PaymentMethodSection(
+                    subscription: subscription,
+                    onChange: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => EditSubscriptionScreen(
+                          subscription: subscription,
+                          controller: controller,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _ReminderSection(
+                    subscription: subscription,
+                    onEdit: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => EditSubscriptionScreen(
+                          subscription: subscription,
+                          controller: controller,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _PaymentHistorySection(
                     subscription: subscription,
                     controller: controller,
                   ),
-                ),
+                  const SizedBox(height: 28),
+                  _ActionButtonsSection(
+                    subscription: subscription,
+                    onRenewed: () async {
+                      await controller.markPaidAndRenewed(subscription.id);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    onPauseResume: () =>
+                        subscription.status == SubscriptionStatus.active
+                            ? _handleAction(context, _Action.pause)
+                            : _handleAction(context, _Action.resume),
+                    onArchive: () => _handleAction(context, _Action.archive),
+                    onCancel: () => _handleAction(context, _Action.cancel),
+                    onDelete: () => _handleAction(context, _Action.delete),
+                  ),
+                  const SizedBox(height: 32),
+                ]),
               ),
-              onMenuAction: (action) => _handleAction(context, action),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _NextPaymentCard(
-                  subscription: subscription,
-                  daysLeft: daysLeft,
-                ),
-                const SizedBox(height: 16),
-                _GridCategoryAndCycle(subscription: subscription),
-                const SizedBox(height: 24),
-                _PaymentMethodSection(
-                  subscription: subscription,
-                  onChange: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => EditSubscriptionScreen(
-                        subscription: subscription,
-                        controller: controller,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _ReminderSection(
-                  subscription: subscription,
-                  onEdit: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => EditSubscriptionScreen(
-                        subscription: subscription,
-                        controller: controller,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _PaymentHistorySection(
-                  subscription: subscription,
-                  controller: controller,
-                ),
-                const SizedBox(height: 28),
-                _ActionButtonsSection(
-                  subscription: subscription,
-                  onRenewed: () async {
-                    await controller.markRenewed(subscription.id);
-                    if (context.mounted) Navigator.pop(context);
-                  },
-                  onPauseResume: () =>
-                      subscription.status == SubscriptionStatus.active
-                          ? _handleAction(context, _Action.pause)
-                          : _handleAction(context, _Action.resume),
-                  onArchive: () => _handleAction(context, _Action.archive),
-                  onCancel: () => _handleAction(context, _Action.cancel),
-                  onDelete: () => _handleAction(context, _Action.delete),
-                ),
-                const SizedBox(height: 32),
-              ]),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -916,7 +919,7 @@ class _PaymentHistorySection extends StatelessWidget {
                                 title: Text(DateTimeUtils.formatDate(
                                     payments[i].paidAt)),
                                 trailing: Text(DateTimeUtils.formatCurrency(
-                                  payments[i].amount,
+                                  payments[i].amount.amount,
                                   symbol: payments[i].currency,
                                 )),
                               ),
@@ -965,7 +968,7 @@ class _PaymentHistorySection extends StatelessWidget {
                       _HistoryTile(
                         dateStr: DateTimeUtils.formatDate(payments[i].paidAt),
                         amountStr: DateTimeUtils.formatCurrency(
-                          payments[i].amount,
+                          payments[i].amount.amount,
                           symbol: payments[i].currency,
                         ),
                         isFirst: i == 0,
@@ -1074,16 +1077,16 @@ class _ActionButtonsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isPaused = subscription.status == SubscriptionStatus.paused;
-    final isOverdue = subscription.status == SubscriptionStatus.active &&
-        subscription.daysUntilRenewal < 0;
+    final isDue = subscription.status == SubscriptionStatus.active &&
+        subscription.daysUntilRenewal <= 0;
 
     return Column(
       children: [
-        if (isOverdue) ...[
+        if (isDue) ...[
           FilledButton.icon(
             onPressed: onRenewed,
             icon: const Icon(Icons.check_circle_outline, size: 18),
-            label: const Text('Yenilendi'),
+            label: const Text('Ödendi ve yenilendi'),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(

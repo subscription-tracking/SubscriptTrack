@@ -22,7 +22,19 @@ Deno.serve(async (req: Request) => {
     if (job.status === 'READY') return new Response(JSON.stringify(job), { status: 200, headers })
     const { data: rows, error } = await admin.from('subscriptions').select('*').eq('user_id', user.id).order('next_renewal_date')
     if (error) throw error
-    const csv = ['id,name,amount,currency,billing_cycle,category,status,next_renewal_date,notes', ...rows.map((r: Record<string, unknown>) => [r.id,r.name,r.amount,r.currency,r.billing_cycle,r.category,r.status,r.next_renewal_date,r.notes].map((v) => `"${String(v ?? '').replaceAll('"', '""')}"`).join(','))].join('\r\n') + '\r\n'
+    const headersRow = ['name','amount','currency','billing_cycle','next_renewal_date','category','status','notes','payment_method','trial_end_date','trial_price_after']
+    const csvField = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`
+    const moneyValue = (value: unknown) => {
+      if (value && typeof value === 'object' && 'minorUnits' in (value as Record<string, unknown>)) {
+        return ((value as Record<string, unknown>).minorUnits as number / 100).toFixed(2)
+      }
+      return String(value ?? '')
+    }
+    const csv = [headersRow.map(csvField).join(','), ...rows.map((r: Record<string, unknown>) => [
+      r.name, moneyValue(r.amount), r.currency, r.billing_cycle, r.next_renewal_date,
+      r.category, r.status, r.notes, r.payment_method, r.trial_end_date,
+      moneyValue(r.trial_price_after),
+    ].map(csvField).join(','))].join('\r\n') + '\r\n'
     const path = `${user.id}/${exportId}.csv`
     const upload = await admin.storage.from('exports').upload(path, new Blob([csv], { type: 'text/csv; charset=utf-8' }), { upsert: true, contentType: 'text/csv; charset=utf-8' })
     if (upload.error) throw upload.error

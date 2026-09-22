@@ -8,13 +8,23 @@ class CsvSubscriptionRow {
       required this.currency,
       required this.billingCycle,
       required this.nextRenewalDate,
-      required this.category});
+      required this.category,
+      this.status = SubscriptionStatus.active,
+      this.notes,
+      this.paymentMethod,
+      this.trialEndDate,
+      this.trialPriceAfter});
   final String name;
   final Money amount;
   final String currency;
   final BillingCycle billingCycle;
   final DateTime nextRenewalDate;
   final SubscriptionCategory category;
+  final SubscriptionStatus status;
+  final String? notes;
+  final String? paymentMethod;
+  final DateTime? trialEndDate;
+  final Money? trialPriceAfter;
 }
 
 class CsvImportResult {
@@ -42,21 +52,36 @@ class CsvImportParser {
     if (missing.isNotEmpty) {
       return CsvImportResult([], ['Eksik başlık: ${missing.join(', ')}']);
     }
-    final indexes = {for (final h in required) h: headers.indexOf(h)};
+    final indexes = {
+      for (final h in [
+        ...required,
+        'status',
+        'notes',
+        'payment_method',
+        'trial_end_date',
+        'trial_price_after'
+      ])
+        h: headers.indexOf(h),
+    };
     final rows = <CsvSubscriptionRow>[];
     final errors = <String>[];
     final seen = <String>{};
     for (var i = 1; i < lines.length; i++) {
       final values = lines[i];
-      String value(String key) =>
-          indexes[key]! < values.length ? values[indexes[key]!].trim() : '';
+      String value(String key) {
+        final index = indexes[key] ?? -1;
+        return index >= 0 && index < values.length ? values[index].trim() : '';
+      }
+
       final name = value('name');
       final amountText = value('amount');
       final date = _parseStrictIsoDate(value('next_renewal_date'));
+      final trialEndDate = _optionalDate(value('trial_end_date'));
       final key = name.toLowerCase();
       if (name.isEmpty ||
           Money.parse(amountText) == Money.zero ||
-          date == null) {
+          date == null ||
+          (value('trial_end_date').trim().isNotEmpty && trialEndDate == null)) {
         errors.add('Satır ${i + 1}: ad, tutar veya tarih geçersiz.');
         continue;
       }
@@ -72,6 +97,11 @@ class CsvImportParser {
         billingCycle: _cycle(value('billing_cycle')),
         nextRenewalDate: date,
         category: _category(value('category')),
+        status: _status(value('status')),
+        notes: _emptyAsNull(value('notes')),
+        paymentMethod: _emptyAsNull(value('payment_method')),
+        trialEndDate: trialEndDate,
+        trialPriceAfter: _optionalMoney(value('trial_price_after')),
       ));
     }
     return CsvImportResult(rows, errors);
@@ -143,4 +173,16 @@ class CsvImportParser {
       SubscriptionCategory.values.firstWhere(
           (e) => _header(e.name) == _header(value),
           orElse: () => SubscriptionCategory.other);
+
+  static SubscriptionStatus _status(String value) =>
+      SubscriptionStatusExt.fromKey(_header(value));
+
+  static String? _emptyAsNull(String value) =>
+      value.trim().isEmpty ? null : value.trim();
+
+  static DateTime? _optionalDate(String value) =>
+      value.trim().isEmpty ? null : _parseStrictIsoDate(value);
+
+  static Money? _optionalMoney(String value) =>
+      value.trim().isEmpty ? null : Money.parse(value);
 }

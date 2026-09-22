@@ -36,7 +36,6 @@ mobile/lib/
 │   │                    token_provider.dart       — abstract + SupabaseTokenProvider
 │   ├── services/        local_notification_service.dart   — flutter_local_notifications, timezone
 │   │                    offline_mutation_queue.dart        — şifreli cihaz kuyruğu
-│   │                    device_token_service.dart          — push token (kullanılmıyor)
 │   │                    notification_read_sync_service.dart — POST /v1/notifications/read-batch
 │   ├── storage/         local_storage.dart        — şifreli abonelik JSON cache; eski SharedPreferences kaydını taşır
 │   │                    secure_storage.dart       — hassas veri (flutter_secure_storage)
@@ -61,10 +60,11 @@ mobile/lib/
     ├── dashboard/       DashboardScreen — totalsByCurrency, upcoming 30 gün, _OfflineBanner
     ├── calendar/        CalendarController, CalendarScreen — renewalsForDay, totalsByCurrencyForMonth
     ├── notifications/   NotificationController, NotificationCenterScreen — in-app, read sync
-    ├── stats/           StatsScreen — per-currency category breakdown, RefreshIndicator
-    ├── savings/         SavingsScreen — multi-currency top-3 scenario kartlar
+    ├── stats/           StatsScreen — per-currency category breakdown, gerçek ödeme geçmişi trendi
+    ├── savings/         SavingsScreen — multi-currency top-3 scenario kartlar, yerel/bulut geçmiş
     ├── onboarding/      OnboardingScreen — 4 sayfa, ilk açılışta
     └── settings/        SettingsController — theme, currency, timezone, daysBefore, notifications, paymentMethods
+                         data/payment_methods_api.dart — authenticated Edge Function API istemcisi
                          AppearanceScreen, NotificationPreferencesScreen, PaymentMethodsScreen
                          ExportDataScreen (CSV), DeleteAccountScreen
 ```
@@ -149,7 +149,7 @@ Fiziksel silme controller katmanında yalnızca `mistakenRecord: true` ile
 - **Cold-start yönlendirmesi:** Bildirim payload'ındaki abonelik kimliği, abonelik listesi yüklenene kadar saklanır; yüklendikten sonra detay ekranı açılır.
 - **Plan sınırı:** Düzenli hatırlatmalar ve snooze bildirimleri, cihazda bekleyen en fazla 60 yerel bildirim sınırını aşmaz.
 - **Exact alarm fallback:** Android 12+ exact-alarm izni kapalıysa scheduler hata vermek yerine `inexactAllowWhileIdle` ile planlama yapar.
-- **Push yöntemi:** Yalnızca `flutter_local_notifications` ile cihaz üzeri zamanlama. Uzak push altyapısı kullanılmaz.
+- **Push yöntemi:** Yalnızca `flutter_local_notifications` ile cihaz üzeri zamanlama. Uzak push/token altyapısı bulunmaz.
 - **Read sync:** `NotificationReadSyncService` → `POST /v1/notifications/read-batch` (best-effort)
 
 ---
@@ -188,3 +188,15 @@ Production   — Play Store / App Store release
 ```
 
 Detay: `DEPLOYMENT.md`
+
+## 11. Cihaz kabulü
+
+Yerel bildirim, izin, cold-start, biyometri ve çoklu cihaz Realtime davranışı
+widget testleriyle kanıtlanamaz. Sürüm kabulünde
+`SPRINT_3_DEVICE_ACCEPTANCE.md` kontrol listesi Android ve iOS gerçek cihaz
+kanıtlarıyla tamamlanır.
+
+Supabase Realtime için `public.subscriptions` tablosu `supabase_realtime`
+publication'a eklenmiştir (`backend/migrations/030_realtime_publication.sql`).
+Mobil istemci kullanıcı filtresiyle INSERT/UPDATE/DELETE değişikliklerini
+dinler; iki ayrı oturumla canlı kabul testi yine cihaz/test hesabı gerektirir.

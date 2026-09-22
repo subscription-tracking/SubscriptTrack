@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/config/app_environment.dart';
 import '../auth_controller.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -37,18 +38,49 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(title: const Text('Şifremi unuttum')),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: _sent
-            ? _SuccessView(email: _email.text.trim())
-            : _FormView(
-                formKey: _formKey,
-                email: _email,
-                controller: widget.controller,
-                colors: colors,
-                onSubmit: _submit,
-              ),
+        child: !EnvironmentConfig.isSupabaseConfigured
+            ? const _UnavailableInLocalMode()
+            : _sent
+                ? _SuccessView(email: _email.text.trim())
+                : _FormView(
+                    formKey: _formKey,
+                    email: _email,
+                    controller: widget.controller,
+                    colors: colors,
+                    onSubmit: _submit,
+                  ),
       ),
     );
   }
+}
+
+class _UnavailableInLocalMode extends StatelessWidget {
+  const _UnavailableInLocalMode();
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.info_outline, size: 64),
+            const SizedBox(height: 20),
+            Text('Şifre sıfırlama kullanılamıyor',
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            const Text(
+              'Bu kurulum cihaz içi test hesabı kullanıyor; e-posta gönderimi yok. '
+              'Şifre sıfırlama, Supabase ile giriş yapılan sürümde kullanılabilir.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Giriş ekranına dön'),
+            ),
+          ],
+        ),
+      );
 }
 
 class _FormView extends StatelessWidget {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../settings/presentation/settings_controller.dart';
+import '../../../../core/config/app_environment.dart';
+import '../../../settings/data/support_catalog_api.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../../notifications/domain/notification_rule.dart';
@@ -12,7 +14,7 @@ class SubscriptionFormData {
   SubscriptionFormData({
     this.name = '',
     this.amount = '',
-    this.currency = 'TRY',
+    String? currency,
     this.billingCycle = BillingCycle.monthly,
     DateTime? startDate,
     DateTime? nextRenewalDate,
@@ -26,7 +28,8 @@ class SubscriptionFormData {
     this.initialPaymentStatus = InitialPaymentStatus.unpaid,
     DateTime? initialPaymentDate,
     this.deferredPaymentDate,
-  })  : startDate = startDate ?? DateTime.now(),
+  })  : currency = currency ?? SettingsController.instance.currency,
+        startDate = startDate ?? DateTime.now(),
         initialPaymentDate = initialPaymentDate ?? DateTime.now(),
         nextRenewalDate =
             nextRenewalDate ?? _defaultNextRenewalDate(startDate, billingCycle),
@@ -95,6 +98,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   late final TextEditingController _amount;
   late final TextEditingController _notes;
   bool _showDetails = false;
+  late List<(String, SubscriptionCategory)> _presets;
 
   @override
   void initState() {
@@ -102,6 +106,22 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     _name = TextEditingController(text: widget.data.name);
     _amount = TextEditingController(text: widget.data.amount);
     _notes = TextEditingController(text: widget.data.notes);
+    _presets = _popularPresets;
+    _loadRemoteCatalog();
+  }
+
+  Future<void> _loadRemoteCatalog() async {
+    if (!EnvironmentConfig.isSupabaseConfigured) return;
+    try {
+      final remote = await SupportCatalogApi().fetchCatalog();
+      final mapped = remote.map((row) => (
+            row['name'] as String,
+            SubscriptionCategoryLabel.fromKey(row['category'] as String? ?? 'other'),
+          )).toList();
+      if (mounted && mapped.isNotEmpty) setState(() => _presets = mapped);
+    } catch (_) {
+      // Static presets remain available when the catalog API is offline.
+    }
   }
 
   @override
@@ -195,27 +215,25 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Yeni Ödeme Yöntemi Ekle'),
+        title: const Text('Ödeme etiketi ekle'),
         content: TextField(
           controller: textController,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(
-            hintText: 'Örn. Garanti Bonus ****1234',
-            labelText: 'Kart / Yöntem Adı',
+            hintText: 'Örn. Garanti Bonus',
+            labelText: 'Etiket adı',
+            helperText: 'Kart numarası veya hassas bilgi girmeyin.',
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
           FilledButton(
             onPressed: () {
-              final val = textController.text.trim();
-              if (val.isNotEmpty) {
-                SettingsController.instance.addPaymentMethod(val);
-                setState(() => widget.data.paymentMethod = val);
+              final value = textController.text.trim();
+              if (value.isNotEmpty) {
+                SettingsController.instance.addPaymentMethod(value);
+                setState(() => widget.data.paymentMethod = value);
                 Navigator.pop(context);
               }
             },
@@ -228,7 +246,9 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
-  static const _reminderPresetDays = [1, 3, 7];
+  // Test 33: 0 = "bugün yenileniyor" hatırlatması artık preset içinde,
+  // Test 32: birden fazla preset aynı anda seçilebiliyor (bkz. FilterChip).
+  static const _reminderPresetDays = [0, 1, 3, 7];
 
   static const _popularPresets = <(String, SubscriptionCategory)>[
     // Streaming
@@ -300,10 +320,10 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 2),
-                  itemCount: _popularPresets.length,
+                  itemCount: _presets.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 10),
                   itemBuilder: (context, index) {
-                    final preset = _popularPresets[index];
+                    final preset = _presets[index];
                     final isSelected =
                         currentName == preset.$1.trim().toLowerCase();
                     return ChoiceChip(
@@ -320,8 +340,8 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                               isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
                       backgroundColor:
                           Theme.of(context).colorScheme.surfaceContainerHigh,
                       selectedColor:
@@ -378,9 +398,10 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 110,
+                    width: 150,
                     child: DropdownButtonFormField<String>(
                       initialValue: widget.data.currency,
+                      isExpanded: true,
                       decoration:
                           const InputDecoration(labelText: 'Para birimi'),
                       items: _currencyOptions
@@ -453,13 +474,26 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                   final selected = widget.data.notificationRules
                       .any((r) => r.daysBefore == days);
                   return FilterChip(
-                    label: Text('$days gün'),
+                    label: Text(days == 0 ? 'Bugün' : '$days gün önce'),
                     selected: selected,
                     showCheckmark: false,
-                    onSelected: (_) => setState(() {
-                      widget.data.notificationRules = [
-                        NotificationRule(daysBefore: days),
-                      ];
+                    onSelected: (nowSelected) => setState(() {
+                      // Test 32: her chip bağımsız olarak eklenip
+                      // çıkarılabiliyor — "7 gün önce" ve "1 gün önce" aynı
+                      // anda seçilebilir, motor (LocalNotificationService)
+                      // zaten birden fazla NotificationRule'ı destekliyor.
+                      final rules = [...widget.data.notificationRules];
+                      rules.removeWhere((r) => r.daysBefore == days);
+                      if (nowSelected) {
+                        rules.add(NotificationRule(daysBefore: days));
+                      }
+                      // En az bir hatırlatma kuralı kalmalı; sonuncuyu
+                      // kaldırmaya çalışan tıklama yok sayılır.
+                      if (rules.isNotEmpty) {
+                        widget.data.notificationRules = rules
+                          ..sort(
+                              (a, b) => b.daysBefore.compareTo(a.daysBefore));
+                      }
                     }),
                   );
                 }).toList(),
@@ -535,43 +569,20 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                   ? widget.data.paymentMethod
                   : null,
               decoration: const InputDecoration(
-                labelText: 'Ödeme Yöntemi / Kart (opsiyonel)',
-                prefixIcon: Icon(Icons.credit_card_outlined),
+                labelText: 'Kullanılan ödeme etiketi (opsiyonel)',
+                prefixIcon: Icon(Icons.label_outline),
+                helperText: 'Sadece takip amaçlıdır; uygulama para çekmez.',
               ),
               items: [
-                const DropdownMenuItem<String?>(
-                  value: null,
-                  child: Text('Seçilmedi'),
-                ),
-                ...paymentMethods.map(
-                  (pm) => DropdownMenuItem<String?>(
-                    value: pm,
-                    child: Text(pm),
-                  ),
-                ),
-                const DropdownMenuItem<String?>(
-                  value: '__ADD_NEW__',
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.add, size: 18),
-                      SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          '+ Yeni Kart',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const DropdownMenuItem<String?>(value: null, child: Text('Belirtilmedi')),
+                ...paymentMethods.map((method) => DropdownMenuItem<String?>(value: method, child: Text(method))),
+                const DropdownMenuItem<String?>(value: '__ADD_NEW__', child: Text('+ Yeni etiket ekle')),
               ],
-              onChanged: (v) {
-                if (v == '__ADD_NEW__') {
+              onChanged: (value) {
+                if (value == '__ADD_NEW__') {
                   _showQuickAddPaymentMethod();
                 } else {
-                  setState(() => widget.data.paymentMethod = v);
+                  setState(() => widget.data.paymentMethod = value);
                 }
               },
             ),

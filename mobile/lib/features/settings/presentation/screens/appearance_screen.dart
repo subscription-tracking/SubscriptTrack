@@ -39,13 +39,18 @@ class AppearanceScreen extends StatelessWidget {
             ),
             const Divider(),
             const _SectionHeader('Para birimi'),
-            ...['₺', '\$', '€', '£'].map((c) => ListTile(
-                  title: Text(c),
-                  trailing: controller.currency == c
+            ...const [
+              ('Türk lirası', 'TRY'),
+              ('ABD doları', 'USD'),
+              ('Euro', 'EUR'),
+              ('İngiliz sterlini', 'GBP')
+            ].map((c) => ListTile(
+                  title: Text('${c.$1} (${c.$2})'),
+                  trailing: controller.currency == c.$2
                       ? Icon(Icons.check,
                           color: Theme.of(context).colorScheme.primary)
                       : null,
-                  onTap: () => controller.setCurrency(c),
+                  onTap: () => controller.setCurrency(c.$2),
                 )),
             const Divider(),
             const _SectionHeader('Saat dilimi'),

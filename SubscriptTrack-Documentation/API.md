@@ -295,7 +295,47 @@ Asenkron export oluşturur.
 
 Durum: `PENDING`, `READY`, `EXPIRED`, `FAILED`.
 
+Export bağlantıları süreli imzalı URL olarak döner; istemci hata ayrıntılarını
+son kullanıcıya sızdırmaz ve yalnızca tekrar deneme mesajı gösterir.
+
+## 11.1 Ödeme yöntemleri
+
+### `GET /payment-methods`
+
+Oturumdaki kullanıcının kart/yöntem etiketlerini döndürür.
+
+### `PUT /payment-methods`
+
+Kullanıcının bütün ödeme yöntemi etiketlerini atomik olarak değiştirir.
+İstek gövdesi `{"methods":["Kart etiketi"]}` biçimindedir; adlar 1-80
+karakter, birbirinden benzersiz ve en fazla 40 adet olmalıdır. Mobil istemci
+veritabanı tablosuna doğrudan yazmaz.
+
+## 11.2 Destek ve servis kataloğu
+
+### `GET /support-catalog`
+
+Kimliği doğrulanmış kullanıcının kullanabileceği aktif servis katalog kayıtlarını
+döndürür.
+
+### `POST /support-catalog`
+
+Kimliği doğrulanmış kullanıcı adına 1-2000 karakterlik bir destek kaydı açar.
+İstek gövdesi `{"category":"Hata bildirimi","message":"..."}` biçimindedir.
+
+### Kayıt ve e-posta doğrulama davranışı
+
+Supabase Auth e-posta doğrulamasını zorunlu tuttuğunda `signUp` oturumsuz dönebilir. Mobil istemci bu sonucu başarılı oturum olarak işaretlemez; kullanıcıya doğrulama e-postasını kontrol etmesi gerektiğini bildirir ve giriş ekranına yönlendirir. Doğrulama ve şifre sıfırlama dönüşleri `subscripttrack://auth-callback` deep-link'i üzerinden alınır.
+
+Canlı payment label, servis kataloğu ve destek ticket smoke testi için `backend/scripts/authenticated-feature-smoke.mjs` kullanılabilir. Gerçek test hesabı ile `S31_SMOKE_CONFIRM=run` açıkça verilmeden uzak projede yazma yapılmaz; ödeme etiketleri test sonunda eski hâline döndürülür.
+
 ## 12. Idempotency
+
+### `PATCH /auth/email`
+
+Kimliği doğrulanmış kullanıcının e-posta adresini günceller. Supabase Auth
+ayarına göre yeni adrese doğrulama e-postası gönderilebilir. Local auth modunda
+e-posta değişikliği desteklenmez.
 
 Mobil ağ tekrarlarında duplicate kayıt oluşmaması için yazma endpoint'leri `Idempotency-Key` desteklemelidir.
 

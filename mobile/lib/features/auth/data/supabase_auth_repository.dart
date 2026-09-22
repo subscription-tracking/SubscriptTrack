@@ -9,8 +9,10 @@ import '../domain/auth_models.dart';
 /// EnvironmentConfig.isSupabaseConfigured == true olduğunda AuthController
 /// bu sınıfı kullanır. Token yenileme, session kalıcılığı ve güvenli
 /// depolama supabase_flutter tarafından otomatik yönetilir.
-class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource {
+class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource, EmailUpdateDataSource {
   sb.SupabaseClient get _client => sb.Supabase.instance.client;
+
+  bool lastSignUpRequiresEmailConfirmation = false;
 
   @override
   Future<AppUser?> currentUser() async {
@@ -30,6 +32,7 @@ class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource {
       );
       final user = response.user;
       if (user == null) throw const AuthException('Kayıt başarısız.');
+      lastSignUpRequiresEmailConfirmation = response.session == null;
       return _toAppUser(user);
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
@@ -131,6 +134,26 @@ class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource {
       );
       final user = response.user;
       if (user == null) throw const AuthException('Ad güncellenemedi.');
+      return _toAppUser(user);
+    } on sb.AuthException catch (e) {
+      throw AuthException(_localizeError(e.message));
+    } catch (e) {
+      throw AuthException(e.toString());
+    }
+  }
+
+  @override
+  Future<AppUser> updateEmail(String email) async {
+    final normalized = email.trim().toLowerCase();
+    if (normalized.isEmpty || !normalized.contains('@')) {
+      throw const AuthException('Geçerli bir e-posta adresi girin.');
+    }
+    try {
+      final response = await _client.auth.updateUser(
+        sb.UserAttributes(email: normalized),
+      );
+      final user = response.user;
+      if (user == null) throw const AuthException('E-posta güncellenemedi.');
       return _toAppUser(user);
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));

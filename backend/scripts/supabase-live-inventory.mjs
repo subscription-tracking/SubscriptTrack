@@ -13,12 +13,16 @@ const tables = [
   'subscriptions', 'profiles', 'notifications', 'notification_rules',
   'renewal_occurrences', 'subscription_events', 'savings_events',
   'device_tokens', 'exports', 'payment_methods', 'payment_events',
-  'idempotency_keys',
+  'idempotency_keys', 'support_tickets', 'service_catalog',
 ];
 
 async function probe(path) {
   const response = await fetch(`${url}${path}`, { headers });
-  return { status: response.status, reachable: response.ok };
+  return {
+    status: response.status,
+    reachable: response.ok || response.status === 401 || response.status === 403,
+    access: response.ok ? 'public' : response.status === 401 || response.status === 403 ? 'protected' : 'unavailable',
+  };
 }
 
 const result = {

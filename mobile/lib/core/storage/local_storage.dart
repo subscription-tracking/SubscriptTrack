@@ -11,6 +11,8 @@ class LocalStorage {
   static final LocalStorage instance = LocalStorage._();
 
   static const _prefixSubscriptions = 'subscriptions_';
+  static const _prefixPaymentEvents = 'payment_events_';
+  static const _prefixSavingsEvents = 'savings_events_';
 
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -37,4 +39,21 @@ class LocalStorage {
 
   Future<void> deleteSubscriptions(String userId) =>
       _storage.delete(key: '$_prefixSubscriptions$userId');
+
+  Future<String?> readPaymentEvents(String userId) =>
+      _storage.read(key: '$_prefixPaymentEvents$userId');
+
+  Future<void> writePaymentEvents(String userId, String json) =>
+      _storage.write(key: '$_prefixPaymentEvents$userId', value: json);
+
+  Future<String?> readSavingsEvents(String userId) =>
+      _storage.read(key: '$_prefixSavingsEvents$userId');
+
+  Future<void> writeSavingsEvents(String userId, String json) =>
+      _storage.write(key: '$_prefixSavingsEvents$userId', value: json);
+
+  Future<void> deleteFinancialEvents(String userId) => Future.wait([
+        _storage.delete(key: '$_prefixPaymentEvents$userId'),
+        _storage.delete(key: '$_prefixSavingsEvents$userId'),
+      ]);
 }

@@ -37,11 +37,33 @@ class _NotificationPreferencesScreenState
   }
 
   Future<void> _sendTest() async {
+    final granted = await LocalNotificationService.arePermissionsGranted();
+    if (!granted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text('Bildirim izni kapalı. Önce cihaz ayarlarından izin ver.'),
+        ));
+      }
+      return;
+    }
     await LocalNotificationService.sendTestNotification();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Test bildirimi gönderildi.')),
       );
+    }
+  }
+
+  Future<void> _pickReminderHour() async {
+    final ctrl = widget.controller;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: ctrl.reminderHour, minute: 0),
+      helpText: 'Hatırlatma saati',
+    );
+    if (picked != null) {
+      await ctrl.setReminderHour(picked.hour);
     }
   }
 
@@ -89,6 +111,16 @@ class _NotificationPreferencesScreenState
                           ))
                       .toList(),
                 ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.schedule_outlined),
+                title: const Text('Hatırlatma saati'),
+                subtitle: Text(
+                  '${ctrl.reminderHour.toString().padLeft(2, '0')}:00',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _pickReminderHour,
               ),
               const Divider(),
               ListTile(

@@ -101,33 +101,39 @@ void main() {
       await tester.pumpWidget(buildForm());
     }
 
-    testWidgets('varsayılan olarak tek kural (3 gün) seçili', (tester) async {
+    testWidgets('varsayılan olarak tek kural (3 gün önce) seçili',
+        (tester) async {
       await pumpTallForm(tester);
       expect(data.notificationRules, [const NotificationRule(daysBefore: 3)]);
-      final chip =
-          tester.widget<FilterChip>(find.widgetWithText(FilterChip, '3 gün'));
+      final chip = tester
+          .widget<FilterChip>(find.widgetWithText(FilterChip, '3 gün önce'));
       expect(chip.selected, isTrue);
     });
 
-    testWidgets('başka bir seçenek seçilince öncekinin yerine geçer',
+    testWidgets('başka bir seçenek seçilince mevcut kurala eklenir',
         (tester) async {
       await pumpTallForm(tester);
 
-      await tester.tap(find.widgetWithText(FilterChip, '7 gün'));
+      await tester.tap(find.widgetWithText(FilterChip, '7 gün önce'));
       await tester.pump();
 
-      expect(data.notificationRules, [const NotificationRule(daysBefore: 7)],
-          reason: 'tekli seçim: yeni seçilen öncekinin yerine geçer');
+      expect(
+          data.notificationRules,
+          [
+            const NotificationRule(daysBefore: 7),
+            const NotificationRule(daysBefore: 3),
+          ],
+          reason: 'çoklu seçimde yeni seçilen kural mevcut kuralları korur');
     });
 
-    testWidgets('seçili chip tekrar tıklanırsa seçili kalır', (tester) async {
+    testWidgets('son seçili chip kaldırılamaz', (tester) async {
       await pumpTallForm(tester);
 
-      await tester.tap(find.widgetWithText(FilterChip, '3 gün'));
+      await tester.tap(find.widgetWithText(FilterChip, '3 gün önce'));
       await tester.pump();
 
       expect(data.notificationRules.length, 1,
-          reason: 'tekli seçimde en az bir kural her zaman kalır');
+          reason: 'en az bir hatırlatma kuralı her zaman kalır');
     });
   });
 }

@@ -93,8 +93,13 @@ class AppLockService extends ChangeNotifier {
   }
 
   Future<void> setBiometricEnabled(bool enabled) async {
-    if (enabled && !(await _auth.isDeviceSupported())) {
-      throw StateError('Bu cihaz biyometrik kilidi desteklemiyor');
+    if (enabled) {
+      final supported = await _auth.isDeviceSupported();
+      final canCheck = await _auth.canCheckBiometrics;
+      final enrolled = await _auth.getAvailableBiometrics();
+      if (!supported || !canCheck || enrolled.isEmpty) {
+        throw StateError('Bu cihazda kullanılabilir biyometri bulunamadı');
+      }
     }
     await _storage.writeBiometricLock(enabled);
     _biometricEnabled = enabled;
@@ -106,7 +111,11 @@ class AppLockService extends ChangeNotifier {
     try {
       final ok = await _auth.authenticate(
         localizedReason: 'SubscriptTrack verilerinizi açmak için doğrulayın',
-        options: const AuthenticationOptions(biometricOnly: true),
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          useErrorDialogs: true,
+          stickyAuth: true,
+        ),
       );
       if (ok) {
         _locked = false;

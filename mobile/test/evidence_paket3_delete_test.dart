@@ -225,7 +225,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
       // "Aktif" sekmesine geç.
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.byKey(const Key('subscription-status-tab-Aktif')));
       await tester.pumpAndSettle();
 
       // Netflix kartına uzun bas -> seçim modu açılır.
@@ -270,7 +270,7 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Aktif (3)'));
+      await tester.tap(find.byKey(const Key('subscription-status-tab-Aktif')));
       await tester.pumpAndSettle();
 
       await tester.longPress(find.text('Netflix'));

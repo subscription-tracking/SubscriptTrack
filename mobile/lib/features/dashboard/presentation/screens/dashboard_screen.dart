@@ -467,7 +467,7 @@ String? _monthChangeLabel(SubscriptionController controller) {
         return event.currency == currency &&
             date.year == month.year &&
             date.month == month.month;
-      }).fold(0, (sum, event) => sum + event.amount);
+      }).fold(0, (sum, event) => sum + event.amount.amount);
   final currentTotal = totalFor(now);
   final previousTotal = totalFor(previous);
   if (previousTotal == 0) return null;

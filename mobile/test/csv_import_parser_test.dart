@@ -50,4 +50,19 @@ void main() {
     expect(result.rows.map((row) => row.name), ['Good']);
     expect(result.errors.single, contains('tarih geçersiz'));
   });
+
+  test('dışa aktarma şemasındaki isteğe bağlı alanları korur', () {
+    final result = CsvImportParser.parse(
+      'name,amount,currency,billing_cycle,next_renewal_date,category,status,notes,payment_method,trial_end_date,trial_price_after\n'
+      'Netflix,149.99,TRY,monthly,2026-10-16,streaming,paused,"Aile planı",Kart,2026-10-15,199.99',
+    );
+
+    expect(result.errors, isEmpty);
+    final row = result.rows.single;
+    expect(row.status.name, 'paused');
+    expect(row.notes, 'Aile planı');
+    expect(row.paymentMethod, 'Kart');
+    expect(row.trialEndDate, DateTime(2026, 10, 15));
+    expect(row.trialPriceAfter?.decimalString, '199.99');
+  });
 }

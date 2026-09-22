@@ -17,6 +17,11 @@ abstract class AuthDataSource {
 
   /// Kullanıcının görünen adını günceller.
   Future<AppUser> updateDisplayName(String name);
+
+}
+
+abstract interface class EmailUpdateDataSource {
+  Future<AppUser> updateEmail(String email);
 }
 
 abstract interface class SocialAuthDataSource {

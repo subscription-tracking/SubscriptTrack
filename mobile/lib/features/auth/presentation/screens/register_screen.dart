@@ -42,9 +42,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.controller.error ?? 'Kayıt başarısız.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: widget.controller.emailVerificationRequired
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.error,
         ),
       );
+      if (widget.controller.emailVerificationRequired) {
+        widget.controller.clearError();
+        widget.onLoginTap?.call();
+        return;
+      }
       widget.controller.clearError();
     }
   }

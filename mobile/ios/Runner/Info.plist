@@ -8,6 +8,8 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Subscript Track</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>SubscriptTrack uygulama kilidini Face ID ile açmak için biyometrik doğrulama kullanır.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
