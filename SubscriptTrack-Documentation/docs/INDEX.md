@@ -2,7 +2,7 @@
 
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) — Güncel ürün ve teknik durum
 - [`../archive/SPRINT_PLAN.md`](../archive/SPRINT_PLAN.md) — Tarihli sprint geçmişi ve kabul kriterleri
-- [`../../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx`](../../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx) — Güncel teknoloji ve özellik raporu
+- [`../../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.md`](../../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.md) — GitHub’da okunabilir güncel teknoloji ve özellik raporu
 
 ## Ürün
 
