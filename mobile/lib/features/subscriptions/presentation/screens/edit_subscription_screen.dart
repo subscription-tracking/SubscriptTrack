@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/money.dart';
+import '../../../../shared/design/responsive.dart';
 import '../../domain/subscription_models.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
@@ -91,23 +92,25 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       appBar: AppBar(title: const Text('Aboneliği düzenle')),
       body: ListenableBuilder(
         listenable: widget.controller,
-        builder: (context, _) => ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-          children: [
-            SubscriptionForm(formKey: _formKey, data: _data),
-            const SizedBox(height: 28),
-            FilledButton(
-              onPressed: widget.controller.loading ? null : _save,
-              child: widget.controller.loading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Text('Güncelle'),
-            ),
-          ],
+        builder: (context, _) => ResponsiveCenter(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+            children: [
+              SubscriptionForm(formKey: _formKey, data: _data),
+              const SizedBox(height: 28),
+              FilledButton(
+                onPressed: widget.controller.loading ? null : _save,
+                child: widget.controller.loading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Güncelle'),
+              ),
+            ],
+          ),
         ),
       ),
     );

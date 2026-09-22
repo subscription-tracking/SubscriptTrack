@@ -184,10 +184,21 @@ Yazma girişiminde:
 - Bağlantı gerektiği açıklanır.
 - Tekrar deneme sunulur.
 
-## 15. Veri dışa aktarma
+## 15. Ayarlar bilgi mimarisi
+
+Alt gezinmedeki **Ayarlar** sekmesi; Hesap bilgileri, Tercihler, Uygulama,
+Veri ve gizlilik ile Destek bölümlerinden oluşur. Hesap bilgileri profil ve
+şifre işlemlerine gider; hassas export ve hesap silme aksiyonları yalnızca
+**Gizlilik ve veri merkezi** altında bulunur.
+
+Geri bildirim, uygulama içi destek kaydı oluşturmaz; kullanıcı kategori ve
+mesajı girdikten sonra cihazın paylaşım ekranını açar. Yasal belgeler, belge
+sürümü ile son güncelleme tarihini ve önce kısa özeti gösterir.
+
+## 16. Veri dışa aktarma
 
 ```text
-Profil
+Ayarlar
 → Hesap ve Gizlilik
 → Verileri dışa aktar
 → Format seç
@@ -195,10 +206,10 @@ Profil
 → Hazır olduğunda güvenli indirme/paylaşım
 ```
 
-## 16. Hesap silme
+## 17. Hesap silme
 
 ```text
-Profil
+Ayarlar
 → Hesap ve Gizlilik
 → Hesabı sil
 → Etki açıklaması

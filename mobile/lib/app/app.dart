@@ -45,15 +45,21 @@ class _SubscriptTrackAppState extends State<SubscriptTrackApp> {
       ],
       child: ListenableBuilder(
         listenable: _settings,
-        builder: (_, __) => AppLockGate(
-          service: _lock,
-          child: MaterialApp.router(
-            title: 'SubscriptTrack',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: _settings.themeMode,
-            routerConfig: _router,
+        // AppLockGate bir Stack kuruyor; Stack'in varsayılan
+        // AlignmentDirectional.topStart'ı bir Directionality atası
+        // gerektiriyor. MaterialApp'ın DIŞINA konursa (child: MaterialApp)
+        // bu ata hiç sağlanmıyordu — builder: içine alınca MaterialApp'ın
+        // kendi Directionality/Localizations kapsamının İÇİNDE kalıyor.
+        builder: (_, __) => MaterialApp.router(
+          title: 'SubscriptTrack',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: _settings.themeMode,
+          routerConfig: _router,
+          builder: (context, child) => AppLockGate(
+            service: _lock,
+            child: child ?? const SizedBox.shrink(),
           ),
         ),
       ),

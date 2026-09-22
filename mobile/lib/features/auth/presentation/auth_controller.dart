@@ -6,7 +6,9 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/auth_data_source.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/local_storage.dart';
+import '../../settings/presentation/settings_controller.dart';
 import '../data/auth_repository.dart';
 import '../data/supabase_auth_repository.dart';
 import '../domain/auth_models.dart';
@@ -34,6 +36,7 @@ class AuthController extends ChangeNotifier {
   bool _initialized = false;
   bool _onboardingNeeded = false;
   bool _passwordRecoveryMode = false;
+  bool _emailVerificationRequired = false;
 
   AuthStatus get status => _status;
   AppUser? get user => _user;
@@ -42,6 +45,7 @@ class AuthController extends ChangeNotifier {
   bool get initialized => _initialized;
   bool get onboardingNeeded => _onboardingNeeded;
   bool get passwordRecoveryMode => _passwordRecoveryMode;
+  bool get emailVerificationRequired => _emailVerificationRequired;
 
   @override
   void dispose() {
@@ -131,7 +135,17 @@ class AuthController extends ChangeNotifier {
     _setLoading(true);
     try {
       _user = await _repo.signUp(email: email, password: password);
-      _status = AuthStatus.authenticated;
+      final requiresVerification = _repo is SupabaseAuthRepository &&
+          _repo.lastSignUpRequiresEmailConfirmation;
+      _emailVerificationRequired = requiresVerification;
+      _status = requiresVerification
+          ? AuthStatus.unauthenticated
+          : AuthStatus.authenticated;
+      if (requiresVerification) {
+        _user = null;
+        _error = 'Kayıt tamamlandı. Devam etmek için e-postanı doğrula.';
+        return false;
+      }
       _error = null;
       return true;
     } catch (e) {
@@ -193,6 +207,8 @@ class AuthController extends ChangeNotifier {
     // Only clear local data after the server confirms permanent deletion.
     await Future.wait([
       localStorage.deleteSubscriptions(userId),
+      localStorage.deleteFinancialEvents(userId),
+      SettingsController.instance.clearAccountPaymentMethods(),
       _clearNotificationReadState(),
     ]);
     _user = null;
@@ -254,6 +270,22 @@ class AuthController extends ChangeNotifier {
       return false;
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<bool> updateEmail(String email) async {
+    try {
+      if (_repo is! EmailUpdateDataSource) {
+        throw const AuthException('Bu giriş modunda e-posta değiştirilemez.');
+      }
+      _user = await (_repo as EmailUpdateDataSource).updateEmail(email);
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
     }
   }
 

@@ -11,7 +11,6 @@ import '../../features/settings/presentation/settings_controller.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
 import '../../features/subscriptions/domain/subscription_models.dart';
 import '../../features/subscriptions/presentation/screens/subscription_detail_screen.dart';
-import '../../core/services/device_token_service.dart';
 import '../../core/services/local_notification_service.dart';
 import '../../core/services/notification_read_sync_service.dart';
 import 'app_shell.dart';
@@ -35,6 +34,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
   String? _userId;
 
   int _lastDaysBefore = -1;
+  int _lastReminderHour = -1;
   String _lastTimezone = '__unset__';
   String? _pendingNotificationSubscriptionId;
 
@@ -66,7 +66,6 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     LocalNotificationService.onNotificationTap = _handleNotificationTap;
     LocalNotificationService.onSnoozeRequested = _handleSnoozeRequested;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _registerDeviceToken();
       _handleColdStartNotification();
     });
   }
@@ -156,12 +155,6 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     LocalNotificationService.snooze(sub);
   }
 
-  Future<void> _registerDeviceToken() async {
-    final uid = _userId;
-    if (uid == null) return;
-    await SupabaseDeviceTokenService().registerToken(uid);
-  }
-
   void _onSubscriptionsChanged() {
     if (_subs == null || _notif == null) return;
     _notif!.refresh(_subs!.active, trials: _subs!.trials);
@@ -181,7 +174,8 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
   void _onSettingsChanged() {
     final settings = SettingsController.instance;
     if (settings.daysBefore != _lastDaysBefore ||
-        settings.timezone != _lastTimezone) {
+        settings.timezone != _lastTimezone ||
+        settings.reminderHour != _lastReminderHour) {
       _scheduleNotifications();
     }
   }
@@ -207,11 +201,13 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     }
     _lastDaysBefore = settings.daysBefore;
     _lastTimezone = settings.timezone;
+    _lastReminderHour = settings.reminderHour;
     LocalNotificationService.scheduleRenewalReminders(
       _subs!.active,
       settings.daysBefore,
       timezone: settings.timezone,
       trials: _subs!.trials,
+      reminderHour: settings.reminderHour,
     );
   }
 
@@ -230,10 +226,6 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     }
     _subs?.dispose();
     _notif?.dispose();
-    final uid = _userId;
-    if (uid != null) {
-      SupabaseDeviceTokenService().revokeToken(uid);
-    }
     super.dispose();
   }
 

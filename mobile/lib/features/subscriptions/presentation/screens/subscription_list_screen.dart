@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../app/theme/app_theme.dart' show AppStatusColorsX;
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/design/app_tokens.dart';
+import '../../../../shared/design/responsive.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/service_identity.dart';
 import '../../../../shared/widgets/subscription_status_chip.dart';
@@ -266,103 +267,105 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
     }
 
     final history = [
-      ...controller.paused,
-      ...controller.cancelled,
-      ...controller.expired,
+      ...controller.visiblePaused,
+      ...controller.visibleCancelled,
+      ...controller.visibleExpired,
     ];
 
     return Scaffold(
-      body: Column(
-        children: [
-          if (controller.isOffline)
-            _OfflineBanner(
-                lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
-          else if (controller.error != null)
-            MaterialBanner(
-              content: Text(controller.error!),
-              actions: [
-                TextButton(
-                    onPressed: controller.clearError,
-                    child: const Text('Kapat')),
-                TextButton(
-                    onPressed: controller.load,
-                    child: const Text('Tekrar dene')),
-              ],
-            ),
-          _selectionMode
-              ? _SelectionBar(
-                  count: _selectedIds.length,
-                  onCancel: _exitSelectionMode,
-                  onArchive: () => _confirmBulkArchive(controller),
-                  onDelete: () => _confirmBulkDelete(controller),
-                )
-              : _Header(
-                  searchController: _search,
-                  onFilterTap: () => _showFilterSheet(controller),
-                  onAddTap: () => _openAdd(context, controller),
-                ),
-          _PillTabBar(
-            controller: _tabs,
-            tabs: [
-              _PillTab('Aktif', controller.active.length),
-              _PillTab('Deneme', controller.trials.length),
-              _PillTab('Geçmiş', history.length),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
+      body: ResponsiveCenter(
+        child: Column(
+          children: [
+            if (controller.isOffline)
+              _OfflineBanner(
+                  lastSyncAt: controller.lastSyncAt, onRetry: controller.load)
+            else if (controller.error != null)
+              MaterialBanner(
+                content: Text(controller.error!),
+                actions: [
+                  TextButton(
+                      onPressed: controller.clearError,
+                      child: const Text('Kapat')),
+                  TextButton(
+                      onPressed: controller.load,
+                      child: const Text('Tekrar dene')),
+                ],
+              ),
+            _selectionMode
+                ? _SelectionBar(
+                    count: _selectedIds.length,
+                    onCancel: _exitSelectionMode,
+                    onArchive: () => _confirmBulkArchive(controller),
+                    onDelete: () => _confirmBulkDelete(controller),
+                  )
+                : _Header(
+                    searchController: _search,
+                    onFilterTap: () => _showFilterSheet(controller),
+                    onAddTap: () => _openAdd(context, controller),
+                  ),
+            _PillTabBar(
               controller: _tabs,
-              children: [
-                _TabView(
-                  items: _filtered(controller.active),
-                  allEmpty: controller.active.isEmpty,
-                  emptyMessage: 'Aktif abonelik yok',
-                  emptyDetail:
-                      'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
-                  controller: controller,
-                  onRefresh: controller.load,
-                  onAdd: () => _openAdd(context, controller),
-                  showAddButton: true,
-                  selectionMode: _selectionMode,
-                  selectedIds: _selectedIds,
-                  onLongPress: _enterSelectionMode,
-                  onToggleSelect: _toggleSelected,
-                  showStatus: false,
-                ),
-                _TabView(
-                  items: _filtered(controller.trials),
-                  allEmpty: controller.trials.isEmpty,
-                  emptyMessage: 'Deneme aboneliği yok',
-                  emptyDetail:
-                      'Ücretsiz denemelerini burada takip edebilirsin.',
-                  controller: controller,
-                  onRefresh: controller.load,
-                  onAdd: () => _openAdd(context, controller),
-                  showAddButton: true,
-                  selectionMode: _selectionMode,
-                  selectedIds: _selectedIds,
-                  onLongPress: _enterSelectionMode,
-                  onToggleSelect: _toggleSelected,
-                ),
-                _TabView(
-                  items: _filtered(history),
-                  allEmpty: history.isEmpty,
-                  emptyMessage: 'Geçmiş abonelik yok',
-                  emptyDetail:
-                      'Duraklatılan, iptal edilen ve süresi dolan kayıtlar burada görünür.',
-                  controller: controller,
-                  onRefresh: controller.load,
-                  onAdd: () => _openAdd(context, controller),
-                  showAddButton: true,
-                  selectionMode: _selectionMode,
-                  selectedIds: _selectedIds,
-                  onLongPress: _enterSelectionMode,
-                  onToggleSelect: _toggleSelected,
-                ),
+              tabs: [
+                _PillTab('Aktif', controller.visibleActive.length),
+                _PillTab('Deneme', controller.visibleTrials.length),
+                _PillTab('Geçmiş', history.length),
               ],
             ),
-          ),
-        ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabs,
+                children: [
+                  _TabView(
+                    items: _filtered(controller.visibleActive),
+                    allEmpty: controller.visibleActive.isEmpty,
+                    emptyMessage: 'Aktif abonelik yok',
+                    emptyDetail:
+                        'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
+                    controller: controller,
+                    onRefresh: controller.load,
+                    onAdd: () => _openAdd(context, controller),
+                    showAddButton: true,
+                    selectionMode: _selectionMode,
+                    selectedIds: _selectedIds,
+                    onLongPress: _enterSelectionMode,
+                    onToggleSelect: _toggleSelected,
+                    showStatus: false,
+                  ),
+                  _TabView(
+                    items: _filtered(controller.visibleTrials),
+                    allEmpty: controller.visibleTrials.isEmpty,
+                    emptyMessage: 'Deneme aboneliği yok',
+                    emptyDetail:
+                        'Ücretsiz denemelerini burada takip edebilirsin.',
+                    controller: controller,
+                    onRefresh: controller.load,
+                    onAdd: () => _openAdd(context, controller),
+                    showAddButton: true,
+                    selectionMode: _selectionMode,
+                    selectedIds: _selectedIds,
+                    onLongPress: _enterSelectionMode,
+                    onToggleSelect: _toggleSelected,
+                  ),
+                  _TabView(
+                    items: _filtered(history),
+                    allEmpty: history.isEmpty,
+                    emptyMessage: 'Geçmiş abonelik yok',
+                    emptyDetail:
+                        'Duraklatılan, iptal edilen ve süresi dolan kayıtlar burada görünür.',
+                    controller: controller,
+                    onRefresh: controller.load,
+                    onAdd: () => _openAdd(context, controller),
+                    showAddButton: true,
+                    selectionMode: _selectionMode,
+                    selectedIds: _selectedIds,
+                    onLongPress: _enterSelectionMode,
+                    onToggleSelect: _toggleSelected,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -534,6 +537,7 @@ class _PillTabBarState extends State<_PillTabBar> {
                 final tab = widget.tabs[i];
                 final selected = widget.controller.index == i;
                 return GestureDetector(
+                  key: Key('subscription-status-tab-${tab.label}'),
                   onTap: () => widget.controller.animateTo(i),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),

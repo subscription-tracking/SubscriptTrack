@@ -124,86 +124,97 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             ],
           ),
           body: methods.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.credit_card_off_outlined,
-                          size: 48,
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Henüz bir ödeme yöntemi eklemediniz.',
-                        style: TextStyle(
+              ? Column(children: [
+                  _SyncErrorBanner(controller: widget.controller),
+                  Expanded(
+                      child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.credit_card_off_outlined,
+                            size: 48,
                             color:
                                 Theme.of(context).colorScheme.onSurfaceVariant),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: _showAddDialog,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Ödeme Yöntemi Ekle'),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                  itemCount: methods.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final name = methods[index];
-                    return Card(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outline
-                              .withValues(alpha: 0.2),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Henüz bir ödeme yöntemi eklemediniz.',
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant),
                         ),
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: _showAddDialog,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Ödeme Yöntemi Ekle'),
+                        ),
+                      ],
+                    ),
+                  ))
+                ])
+              : Column(children: [
+                  _SyncErrorBanner(controller: widget.controller),
+                  Expanded(
+                      child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                    itemCount: methods.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final name = methods[index];
+                      return Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
                             color: Theme.of(context)
                                 .colorScheme
-                                .primary
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.credit_card,
-                            color: Theme.of(context).colorScheme.primary,
+                                .outline
+                                .withValues(alpha: 0.2),
                           ),
                         ),
-                        title: Text(
-                          name,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit_outlined, size: 20),
-                              onPressed: () => _showEditDialog(name),
+                        child: ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            IconButton(
-                              icon: Icon(Icons.delete_outline,
-                                  size: 20,
-                                  color: Theme.of(context).colorScheme.error),
-                              onPressed: () => _confirmDelete(name),
+                            child: Icon(
+                              Icons.credit_card,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                          ],
+                          ),
+                          title: Text(
+                            name,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 20),
+                                tooltip: '$name düzenle',
+                                onPressed: () => _showEditDialog(name),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete_outline,
+                                    size: 20,
+                                    color: Theme.of(context).colorScheme.error),
+                                tooltip: '$name sil',
+                                onPressed: () => _confirmDelete(name),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  )),
+                ]),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: _showAddDialog,
             icon: const Icon(Icons.add),
@@ -211,6 +222,26 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class _SyncErrorBanner extends StatelessWidget {
+  const _SyncErrorBanner({required this.controller});
+  final SettingsController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final error = controller.paymentMethodsSyncError;
+    if (error == null) return const SizedBox.shrink();
+    return MaterialBanner(
+      content: Text('$error Yerel değişikliğin korunuyor.'),
+      actions: [
+        TextButton(
+          onPressed: controller.retryPaymentMethodsSync,
+          child: const Text('Tekrar dene'),
+        ),
+      ],
     );
   }
 }

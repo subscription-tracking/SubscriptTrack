@@ -16,7 +16,7 @@ class BottomNavigation extends StatelessWidget {
     (Icons.home_rounded, Icons.home_outlined, 'Ana Sayfa'),
     (Icons.grid_view_rounded, Icons.grid_view_outlined, 'Abonelikler'),
     (Icons.bar_chart_rounded, Icons.bar_chart_outlined, 'İstatistikler'),
-    (Icons.person_rounded, Icons.person_outline, 'Profil'),
+    (Icons.settings_rounded, Icons.settings_outlined, 'Ayarlar'),
   ];
 
   @override

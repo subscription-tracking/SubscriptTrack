@@ -13,11 +13,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _name;
+  late final TextEditingController _email;
   final _currentPassword = TextEditingController();
   final _newPassword = TextEditingController();
   final _confirmPassword = TextEditingController();
 
   bool _savingName = false;
+  bool _savingEmail = false;
   bool _changingPassword = false;
   bool _obscureCurrent = true;
   bool _obscureNew = true;
@@ -30,11 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _name = TextEditingController(
       text: user?.displayName ?? user?.email.split('@').first ?? '',
     );
+    _email = TextEditingController(text: user?.email ?? '');
   }
 
   @override
   void dispose() {
     _name.dispose();
+    _email.dispose();
     _currentPassword.dispose();
     _newPassword.dispose();
     _confirmPassword.dispose();
@@ -46,6 +50,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final current = user?.displayName ?? user?.email.split('@').first ?? '';
     return _name.text.trim().isNotEmpty && _name.text.trim() != current;
   }
+
+  bool get _emailChanged => _email.text.trim().toLowerCase() != widget.auth.user?.email.toLowerCase();
 
   bool get _canChangePassword =>
       _currentPassword.text.isNotEmpty &&
@@ -66,6 +72,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       widget.auth.clearError();
     }
+  }
+
+  Future<void> _saveEmail() async {
+    setState(() => _savingEmail = true);
+    final ok = await widget.auth.updateEmail(_email.text);
+    if (!mounted) return;
+    setState(() => _savingEmail = false);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(ok ? 'E-posta güncellendi. Supabase ayarına göre doğrulama istenebilir.' : (widget.auth.error ?? 'E-posta güncellenemedi.')),
+    ));
+    if (!ok) widget.auth.clearError();
   }
 
   Future<void> _changePassword() async {
@@ -158,6 +175,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         strokeWidth: 2, color: Colors.white),
                   )
                 : const Text('Kaydet'),
+          ),
+          const SizedBox(height: 28),
+          Text('E-posta', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _email,
+            keyboardType: TextInputType.emailAddress,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.email_outlined),
+              helperText: 'Supabase e-posta doğrulaması açıksa yeni adrese onay gönderilir.',
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: (_emailChanged && !_savingEmail) ? _saveEmail : null,
+            child: _savingEmail ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('E-postayı güncelle'),
           ),
           const SizedBox(height: 32),
           const Divider(),

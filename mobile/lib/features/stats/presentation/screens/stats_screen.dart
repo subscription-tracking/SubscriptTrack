@@ -5,21 +5,30 @@ import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/design/app_tokens.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../savings/presentation/screens/savings_screen.dart';
+import 'payment_history_screen.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 
-class StatsScreen extends StatelessWidget {
+class StatsScreen extends StatefulWidget {
   const StatsScreen(
       {required this.controller, this.embedded = false, super.key});
   final SubscriptionController controller;
   final bool embedded;
 
   @override
+  State<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends State<StatsScreen> {
+  int _months = 6;
+
+  @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: embedded ? null : AppBar(title: const Text('İstatistikler')),
+        appBar: widget.embedded ? null : AppBar(title: const Text('İstatistikler')),
         body: ListenableBuilder(
-          listenable: controller,
+          listenable: widget.controller,
           builder: (context, _) {
+            final controller = widget.controller;
             if (controller.loading && controller.active.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -33,7 +42,9 @@ class StatsScreen extends StatelessWidget {
             final totals = controller.totalsByCurrency;
             final currency = totals.keys.first;
             final monthly = totals[currency]!;
-            final trend = _trend(controller, currency, monthly);
+            final trend = _trend(controller, currency, months: _months);
+            final hasPaymentHistory = controller.paymentEvents
+                .any((event) => event.currency == currency);
             final categories = _categories(controller.active, currency);
             final due = ([
               ...controller.active
@@ -45,18 +56,17 @@ class StatsScreen extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: controller.load,
               child: ListView(
-                  padding: embedded
+                  padding: widget.embedded
                       ? AppSpacing.screenWithBottomNav(context)
                       : const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md,
                           AppSpacing.lg, AppSpacing.xl),
                   children: [
-                    const Align(
-                      alignment: Alignment.centerRight,
-                      child: _PeriodButton(),
-                    ),
                     const SizedBox(height: 16),
                     _Summary(
-                        monthly: monthly, currency: currency, trend: trend),
+                        monthly: monthly,
+                        currency: currency,
+                        trend: trend,
+                        hasPaymentHistory: hasPaymentHistory),
                     if (totals.length > 1)
                       Padding(
                           padding: const EdgeInsets.only(top: 10),
@@ -64,7 +74,12 @@ class StatsScreen extends StatelessWidget {
                               '${totals.keys.join(', ')} tutarları ayrı hesaplanır.',
                               style: Theme.of(context).textTheme.bodySmall)),
                     const SizedBox(height: 24),
-                    _Trend(trend: trend, currency: currency),
+                    _Trend(
+                        trend: trend,
+                        currency: currency,
+                        hasPaymentHistory: hasPaymentHistory,
+                        months: _months,
+                        onMonthsChanged: (value) => setState(() => _months = value)),
                     const SizedBox(height: 24),
                     _Review(
                         items: due,
@@ -91,6 +106,11 @@ class StatsScreen extends StatelessWidget {
                                     SavingsScreen(controller: controller))),
                         icon: const Icon(Icons.trending_down_rounded),
                         label: const Text('Tasarruf analizine git')),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => PaymentHistoryScreen(controller: controller))),
+                        icon: const Icon(Icons.receipt_long_outlined),
+                        label: const Text('Ödeme geçmişini yönet')),
                   ]),
             );
           },
@@ -116,21 +136,16 @@ class _StateMessage extends StatelessWidget {
               onAction: onRetry)));
 }
 
-class _PeriodButton extends StatelessWidget {
-  const _PeriodButton();
-  @override
-  Widget build(BuildContext context) => OutlinedButton.icon(
-      onPressed: () {},
-      icon: const Icon(Icons.calendar_month_outlined, size: 18),
-      label: const Text('Son 6 ay'));
-}
-
 class _Summary extends StatelessWidget {
   const _Summary(
-      {required this.monthly, required this.currency, required this.trend});
+      {required this.monthly,
+      required this.currency,
+      required this.trend,
+      required this.hasPaymentHistory});
   final Money monthly;
   final String currency;
   final List<int> trend;
+  final bool hasPaymentHistory;
   @override
   Widget build(BuildContext context) {
     final diff = monthly.minorUnits - trend[trend.length - 2];
@@ -158,17 +173,22 @@ class _Summary extends StatelessWidget {
                             .displaySmall
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 12),
-                    Row(children: [
-                      Icon(down ? Icons.south_east : Icons.north_east,
-                          color: color, size: 18),
-                      const SizedBox(width: 6),
-                      Expanded(
-                          child: Text(
-                              diff == 0
-                                  ? 'Geçen ayla aynı'
-                                  : 'Geçen aya göre ${DateTimeUtils.formatCurrency(change.amount, symbol: currency)} ${down ? 'daha az' : 'daha fazla'}',
-                              style: TextStyle(color: color)))
-                    ])
+                    if (hasPaymentHistory)
+                      Row(children: [
+                        Icon(down ? Icons.south_east : Icons.north_east,
+                            color: color, size: 18),
+                        const SizedBox(width: 6),
+                        Expanded(
+                            child: Text(
+                                diff == 0
+                                    ? 'Geçen ayla aynı'
+                                    : 'Geçen aya göre ${DateTimeUtils.formatCurrency(change.amount, symbol: currency)} ${down ? 'daha az' : 'daha fazla'}',
+                                style: TextStyle(color: color)))
+                      ])
+                    else
+                      Text(
+                          'Gerçek harcama karşılaştırması için ödeme kaydı ekle.',
+                          style: Theme.of(context).textTheme.bodySmall)
                   ])),
               const SizedBox(width: 12),
               SizedBox(width: 96, height: 58, child: _Sparkline(values: trend))
@@ -177,9 +197,17 @@ class _Summary extends StatelessWidget {
 }
 
 class _Trend extends StatelessWidget {
-  const _Trend({required this.trend, required this.currency});
+  const _Trend(
+      {required this.trend,
+      required this.currency,
+      required this.hasPaymentHistory,
+      required this.months,
+      required this.onMonthsChanged});
   final List<int> trend;
   final String currency;
+  final bool hasPaymentHistory;
+  final int months;
+  final ValueChanged<int> onMonthsChanged;
   @override
   Widget build(BuildContext context) => Card(
       child: Padding(
@@ -188,10 +216,25 @@ class _Trend extends StatelessWidget {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Harcama trendi',
                 style: Theme.of(context).textTheme.titleLarge),
-            Text('Son 6 ay · $currency',
-                style: Theme.of(context).textTheme.bodySmall),
+            Row(children: [
+              Expanded(child: Text('Son $months ay · $currency',
+                  style: Theme.of(context).textTheme.bodySmall)),
+              DropdownButton<int>(
+                value: months,
+                underline: const SizedBox.shrink(),
+                items: const [3, 6, 12].map((m) => DropdownMenuItem(
+                    value: m, child: Text('$m ay'))).toList(),
+                onChanged: (value) { if (value != null) onMonthsChanged(value); },
+              ),
+            ]),
             const SizedBox(height: 20),
-            SizedBox(height: 145, child: _Bars(values: trend))
+            if (hasPaymentHistory)
+              SizedBox(height: 145, child: _Bars(values: trend))
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 28),
+                child: Center(child: Text('Henüz gerçek ödeme geçmişi yok.')),
+              )
           ])));
 }
 
@@ -363,15 +406,15 @@ Map<SubscriptionCategory, Money> _categories(
   return Map.fromEntries(entries);
 }
 
-List<int> _trend(SubscriptionController c, String currency, Money fallback) {
+List<int> _trend(SubscriptionController c, String currency, {int months = 6}) {
   final now = DateTime.now();
-  return List.generate(6, (i) {
-    final d = DateTime(now.year, now.month - (5 - i));
+  return List.generate(months, (i) {
+    final d = DateTime(now.year, now.month - (months - 1 - i));
     final paid = c.paymentEvents.where((e) {
       final at = e.paidAt.toLocal();
       return e.currency == currency && at.year == d.year && at.month == d.month;
-    }).fold(0, (sum, e) => sum + (e.amount * 100).round());
-    return paid == 0 ? fallback.minorUnits : paid;
+    }).fold(0, (sum, e) => sum + e.amount.minorUnits);
+    return paid;
   });
 }
 

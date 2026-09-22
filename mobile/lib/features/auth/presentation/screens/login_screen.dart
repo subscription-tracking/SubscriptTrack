@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/app_environment.dart';
 import '../../../../shared/widgets/ambient_background.dart';
 import '../auth_controller.dart';
 
@@ -169,22 +170,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           : const Text('Giriş yap'),
                     ),
                     const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: widget.controller.loading
-                          ? null
-                          : () => _socialSignIn('google'),
-                      icon: const Icon(Icons.g_mobiledata, size: 26),
-                      label: const Text('Google ile devam et'),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton.icon(
-                      onPressed: widget.controller.loading
-                          ? null
-                          : () => _socialSignIn('apple'),
-                      icon: const Icon(Icons.apple),
-                      label: const Text('Apple ile devam et'),
-                    ),
-                    const SizedBox(height: 20),
+                    if (EnvironmentConfig.isSocialSignInAvailable) ...[
+                      OutlinedButton.icon(
+                        onPressed: widget.controller.loading
+                            ? null
+                            : () => _socialSignIn('google'),
+                        icon: const Icon(Icons.g_mobiledata, size: 26),
+                        label: const Text('Google ile devam et'),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: widget.controller.loading
+                            ? null
+                            : () => _socialSignIn('apple'),
+                        icon: const Icon(Icons.apple),
+                        label: const Text('Apple ile devam et'),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                     Row(
                       children: [
                         Expanded(child: Divider(color: colors.outlineVariant)),
