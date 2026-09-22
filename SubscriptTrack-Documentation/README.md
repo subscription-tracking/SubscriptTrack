@@ -22,7 +22,8 @@ SubscriptTrack; kullanıcıların dijital aboneliklerini, ücretsiz denemelerini
 
 ## Dokümantasyon
 
-Başlangıç noktası: [`docs/INDEX.md`](docs/INDEX.md)
+Başlangıç noktası: Bu klasördeki `README.md` ve güncel teknik referans olarak
+[`CURRENT_STATUS.md`](CURRENT_STATUS.md).
 
 Temel dokümanlar:
 
@@ -40,6 +41,16 @@ Temel dokümanlar:
 - [`TESTING.md`](TESTING.md): Doğruluk nasıl doğrulanıyor?
 - [`TEST_TRACEABILITY.md`](TEST_TRACEABILITY.md): Excel test senaryoları hangi otomatik kanıtla eşleşiyor?
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): Ekip geliştirme kuralları neler?
+
+## Güncel teknik rapor
+
+Güncel teknoloji yığını ve özellik envanteri Word raporu:
+
+[`SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx`](../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx)
+
+Tarihli sprint ve canlı envanter kayıtları `archive/` altında tutulur. Arşiv
+dosyaları geçmiş kanıt niteliğindedir; güncel ürün durumu için `CURRENT_STATUS.md`
+ve mimari dokümanları esas alınmalıdır.
 
 ## Güncel ürün kararı
 

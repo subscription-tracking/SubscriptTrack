@@ -1,13 +1,13 @@
 # Deployment Rehberi
 
-Son güncelleme: 1 Ağustos 2026
+Son güncelleme: 22 Eylül 2026
 
 ## Gereksinimler
 
 - Flutter 3.44.8 / Dart 3.12.2
 - Android Studio veya Xcode
 - Supabase Authentication
-- PostgreSQL erişimli REST API (`API_BASE_URL`)
+- Supabase Edge Functions ve PostgreSQL erişimi
 
 ## Ortam değişkenleri
 
@@ -54,6 +54,17 @@ flutter run -d chrome --dart-define-from-file=.env
 flutter analyze --no-pub
 flutter test --no-pub
 flutter build apk --debug
+```
+
+## Supabase canlı smoke testleri
+
+Backend klasöründeki authenticated smoke yardımcıları gerçek test hesabıyla
+çalıştırılabilir. Uzak yazma işlemi yalnızca açık onay değişkeni verildiğinde
+yapılır:
+
+```bash
+S31_SMOKE_CONFIRM=run node scripts/authenticated-subscription-smoke.mjs
+S31_SMOKE_CONFIRM=run node scripts/authenticated-feature-smoke.mjs
 ```
 
 ## Staging smoke testi

@@ -1,6 +1,6 @@
 # Mobil Uygulama Mimarisi
 
-Son güncelleme: 2 Ağustos 2026 (S0–S13 tamamlandı)
+Son güncelleme: 22 Eylül 2026 (Supabase backend ve özellik envanteri güncellendi)
 
 ---
 
