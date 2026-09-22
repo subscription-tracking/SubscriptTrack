@@ -35,7 +35,7 @@ Bu klasör, SubscriptTrack mobil uygulamasının ürün kararlarını, teknik mi
 
 ## Güncel teknik rapor
 
-[Teknoloji ve Özellik Envanteri](../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx)
+[Teknoloji ve Özellik Envanteri Markdown](../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.md) · [Word sürümü](../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx)
 
 Bu rapor teknoloji yığınını, kod klasörlerini, veri akışlarını ve özelliklerin Aktif/Kısmi/Yok durumlarını tek belgede özetler.
 
@@ -50,4 +50,3 @@ Tarihli sprint planları, eski release kanıtları ve tarihli Supabase envanterl
 - Mobil katman değişirse MOBILE_ARCHITECTURE.md ve gerekiyorsa USER_FLOWS.md güncellenir.
 - Bildirim davranışı değişirse NOTIFICATIONS.md güncellenir.
 - Önemli bir teknik karar alınırsa docs/ADR/ altında karar kaydı açılır.
-

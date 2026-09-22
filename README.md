@@ -9,7 +9,7 @@ SubscriptTrack, dijital abonelikleri ve ücretsiz denemeleri iOS ve Android üze
   ·
   <a href="SubscriptTrack-Documentation/CURRENT_STATUS.md">Güncel durum</a>
   ·
-  <a href="outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx">Teknik rapor</a>
+  <a href="outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.md">Teknik rapor</a>
 </p>
 
 ---
@@ -152,7 +152,7 @@ S31_SMOKE_CONFIRM=run node scripts/authenticated-feature-smoke.mjs
 |---|---|
 | Android release APK | [SubscriptTrack-latest-release.apk](outputs/apk/SubscriptTrack-latest-release.apk) |
 | GitHub Pages web önizleme | [subscription-tracking.github.io/SubscriptTrack](https://subscription-tracking.github.io/SubscriptTrack/) |
-| Supabase teknik raporu | [Teknoloji ve Özellik Envanteri](outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx) |
+| Supabase teknik raporu | [Teknoloji ve Özellik Envanteri](outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.md) |
 
 GitHub Actions; main dalındaki mobil değişikliklerden sonra Flutter Web build’ini oluşturur ve Pages’e yayınlar.
 
@@ -177,4 +177,3 @@ Güncel dokümantasyon merkezi:
 ## Lisans ve kapsam
 
 SubscriptTrack’in ürün kapsamı mobil uygulamadır. Web sayfası tanıtım, yardım, yasal içerik ve auth dönüşleri için destekleyici yüzdür; tam web dashboard’u değildir.
-
