@@ -1,77 +1,53 @@
-# SubscriptTrack
+# SubscriptTrack Dokümantasyonu
 
-SubscriptTrack; kullanıcıların dijital aboneliklerini, ücretsiz denemelerini, yaklaşan yenilemelerini ve tahmini harcamalarını iOS ve Android üzerinden yönetmesini sağlayan mobil abonelik kontrol uygulamasıdır.
+Bu klasör, SubscriptTrack mobil uygulamasının ürün kararlarını, teknik mimarisini, veri sözleşmelerini ve güncel çalışma durumunu içerir.
 
-## Ürün özeti
+## Nereden başlanır
 
-- Banka veya kredi kartı hesabı bağlamadan çalışır.
-- Abonelikler manuel olarak veya hazır servis kataloğundan eklenir.
-- Mobil push, uygulama içi ve isteğe bağlı e-posta hatırlatmaları sunar.
-- Harcamaları para birimi bazında ayrı gösterir.
-- Kullanıcıya iptal, durdurma ve arşivleme kararlarında yardımcı olur.
-- İptal edilen aboneliklerden oluşan tahmini tasarrufu görünür kılar.
+1. [CURRENT_STATUS.md](CURRENT_STATUS.md) — bugün çalışan ve kısmi olan özellikler
+2. [PRODUCT.md](PRODUCT.md) — ürün kapsamı ve bilinçli sınırlar
+3. [ARCHITECTURE.md](ARCHITECTURE.md) — sistem bileşenleri ve veri akışları
+4. [MOBILE_ARCHITECTURE.md](MOBILE_ARCHITECTURE.md) — Flutter kod yapısı
+5. [API.md](API.md) — Supabase ve API sözleşmesi
+6. [DATA_MODEL.md](DATA_MODEL.md) — veritabanı varlıkları ve alanları
+7. [TESTING.md](TESTING.md) — test yaklaşımı
+8. [DEPLOYMENT.md](DEPLOYMENT.md) — build ve yayınlama
 
-## Platform kapsamı
+## Doküman haritası
 
-| Platform | Rol |
+| Konu | Belge |
 |---|---|
-| iOS uygulaması | Birincil ürün istemcisi |
-| Android uygulaması | Birincil ürün istemcisi |
-| Web sitesi | Tanıtım, SEO, yardım, iptal rehberleri ve yasal sayfalar |
-| Backend | Kimlik, veri, bildirim, senkronizasyon ve iş kuralları |
-
-## Dokümantasyon
-
-Başlangıç noktası: Bu klasördeki `README.md` ve güncel teknik referans olarak
-[`CURRENT_STATUS.md`](CURRENT_STATUS.md).
-
-Temel dokümanlar:
-
-- [`PRODUCT.md`](PRODUCT.md): Ne yapıyoruz ve neden?
-- [`ARCHITECTURE.md`](ARCHITECTURE.md): Sistem nasıl bölünüyor?
-- [`DOMAIN.md`](DOMAIN.md): İş kavramları ve kuralları neler?
-- [`DATA_MODEL.md`](DATA_MODEL.md): Veriler nasıl saklanıyor?
-- [`API.md`](API.md): Mobil uygulama ve backend nasıl konuşuyor?
-- [`MOBILE_ARCHITECTURE.md`](MOBILE_ARCHITECTURE.md): Mobil kod yapısı nasıl düzenleniyor?
-- [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md): Görsel sistem nasıl tutarlı kalıyor?
-- [`USER_FLOWS.md`](USER_FLOWS.md): Kullanıcı görevleri nasıl tamamlıyor?
-- [`NOTIFICATIONS.md`](NOTIFICATIONS.md): Hatırlatmalar nasıl üretiliyor ve teslim ediliyor?
-- [`SECURITY.md`](SECURITY.md): Kullanıcı verileri nasıl korunuyor?
-- [`ANALYTICS.md`](ANALYTICS.md): Ürün başarısı nasıl ölçülüyor?
-- [`TESTING.md`](TESTING.md): Doğruluk nasıl doğrulanıyor?
-- [`TEST_TRACEABILITY.md`](TEST_TRACEABILITY.md): Excel test senaryoları hangi otomatik kanıtla eşleşiyor?
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): Ekip geliştirme kuralları neler?
+| Güncel durum | [CURRENT_STATUS.md](CURRENT_STATUS.md) |
+| Ürün ve özellik kapsamı | [PRODUCT.md](PRODUCT.md) |
+| Kullanıcı akışları | [USER_FLOWS.md](USER_FLOWS.md) |
+| Sistem mimarisi | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| Flutter mobil mimarisi | [MOBILE_ARCHITECTURE.md](MOBILE_ARCHITECTURE.md) |
+| İş kuralları | [DOMAIN.md](DOMAIN.md) |
+| Veri modeli | [DATA_MODEL.md](DATA_MODEL.md) |
+| API ve Edge Function sözleşmesi | [API.md](API.md) |
+| Bildirim davranışı | [NOTIFICATIONS.md](NOTIFICATIONS.md) |
+| Güvenlik ve gizlilik | [SECURITY.md](SECURITY.md) |
+| Tasarım sistemi | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
+| Test ve izlenebilirlik | [TESTING.md](TESTING.md), [TEST_TRACEABILITY.md](TEST_TRACEABILITY.md) |
+| Deployment | [DEPLOYMENT.md](DEPLOYMENT.md), [GITHUB_PAGES_SUPABASE.md](GITHUB_PAGES_SUPABASE.md) |
+| Takım katkı kuralları | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Release kontrolü | [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) |
 
 ## Güncel teknik rapor
 
-Güncel teknoloji yığını ve özellik envanteri Word raporu:
+[Teknoloji ve Özellik Envanteri](../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx)
 
-[`SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx`](../outputs/reports/SubscriptTrack_Teknik_Yapi_ve_Ozellik_Envanteri.docx)
+Bu rapor teknoloji yığınını, kod klasörlerini, veri akışlarını ve özelliklerin Aktif/Kısmi/Yok durumlarını tek belgede özetler.
 
-Tarihli sprint ve canlı envanter kayıtları `archive/` altında tutulur. Arşiv
-dosyaları geçmiş kanıt niteliğindedir; güncel ürün durumu için `CURRENT_STATUS.md`
-ve mimari dokümanları esas alınmalıdır.
+## Arşiv
 
-## Güncel ürün kararı
+Tarihli sprint planları, eski release kanıtları ve tarihli Supabase envanterleri [archive/](archive) altında tutulur. Arşiv belgeleri geçmiş kanıt niteliğindedir; yeni geliştirme kararlarında güncel belgeler esas alınır.
 
-Ürün iOS ve Android için geliştirilecek bir mobil uygulamadır. Web sitesi yalnızca tanıtım, SEO, yardım, iptal rehberleri ve yasal sayfalar için destekleyici yüzdür; tam abonelik dashboard'u değildir. Mobil uygulamada push bildirim, mobil deep link ve son veriyi görüntüleme amaçlı offline cache bulunur. Bu karar, bu bölümdeki önceki teknoloji alternatiflerinin önündedir.
+## Doküman güncelleme kuralı
 
-## Referans mimari durumu
+- Ürün kapsamı değişirse PRODUCT.md ve CURRENT_STATUS.md güncellenir.
+- API veya Supabase davranışı değişirse API.md, DATA_MODEL.md ve ilgili migration aynı değişiklikte güncellenir.
+- Mobil katman değişirse MOBILE_ARCHITECTURE.md ve gerekiyorsa USER_FLOWS.md güncellenir.
+- Bildirim davranışı değişirse NOTIFICATIONS.md güncellenir.
+- Önemli bir teknik karar alınırsa docs/ADR/ altında karar kaydı açılır.
 
-Bu paket framework bağımsız yazılmıştır. Aşağıdaki teknoloji kararları uygulama başlamadan önce ADR ile kesinleştirilmelidir:
-
-- Mobil framework: Flutter / React Native / native platformlar
-- Backend: Spring Boot / Supabase / başka bir REST backend
-- Kimlik sağlayıcı: Supabase Auth
-- Push altyapısı: flutter_local_notifications (cihaz üzeri zamanlama)
-- Analytics ve crash reporting sağlayıcıları
-
-Dokümanlardaki `Önerilen` ifadeleri kabul edilmiş karar değil, başlangıç önerisidir.
-
-## Temel geliştirme yaklaşımı
-
-1. Ürün akışları ve domain kuralları netleştirilir.
-2. API sözleşmesi oluşturulur.
-3. Mobil ve backend aynı sözleşme üzerinde paralel ilerler.
-4. Özellikler dikey dilimler halinde uçtan uca tamamlanır.
-5. Her önemli mimari karar `docs/ADR/` altında kaydedilir.
