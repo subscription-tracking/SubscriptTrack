@@ -60,7 +60,7 @@ mobile/lib/
     ├── dashboard/       DashboardScreen — totalsByCurrency, upcoming 30 gün, _OfflineBanner
     ├── calendar/        CalendarController, CalendarScreen — renewalsForDay, totalsByCurrencyForMonth
     ├── notifications/   NotificationController, NotificationCenterScreen — in-app, read sync
-    ├── stats/           StatsScreen — per-currency category breakdown, gerçek ödeme geçmişi trendi
+    ├── stats/           StatsScreen — per-currency monthly/yearly commitment, category breakdown, payment/projection trend; loading/error/empty/offline states
     ├── savings/         SavingsScreen — multi-currency top-3 scenario kartlar, yerel/bulut geçmiş
     ├── onboarding/      OnboardingScreen — 4 sayfa, ilk açılışta
     └── settings/        SettingsController — theme, currency, timezone, daysBefore, notifications, paymentMethods
@@ -106,6 +106,14 @@ Her `ChangeNotifier` controller şu durumları yönetir:
 | `isOffline` | Cache'ten gösteriliyor, ağ yok |
 | `lastSyncAt` | Son başarılı sync UTC zamanı |
 | `hasMore` | Cursor pagination devam ediyor |
+
+İstatistik sekmesi ana `AppShell` içindeki Scaffold'a gömülüdür; bu kipte
+`StatsScreen` yalnızca içerik widget'ı döndürür. Aylık/yıllık tutarlar para
+birimi başına aktif aboneliklerin aylıklaştırılmış tutarlarından hesaplanır.
+Ödeme kaydı yoksa trend açıkça planlanan taahhüt projeksiyonu olarak etiketlenir;
+gerçek ödeme kayıtları varsa gerçekleşen tutarlar gösterilir. İlk yükleme,
+hata, abonelik bulunmaması ve cache'ten çevrimdışı görüntüleme ayrı UI
+durumlarıdır.
 
 ---
 
