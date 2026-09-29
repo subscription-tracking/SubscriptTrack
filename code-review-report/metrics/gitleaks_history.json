@@ -1,0 +1,23 @@
+[
+ {
+  "RuleID": "jwt",
+  "Description": "Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.",
+  "StartLine": 9,
+  "EndLine": 9,
+  "StartColumn": 36,
+  "EndColumn": 244,
+  "Match": "REDACTED'",
+  "Secret": "REDACTED",
+  "File": "mobile/lib/core/config/app_environment.dart",
+  "SymlinkFile": "",
+  "Commit": "02aba561ec9e460950af528a0f60a57d047fd49b",
+  "Link": "https://github.com/subscription-tracking/SubscriptTrack/blob/02aba561ec9e460950af528a0f60a57d047fd49b/mobile/lib/core/config/app_environment.dart#L9",
+  "Entropy": 5.5223675,
+  "Author": "Furkan Turan",
+  "Email": "fusturan@gmail.com",
+  "Date": "2026-07-31T14:48:57Z",
+  "Message": "Sprint 1 complete: Reset password deep link, onboarding currency selection\n\n- ResetPasswordScreen: new password + confirm fields, calls AuthController.updatePassword()\n- AuthController: passwordRecoveryMode bool, updatePassword(), Supabase onAuthStateChange listener\n- AuthController: dispose() cancels stream subscription\n- app_router: /reset-password route, passwordRecoveryMode redirect guard (checked before auth status)\n- Supabase.initialize: authCallbackUrlHostname set to auth-callback\n- EnvironmentConfig: isFirebaseConfigured = false placeholder for future FCM\n- OnboardingScreen: 4th page with currency selection (TRY/USD/EUR/GBP), saves to SettingsController on finish\n\nCo-Authored-By: Claude Sonnet 4.6 \u003cnoreply@anthropic.com\u003e",
+  "Tags": [],
+  "Fingerprint": "02aba561ec9e460950af528a0f60a57d047fd49b:mobile/lib/core/config/app_environment.dart:jwt:9"
+ }
+]

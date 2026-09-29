@@ -1,0 +1,35 @@
+{
+ "sql_files": 30,
+ "tables": [
+  "IF",
+  "billing_schedules",
+  "categories",
+  "device_tokens",
+  "exports",
+  "idempotency_keys",
+  "notification_deliveries",
+  "notification_rules",
+  "notifications",
+  "payment_events",
+  "payment_methods",
+  "profiles",
+  "renewal_occurrences",
+  "savings_events",
+  "service_catalog",
+  "services",
+  "subscription_events",
+  "subscriptions",
+  "support_tickets",
+  "users"
+ ],
+ "rls_missing": [
+  "IF",
+  "categories",
+  "services"
+ ],
+ "rls_no_policy": [
+  "exports",
+  "notification_deliveries",
+  "notification_rules"
+ ]
+}

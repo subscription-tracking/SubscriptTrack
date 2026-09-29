@@ -1,0 +1,193 @@
+{
+ "reported": {
+  "hit": 3156,
+  "found": 4756,
+  "pct": 66.4
+ },
+ "corrected": {
+  "hit": 3156,
+  "found": 8740,
+  "pct": 36.1
+ },
+ "files_total": 86,
+ "files_not_in_lcov": 31,
+ "files_not_in_lcov_sample": [
+  "lib/main.dart",
+  "lib/app/app.dart",
+  "lib/app/splash_screen.dart",
+  "lib/app/router/app_router.dart",
+  "lib/app/shell/app_shell.dart",
+  "lib/app/shell/authenticated_shell.dart",
+  "lib/app/shell/bottom_navigation.dart",
+  "lib/app/shell/top_bar.dart",
+  "lib/core/datasources/auth_data_source.dart",
+  "lib/core/datasources/subscription_data_source.dart",
+  "lib/core/services/app_lock_gate.dart",
+  "lib/core/storage/secure_supabase_storage.dart",
+  "lib/features/auth/presentation/screens/forgot_password_screen.dart",
+  "lib/features/auth/presentation/screens/reset_password_screen.dart",
+  "lib/features/dashboard/presentation/screens/dashboard_screen.dart"
+ ],
+ "by_layer": {
+  "layer:app": {
+   "hit": 37,
+   "found": 550,
+   "pct": 6.7
+  },
+  "layer:core-services": {
+   "hit": 241,
+   "found": 545,
+   "pct": 44.2
+  },
+  "layer:data": {
+   "hit": 186,
+   "found": 678,
+   "pct": 27.4
+  },
+  "layer:domain": {
+   "hit": 171,
+   "found": 220,
+   "pct": 77.7
+  },
+  "layer:other": {
+   "hit": 0,
+   "found": 13,
+   "pct": 0.0
+  },
+  "layer:presentation": {
+   "hit": 2521,
+   "found": 6734,
+   "pct": 37.4
+  }
+ },
+ "by_feature": {
+  "app": {
+   "hit": 37,
+   "found": 550,
+   "pct": 6.7
+  },
+  "core": {
+   "hit": 275,
+   "found": 586,
+   "pct": 46.9
+  },
+  "feature:auth": {
+   "hit": 244,
+   "found": 775,
+   "pct": 31.5
+  },
+  "feature:calendar": {
+   "hit": 174,
+   "found": 230,
+   "pct": 75.7
+  },
+  "feature:dashboard": {
+   "hit": 0,
+   "found": 820,
+   "pct": 0.0
+  },
+  "feature:notifications": {
+   "hit": 82,
+   "found": 268,
+   "pct": 30.6
+  },
+  "feature:onboarding": {
+   "hit": 354,
+   "found": 357,
+   "pct": 99.2
+  },
+  "feature:savings": {
+   "hit": 33,
+   "found": 168,
+   "pct": 19.6
+  },
+  "feature:settings": {
+   "hit": 156,
+   "found": 1448,
+   "pct": 10.8
+  },
+  "feature:stats": {
+   "hit": 35,
+   "found": 937,
+   "pct": 3.7
+  },
+  "feature:subscriptions": {
+   "hit": 1564,
+   "found": 2258,
+   "pct": 69.3
+  },
+  "other": {
+   "hit": 0,
+   "found": 13,
+   "pct": 0.0
+  },
+  "shared": {
+   "hit": 202,
+   "found": 330,
+   "pct": 61.2
+  }
+ },
+ "domain_pct": 77.7,
+ "lowest_files": [
+  [
+   "lib/app/app.dart",
+   0.0,
+   34
+  ],
+  [
+   "lib/app/splash_screen.dart",
+   0.0,
+   40
+  ],
+  [
+   "lib/app/router/app_router.dart",
+   0.0,
+   62
+  ],
+  [
+   "lib/app/shell/app_shell.dart",
+   0.0,
+   68
+  ],
+  [
+   "lib/app/shell/authenticated_shell.dart",
+   0.0,
+   154
+  ],
+  [
+   "lib/app/shell/bottom_navigation.dart",
+   0.0,
+   63
+  ],
+  [
+   "lib/app/shell/top_bar.dart",
+   0.0,
+   79
+  ],
+  [
+   "lib/core/services/app_lock_gate.dart",
+   0.0,
+   76
+  ],
+  [
+   "lib/features/auth/data/supabase_auth_repository.dart",
+   0.0,
+   78
+  ],
+  [
+   "lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   0.0,
+   141
+  ],
+  [
+   "lib/features/auth/presentation/screens/reset_password_screen.dart",
+   0.0,
+   101
+  ],
+  [
+   "lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   0.0,
+   820
+  ]
+ ]
+}

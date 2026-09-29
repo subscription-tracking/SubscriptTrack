@@ -1,0 +1,30 @@
+{
+ "subscriptions": 1000,
+ "controller_load_ms": 182.29,
+ "notify_selectors_ms": 186.03,
+ "projected_renewals_unused_by_ui_ms": 1586.42,
+ "scaling": {
+  "50": {
+   "load_ms": 20.61,
+   "notify_selectors_ms": 13.71,
+   "projected_renewals_unused_by_ui_ms": 153.42
+  },
+  "200": {
+   "load_ms": 42.27,
+   "notify_selectors_ms": 34.33,
+   "projected_renewals_unused_by_ui_ms": 473.94
+  },
+  "1000": {
+   "load_ms": 182.29,
+   "notify_selectors_ms": 186.03,
+   "projected_renewals_unused_by_ui_ms": 1586.42
+  }
+ },
+ "stats_view_model_ms": 2.69,
+ "list_filter_sort_ms": 0.31,
+ "reminder_planner_ms": 12.29,
+ "stats_screen_pump_200_ms": 24.35,
+ "list_screen_pump_1000_ms": 9.86,
+ "list_screen_built_tiles": 7,
+ "note": "Host makine mikro-benchmarkı; cihaz/frame süresi değildir. Medyan, milisaniye."
+}
