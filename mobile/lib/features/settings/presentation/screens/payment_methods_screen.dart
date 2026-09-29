@@ -17,14 +17,14 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Yeni Ödeme Yöntemi Ekle'),
+        title: const Text('Yeni ödeme yöntemi ekle'),
         content: TextField(
           controller: textController,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(
             hintText: 'Örn. Garanti Bonus ****1234',
-            labelText: 'Kart / Yöntem Adı',
+            labelText: 'Ödeme yöntemi adı',
           ),
         ),
         actions: [
@@ -51,13 +51,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ödeme Yöntemini Düzenle'),
+        title: const Text('Ödeme yöntemini düzenle'),
         content: TextField(
           controller: textController,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(
-            labelText: 'Kart / Yöntem Adı',
+            labelText: 'Ödeme yöntemi adı',
           ),
         ),
         actions: [
@@ -84,9 +84,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ödeme Yöntemini Sil'),
-        content:
-            Text('"$name" ödeme yöntemini silmek istediğinize emin misiniz?'),
+        title: const Text('Ödeme yöntemini sil'),
+        content: Text('"$name" ödeme yöntemini silmek istediğine emin misin?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -114,7 +113,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         final methods = widget.controller.paymentMethods;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Ödeme Yöntemlerim'),
+            title: const Text('Ödeme yöntemlerim'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.add),
@@ -123,105 +122,121 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
               ),
             ],
           ),
-          body: methods.isEmpty
-              ? Column(children: [
-                  _SyncErrorBanner(controller: widget.controller),
-                  Expanded(
-                      child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.credit_card_off_outlined,
-                            size: 48,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Henüz bir ödeme yöntemi eklemediniz.',
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: _showAddDialog,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Ödeme Yöntemi Ekle'),
-                        ),
-                      ],
-                    ),
-                  ))
-                ])
-              : Column(children: [
-                  _SyncErrorBanner(controller: widget.controller),
-                  Expanded(
-                      child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                    itemCount: methods.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final name = methods[index];
-                      return Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: ListTile(
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.credit_card,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          title: Text(
-                            name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit_outlined, size: 20),
-                                tooltip: '$name düzenle',
-                                onPressed: () => _showEditDialog(name),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete_outline,
-                                    size: 20,
-                                    color: Theme.of(context).colorScheme.error),
-                                tooltip: '$name sil',
-                                onPressed: () => _confirmDelete(name),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  )),
-                ]),
+          body: Column(children: [
+            _SyncErrorBanner(controller: widget.controller),
+            Expanded(
+              child: methods.isEmpty
+                  ? _EmptyMethods(onAdd: _showAddDialog)
+                  : _methodList(methods),
+            ),
+          ]),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: _showAddDialog,
             icon: const Icon(Icons.add),
-            label: const Text('Yeni Kart / Yöntem'),
+            label: const Text('Yeni ödeme yöntemi'),
           ),
         );
       },
+    );
+  }
+
+  Widget _methodList(List<String> methods) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+      itemCount: methods.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final name = methods[index];
+        return _MethodCard(
+          name: name,
+          onEdit: () => _showEditDialog(name),
+          onDelete: () => _confirmDelete(name),
+        );
+      },
+    );
+  }
+}
+
+class _EmptyMethods extends StatelessWidget {
+  const _EmptyMethods({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.credit_card_off_outlined, size: 48, color: muted),
+          const SizedBox(height: 12),
+          Text(
+            'Henüz bir ödeme yöntemi eklemedin.',
+            style: TextStyle(color: muted),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add),
+            label: const Text('Ödeme yöntemi ekle'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MethodCard extends StatelessWidget {
+  const _MethodCard({
+    required this.name,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final String name;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+      ),
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: cs.primary.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(Icons.credit_card, color: cs.primary),
+        ),
+        title: Text(
+          name,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 20),
+              tooltip: '$name düzenle',
+              onPressed: onEdit,
+            ),
+            IconButton(
+              icon: Icon(Icons.delete_outline, size: 20, color: cs.error),
+              tooltip: '$name sil',
+              onPressed: onDelete,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

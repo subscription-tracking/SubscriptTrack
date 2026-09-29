@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,10 +46,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Yalnızca debug build'lerde erişilir; release'te buton ve bu sabitler
+  // derleme sırasında ayıklanır (bkz. `kDebugMode` kontrolü).
   static const _testEmail = 'testkullanici@subscripttrack.app';
-  static const _testPassword = 'Test1234!';
+  static const _testPassword = String.fromEnvironment(
+    'TEST_ACCOUNT_PASSWORD',
+    defaultValue: 'Test1234!',
+  );
 
   Future<void> _quickTestLogin() async {
+    if (!kDebugMode) return;
     _email.text = _testEmail;
     _password.text = _testPassword;
     var ok = await widget.controller.signIn(_testEmail, _testPassword);
@@ -79,140 +86,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-
     return Scaffold(
       body: AmbientBackground(
         child: SafeArea(
           child: ListenableBuilder(
             listenable: widget.controller,
             builder: (context, _) {
+              final loading = widget.controller.loading;
               return Form(
                 key: _formKey,
                 child: ListView(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   children: [
-                    const BrandMark(),
-                    const SizedBox(height: 28),
-                    EntranceFade(
-                      child: GlowOrb(
-                          icon: Icons.account_balance_wallet_rounded,
-                          color: colors.primary),
-                    ),
-                    const SizedBox(height: 24),
-                    EntranceFade(
-                      child: Text('Tekrar hoş geldin',
-                          style: text.headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.w800)),
-                    ),
-                    const SizedBox(height: 6),
-                    EntranceFade(
-                      delay: const Duration(milliseconds: 60),
-                      child: Text('Aboneliklerini yönetmek için giriş yap.',
-                          style: text.bodyLarge
-                              ?.copyWith(color: colors.onSurfaceVariant)),
-                    ),
+                    ..._header(context),
                     const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'E-posta',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (v) => v == null || !v.contains('@')
-                          ? 'Geçerli bir e-posta gir'
-                          : null,
-                    ),
+                    ..._fields(context),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: _obscure,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _submit(),
-                      decoration: InputDecoration(
-                        labelText: 'Şifre',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscure
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined),
-                          onPressed: () => setState(() => _obscure = !_obscure),
-                        ),
-                      ),
-                      validator: (v) => v == null || v.length < 6
-                          ? 'En az 6 karakter gir'
-                          : null,
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => context.push('/forgot-password'),
-                        child: const Text('Şifremi unuttum'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    FilledButton(
-                      onPressed: widget.controller.loading ? null : _submit,
-                      style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(52)),
-                      child: widget.controller.loading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Text('Giriş yap'),
-                    ),
+                    _submitButton(loading),
                     const SizedBox(height: 12),
-                    if (EnvironmentConfig.isSocialSignInAvailable) ...[
-                      OutlinedButton.icon(
-                        onPressed: widget.controller.loading
-                            ? null
-                            : () => _socialSignIn('google'),
-                        icon: const Icon(Icons.g_mobiledata, size: 26),
-                        label: const Text('Google ile devam et'),
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton.icon(
-                        onPressed: widget.controller.loading
-                            ? null
-                            : () => _socialSignIn('apple'),
-                        icon: const Icon(Icons.apple),
-                        label: const Text('Apple ile devam et'),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: colors.outlineVariant)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('veya',
-                              style: text.bodySmall
-                                  ?.copyWith(color: colors.onSurfaceVariant)),
-                        ),
-                        Expanded(child: Divider(color: colors.outlineVariant)),
-                      ],
-                    ),
+                    if (EnvironmentConfig.isSocialSignInAvailable)
+                      ..._socialButtons(loading),
+                    _OrDivider(color: Theme.of(context).colorScheme),
                     const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      onPressed:
-                          widget.controller.loading ? null : _quickTestLogin,
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(52),
-                        foregroundColor: colors.primary,
-                        side: BorderSide(
-                            color: colors.primary.withValues(alpha: 0.4)),
-                      ),
-                      icon: const Icon(Icons.bolt_rounded),
-                      label: const Text('Test hesabıyla gir'),
-                    ),
+                    if (kDebugMode) _testAccountButton(context, loading),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: widget.onRegisterTap,
@@ -228,6 +125,119 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  List<Widget> _header(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return [
+      const BrandMark(),
+      const SizedBox(height: 28),
+      EntranceFade(
+        child: GlowOrb(
+            icon: Icons.account_balance_wallet_rounded, color: colors.primary),
+      ),
+      const SizedBox(height: 24),
+      EntranceFade(
+        child: Text('Tekrar hoş geldin',
+            style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+      ),
+      const SizedBox(height: 6),
+      EntranceFade(
+        delay: const Duration(milliseconds: 60),
+        child: Text('Aboneliklerini yönetmek için giriş yap.',
+            style: text.bodyLarge?.copyWith(color: colors.onSurfaceVariant)),
+      ),
+    ];
+  }
+
+  List<Widget> _fields(BuildContext context) {
+    return [
+      TextFormField(
+        controller: _email,
+        keyboardType: TextInputType.emailAddress,
+        textInputAction: TextInputAction.next,
+        decoration: const InputDecoration(
+          labelText: 'E-posta',
+          prefixIcon: Icon(Icons.email_outlined),
+        ),
+        validator: (v) =>
+            v == null || !v.contains('@') ? 'Geçerli bir e-posta gir' : null,
+      ),
+      const SizedBox(height: 16),
+      TextFormField(
+        controller: _password,
+        obscureText: _obscure,
+        textInputAction: TextInputAction.done,
+        onFieldSubmitted: (_) => _submit(),
+        decoration: InputDecoration(
+          labelText: 'Şifre',
+          prefixIcon: const Icon(Icons.lock_outline),
+          suffixIcon: IconButton(
+            icon: Icon(_obscure
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined),
+            onPressed: () => setState(() => _obscure = !_obscure),
+          ),
+        ),
+        validator: (v) =>
+            v == null || v.length < 6 ? 'En az 6 karakter gir' : null,
+      ),
+      const SizedBox(height: 8),
+      Align(
+        alignment: Alignment.centerRight,
+        child: TextButton(
+          onPressed: () => context.push('/forgot-password'),
+          child: const Text('Şifremi unuttum'),
+        ),
+      ),
+    ];
+  }
+
+  Widget _submitButton(bool loading) {
+    return FilledButton(
+      onPressed: loading ? null : _submit,
+      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+      child: loading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: Colors.white),
+            )
+          : const Text('Giriş yap'),
+    );
+  }
+
+  List<Widget> _socialButtons(bool loading) {
+    return [
+      OutlinedButton.icon(
+        onPressed: loading ? null : () => _socialSignIn('google'),
+        icon: const Icon(Icons.g_mobiledata, size: 26),
+        label: const Text('Google ile devam et'),
+      ),
+      const SizedBox(height: 8),
+      OutlinedButton.icon(
+        onPressed: loading ? null : () => _socialSignIn('apple'),
+        icon: const Icon(Icons.apple),
+        label: const Text('Apple ile devam et'),
+      ),
+      const SizedBox(height: 20),
+    ];
+  }
+
+  Widget _testAccountButton(BuildContext context, bool loading) {
+    final colors = Theme.of(context).colorScheme;
+    return OutlinedButton.icon(
+      onPressed: loading ? null : _quickTestLogin,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(52),
+        foregroundColor: colors.primary,
+        side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
+      ),
+      icon: const Icon(Icons.person_outline_rounded),
+      label: const Text('Test hesabıyla gir'),
+    );
+  }
+
   Future<void> _socialSignIn(String provider) async {
     final ok = await widget.controller.signInWithProvider(provider);
     if (!ok && mounted) {
@@ -238,5 +248,29 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       widget.controller.clearError();
     }
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({required this.color});
+
+  final ColorScheme color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: color.outlineVariant)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text('veya',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: color.onSurfaceVariant)),
+        ),
+        Expanded(child: Divider(color: color.outlineVariant)),
+      ],
+    );
   }
 }

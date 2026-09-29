@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:provider/provider.dart';
+import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/domain/money.dart';
-import '../../../../core/services/local_notification_service.dart';
+import '../../../../core/services/notification_scheduler.dart';
 import '../../../../shared/design/responsive.dart';
-import '../../../settings/presentation/screens/notification_preferences_screen.dart';
-import '../../../settings/presentation/settings_controller.dart';
+import '../../../../core/preferences/app_preferences.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
@@ -27,7 +29,13 @@ class AddSubscriptionScreen extends StatefulWidget {
 
 class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final _data = SubscriptionFormData(startDate: widget.initialStartDate);
+  late final AppPreferences _preferences = context.read<AppPreferences>();
+  late final NotificationScheduler _notifications =
+      context.read<NotificationScheduler>();
+  late final _data = SubscriptionFormData(
+    startDate: widget.initialStartDate,
+    currency: _preferences.currency,
+  );
 
   /// Test 7: aynı isimde bir abonelik zaten varsa, sessizce ikinci bir kayıt
   /// oluşturmak yerine kullanıcıya sorup onay istiyoruz — davranış tutarlı
@@ -65,7 +73,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
   /// bildirim izni kapalıysa hatırlatma alamayacağını PROAKTİF olarak
   /// (ayarlara gitmeden, kendisi fark etmeden) öğrenmeli.
   Future<void> _warnIfNotificationsDisabled() async {
-    final granted = await LocalNotificationService.arePermissionsGranted();
+    final granted = await _notifications.arePermissionsGranted();
     if (granted || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -74,14 +82,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
         ),
         action: SnackBarAction(
           label: 'Aç',
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => NotificationPreferencesScreen(
-                controller: SettingsController.instance,
-              ),
-            ),
-          ),
+          onPressed: () => context.push(AppRoutes.notificationSettings),
         ),
         duration: const Duration(seconds: 6),
       ),
@@ -112,35 +113,43 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
     );
 
     if (!mounted) return;
-    if (ok) {
-      if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
-        // lastWhere: aynı isimde birden fazla abonelik varsa (Test 7),
-        // yeni oluşturulan kayıt listenin SONUNA eklenir (bkz.
-        // SubscriptionController.add → _items.add(sub)) — firstWhere eski
-        // bir aynı-isimli kayda yanlışlıkla ödeme kaydı ekleyebilirdi.
-        final created = widget.controller.allItems.lastWhere(
-          (s) => s.name == _data.name,
-        );
-        await widget.controller.recordPayment(
-          subscriptionId: created.id,
-          amount: amount,
-          currency: _data.currency,
-          paidAt: _data.initialPaymentDate,
-        );
-        if (!mounted) return;
-      }
-      await _warnIfNotificationsDisabled();
-      if (!mounted) return;
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.controller.error ?? 'Bir hata oluştu.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-      widget.controller.clearError();
+    if (!ok) {
+      _showSaveError();
+      return;
     }
+    if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
+      await _recordInitialPayment(amount);
+      if (!mounted) return;
+    }
+    await _warnIfNotificationsDisabled();
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
+  Future<void> _recordInitialPayment(Money amount) {
+    // lastWhere: aynı isimde birden fazla abonelik varsa (Test 7),
+    // yeni oluşturulan kayıt listenin SONUNA eklenir (bkz.
+    // SubscriptionController.add → _items.add(sub)) — firstWhere eski
+    // bir aynı-isimli kayda yanlışlıkla ödeme kaydı ekleyebilirdi.
+    final created = widget.controller.allItems.lastWhere(
+      (s) => s.name == _data.name,
+    );
+    return widget.controller.recordPayment(
+      subscriptionId: created.id,
+      amount: amount,
+      currency: _data.currency,
+      paidAt: _data.initialPaymentDate,
+    );
+  }
+
+  void _showSaveError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(widget.controller.error ?? 'Bir hata oluştu.'),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
+    widget.controller.clearError();
   }
 
   @override
@@ -175,7 +184,11 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
             children: [
-              SubscriptionForm(formKey: _formKey, data: _data),
+              SubscriptionForm(
+                formKey: _formKey,
+                data: _data,
+                settings: _preferences,
+              ),
             ],
           ),
         ),

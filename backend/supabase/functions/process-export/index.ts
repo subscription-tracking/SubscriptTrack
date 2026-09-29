@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { csvField } from '../_shared/csv.js'
 
 const headers = { 'Content-Type': 'application/json' }
 
@@ -23,18 +24,21 @@ Deno.serve(async (req: Request) => {
     const { data: rows, error } = await admin.from('subscriptions').select('*').eq('user_id', user.id).order('next_renewal_date')
     if (error) throw error
     const headersRow = ['name','amount','currency','billing_cycle','next_renewal_date','category','status','notes','payment_method','trial_end_date','trial_price_after']
-    const csvField = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`
     const moneyValue = (value: unknown) => {
       if (value && typeof value === 'object' && 'minorUnits' in (value as Record<string, unknown>)) {
         return ((value as Record<string, unknown>).minorUnits as number / 100).toFixed(2)
       }
       return String(value ?? '')
     }
-    const csv = [headersRow.map(csvField).join(','), ...rows.map((r: Record<string, unknown>) => [
-      r.name, moneyValue(r.amount), r.currency, r.billing_cycle, r.next_renewal_date,
-      r.category, r.status, r.notes, r.payment_method, r.trial_end_date,
-      moneyValue(r.trial_price_after),
-    ].map(csvField).join(','))].join('\r\n') + '\r\n'
+    // Kullanıcı metni (ad, not, ödeme yöntemi…) Excel'de formül olarak çalışmasın
+    // diye etkisizleştirilir (CSV injection); tutar ve tarih sütunları olduğu gibi yazılır.
+    const numeric = { text: false }
+    const csv = [headersRow.map((h) => csvField(h, numeric)).join(','), ...rows.map((r: Record<string, unknown>) => [
+      csvField(r.name), csvField(moneyValue(r.amount), numeric), csvField(r.currency),
+      csvField(r.billing_cycle), csvField(r.next_renewal_date, numeric),
+      csvField(r.category), csvField(r.status), csvField(r.notes), csvField(r.payment_method),
+      csvField(r.trial_end_date, numeric), csvField(moneyValue(r.trial_price_after), numeric),
+    ].join(','))].join('\r\n') + '\r\n'
     const path = `${user.id}/${exportId}.csv`
     const upload = await admin.storage.from('exports').upload(path, new Blob([csv], { type: 'text/csv; charset=utf-8' }), { upsert: true, contentType: 'text/csv; charset=utf-8' })
     if (upload.error) throw upload.error

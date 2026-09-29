@@ -114,8 +114,9 @@ void main() {
     await tester.pumpWidget(_embeddedShell(controller));
     await tester.pumpAndSettle();
 
-    expect(find.text('AYLIK HARCAMA TAAHHÜDÜ'), findsOneWidget);
-    expect(find.text('Harcama Trendi'), findsOneWidget);
+    expect(find.text('TAHMİNİ AYLIK ABONELİK GİDERİ'), findsOneWidget);
+    expect(find.text('Aylık gider tahmini'), findsOneWidget);
+    expect(find.text('3 Ay'), findsNothing);
     expect(find.text('Kategori Dağılımı'), findsOneWidget);
     expect(find.text('4 Aktif'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -154,7 +155,7 @@ void main() {
     await tester.tap(find.text('İstatistikler').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('AYLIK HARCAMA TAAHHÜDÜ'), findsOneWidget);
+    expect(find.text('TAHMİNİ AYLIK ABONELİK GİDERİ'), findsOneWidget);
     expect(find.text('4 Aktif'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
@@ -180,7 +181,7 @@ void main() {
     pending.complete([_sub('loaded', 'Netflix', daysUntilRenewal: 8)]);
     await load;
     await tester.pumpAndSettle();
-    expect(find.text('AYLIK HARCAMA TAAHHÜDÜ'), findsOneWidget);
+    expect(find.text('TAHMİNİ AYLIK ABONELİK GİDERİ'), findsOneWidget);
   });
 
   testWidgets('empty account gets a clear add-subscription action',
@@ -211,12 +212,13 @@ void main() {
 
     expect(find.text('TRY'), findsOneWidget);
     expect(find.text('USD'), findsOneWidget);
-    expect(find.text('Aylık taahhüt projeksiyonu'), findsOneWidget);
-    expect(find.textContaining('Gerçek ödeme geçmişi için'), findsOneWidget);
+    expect(find.text('Aktif aboneliklerinin aylık toplamı'), findsOneWidget);
+    expect(find.textContaining('Geçmiş ödemeleri görüntülemek için'),
+        findsOneWidget);
+    expect(find.text('3 Ay'), findsNothing);
   });
 
-  testWidgets('payment history is identified as actual spending',
-      (tester) async {
+  testWidgets('payment history shows recorded payments', (tester) async {
     final controller = SubscriptionController(
       userId: 'payments-user',
       repository: _FakeRepo([_sub('paid', 'Netflix', daysUntilRenewal: 8)]),
@@ -226,13 +228,41 @@ void main() {
       subscriptionId: 'paid',
       amount: Money.fromJson(100),
       currency: 'TRY',
-      paidAt: DateTime.now(),
+      paidAt: DateTime(DateTime.now().year, DateTime.now().month - 1, 15),
     );
     await tester.pumpWidget(_embeddedShell(controller));
     await tester.pumpAndSettle();
 
-    expect(find.text('Gerçekleşen harcama geçmişi'), findsOneWidget);
-    expect(find.text('Planlanan gider'), findsNothing);
+    expect(find.text('Kaydedilen ödemeler'), findsOneWidget);
+    expect(find.text('Aylık gider tahmini'), findsNothing);
+    expect(find.text('3 Ay'), findsOneWidget);
+    expect(find.byIcon(Icons.horizontal_rule_rounded), findsOneWidget);
+
+    await tester.tap(find.text('12 Ay'));
+    await tester.pumpAndSettle();
+    const monthLabels = {
+      'Oca',
+      'Şub',
+      'Mar',
+      'Nis',
+      'May',
+      'Haz',
+      'Tem',
+      'Ağu',
+      'Eyl',
+      'Eki',
+      'Kas',
+      'Ara'
+    };
+    final renderedMonthLabels = tester.widgetList<Text>(
+      find.byWidgetPredicate(
+        (widget) => widget is Text && monthLabels.contains(widget.data),
+      ),
+    );
+    expect(renderedMonthLabels, isNotEmpty);
+    expect(renderedMonthLabels.every((label) => label.maxLines == 1), isTrue);
+    expect(
+        renderedMonthLabels.every((label) => label.softWrap == false), isTrue);
   });
 
   testWidgets('cached subscriptions remain visible with offline banner',
@@ -250,7 +280,7 @@ void main() {
 
     expect(controller.isOffline, isTrue);
     expect(find.textContaining('Çevrimdışı'), findsOneWidget);
-    expect(find.text('AYLIK HARCAMA TAAHHÜDÜ'), findsOneWidget);
+    expect(find.text('TAHMİNİ AYLIK ABONELİK GİDERİ'), findsOneWidget);
   });
 
   testWidgets('load failure shows retry instead of blank content',

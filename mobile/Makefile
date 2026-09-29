@@ -2,7 +2,7 @@ FLUTTER := flutter
 ENV_FILE := .env
 ENV_ARGS := $(shell if [ -f $(ENV_FILE) ] && grep -qE '^SUPABASE_URL=https?://[^[:space:]]+' $(ENV_FILE) && ! grep -qE 'xxxx|your-project' $(ENV_FILE); then echo --dart-define-from-file=$(ENV_FILE); fi)
 
-.PHONY: setup web android install clean help
+.PHONY: setup web android install clean help analyze test coverage
 
 ## İlk kurulum: bağımlılıkları indir (.env isteğe bağlıdır)
 setup:
@@ -23,6 +23,18 @@ android:
 ## Release APK derle ve bağlı telefona kur (USB bağlı olmalı)
 install: android
 	adb install -r build/app/outputs/flutter-apk/app-release.apk
+
+## Statik analiz (0 sorun beklenir)
+analyze:
+	$(FLUTTER) analyze --no-pub
+
+## Tüm testleri çalıştır (mimari koruma testi dahil)
+test:
+	$(FLUTTER) test --no-pub
+
+## Kapsama raporu üret (coverage/lcov.info)
+coverage:
+	$(FLUTTER) test --no-pub --coverage
 
 ## Build çıktılarını temizle
 clean:

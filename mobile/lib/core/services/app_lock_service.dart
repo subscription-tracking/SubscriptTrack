@@ -3,12 +3,12 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:local_auth/local_auth.dart';
 
+import '../errors/error_messages.dart';
 import '../storage/secure_storage.dart';
 
 /// Device-local app lock. PIN material is never stored; only SHA-256(PIN)
 /// is persisted in platform secure storage. Biometric unlock is opt-in.
 class AppLockService extends ChangeNotifier {
-  static final instance = AppLockService();
   AppLockService({SecureStorage? storage, LocalAuthentication? auth})
       : _storage = storage ?? SecureStorage.instance,
         _auth = auth ?? LocalAuthentication();
@@ -111,18 +111,16 @@ class AppLockService extends ChangeNotifier {
     try {
       final ok = await _auth.authenticate(
         localizedReason: 'SubscriptTrack verilerinizi açmak için doğrulayın',
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          useErrorDialogs: true,
-          stickyAuth: true,
-        ),
+        biometricOnly: true,
+        persistAcrossBackgrounding: true,
       );
       if (ok) {
         _locked = false;
         notifyListeners();
       }
       return ok;
-    } catch (_) {
+    } catch (e) {
+      logIgnoredError('AppLockService.authenticate', e);
       return false;
     }
   }

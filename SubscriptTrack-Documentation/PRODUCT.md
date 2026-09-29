@@ -166,7 +166,7 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 - Ad, soyad ve e-posta
 - Tercih edilen para birimi
 - Zaman dilimi
-- Dil ve tema
+- Para birimi ve saat dilimi tercihleri
 - Push, uygulama içi ve e-posta tercihleri
 - Varsayılan bildirim günü
 - Veri dışa aktarma (aynı şema ile tekrar içe aktarılabilir CSV)

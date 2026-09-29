@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../errors/error_messages.dart';
+
 /// Pending mutation that could not be sent while offline.
 class OfflineMutation {
   const OfflineMutation({
@@ -43,7 +45,7 @@ class OfflineMutationQueue {
   static const _legacyKey = 'offline_mutation_queue';
   static const _secureKey = 'offline_mutation_queue_v2';
   static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(),
   );
   Future<void> _tail = Future<void>.value();
 
@@ -70,7 +72,8 @@ class OfflineMutationQueue {
       return list
           .map((e) => OfflineMutation.fromJson(e as Map<String, dynamic>))
           .toList();
-    } catch (_) {
+    } catch (e) {
+      logIgnoredError('OfflineMutationQueue.load', e);
       return [];
     }
   }

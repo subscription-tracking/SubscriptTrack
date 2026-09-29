@@ -20,26 +20,29 @@ class CalendarDayCell extends StatelessWidget {
   final bool isUrgent;
   final VoidCallback onTap;
 
+  /// (arka plan, metin) renkleri: seçili > bugün > normal önceliğiyle.
+  (Color?, Color) _cellColors(ColorScheme colors) {
+    if (isSelected) {
+      return (colors.primary, colors.onPrimary);
+    }
+    if (isToday) {
+      return (colors.primary.withValues(alpha: 0.16), colors.primary);
+    }
+    return (null, isCurrentMonth ? colors.onSurface : colors.outline);
+  }
+
+  Color _dotColor(ColorScheme colors) {
+    if (isSelected) {
+      return colors.onPrimary;
+    }
+    return isUrgent ? colors.error : colors.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-
-    Color? bgColor;
-    Color textColor = isCurrentMonth ? colors.onSurface : colors.outline;
-
-    if (isSelected) {
-      bgColor = colors.primary;
-      textColor = colors.onPrimary;
-    } else if (isToday) {
-      bgColor = colors.primary.withValues(alpha: 0.16);
-      textColor = colors.primary;
-    }
-
-    final dotColor = isSelected
-        ? colors.onPrimary
-        : isUrgent
-            ? colors.error
-            : colors.primary;
+    final (bgColor, textColor) = _cellColors(colors);
+    final dotColor = _dotColor(colors);
 
     return Semantics(
       label: '$day${hasRenewal ? ', yenileme var' : ''}',

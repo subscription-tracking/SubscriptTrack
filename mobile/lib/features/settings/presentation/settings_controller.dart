@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/config/app_environment.dart';
+import '../../../core/domain/currency.dart';
+import '../../../core/preferences/app_preferences.dart';
 import '../data/payment_methods_api.dart';
 
-class SettingsController extends ChangeNotifier {
-  SettingsController._();
-  static final SettingsController instance = SettingsController._();
+class SettingsController extends ChangeNotifier implements AppPreferences {
+  SettingsController();
 
   static const _keyCurrency = 'settings_currency';
-  static const _keyTheme = 'settings_theme';
   static const _keyNotifications = 'settings_notifications';
   static const _keyDaysBefore = 'settings_days_before';
   static const _keyReminderHour = 'settings_reminder_hour';
@@ -18,17 +16,16 @@ class SettingsController extends ChangeNotifier {
   static const _keyPaymentMethods = 'settings_payment_methods';
 
   String _currency = 'TRY';
-  ThemeMode _themeMode = ThemeMode.dark;
   bool _notificationsEnabled = true;
   int _daysBefore = 3;
   int _reminderHour = 9;
   String _timezone = '';
-  List<String> _paymentMethods = ['Kredi Kartı', 'Banka Kartı', 'Papara'];
+  List<String> _paymentMethods = [...defaultPaymentMethods];
   String? _paymentMethodsSyncError;
 
   /// ISO 4217 code used as the default in the subscription form.
+  @override
   String get currency => _currency;
-  ThemeMode get themeMode => _themeMode;
   bool get notificationsEnabled => _notificationsEnabled;
   int get daysBefore => _daysBefore;
 
@@ -38,25 +35,23 @@ class SettingsController extends ChangeNotifier {
 
   /// Boş string = cihaz yerel saat dilimi kullan.
   String get timezone => _timezone;
+  @override
   List<String> get paymentMethods => List.unmodifiable(_paymentMethods);
   String? get paymentMethodsSyncError => _paymentMethodsSyncError;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _currency = _normalizeCurrency(prefs.getString(_keyCurrency) ?? 'TRY');
-    final storedThemeIndex = prefs.getInt(_keyTheme);
-    _themeMode = storedThemeIndex != null &&
-            storedThemeIndex >= 0 &&
-            storedThemeIndex < ThemeMode.values.length
-        ? ThemeMode.values[storedThemeIndex]
-        : ThemeMode.dark;
+    // Remove the legacy theme preference so old light/system selections do
+    // not linger after the app moved to its dark-only design.
+    await prefs.remove('settings_theme');
     _notificationsEnabled = prefs.getBool(_keyNotifications) ?? true;
     _daysBefore = prefs.getInt(_keyDaysBefore) ?? 3;
     final storedHour = prefs.getInt(_keyReminderHour) ?? 9;
     _reminderHour = storedHour >= 0 && storedHour <= 23 ? storedHour : 9;
     _timezone = prefs.getString(_keyTimezone) ?? '';
-    _paymentMethods = prefs.getStringList(_keyPaymentMethods) ??
-        ['Kredi Kartı', 'Banka Kartı', 'Papara'];
+    _paymentMethods =
+        prefs.getStringList(_keyPaymentMethods) ?? [...defaultPaymentMethods];
     await _loadRemotePaymentMethods();
     notifyListeners();
   }
@@ -68,19 +63,11 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  static String _normalizeCurrency(String value) => switch (value) {
-        '₺' || 'TRY' => 'TRY',
-        r'$' || 'USD' => 'USD',
-        '€' || 'EUR' => 'EUR',
-        '£' || 'GBP' => 'GBP',
-        _ => 'TRY',
-      };
-
-  Future<void> setThemeMode(ThemeMode mode) async {
-    _themeMode = mode;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyTheme, mode.index);
-    notifyListeners();
+  /// Sembol/kod girdisini desteklenen ISO koduna çevirir; bilinmeyen para
+  /// birimleri varsayılan TRY'ye düşer.
+  static String _normalizeCurrency(String value) {
+    final code = AppCurrency.normalize(value);
+    return AppCurrency.supported.any((c) => c.code == code) ? code : 'TRY';
   }
 
   Future<void> setNotifications(bool value) async {
@@ -112,6 +99,7 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
   Future<void> addPaymentMethod(String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty || _paymentMethods.contains(trimmed)) return;
@@ -135,14 +123,10 @@ class SettingsController extends ChangeNotifier {
     await _savePaymentMethods(prefs);
   }
 
-  SupabaseClient? get _client =>
-      EnvironmentConfig.isSupabaseConfigured ? Supabase.instance.client : null;
-
   Future<void> _loadRemotePaymentMethods() async {
-    final client = _client;
-    if (client == null || client.auth.currentUser == null) return;
+    if (!PaymentMethodsApi.isAvailable) return;
     try {
-      final remote = await PaymentMethodsApi(client: client).load();
+      final remote = await PaymentMethodsApi().load();
       if (remote.isNotEmpty) _paymentMethods = remote;
       _paymentMethodsSyncError = null;
     } on PaymentMethodsApiException catch (e) {
@@ -162,10 +146,9 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<void> _syncRemotePaymentMethods() async {
-    final client = _client;
-    if (client == null || client.auth.currentUser == null) return;
+    if (!PaymentMethodsApi.isAvailable) return;
     try {
-      await PaymentMethodsApi(client: client).replace(_paymentMethods);
+      await PaymentMethodsApi().replace(_paymentMethods);
       _paymentMethodsSyncError = null;
     } on PaymentMethodsApiException catch (e) {
       _paymentMethodsSyncError = e.message;
@@ -174,10 +157,11 @@ class SettingsController extends ChangeNotifier {
 
   /// Hesap silme sunucuda başarılı olduktan sonra, kullanıcıya özel yerel
   /// ödeme yöntemi etiketlerini yeni bir kullanıcıya göstermemek için siler.
+  @override
   Future<void> clearAccountPaymentMethods() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyPaymentMethods);
-    _paymentMethods = ['Kredi Kartı', 'Banka Kartı', 'Papara'];
+    _paymentMethods = [...defaultPaymentMethods];
     _paymentMethodsSyncError = null;
     notifyListeners();
   }

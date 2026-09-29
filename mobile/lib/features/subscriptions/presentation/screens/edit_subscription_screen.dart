@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+import '../../../../core/domain/currency.dart';
+import '../../../../core/preferences/app_preferences.dart';
 import '../../../../core/domain/money.dart';
 import '../../../../shared/design/responsive.dart';
 import '../../domain/subscription_models.dart';
@@ -24,8 +27,6 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
   final _formKey = GlobalKey<FormState>();
   late final SubscriptionFormData _data;
 
-  static const _symbolToIso = {'₺': 'TRY', '\$': 'USD', '€': 'EUR', '£': 'GBP'};
-
   @override
   void initState() {
     super.initState();
@@ -33,7 +34,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
     _data = SubscriptionFormData(
       name: widget.subscription.name,
       amount: widget.subscription.amount.amount.toStringAsFixed(2),
-      currency: _symbolToIso[rawCurrency] ?? rawCurrency,
+      currency: AppCurrency.normalize(rawCurrency),
       billingCycle: widget.subscription.billingCycle,
       startDate: widget.subscription.startDate,
       nextRenewalDate: widget.subscription.nextRenewalDate,
@@ -96,7 +97,11 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
             children: [
-              SubscriptionForm(formKey: _formKey, data: _data),
+              SubscriptionForm(
+                formKey: _formKey,
+                data: _data,
+                settings: context.read<AppPreferences>(),
+              ),
               const SizedBox(height: 28),
               FilledButton(
                 onPressed: widget.controller.loading ? null : _save,

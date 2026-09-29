@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../core/config/app_environment.dart';
 import '../../../../shared/design/responsive.dart';
-import '../../data/support_catalog_api.dart';
+import '../../../../core/network/support_catalog_api.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -33,8 +31,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Future<void> _share() async {
-    await Share.share('SubscriptTrack $_type\n\n${_message.text.trim()}',
-        subject: 'SubscriptTrack geri bildirimi');
+    await SharePlus.instance.share(ShareParams(
+      text: 'SubscriptTrack $_type\n\n${_message.text.trim()}',
+      subject: 'SubscriptTrack geri bildirimi',
+    ));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Geri bildirim paylaşım ekranı açıldı.')));
@@ -42,14 +42,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Future<void> _createTicket() async {
-    if (!EnvironmentConfig.isSupabaseConfigured || Supabase.instance.client.auth.currentUser == null) return;
+    if (!SupportCatalogApi.canCreateTicket) return;
     setState(() => _sendingTicket = true);
     try {
-      await SupportCatalogApi().createTicket(category: _type, message: _message.text.trim());
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Destek kaydı oluşturuldu.')));
+      await SupportCatalogApi()
+          .createTicket(category: _type, message: _message.text.trim());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Destek kaydı oluşturuldu.')));
+      }
       if (mounted) _message.clear();
-    } on FunctionException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Destek kaydı oluşturulamadı: ${e.details}')));
+    } on SupportApiException {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Destek kaydı oluşturulamadı. Lütfen tekrar dene.')));
+      }
     } finally {
       if (mounted) setState(() => _sendingTicket = false);
     }
@@ -69,7 +76,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     Text('Nasıl gönderilir?',
                         style: TextStyle(fontWeight: FontWeight.w700)),
                     SizedBox(height: 6),
-                    Text('Mesajını paylaşabilir veya Supabase hesabınla doğrudan destek kaydı oluşturabilirsin.'),
+                    Text(
+                        'Mesajını paylaşabilir veya doğrudan destek kaydı oluşturabilirsin.'),
                   ],
                 ),
               ),
@@ -105,11 +113,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 onPressed: _message.text.trim().isEmpty ? null : _share,
                 icon: const Icon(Icons.share_outlined),
                 label: const Text('Paylaşım ekranını aç')),
-            if (EnvironmentConfig.isSupabaseConfigured && Supabase.instance.client.auth.currentUser != null) ...[
+            if (SupportCatalogApi.canCreateTicket) ...[
               const SizedBox(height: 10),
               OutlinedButton.icon(
-                onPressed: _sendingTicket || _message.text.trim().isEmpty ? null : _createTicket,
-                icon: _sendingTicket ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.support_agent_outlined),
+                onPressed: _sendingTicket || _message.text.trim().isEmpty
+                    ? null
+                    : _createTicket,
+                icon: _sendingTicket
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.support_agent_outlined),
                 label: const Text('Destek kaydı oluştur'),
               ),
             ],

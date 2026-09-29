@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../features/calendar/presentation/screens/calendar_screen.dart';
+import '../../core/navigation/app_routes.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
-import '../../features/notifications/presentation/screens/notification_center_screen.dart';
-import '../../features/subscriptions/presentation/subscription_controller.dart';
 import '../../shared/design/app_tokens.dart';
 
 /// The shared top bar for every tab — same tall, icon + subtitle + title
@@ -34,41 +33,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: cs.surfaceContainerLowest,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      title: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: cs.primary, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (subtitle != null) ...[
-                  Text(subtitle!,
-                      style: Theme.of(context).textTheme.labelSmall),
-                  const SizedBox(height: 2),
-                ],
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      title: _title(context),
       actions: [
         IconButton(
           icon: Icon(
@@ -76,18 +41,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
             color: cs.onSurfaceVariant,
           ),
           tooltip: 'Takvim',
-          onPressed: () {
-            final subscriptions = context.read<SubscriptionController>();
-            Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => Scaffold(
-                  appBar: AppBar(title: const Text('Takvim')),
-                  body: CalendarScreen(controller: subscriptions),
-                ),
-              ),
-            );
-          },
+          onPressed: () => context.push(AppRoutes.calendar),
         ),
         Badge(
           isLabelVisible: unread > 0,
@@ -99,22 +53,50 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
               Icons.notifications_outlined,
               color: cs.onSurfaceVariant,
             ),
-            onPressed: () {
-              final notifController = context.read<NotificationController>();
-              final subsController = context.read<SubscriptionController>();
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => NotificationCenterScreen(
-                    notificationController: notifController,
-                    subscriptionController: subsController,
-                  ),
-                ),
-              );
-            },
+            onPressed: () => context.push(AppRoutes.notifications),
           ),
         ),
         const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _title(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final sub = subtitle;
+    return Row(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: cs.primary.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: cs.primary, size: 18),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (sub != null) ...[
+                Text(sub, style: textTheme.labelSmall),
+                const SizedBox(height: 2),
+              ],
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

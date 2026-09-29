@@ -17,7 +17,6 @@ abstract class AuthDataSource {
 
   /// Kullanıcının görünen adını günceller.
   Future<AppUser> updateDisplayName(String name);
-
 }
 
 abstract interface class EmailUpdateDataSource {
@@ -26,4 +25,31 @@ abstract interface class EmailUpdateDataSource {
 
 abstract interface class SocialAuthDataSource {
   Future<bool> signInWithProvider(String provider);
+}
+
+enum AuthStateEvent {
+  passwordRecovery,
+  userUpdated,
+  signedIn,
+  tokenRefreshed,
+  signedOut,
+}
+
+/// Sağlayıcıdan (ör. Supabase) gelen oturum değişikliği. [user], olayın
+/// oturum bilgisi taşımadığı durumlarda `null`'dır.
+class AuthStateChange {
+  const AuthStateChange(this.event, this.user);
+
+  final AuthStateEvent event;
+  final AppUser? user;
+}
+
+/// Oturum değişikliklerini canlı yayınlayan sağlayıcılar (ör. Supabase).
+abstract interface class AuthStateDataSource {
+  Stream<AuthStateChange> get authStateChanges;
+}
+
+/// Kayıt sonrası e-posta doğrulaması isteyen sağlayıcılar.
+abstract interface class EmailConfirmationDataSource {
+  bool get lastSignUpRequiresEmailConfirmation;
 }

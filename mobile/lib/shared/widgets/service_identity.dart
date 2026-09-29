@@ -145,13 +145,13 @@ class ServiceIdentity extends StatelessWidget {
     // Music
     'tidal': (Icons.queue_music_rounded, Color(0xFF000000)),
     // AI
-    'chatgpt': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
-    'openai': (Icons.auto_awesome_rounded, Color(0xFF10A37F)),
-    'claude': (Icons.psychology_rounded, Color(0xFFCC785C)),
+    'chatgpt': (Icons.chat_bubble_outline_rounded, Color(0xFF10A37F)),
+    'openai': (Icons.chat_bubble_outline_rounded, Color(0xFF10A37F)),
+    'claude': (Icons.chat_bubble_outline_rounded, Color(0xFFCC785C)),
     'notion': (Icons.article_rounded, Color(0xFFE8E8E8)),
     'obsidian': (Icons.hub_rounded, Color(0xFF7C3AED)),
     'linear': (Icons.electric_bolt_rounded, Color(0xFF5E6AD2)),
-    'midjourney': (Icons.auto_fix_high_rounded, Color(0xFF5865F2)),
+    'midjourney': (Icons.image_outlined, Color(0xFF5865F2)),
     // Creative
     'adobe': (Icons.design_services_rounded, Color(0xFFFF0000)),
     'canva': (Icons.brush_rounded, Color(0xFF00C4CC)),

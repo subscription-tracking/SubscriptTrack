@@ -5,10 +5,14 @@ import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/subscription_models.dart';
-import '../../notifications/domain/notification_rule.dart';
 
 class SupabaseSubscriptionRepository implements SubscriptionDataSource {
-  SupabaseClient get _client => Supabase.instance.client;
+  /// [client] verilmezse `Supabase.instance` kullanılır (testlerde enjekte edilir).
+  SupabaseSubscriptionRepository({SupabaseClient? client}) : _injected = client;
+
+  final SupabaseClient? _injected;
+
+  SupabaseClient get _client => _injected ?? Supabase.instance.client;
 
   static const _table = 'subscriptions';
 
@@ -19,7 +23,8 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .from(_table)
           .select()
           .eq('user_id', userId)
-          .order('next_renewal_date');
+          // postgrest varsayılanı azalan sıradır; en yakın yenileme önce gelsin.
+          .order('next_renewal_date', ascending: true);
       return rows.map(_fromRow).toList();
     } on PostgrestException catch (e) {
       throw NetworkException(e.message);
@@ -157,43 +162,5 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
     }
   }
 
-  Subscription _fromRow(Map<String, dynamic> row) {
-    final status = row['status'] != null
-        ? SubscriptionStatusExt.fromKey(row['status'] as String)
-        : (row['is_archived'] as bool? ?? false)
-            ? SubscriptionStatus.archived
-            : SubscriptionStatus.active;
-
-    return Subscription(
-      id: row['id'] as String,
-      userId: row['user_id'] as String,
-      name: row['name'] as String,
-      amount: Money.fromJson(row['amount']),
-      currency: row['currency'] as String? ?? 'TRY',
-      billingCycle: BillingCycleLabel.fromKey(
-          row['billing_cycle'] as String? ?? 'monthly'),
-      startDate: row['start_date'] != null
-          ? DateTime.tryParse(row['start_date'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      nextRenewalDate:
-          DateTime.tryParse(row['next_renewal_date'] as String? ?? '') ??
-              DateTime.now(),
-      category: SubscriptionCategoryLabel.fromKey(
-          row['category'] as String? ?? 'other'),
-      notes: row['notes'] as String?,
-      paymentMethod: row['payment_method'] as String?,
-      trialEndDate: DateTime.tryParse(row['trial_end_date'] as String? ?? ''),
-      trialPriceAfter: row['trial_price_after'] == null
-          ? null
-          : Money.fromJson(row['trial_price_after']),
-      notificationRules: (row['notification_rules'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map(NotificationRule.fromJson)
-              .toList() ??
-          const [NotificationRule(daysBefore: 3)],
-      status: status,
-      createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ??
-          DateTime.now().toUtc(),
-    );
-  }
+  Subscription _fromRow(Map<String, dynamic> row) => Subscription.fromJson(row);
 }

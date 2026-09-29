@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart' show AppStatusColorsX;
+import '../../app/theme/app_theme.dart' show AppStatusColors, AppStatusColorsX;
 import '../../features/subscriptions/domain/subscription_models.dart';
 
 class SubscriptionStatusChip extends StatelessWidget {
@@ -34,23 +34,29 @@ class SubscriptionStatusChip extends StatelessWidget {
     );
   }
 
+  /// Aktif aboneliğin yenilemeye yakınlığına göre uyarı durumu; yoksa `null`.
+  ({String label, Color color})? _urgency(
+    ColorScheme cs,
+    AppStatusColors statusColors,
+  ) {
+    final days = daysUntilRenewal;
+    if (status != SubscriptionStatus.active || days == null) return null;
+    if (days < 0) return (label: 'Gecikmiş', color: cs.error);
+    if (days == 0) return (label: 'Bugün yenileniyor', color: cs.error);
+    if (days <= 3) {
+      return (label: 'Yakında yenileniyor', color: statusColors.warning);
+    }
+    return null;
+  }
+
   ({String label, Color color}) _state(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final statusColors = context.statusColors;
     if (isNotStarted) {
       return (label: 'Henüz başlamadı', color: statusColors.warning);
     }
-    if (status == SubscriptionStatus.active && daysUntilRenewal != null) {
-      if (daysUntilRenewal! < 0) {
-        return (label: 'Gecikmiş', color: cs.error);
-      }
-      if (daysUntilRenewal == 0) {
-        return (label: 'Bugün yenileniyor', color: cs.error);
-      }
-      if (daysUntilRenewal! <= 3) {
-        return (label: 'Yakında yenileniyor', color: statusColors.warning);
-      }
-    }
+    final urgency = _urgency(cs, statusColors);
+    if (urgency != null) return urgency;
     return switch (status) {
       SubscriptionStatus.trial => (label: 'Deneme', color: statusColors.trial),
       SubscriptionStatus.active => (label: 'Aktif', color: cs.primary),

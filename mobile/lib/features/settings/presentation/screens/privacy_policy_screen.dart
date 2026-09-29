@@ -38,35 +38,33 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 body:
                     'Hesabını oluşturduğunda e-posta adresini; uygulamayı kullanırken '
                     'eklediğin abonelik kayıtlarını (servis adı, tutar, para birimi, '
-                    'ödeme döngüsü, kategori, notlar), ödeme yöntemi etiketlerini '
+                    'yenileme sıklığı, kategori, notlar), ödeme yöntemi adlarını '
                     '(gerçek kart bilgisi değil, yalnızca senin verdiğin bir isim) ve '
                     'hatırlatma tercihlerini saklarız.',
               ),
               const _Section(
                 title: 'Verilerini nerede saklıyoruz',
                 body:
-                    'Tüm veriler Supabase (PostgreSQL) üzerinde, Row Level Security '
-                    '(RLS) politikalarıyla korunur: yalnızca sen kendi verilerine '
-                    'erişebilirsin, başka bir kullanıcı ya da uygulama içi rol senin '
-                    'aboneliklerini göremez.',
+                    'Verilerin Supabase altyapısında güvenli biçimde saklanır. '
+                    'Abonelik kayıtların hesabına bağlıdır. Diğer kullanıcılar bu '
+                    'kayıtlara erişemez.',
               ),
               const _Section(
-                title: 'Verilerini kimseyle paylaşmıyoruz',
+                title: 'Verilerini nasıl paylaşıyoruz',
                 body:
                     'Abonelik verilerini reklam, analiz veya pazarlama amacıyla '
                     'üçüncü taraflarla paylaşmayız veya satmayız. Veriler yalnızca '
-                    'uygulamanın çalışması için gerekli altyapı sağlayıcısında '
-                    '(Supabase) tutulur.',
+                    'uygulamanın çalışması için altyapı sağlayıcımız Supabase '
+                    'tarafından işlenir.',
               ),
               const _Section(
                 title: 'Bildirimler',
                 body:
-                    'Yenileme hatırlatmaları cihazında yerel olarak zamanlanır '
-                    '(flutter_local_notifications); bildirim içeriği cihazından '
+                    'Yenileme hatırlatmaları cihazında zamanlanır; bildirim içeriği cihazından '
                     'dışarı gönderilmez.',
               ),
               const _Section(
-                title: 'Haklarınız (KVKK)',
+                title: 'Hakların (KVKK)',
                 body:
                     '6698 sayılı KVKK kapsamında verilerine erişme, düzeltme ve '
                     'silme hakkına sahipsin. Verilerini istediğin an Ayarlar → '

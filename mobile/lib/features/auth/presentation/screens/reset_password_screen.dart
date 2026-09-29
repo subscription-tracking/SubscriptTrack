@@ -37,8 +37,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Yeni şifre oluştur')),
       body: Padding(
@@ -50,90 +48,116 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 16),
-                Icon(Icons.lock_reset_outlined,
-                    size: 64, color: colors.primary),
-                const SizedBox(height: 24),
-                Text(
-                  'Yeni şifreni belirle',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'En az 6 karakter uzunluğunda güçlü bir şifre seç.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
+                ..._header(context),
                 const SizedBox(height: 32),
-                TextFormField(
-                  controller: _password,
-                  obscureText: _obscure1,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: 'Yeni şifre',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscure1
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined),
-                      onPressed: () => setState(() => _obscure1 = !_obscure1),
-                    ),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Şifre gerekli.';
-                    if (v.length < 6) return 'Şifre en az 6 karakter olmalı.';
-                    return null;
-                  },
-                ),
+                _passwordField(),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirm,
-                  obscureText: _obscure2,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _submit(),
-                  decoration: InputDecoration(
-                    labelText: 'Şifreyi onayla',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscure2
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined),
-                      onPressed: () => setState(() => _obscure2 = !_obscure2),
-                    ),
-                  ),
-                  validator: (v) {
-                    if (v != _password.text) return 'Şifreler eşleşmiyor.';
-                    return null;
-                  },
-                ),
-                if (widget.controller.error != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    widget.controller.error!,
-                    style: TextStyle(color: colors.error),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                _confirmField(),
+                ..._errorText(context),
                 const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: widget.controller.loading ? null : _submit,
-                  style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(52)),
-                  child: widget.controller.loading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Şifremi güncelle'),
-                ),
+                _submitButton(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  List<Widget> _header(BuildContext context) {
+    final theme = Theme.of(context);
+    return [
+      const SizedBox(height: 16),
+      Icon(Icons.lock_reset_outlined,
+          size: 64, color: theme.colorScheme.primary),
+      const SizedBox(height: 24),
+      Text(
+        'Yeni şifreni belirle',
+        style: theme.textTheme.headlineSmall,
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 8),
+      Text(
+        'En az 6 karakter uzunluğunda güçlü bir şifre seç.',
+        style: theme.textTheme.bodyMedium,
+        textAlign: TextAlign.center,
+      ),
+    ];
+  }
+
+  Widget _passwordField() {
+    return TextFormField(
+      controller: _password,
+      obscureText: _obscure1,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        labelText: 'Yeni şifre',
+        prefixIcon: const Icon(Icons.lock_outlined),
+        suffixIcon: _visibilityButton(
+          _obscure1,
+          () => setState(() => _obscure1 = !_obscure1),
+        ),
+      ),
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Şifre gerekli.';
+        if (v.length < 6) return 'Şifre en az 6 karakter olmalı.';
+        return null;
+      },
+    );
+  }
+
+  Widget _confirmField() {
+    return TextFormField(
+      controller: _confirm,
+      obscureText: _obscure2,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (_) => _submit(),
+      decoration: InputDecoration(
+        labelText: 'Şifreyi onayla',
+        prefixIcon: const Icon(Icons.lock_outlined),
+        suffixIcon: _visibilityButton(
+          _obscure2,
+          () => setState(() => _obscure2 = !_obscure2),
+        ),
+      ),
+      validator: (v) => v != _password.text ? 'Şifreler eşleşmiyor.' : null,
+    );
+  }
+
+  Widget _visibilityButton(bool obscured, VoidCallback onPressed) {
+    return IconButton(
+      icon: Icon(
+          obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+      onPressed: onPressed,
+    );
+  }
+
+  List<Widget> _errorText(BuildContext context) {
+    final error = widget.controller.error;
+    if (error == null) return const [];
+    return [
+      const SizedBox(height: 12),
+      Text(
+        error,
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
+        textAlign: TextAlign.center,
+      ),
+    ];
+  }
+
+  Widget _submitButton() {
+    final loading = widget.controller.loading;
+    return FilledButton(
+      onPressed: loading ? null : _submit,
+      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+      child: loading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: Colors.white),
+            )
+          : const Text('Şifremi güncelle'),
     );
   }
 }

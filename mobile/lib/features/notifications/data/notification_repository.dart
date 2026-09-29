@@ -5,8 +5,15 @@ import '../../../core/errors/app_exception.dart';
 import '../domain/app_notification.dart';
 
 class NotificationRepository {
+  NotificationRepository({SupabaseClient? client}) : _injected = client;
+
+  final SupabaseClient? _injected;
+
   SupabaseClient? get _client =>
-      EnvironmentConfig.isSupabaseConfigured ? Supabase.instance.client : null;
+      _injected ??
+      (EnvironmentConfig.isSupabaseConfigured
+          ? Supabase.instance.client
+          : null);
 
   /// Fetches the last 14 days of notifications for [userId] from Supabase.
   /// Returns an empty list when offline or Supabase is not configured.
@@ -62,9 +69,9 @@ class NotificationRepository {
         NotificationType.renewalToday => 'Bugün yenileniyor',
         NotificationType.renewalSoon => '$days gün kaldı',
         NotificationType.renewalUpcoming => 'Yaklaşan yenileme',
-        NotificationType.trialToday => 'Trial bugün bitiyor',
-        NotificationType.trialSoon => '$days gün trial kaldı',
-        NotificationType.trialUpcoming => 'Yaklaşan trial bitişi',
+        NotificationType.trialToday => 'Ücretsiz deneme bugün sona eriyor',
+        NotificationType.trialSoon => 'Denemenin bitmesine $days gün kaldı',
+        NotificationType.trialUpcoming => 'Yaklaşan deneme bitişi',
       };
 
   String _body(NotificationType type, String name, int days) => switch (type) {
@@ -72,10 +79,11 @@ class NotificationRepository {
         NotificationType.renewalSoon => '$name $days gün içinde yenileniyor.',
         NotificationType.renewalUpcoming =>
           '$name $days gün içinde yenileniyor.',
-        NotificationType.trialToday => '$name trial süresi bugün bitiyor.',
+        NotificationType.trialToday =>
+          '$name ücretsiz denemesi bugün sona eriyor.',
         NotificationType.trialSoon =>
-          '$name trial süresi $days gün içinde bitiyor.',
+          '$name ücretsiz denemesi $days gün içinde sona eriyor.',
         NotificationType.trialUpcoming =>
-          '$name trial süresi $days gün içinde bitiyor.',
+          '$name ücretsiz denemesi $days gün içinde sona eriyor.',
       };
 }

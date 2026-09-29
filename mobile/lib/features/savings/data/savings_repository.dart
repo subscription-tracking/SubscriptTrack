@@ -6,45 +6,20 @@ import '../../../core/config/app_environment.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/local_storage.dart';
+import '../domain/savings_event.dart';
 
-class SavingsEvent {
-  const SavingsEvent(
-      {required this.eventType,
-      required this.monthlyAmount,
-      required this.annualAmount,
-      required this.currency,
-      required this.effectiveAt});
-  final String eventType;
-  final Money monthlyAmount;
-  final Money annualAmount;
-  final String currency;
-  final DateTime effectiveAt;
-
-  Map<String, dynamic> toJson() => {
-        'eventType': eventType,
-        'monthlyAmount': monthlyAmount.toJson(),
-        'annualAmount': annualAmount.toJson(),
-        'currency': currency,
-        'effectiveAt': effectiveAt.toUtc().toIso8601String(),
-      };
-
-  factory SavingsEvent.fromJson(Map<String, dynamic> json) => SavingsEvent(
-        eventType: json['eventType'] as String? ??
-            json['event_type'] as String? ??
-            'CANCELLED',
-        monthlyAmount:
-            Money.fromJson(json['monthlyAmount'] ?? json['monthly_amount']),
-        annualAmount:
-            Money.fromJson(json['annualAmount'] ?? json['annual_amount']),
-        currency: json['currency'] as String? ?? 'TRY',
-        effectiveAt: DateTime.parse(
-            (json['effectiveAt'] ?? json['effective_at']) as String),
-      );
-}
+export '../domain/savings_event.dart';
 
 class SavingsRepository {
+  SavingsRepository({SupabaseClient? client}) : _injected = client;
+
+  final SupabaseClient? _injected;
+
   SupabaseClient? get _client =>
-      EnvironmentConfig.isSupabaseConfigured ? Supabase.instance.client : null;
+      _injected ??
+      (EnvironmentConfig.isSupabaseConfigured
+          ? Supabase.instance.client
+          : null);
 
   Future<void> record({
     required String userId,
