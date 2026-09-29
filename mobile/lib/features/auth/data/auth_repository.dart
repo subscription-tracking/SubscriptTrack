@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/errors/error_messages.dart';
 import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/secure_storage.dart';
@@ -22,7 +23,8 @@ class AuthRepository implements AuthDataSource {
     if (json == null) return null;
     try {
       return AppUser.fromJson(jsonDecode(json) as Map<String, dynamic>);
-    } catch (_) {
+    } catch (e) {
+      logIgnoredError('AuthRepository.currentUser', e);
       return null;
     }
   }
@@ -94,8 +96,8 @@ class AuthRepository implements AuthDataSource {
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
-    // Local dev mode — no email is sent.
-    assert(false, 'sendPasswordResetEmail is a no-op in local auth mode.');
+    // Yerel modda e-posta gönderilmez; arayüz sözleşmesi gereği sessizce
+    // başarılı sayılır (bkz. AuthDataSource.sendPasswordResetEmail).
   }
 
   @override

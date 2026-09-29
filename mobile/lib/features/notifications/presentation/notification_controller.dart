@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/errors/error_messages.dart';
 import '../../../core/services/notification_read_sync_service.dart';
 import '../../../features/subscriptions/domain/subscription_models.dart';
 import '../data/notification_repository.dart';
@@ -45,7 +46,9 @@ class NotificationController extends ChangeNotifier {
       final dismissed = prefs.getStringList(_dismissedPrefsKey) ?? [];
       _dismissedIds.addAll(dismissed);
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      logIgnoredError('NotificationController.loadReadState', e);
+    }
   }
 
   /// Fetches notifications from Supabase and merges remote read state.
@@ -115,80 +118,88 @@ class NotificationController extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefsKey, _readIds.toList());
       await prefs.setStringList(_dismissedPrefsKey, _dismissedIds.toList());
-    } catch (_) {}
+    } catch (e) {
+      logIgnoredError('NotificationController.persist', e);
+    }
   }
 
   List<AppNotification> _generate(List<Subscription> active) {
-    final result = <AppNotification>[];
     final now = DateTime.now();
-
-    for (final sub in active) {
-      final days = sub.daysUntilRenewal;
-      if (days < 0) continue;
-
-      final d = sub.nextRenewalDate;
-      final dateKey =
-          '${d.year}${d.month.toString().padLeft(2, '0')}${d.day.toString().padLeft(2, '0')}';
-      final stableId = '${sub.id}_$dateKey';
-
-      if (days == 0) {
-        result.add(AppNotification(
-          id: stableId,
-          title: 'Bugün yenileniyor',
-          body: '${sub.name} bugün yenileniyor.',
-          type: NotificationType.renewalToday,
-          subscriptionId: sub.id,
-          createdAt: now,
-        ));
-      } else if (days <= 3) {
-        result.add(AppNotification(
-          id: stableId,
-          title: '$days gün kaldı',
-          body: '${sub.name} $days gün içinde yenileniyor.',
-          type: NotificationType.renewalSoon,
-          subscriptionId: sub.id,
-          createdAt: now,
-        ));
-      } else if (days <= 7) {
-        result.add(AppNotification(
-          id: stableId,
-          title: 'Yaklaşan yenileme',
-          body: '${sub.name} $days gün içinde yenileniyor.',
-          type: NotificationType.renewalUpcoming,
-          subscriptionId: sub.id,
-          createdAt: now,
-        ));
-      }
-    }
-
-    for (final sub in active.where((s) => s.isTrial)) {
-      final end = sub.trialEndDate;
-      if (end == null) continue;
-      final today = DateTime(now.year, now.month, now.day);
-      final endDay =
-          DateTime(end.toLocal().year, end.toLocal().month, end.toLocal().day);
-      final days = endDay.difference(today).inDays;
-      if (days < 0 || days > 7) continue;
-      final dateKey =
-          '${endDay.year}${endDay.month.toString().padLeft(2, '0')}${endDay.day.toString().padLeft(2, '0')}';
-      final type = days == 0
-          ? NotificationType.trialToday
-          : days <= 3
-              ? NotificationType.trialSoon
-              : NotificationType.trialUpcoming;
-      result.add(AppNotification(
-        id: '${sub.id}_trial_$dateKey',
-        title: days == 0 ? 'Trial bugün bitiyor' : '$days gün trial kaldı',
-        body: days == 0
-            ? '${sub.name} trial süresi bugün bitiyor.'
-            : '${sub.name} trial süresi $days gün içinde bitiyor.',
-        type: type,
-        subscriptionId: sub.id,
-        createdAt: now,
-      ));
-    }
-
+    final result = <AppNotification?>[
+      for (final sub in active) _renewalNotification(sub, now),
+      for (final sub in active.where((s) => s.isTrial))
+        _trialNotification(sub, now),
+    ].nonNulls.toList();
     result.sort((a, b) => a.type.index.compareTo(b.type.index));
     return result;
+  }
+
+  static String _dateKey(DateTime d) =>
+      '${d.year}${d.month.toString().padLeft(2, '0')}'
+      '${d.day.toString().padLeft(2, '0')}';
+
+  AppNotification? _renewalNotification(Subscription sub, DateTime now) {
+    final days = sub.daysUntilRenewal;
+    if (days < 0 || days > 7) return null;
+    final (title, body, type) = switch (days) {
+      0 => (
+          'Bugün yenileniyor',
+          '${sub.name} bugün yenileniyor.',
+          NotificationType.renewalToday,
+        ),
+      <= 3 => (
+          '$days gün kaldı',
+          '${sub.name} $days gün içinde yenileniyor.',
+          NotificationType.renewalSoon,
+        ),
+      _ => (
+          'Yaklaşan yenileme',
+          '${sub.name} $days gün içinde yenileniyor.',
+          NotificationType.renewalUpcoming,
+        ),
+    };
+    return AppNotification(
+      id: '${sub.id}_${_dateKey(sub.nextRenewalDate)}',
+      title: title,
+      body: body,
+      type: type,
+      subscriptionId: sub.id,
+      createdAt: now,
+    );
+  }
+
+  AppNotification? _trialNotification(Subscription sub, DateTime now) {
+    final end = sub.trialEndDate;
+    if (end == null) return null;
+    final today = DateTime(now.year, now.month, now.day);
+    final local = end.toLocal();
+    final endDay = DateTime(local.year, local.month, local.day);
+    final days = endDay.difference(today).inDays;
+    if (days < 0 || days > 7) return null;
+    final (title, body, type) = switch (days) {
+      0 => (
+          'Ücretsiz deneme bugün sona eriyor',
+          '${sub.name} ücretsiz denemesi bugün sona eriyor.',
+          NotificationType.trialToday,
+        ),
+      <= 3 => (
+          'Denemenin bitmesine $days gün kaldı',
+          '${sub.name} ücretsiz denemesi $days gün içinde sona eriyor.',
+          NotificationType.trialSoon,
+        ),
+      _ => (
+          'Denemenin bitmesine $days gün kaldı',
+          '${sub.name} ücretsiz denemesi $days gün içinde sona eriyor.',
+          NotificationType.trialUpcoming,
+        ),
+    };
+    return AppNotification(
+      id: '${sub.id}_trial_${_dateKey(endDay)}',
+      title: title,
+      body: body,
+      type: type,
+      subscriptionId: sub.id,
+      createdAt: now,
+    );
   }
 }

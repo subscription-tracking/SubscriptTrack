@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/domain/money.dart';
+import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/utils/date_time_utils.dart';
-import '../../../subscriptions/presentation/screens/add_subscription_screen.dart';
+import '../../../subscriptions/domain/subscription_models.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../calendar_controller.dart';
 import '../widgets/calendar_day_cell.dart';
@@ -50,106 +53,34 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildContent(BuildContext context) {
     final subscriptions = widget.controller;
     final cal = CalendarController(subscriptions: subscriptions);
-    final renewalDays =
-        cal.renewalDaysInMonth(_focusedMonth.year, _focusedMonth.month);
-    final trialDays =
-        cal.trialDaysInMonth(_focusedMonth.year, _focusedMonth.month);
-    final selectedEvents = _selectedDay != null
-        ? [
-            ...cal.renewalsForDay(_selectedDay!),
-            ...cal.trialsForDay(_selectedDay!)
-          ]
-        : <dynamic>[];
-    final monthTotals =
-        cal.totalsByCurrencyForMonth(_focusedMonth.year, _focusedMonth.month);
-    final today = DateTime.now();
-    final urgentDays = <DateTime>{};
-    for (final day in {...renewalDays, ...trialDays}) {
-      final diff =
-          day.difference(DateTime(today.year, today.month, today.day)).inDays;
-      if (diff >= 0 && diff <= 3) urgentDays.add(day);
-    }
+    final year = _focusedMonth.year;
+    final month = _focusedMonth.month;
+    final renewalDays = cal.renewalDaysInMonth(year, month);
+    final trialDays = cal.trialDaysInMonth(year, month);
+    final eventDays = {...renewalDays, ...trialDays};
+    final selected = _selectedDay;
+    final selectedEvents = selected == null
+        ? const <Subscription>[]
+        : [...cal.renewalsForDay(selected), ...cal.trialsForDay(selected)];
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed: _prevMonth,
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      '${_monthName(_focusedMonth.month)} ${_focusedMonth.year}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    if (monthTotals.isNotEmpty)
-                      ...monthTotals.entries.map(
-                        (e) => Text(
-                          '${DateTimeUtils.formatCurrency(e.value.amount, symbol: e.key)} bu ay',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _nextMonth,
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: AppSpacing.screen,
-          child: Row(
-            children: ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz']
-                .map((d) => Expanded(
-                      child: Center(
-                        child: Text(
-                          d,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ))
-                .toList(),
-          ),
-        ),
+        _monthHeader(context, cal.totalsByCurrencyForMonth(year, month)),
+        _weekdayRow(context),
         const SizedBox(height: AppSpacing.xs),
         Padding(
           padding: AppSpacing.screen,
-          child: _buildGrid({...renewalDays, ...trialDays}, urgentDays),
+          child: _buildGrid(eventDays, _urgentDays(eventDays)),
         ),
         const Divider(height: 24),
         Expanded(
           child: selectedEvents.isEmpty
               ? _EmptyDayState(
-                  hasSelection: _selectedDay != null,
-                  onAddForDay: _selectedDay == null
+                  hasSelection: selected != null,
+                  onAddForDay: selected == null
                       ? null
-                      : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => AddSubscriptionScreen(
-                                controller: subscriptions,
-                                initialStartDate: _selectedDay,
-                              ),
-                            ),
-                          ),
+                      : () =>
+                          context.push(AppRoutes.addSubscriptionOn(selected)),
                 )
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -162,6 +93,72 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
         ),
       ],
+    );
+  }
+
+  /// Bugünden itibaren 3 gün içinde olan gün(ler).
+  static Set<DateTime> _urgentDays(Iterable<DateTime> days) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return {
+      for (final day in days)
+        if (day.difference(today).inDays >= 0 &&
+            day.difference(today).inDays <= 3)
+          day,
+    };
+  }
+
+  Widget _monthHeader(BuildContext context, Map<String, Money> monthTotals) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: _prevMonth,
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  '${_monthName(_focusedMonth.month)} ${_focusedMonth.year}',
+                  style: textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                for (final e in monthTotals.entries)
+                  Text(
+                    '${DateTimeUtils.formatCurrency(e.value.amount, symbol: e.key)} bu ay',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: _nextMonth,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _weekdayRow(BuildContext context) {
+    final style = Theme.of(context)
+        .textTheme
+        .bodySmall
+        ?.copyWith(fontWeight: FontWeight.w600);
+    return Padding(
+      padding: AppSpacing.screen,
+      child: Row(
+        children: [
+          for (final d in const ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'])
+            Expanded(child: Center(child: Text(d, style: style))),
+        ],
+      ),
     );
   }
 
@@ -289,7 +286,7 @@ class _EmptyDayState extends StatelessWidget {
             TextButton.icon(
               onPressed: onAddForDay,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Bu güne abonelik ekle'),
+              label: const Text('Bu tarihte başlayan abonelik ekle'),
             ),
           ],
         ],

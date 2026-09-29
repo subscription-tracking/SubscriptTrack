@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../errors/error_messages.dart';
 import '../config/app_environment.dart';
 
 /// Batches in-app notification read events and persists them to Supabase.
@@ -15,8 +16,9 @@ class NotificationReadSyncService {
           .update({'read_at': DateTime.now().toUtc().toIso8601String()})
           .inFilter('id', ids.toList())
           .isFilter('read_at', null);
-    } catch (_) {
+    } catch (e) {
       // Best-effort: local SharedPreferences read state is the source of truth.
+      logIgnoredError('NotificationReadSyncService', e);
     }
   }
 }

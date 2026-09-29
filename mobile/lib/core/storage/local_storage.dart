@@ -15,13 +15,13 @@ class LocalStorage {
   static const _prefixSavingsEvents = 'savings_events_';
 
   static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(),
   );
 
   // Abonelikler — userId bazlı anahtar
   Future<String?> readSubscriptions(String userId) async {
     final key = '$_prefixSubscriptions$userId';
-    var value = await _storage.read(key: key);
+    final value = await _storage.read(key: key);
     if (value != null) return value;
 
     // Sürüm yükseltmesinde eski SharedPreferences verisini şifreli depoya

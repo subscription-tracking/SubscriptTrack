@@ -1,19 +1,20 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/domain/money.dart';
+import '../../core/navigation/app_routes.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/notifications/domain/notification_rule.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../../features/settings/presentation/settings_controller.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
 import '../../features/subscriptions/domain/subscription_models.dart';
-import '../../features/subscriptions/presentation/screens/subscription_detail_screen.dart';
-import '../../core/services/local_notification_service.dart';
+import '../../core/services/notification_scheduler.dart';
 import '../../core/services/notification_read_sync_service.dart';
-import 'app_shell.dart';
 
 /// Login ekranındaki "Test hesabıyla gir" kısayolu — boş bir panelle test
 /// etmek anlamsız olduğundan, bu hesap ilk kez giriş yapıp hiç aboneliği
@@ -21,7 +22,10 @@ import 'app_shell.dart';
 const _testAccountEmail = 'testkullanici@subscripttrack.app';
 
 class AuthenticatedShell extends StatefulWidget {
-  const AuthenticatedShell({super.key});
+  const AuthenticatedShell({required this.child, super.key});
+
+  /// Kabuğun altındaki rota içeriği (GoRouter `ShellRoute` navigator'ı).
+  final Widget child;
 
   @override
   State<AuthenticatedShell> createState() => _AuthenticatedShellState();
@@ -29,6 +33,8 @@ class AuthenticatedShell extends StatefulWidget {
 
 class _AuthenticatedShellState extends State<AuthenticatedShell>
     with WidgetsBindingObserver {
+  late final SettingsController _settings;
+  late final NotificationScheduler _notifications;
   SubscriptionController? _subs;
   NotificationController? _notif;
   String? _userId;
@@ -41,6 +47,8 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
   @override
   void initState() {
     super.initState();
+    _settings = context.read<SettingsController>();
+    _notifications = context.read<NotificationScheduler>();
     final auth = context.read<AuthController>();
     final user = auth.user;
     if (user == null) {
@@ -52,6 +60,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     _userId = user.id;
     _subs = SubscriptionController(
       userId: user.id,
+      notifications: _notifications,
       onUnauthorized: () => auth.signOut(),
     );
     _notif = NotificationController(
@@ -59,18 +68,20 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     );
     _notif!.loadReadState();
     _subs!.addListener(_onSubscriptionsChanged);
-    SettingsController.instance.addListener(_onSettingsChanged);
+    _settings.addListener(_onSettingsChanged);
     WidgetsBinding.instance.addObserver(this);
     _subs!.load().then((_) => _seedTestAccountIfEmpty(user.email));
     _notif!.load(user.id).catchError((_) {});
-    LocalNotificationService.onNotificationTap = _handleNotificationTap;
-    LocalNotificationService.onSnoozeRequested = _handleSnoozeRequested;
+    _notifications.onNotificationTap = _handleNotificationTap;
+    _notifications.onSnoozeRequested = _handleSnoozeRequested;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleColdStartNotification();
     });
   }
 
   Future<void> _seedTestAccountIfEmpty(String email) async {
+    // Örnek veri yalnızca debug build'lerde tohumlanır.
+    if (!kDebugMode) return;
     if (email.trim().toLowerCase() != _testAccountEmail) return;
     final subs = _subs;
     if (subs == null || subs.allItems.isNotEmpty) return;
@@ -117,8 +128,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
   /// Uygulama, kapalıyken bir bildirime dokunularak açıldıysa (Test 35'in
   /// "cold start" durumu), ilk frame sonrası ilgili detay ekranına gider.
   Future<void> _handleColdStartNotification() async {
-    final id =
-        await LocalNotificationService.getLaunchNotificationSubscriptionId();
+    final id = await _notifications.getLaunchNotificationSubscriptionId();
     if (id != null) _handleNotificationTap(id);
   }
 
@@ -139,20 +149,13 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
     }
     if (!mounted) return;
     _pendingNotificationSubscriptionId = null;
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => SubscriptionDetailScreen(
-          subscription: sub,
-          controller: _subs!,
-        ),
-      ),
-    );
+    GoRouter.of(context).push(AppRoutes.subscription(sub.id));
   }
 
   void _handleSnoozeRequested(String subscriptionId) {
     final sub = _findSubscription(subscriptionId);
     if (sub == null) return;
-    LocalNotificationService.snooze(sub);
+    _notifications.snooze(sub);
   }
 
   void _onSubscriptionsChanged() {
@@ -172,7 +175,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
   }
 
   void _onSettingsChanged() {
-    final settings = SettingsController.instance;
+    final settings = _settings;
     if (settings.daysBefore != _lastDaysBefore ||
         settings.timezone != _lastTimezone ||
         settings.reminderHour != _lastReminderHour) {
@@ -187,22 +190,22 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
   }
 
   Future<void> _refreshDeviceTimezone() async {
-    if (await LocalNotificationService.refreshDeviceLocalTimezone()) {
+    if (await _notifications.refreshDeviceLocalTimezone()) {
       _scheduleNotifications();
     }
   }
 
   void _scheduleNotifications() {
     if (_subs == null) return;
-    final settings = SettingsController.instance;
+    final settings = _settings;
     if (!settings.notificationsEnabled) {
-      LocalNotificationService.cancelAll();
+      _notifications.cancelAll();
       return;
     }
     _lastDaysBefore = settings.daysBefore;
     _lastTimezone = settings.timezone;
     _lastReminderHour = settings.reminderHour;
-    LocalNotificationService.scheduleRenewalReminders(
+    _notifications.scheduleRenewalReminders(
       _subs!.active,
       settings.daysBefore,
       timezone: settings.timezone,
@@ -213,16 +216,15 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
 
   @override
   void dispose() {
-    SettingsController.instance.removeListener(_onSettingsChanged);
+    // Yöntem tear-off'ları `==` ile eşleşir ama `identical` ile eşleşmez.
+    _settings.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     _subs?.removeListener(_onSubscriptionsChanged);
-    if (identical(
-        LocalNotificationService.onNotificationTap, _handleNotificationTap)) {
-      LocalNotificationService.onNotificationTap = null;
+    if (_notifications.onNotificationTap == _handleNotificationTap) {
+      _notifications.onNotificationTap = null;
     }
-    if (identical(
-        LocalNotificationService.onSnoozeRequested, _handleSnoozeRequested)) {
-      LocalNotificationService.onSnoozeRequested = null;
+    if (_notifications.onSnoozeRequested == _handleSnoozeRequested) {
+      _notifications.onSnoozeRequested = null;
     }
     _subs?.dispose();
     _notif?.dispose();
@@ -237,7 +239,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell>
         ChangeNotifierProvider<SubscriptionController>.value(value: _subs!),
         ChangeNotifierProvider<NotificationController>.value(value: _notif!),
       ],
-      child: const AppShell(),
+      child: widget.child,
     );
   }
 }

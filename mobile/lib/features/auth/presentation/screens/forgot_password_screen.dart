@@ -4,9 +4,17 @@ import '../../../../core/config/app_environment.dart';
 import '../auth_controller.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({required this.controller, super.key});
+  const ForgotPasswordScreen({
+    required this.controller,
+    this.emailResetAvailable,
+    super.key,
+  });
 
   final AuthController controller;
+
+  /// E-posta ile sıfırlama kullanılabilir mi? Verilmezse yalnızca Supabase
+  /// yapılandırıldığında (`EnvironmentConfig`) kullanılabilir sayılır.
+  final bool? emailResetAvailable;
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -38,16 +46,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(title: const Text('Şifremi unuttum')),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: !EnvironmentConfig.isSupabaseConfigured
+        child: !(widget.emailResetAvailable ??
+                EnvironmentConfig.isSupabaseConfigured)
             ? const _UnavailableInLocalMode()
             : _sent
                 ? _SuccessView(email: _email.text.trim())
-                : _FormView(
-                    formKey: _formKey,
-                    email: _email,
-                    controller: widget.controller,
-                    colors: colors,
-                    onSubmit: _submit,
+                // Hata metni ve yükleme durumu controller'dan geldiği için
+                // form onu dinlemelidir.
+                : ListenableBuilder(
+                    listenable: widget.controller,
+                    builder: (context, _) => _FormView(
+                      formKey: _formKey,
+                      email: _email,
+                      controller: widget.controller,
+                      colors: colors,
+                      onSubmit: _submit,
+                    ),
                   ),
       ),
     );
@@ -69,8 +83,7 @@ class _UnavailableInLocalMode extends StatelessWidget {
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
             const Text(
-              'Bu kurulum cihaz içi test hesabı kullanıyor; e-posta gönderimi yok. '
-              'Şifre sıfırlama, Supabase ile giriş yapılan sürümde kullanılabilir.',
+              'Bu sürümde e-posta gönderimi kapalı olduğu için şifreni sıfırlayamazsın.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/navigation/app_routes.dart';
 import '../../../../shared/widgets/ambient_background.dart';
-import '../../../settings/presentation/screens/privacy_policy_screen.dart';
-import '../../../settings/presentation/screens/terms_of_service_screen.dart';
 import '../auth_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -58,9 +58,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-
     return Scaffold(
       body: AmbientBackground(
         child: SafeArea(
@@ -73,131 +70,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   children: [
-                    const BrandMark(),
-                    const SizedBox(height: 28),
-                    EntranceFade(
-                      child: GlowOrb(
-                          icon: Icons.person_add_alt_1_rounded,
-                          color: colors.primary),
-                    ),
-                    const SizedBox(height: 24),
-                    EntranceFade(
-                      child: Text('Hesap oluştur',
-                          style: text.headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.w800)),
-                    ),
-                    const SizedBox(height: 6),
-                    EntranceFade(
-                      delay: const Duration(milliseconds: 60),
-                      child: Text('Aboneliklerini takip etmeye başla.',
-                          style: text.bodyLarge
-                              ?.copyWith(color: colors.onSurfaceVariant)),
-                    ),
+                    ..._header(context),
                     const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'E-posta',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (v) => v == null || !v.contains('@')
-                          ? 'Geçerli bir e-posta gir'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: _obscure,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: 'Şifre',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscure
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined),
-                          onPressed: () => setState(() => _obscure = !_obscure),
-                        ),
-                      ),
-                      validator: (v) => v == null || v.length < 6
-                          ? 'En az 6 karakter gir'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _confirm,
-                      obscureText: _obscure,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _submit(),
-                      decoration: const InputDecoration(
-                        labelText: 'Şifre tekrar',
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
-                      validator: (v) =>
-                          v != _password.text ? 'Şifreler eşleşmiyor' : null,
-                    ),
+                    ..._fields(),
                     const SizedBox(height: 12),
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      value: _agreedToTerms,
-                      onChanged: (v) =>
-                          setState(() => _agreedToTerms = v ?? false),
-                      title: Wrap(
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => const TermsOfServiceScreen(),
-                              ),
-                            ),
-                            child: Text(
-                              'kullanım şartlarını',
-                              style: TextStyle(
-                                color: colors.primary,
-                                fontWeight: FontWeight.w700,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                          const Text(' ve '),
-                          GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => const PrivacyPolicyScreen(),
-                              ),
-                            ),
-                            child: Text(
-                              'gizlilik politikasını',
-                              style: TextStyle(
-                                color: colors.primary,
-                                fontWeight: FontWeight.w700,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                          const Text(' okudum, kabul ediyorum.'),
-                        ],
-                      ),
-                    ),
+                    _termsCheckbox(context),
                     const SizedBox(height: 16),
-                    FilledButton(
-                      onPressed: (widget.controller.loading || !_agreedToTerms)
-                          ? null
-                          : _submit,
-                      child: widget.controller.loading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Text('Kayıt ol'),
-                    ),
+                    _submitButton(),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: widget.onLoginTap,
@@ -208,6 +87,136 @@ class _RegisterScreenState extends State<RegisterScreen> {
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _header(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return [
+      const BrandMark(),
+      const SizedBox(height: 28),
+      EntranceFade(
+        child: GlowOrb(
+            icon: Icons.person_add_alt_1_rounded, color: colors.primary),
+      ),
+      const SizedBox(height: 24),
+      EntranceFade(
+        child: Text('Hesap oluştur',
+            style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+      ),
+      const SizedBox(height: 6),
+      EntranceFade(
+        delay: const Duration(milliseconds: 60),
+        child: Text('Aboneliklerini takip etmeye başla.',
+            style: text.bodyLarge?.copyWith(color: colors.onSurfaceVariant)),
+      ),
+    ];
+  }
+
+  List<Widget> _fields() {
+    return [
+      TextFormField(
+        controller: _email,
+        keyboardType: TextInputType.emailAddress,
+        textInputAction: TextInputAction.next,
+        decoration: const InputDecoration(
+          labelText: 'E-posta',
+          prefixIcon: Icon(Icons.email_outlined),
+        ),
+        validator: (v) =>
+            v == null || !v.contains('@') ? 'Geçerli bir e-posta gir' : null,
+      ),
+      const SizedBox(height: 16),
+      TextFormField(
+        controller: _password,
+        obscureText: _obscure,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          labelText: 'Şifre',
+          prefixIcon: const Icon(Icons.lock_outline),
+          suffixIcon: IconButton(
+            icon: Icon(_obscure
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined),
+            onPressed: () => setState(() => _obscure = !_obscure),
+          ),
+        ),
+        validator: (v) =>
+            v == null || v.length < 6 ? 'En az 6 karakter gir' : null,
+      ),
+      const SizedBox(height: 16),
+      TextFormField(
+        controller: _confirm,
+        obscureText: _obscure,
+        textInputAction: TextInputAction.done,
+        onFieldSubmitted: (_) => _submit(),
+        decoration: const InputDecoration(
+          labelText: 'Şifre tekrar',
+          prefixIcon: Icon(Icons.lock_outline),
+        ),
+        validator: (v) => v != _password.text ? 'Şifreler eşleşmiyor' : null,
+      ),
+    ];
+  }
+
+  Widget _termsCheckbox(BuildContext context) {
+    return CheckboxListTile(
+      contentPadding: EdgeInsets.zero,
+      controlAffinity: ListTileControlAffinity.leading,
+      value: _agreedToTerms,
+      onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
+      title: Wrap(
+        children: [
+          _LegalLink(
+            label: 'kullanım şartlarını',
+            onTap: () => context.push(AppRoutes.termsOfService),
+          ),
+          const Text(' ve '),
+          _LegalLink(
+            label: 'gizlilik politikasını',
+            onTap: () => context.push(AppRoutes.privacyPolicy),
+          ),
+          const Text(' okudum, kabul ediyorum.'),
+        ],
+      ),
+    );
+  }
+
+  Widget _submitButton() {
+    final loading = widget.controller.loading;
+    return FilledButton(
+      onPressed: (loading || !_agreedToTerms) ? null : _submit,
+      child: loading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: Colors.white),
+            )
+          : const Text('Kayıt ol'),
+    );
+  }
+}
+
+class _LegalLink extends StatelessWidget {
+  const _LegalLink({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w700,
+          decoration: TextDecoration.underline,
         ),
       ),
     );

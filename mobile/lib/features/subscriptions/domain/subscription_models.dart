@@ -250,57 +250,62 @@ class Subscription {
       };
 
   factory Subscription.fromJson(Map<String, dynamic> json) {
-    final SubscriptionStatus status;
-    if (json['status'] != null) {
-      status = SubscriptionStatusExt.fromKey(json['status'] as String);
-    } else {
-      status = (json['isArchived'] as bool? ?? false)
-          ? SubscriptionStatus.archived
-          : SubscriptionStatus.active;
-    }
+    final trialPrice = _pick(json, 'trialPriceAfter', 'trial_price_after');
     return Subscription(
       id: (json['id'] ?? '') as String,
-      userId: (json['userId'] ?? json['user_id'] ?? '') as String,
+      userId: _text(json, 'userId', 'user_id'),
       name: (json['name'] ?? '') as String,
       amount: Money.fromJson(json['amount']),
       currency: json['currency'] as String? ?? 'TRY',
       billingCycle: BillingCycleLabel.fromKey(
-        (json['billingCycle'] ?? json['billing_cycle'] ?? 'monthly') as String,
+        _text(json, 'billingCycle', 'billing_cycle', 'monthly'),
       ),
-      startDate: DateTime.tryParse(
-            (json['startDate'] ?? json['start_date'] ?? '') as String,
-          ) ??
-          DateTime.now(),
-      nextRenewalDate: DateTime.tryParse(
-            (json['nextRenewalDate'] ?? json['next_renewal_date'] ?? '')
-                as String,
-          ) ??
-          DateTime.now(),
+      startDate: _date(json, 'startDate', 'start_date') ?? DateTime.now(),
+      nextRenewalDate:
+          _date(json, 'nextRenewalDate', 'next_renewal_date') ?? DateTime.now(),
       category: SubscriptionCategoryLabel.fromKey(
         (json['category'] ?? 'other') as String,
       ),
       notes: json['notes'] as String?,
-      paymentMethod:
-          (json['paymentMethod'] ?? json['payment_method']) as String?,
-      trialEndDate: DateTime.tryParse(
-        (json['trialEndDate'] ?? json['trial_end_date'] ?? '') as String,
-      ),
-      trialPriceAfter:
-          (json['trialPriceAfter'] ?? json['trial_price_after']) == null
-              ? null
-              : Money.fromJson(
-                  json['trialPriceAfter'] ?? json['trial_price_after']),
-      notificationRules: ((json['notificationRules'] ??
-                  json['notification_rules']) as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map(NotificationRule.fromJson)
-              .toList() ??
-          const [NotificationRule(daysBefore: 3)],
-      status: status,
-      createdAt: DateTime.tryParse(
-            (json['createdAt'] ?? json['created_at'] ?? '') as String,
-          ) ??
-          DateTime.now().toUtc(),
+      paymentMethod: _pick(json, 'paymentMethod', 'payment_method') as String?,
+      trialEndDate: _date(json, 'trialEndDate', 'trial_end_date'),
+      trialPriceAfter: trialPrice == null ? null : Money.fromJson(trialPrice),
+      notificationRules: _rules(json),
+      status: _status(json),
+      createdAt:
+          _date(json, 'createdAt', 'created_at') ?? DateTime.now().toUtc(),
     );
+  }
+
+  /// camelCase anahtar yoksa snake_case anahtara düşer.
+  static Object? _pick(Map<String, dynamic> json, String camel, String snake) =>
+      json[camel] ?? json[snake];
+
+  static String _text(
+    Map<String, dynamic> json,
+    String camel,
+    String snake, [
+    String fallback = '',
+  ]) =>
+      (_pick(json, camel, snake) ?? fallback) as String;
+
+  static DateTime? _date(
+          Map<String, dynamic> json, String camel, String snake) =>
+      DateTime.tryParse(_text(json, camel, snake));
+
+  static List<NotificationRule> _rules(Map<String, dynamic> json) =>
+      (_pick(json, 'notificationRules', 'notification_rules') as List<dynamic>?)
+          ?.whereType<Map<String, dynamic>>()
+          .map(NotificationRule.fromJson)
+          .toList() ??
+      const [NotificationRule(daysBefore: 3)];
+
+  /// Eski kayıtlarda `status` yoktur; `isArchived` bayrağından türetilir.
+  static SubscriptionStatus _status(Map<String, dynamic> json) {
+    final key = json['status'] as String?;
+    if (key != null) return SubscriptionStatusExt.fromKey(key);
+    return (_pick(json, 'isArchived', 'is_archived') as bool? ?? false)
+        ? SubscriptionStatus.archived
+        : SubscriptionStatus.active;
   }
 }

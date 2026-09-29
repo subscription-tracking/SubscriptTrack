@@ -12,11 +12,19 @@ class ExportException implements Exception {
 }
 
 class SupabaseExportRepository {
-  SupabaseClient get _client => Supabase.instance.client;
+  SupabaseExportRepository({SupabaseClient? client, bool? configured})
+      : _injected = client,
+        _configured = configured;
+
+  final SupabaseClient? _injected;
+  final bool? _configured;
+
+  SupabaseClient get _client => _injected ?? Supabase.instance.client;
 
   Future<String> createAndProcess() async {
-    if (!EnvironmentConfig.isSupabaseConfigured) {
-      throw const ExportException('Bulut export bu sürümde yapılandırılmamış.');
+    if (!(_configured ?? EnvironmentConfig.isSupabaseConfigured)) {
+      throw const ExportException(
+          'Bulut üzerinden dışa aktarma bu sürümde kullanılamıyor.');
     }
     try {
       final requested = await _client.rpc('request_export_idempotent', params: {
@@ -25,7 +33,7 @@ class SupabaseExportRepository {
       final row = Map<String, dynamic>.from(requested as Map);
       final exportId = row['id'];
       if (exportId is! String || exportId.isEmpty) {
-        throw const ExportException('Export isteği oluşturulamadı.');
+        throw const ExportException('Dışa aktarma isteği oluşturulamadı.');
       }
       final result = await _client.functions.invoke('process-export', body: {
         'export_id': exportId,
@@ -33,22 +41,16 @@ class SupabaseExportRepository {
       final data = Map<String, dynamic>.from(result.data as Map);
       final url = data['download_url'] as String?;
       if (url == null || url.isEmpty) {
-        throw const ExportException('Export linki üretilemedi.');
+        throw const ExportException('İndirme bağlantısı oluşturulamadı.');
       }
       return url;
-    } on FunctionException catch (e) {
-      throw ExportException(_message(e.details));
+    } on FunctionException {
+      throw const ExportException(
+          'Bulut üzerinden dışa aktarma şu anda kullanılamıyor. Lütfen tekrar dene.');
     } catch (e) {
       if (e is ExportException) rethrow;
       throw const ExportException(
-          'Bulut export şu anda oluşturulamadı. Lütfen tekrar dene.');
+          'Bulut üzerinden dışa aktarma şu anda kullanılamıyor. Lütfen tekrar dene.');
     }
-  }
-
-  static String _message(Object? details) {
-    if (details is Map && details['error'] is String) {
-      return details['error'] as String;
-    }
-    return 'Bulut export şu anda oluşturulamadı. Lütfen tekrar dene.';
   }
 }

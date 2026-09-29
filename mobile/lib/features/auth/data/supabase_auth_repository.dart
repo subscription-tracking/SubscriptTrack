@@ -9,10 +9,40 @@ import '../domain/auth_models.dart';
 /// EnvironmentConfig.isSupabaseConfigured == true olduğunda AuthController
 /// bu sınıfı kullanır. Token yenileme, session kalıcılığı ve güvenli
 /// depolama supabase_flutter tarafından otomatik yönetilir.
-class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource, EmailUpdateDataSource {
-  sb.SupabaseClient get _client => sb.Supabase.instance.client;
+class SupabaseAuthRepository
+    implements
+        AuthDataSource,
+        SocialAuthDataSource,
+        EmailUpdateDataSource,
+        AuthStateDataSource,
+        EmailConfirmationDataSource {
+  /// [client] verilmezse `Supabase.instance` kullanılır (testlerde enjekte edilir).
+  SupabaseAuthRepository({sb.SupabaseClient? client}) : _injected = client;
 
+  final sb.SupabaseClient? _injected;
+
+  sb.SupabaseClient get _client => _injected ?? sb.Supabase.instance.client;
+
+  @override
   bool lastSignUpRequiresEmailConfirmation = false;
+
+  @override
+  Stream<AuthStateChange> get authStateChanges => _client.auth.onAuthStateChange
+      .map((state) {
+        final event = switch (state.event) {
+          sb.AuthChangeEvent.passwordRecovery =>
+            AuthStateEvent.passwordRecovery,
+          sb.AuthChangeEvent.userUpdated => AuthStateEvent.userUpdated,
+          sb.AuthChangeEvent.signedIn => AuthStateEvent.signedIn,
+          sb.AuthChangeEvent.tokenRefreshed => AuthStateEvent.tokenRefreshed,
+          sb.AuthChangeEvent.signedOut => AuthStateEvent.signedOut,
+          _ => null,
+        };
+        final sessionUser = state.session?.user;
+        return (event, sessionUser == null ? null : _toAppUser(sessionUser));
+      })
+      .where((e) => e.$1 != null)
+      .map((e) => AuthStateChange(e.$1!, e.$2));
 
   @override
   Future<AppUser?> currentUser() async {
@@ -146,7 +176,7 @@ class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource, Em
   Future<AppUser> updateEmail(String email) async {
     final normalized = email.trim().toLowerCase();
     if (normalized.isEmpty || !normalized.contains('@')) {
-      throw const AuthException('Geçerli bir e-posta adresi girin.');
+      throw const AuthException('Geçerli bir e-posta adresi gir.');
     }
     try {
       final response = await _client.auth.updateUser(
@@ -173,23 +203,24 @@ class SupabaseAuthRepository implements AuthDataSource, SocialAuthDataSource, Em
 
   String _localizeError(String? message) {
     final m = message?.toLowerCase() ?? '';
-    if (m.contains('invalid login credentials') ||
-        m.contains('invalid email or password')) {
-      return 'E-posta veya şifre hatalı.';
-    }
-    if (m.contains('email already registered') ||
-        m.contains('already exists')) {
-      return 'Bu e-posta zaten kayıtlı.';
-    }
-    if (m.contains('password should be at least')) {
-      return 'Şifre en az 6 karakter olmalı.';
-    }
-    if (m.contains('rate limit')) {
-      return 'Çok fazla deneme. Lütfen biraz bekle.';
-    }
-    if (m.contains('network')) {
-      return 'Bağlantı hatası. İnternet bağlantını kontrol et.';
+    for (final (patterns, text) in _errorMessages) {
+      if (patterns.any(m.contains)) return text;
     }
     return message ?? 'Bir hata oluştu.';
   }
+
+  /// Sunucu hata metninde geçen ifade -> kullanıcıya gösterilen mesaj.
+  static const _errorMessages = <(List<String>, String)>[
+    (
+      ['invalid login credentials', 'invalid email or password'],
+      'E-posta veya şifre hatalı.'
+    ),
+    (
+      ['already registered', 'already been registered', 'already exists'],
+      'Bu e-posta zaten kayıtlı.'
+    ),
+    (['password should be at least'], 'Şifre en az 6 karakter olmalı.'),
+    (['rate limit'], 'Çok fazla deneme. Lütfen biraz bekle.'),
+    (['network'], 'Bağlantı hatası. İnternet bağlantını kontrol et.'),
+  ];
 }

@@ -1,14 +1,14 @@
 # Mobil Uygulama Mimarisi
 
-Son güncelleme: 22 Eylül 2026 (Supabase backend ve özellik envanteri güncellendi)
+Son güncelleme: 30 Eylül 2026 (bağımlılık güncellemesi ve karmaşıklık sadeleştirmesi; bkz. bölüm 12)
 
 ---
 
 ## 1. Teknoloji kararları
 
-- **Flutter 3.44.8 / Dart 3.12.2** — iOS + Android tek kod tabanı (ADR-0008)
+- **Flutter 3.47.2 / Dart 3.13.2** — iOS + Android tek kod tabanı (ADR-0008)
 - **State yönetimi:** `Provider` + `ChangeNotifier` — go_router redirect guard ile entegre
-- **Navigation:** `go_router ^14` — declarative, deep link, redirect guard
+- **Navigation:** `go_router ^18` — declarative, deep link, redirect guard
 - **Backend:** Supabase (auth + PostgREST) — `--dart-define` inject, kaynak kodda secret yok
 - **Para hesaplamaları:** `Money` value class, integer minor unit — floating point drift yok (ADR-0004)
 - **Zaman:** UTC depolama, saat dilimi gösterimde uygulanır (ADR-0005)
@@ -63,7 +63,7 @@ mobile/lib/
     ├── stats/           StatsScreen — per-currency monthly/yearly commitment, category breakdown, payment/projection trend; loading/error/empty/offline states
     ├── savings/         SavingsScreen — multi-currency top-3 scenario kartlar, yerel/bulut geçmiş
     ├── onboarding/      OnboardingScreen — 4 sayfa, ilk açılışta
-    └── settings/        SettingsController — theme, currency, timezone, daysBefore, notifications, paymentMethods
+    └── settings/        SettingsController — currency, timezone, daysBefore, notifications, paymentMethods
                          data/payment_methods_api.dart — authenticated Edge Function API istemcisi
                          AppearanceScreen, NotificationPreferencesScreen, PaymentMethodsScreen
                          ExportDataScreen (CSV), DeleteAccountScreen
@@ -110,8 +110,9 @@ Her `ChangeNotifier` controller şu durumları yönetir:
 İstatistik sekmesi ana `AppShell` içindeki Scaffold'a gömülüdür; bu kipte
 `StatsScreen` yalnızca içerik widget'ı döndürür. Aylık/yıllık tutarlar para
 birimi başına aktif aboneliklerin aylıklaştırılmış tutarlarından hesaplanır.
-Ödeme kaydı yoksa trend açıkça planlanan taahhüt projeksiyonu olarak etiketlenir;
-gerçek ödeme kayıtları varsa gerçekleşen tutarlar gösterilir. İlk yükleme,
+Ödeme kaydı yoksa trend grafiği geçmiş ayları uydurma tutarlarla doldurmaz;
+yalnızca aktif aboneliklerden hesaplanan bu ayın tahmini toplamını gösterir.
+Ödeme kayıtları varsa seçilen dönemin kaydedilmiş tutarları gösterilir. İlk yükleme,
 hata, abonelik bulunmaması ve cache'ten çevrimdışı görüntüleme ayrı UI
 durumlarıdır.
 
@@ -183,7 +184,7 @@ Fiziksel silme controller katmanında yalnızca `mistakenRecord: true` ile
 | Güvenlik | Secret scan (kaynak kodda URL/JWT/service_role yok) | `security_scan_test` |
 | Form | `SubscriptionForm` validasyon | `subscription_form_test` |
 
-Toplam: **189 test**, hepsi yeşil (`flutter test --no-pub`)
+Toplam: **409 test**, hepsi yeşil (`flutter test --no-pub`; 2026-09-29 kod kalitesi sprintinden sonra). `test/architecture_test.dart` katman kurallarını denetler (bkz. bölüm 12).
 
 ---
 
@@ -208,3 +209,96 @@ Supabase Realtime için `public.subscriptions` tablosu `supabase_realtime`
 publication'a eklenmiştir (`backend/migrations/030_realtime_publication.sql`).
 Mobil istemci kullanıcı filtresiyle INSERT/UPDATE/DELETE değişikliklerini
 dinler; iki ayrı oturumla canlı kabul testi yine cihaz/test hesabı gerektirir.
+
+---
+
+## 12. Kod kalitesi sprinti sonrası yapı (2026-09-29)
+
+Davranış değiştirmeden god-file ve katman sızıntıları temizlendi. Ayrıntılı bulgular: `code-review-report/index.html`.
+
+### Abonelik controller'ı parçalandı
+
+`SubscriptionController` (874 → 299 satır) public API'sini korur; iç sorumluluklar ayrıldı:
+
+| Parça | Konum | Sorumluluk |
+|---|---|---|
+| `SubscriptionSelectors` | `subscriptions/domain/subscription_selectors.dart` | active/trials/paused/… listeleri, `totalsByCurrency` (saf, önbellekli) |
+| `SubscriptionLifecycle` | `subscriptions/domain/subscription_lifecycle.dart` | deneme bitişi, gecikmiş yenileme ilerletme (saf) |
+| `OfflineSyncCoordinator` | `subscriptions/data/offline_sync_coordinator.dart` | mutasyon kuyruğu ve `apply/replay` |
+| `SubscriptionCache` | `subscriptions/data/subscription_cache.dart` | çevrimdışı liste önbelleği |
+| `PaymentHistoryStore` | `subscriptions/data/payment_history_store.dart` | ödeme ve tasarruf olayları |
+| `SubscriptionOperations` | `subscriptions/data/subscription_operations.dart` | ekleme, düzenleme, silme, yaşam döngüsü kuralları (iyimser + çevrimdışı kuyruk) |
+| `SubscriptionStatusOperations` | `subscriptions/data/subscription_status_operations.dart` | toplu silme/arşivleme, arşivle/geri al/duraklat/sürdür/iptal |
+| `SubscriptionRealtimeSync` | `subscriptions/data/subscription_realtime_sync.dart` | Supabase Realtime dinleme ve birleştirme |
+
+Controller yeni bağımlılıkları isteğe bağlı ctor parametresi olarak alır (`mutationQueue`, `cache`, `paymentHistory`, `notifications`); testte sahte uygulama enjekte edilebilir.
+
+**Hata düzeltmesi:** Çevrimdışıyken biten deneme, kuyruğa desteklenmeyen `'expire'` tipiyle giriyor ve replay'i kalıcı olarak tıkıyordu. Artık tam abonelik anlık görüntüsüyle `'update'` olarak kuyruğa alınır.
+
+### Katman kuralları (test ile korunur)
+
+- `presentation`, `shared`, `app`: `supabase_flutter` import etmez. Oturum olayları `AuthStateDataSource`, e-posta doğrulama bilgisi `EmailConfirmationDataSource` arayüzüyle; destek/ödeme yöntemi erişimi `SupportCatalogApi.canCreateTicket` / `PaymentMethodsApi.isAvailable` ile sağlanır.
+- `domain`: `data`/`presentation`/`supabase` import etmez (`PaymentEvent` → `stats/domain`, `SavingsEvent` → `savings/domain`; repository dosyaları geriye uyumluluk için re-export eder).
+- `data`: `presentation` import etmez. `core`/`shared`: feature'ların yalnızca `domain` katmanını kullanır.
+- Hiçbir `lib` dosyası 400 satırı aşmaz.
+
+### Yeni saf hesap katmanları
+
+- `stats/domain/payment_analytics.dart` — aylık toplam ve ay-ay değişim; yalnızca `Money.minorUnits` (int) üzerinden. Dashboard ve Stats aynı sınıfı kullanır.
+- `stats/domain/stats_view_model.dart` — Stats ekranı için saf görünüm modeli.
+- `subscriptions/presentation/subscription_list_view_model.dart` — liste filtre/sıralama.
+- `subscriptions/presentation/widgets/subscription_form_validators.dart` — form doğrulayıcıları.
+- `core/services/reminder_planner.dart` — bildirim planlama (saat dilimi, 60 sınır); `NotificationScheduler` arayüzü controller'ı statik `LocalNotificationService`'ten ayırır.
+- `core/errors/error_messages.dart` — `userMessageFor` ham istisna metnini kullanıcıya sızdırmaz; `logIgnoredError` bilinçli yutulan hataları debug günlüğüne yazar.
+- `shared/widgets/async_state_view.dart` — ortak loading/error/empty/offline dallanması (Stats ekranı kullanır).
+
+### Bağımlılık enjeksiyonu (composition root: `app/app.dart`)
+
+- `SettingsController`, `AppLockService` ve `NotificationScheduler` uygulama kökünde oluşturulup `Provider` ile sağlanır; `.instance` singleton'ları kaldırıldı. Feature'lar ayarlara `AppPreferences` arayüzüyle (`core/preferences`) erişir; `InMemoryAppPreferences` yalnızca izole testler içindir.
+- `NotificationScheduler` arayüzü (`core/services`): somut uygulama `LocalNotificationService` (artık örnek sınıf, statik değişken durum yok), web/test için `NoopNotificationScheduler`. Saf planlama `ReminderPlanner`'dadır.
+- `LocalStorage` ve `SecureStorage` durumsuz altyapı sarmalayıcılarıdır (`FlutterSecureStorage` üzerinde); `.instance` erişimi bilinçli olarak korunmuştur ve repository/cache ctor parametresiyle değiştirilebilir.
+
+### Navigasyon (go_router)
+
+- Tüm sayfa geçişleri `context.push(AppRoutes...)` ile yapılır; `Navigator.push`/`MaterialPageRoute` kullanımı test ile yasaklıdır.
+- `core/navigation/app_routes.dart` yalnızca yol sabitlerini içerir (ekran import etmez); yol → ekran eşlemesi `app/router/app_router.dart` içindedir. Böylece feature'lar birbirinin ekranını import etmez.
+- Oturum açmış kullanıcının rotaları bir `ShellRoute` içindedir: `AuthenticatedShell` controller'ları oluşturur ve alt rotalara `Provider` ile sağlar. Rota oluşturucuları controller'ı `Builder` içinden `context.read` ile okur.
+- Sabit yollar (`/subscriptions/add`) `:id` yolundan önce tanımlanmalıdır. Bilinmeyen abonelik id'si "bulunamadı" ekranı gösterir (soğuk başlangıçta liste yüklenene kadar derin bağlantı bu ekrana düşebilir).
+- Testler gerçek rotaları `test/support/routed_app.dart` ile kullanır; `test/app/app_router_test.dart` yönlendirme kurallarını ve shell kapsamını uçtan uca doğrular.
+
+### Katman kuralları (ek)
+
+- `test/architecture_test.dart` ayrıca feature/katman bağımlılık grafiğinin döngüsüz olduğunu ve hiçbir `lib` dosyasının 400 satırı aşmadığını denetler.
+
+### Bilinçli olarak ertelenenler
+
+- `subscriptions → settings` gibi bazı feature'lar arası presentation bağımlılıkları tek yönlü olarak duruyor (ör. dashboard/calendar/stats → `SubscriptionController`); döngü yoktur.
+- Testler `test/features/<feature>/`, `test/core/`, `test/app/`, `test/evidence/` altına taşındı; `evidence_paket*` dosya adları izlenebilirlik için korundu (`TEST_TRACEABILITY.md` yollarla güncellendi).
+
+### Bağımlılık güncellemesi (2026-09-30)
+
+11 doğrudan paketin tamamı güncel (ana sürümce geride: 0/11). Kod tarafında etkilenen noktalar:
+
+| Paket | Değişiklik | Etkilenen yer |
+|---|---|---|
+| `flutter_local_notifications` 18 → 22 | Tüm çağrılar adlandırılmış parametre; `uiLocalNotificationDateInterpretation` kaldırıldı | `core/services/notification_platform.dart` |
+| `timezone` 0.11 | Varsayılan konum adı `Etc/UTC` | `evidence_paket5_notification_test.dart` beklentisi |
+| `flutter_timezone` 5 | `TimezoneInfo` döner (`.identifier`) | `local_notification_service.dart` |
+| `flutter_secure_storage` 11 | `encryptedSharedPreferences` seçeneği kaldırıldı, `AndroidOptions()` kullanılır | `local_storage`, `secure_storage`, `secure_supabase_storage`, `offline_mutation_queue` |
+| `local_auth` 3 | `AuthenticationOptions` yok; `biometricOnly`, `persistAcrossBackgrounding` doğrudan parametre | `app_lock_service.dart` |
+| `share_plus` 13 | `SharePlus.instance.share(ShareParams(...))` | export ve feedback ekranları |
+| `file_picker` 13 | Statik `FilePicker.pickFile`, `PlatformFile.readAsBytes` | `csv_import_screen.dart` |
+| `google_fonts` 9 | `material_ui` `TextTheme` tipi; alan alan dönüştürülür | `app/theme/app_theme.dart` |
+| `go_router` 18, `supabase_flutter` 2.17, `flutter_lints` 6 | Kod değişikliği gerekmedi | — |
+
+**Risk (cihazda doğrulanmadı):** `flutter_secure_storage` 11 Android'de EncryptedSharedPreferences yerine yeni AES-GCM/RSA depolamayı kullanır. Mevcut kullanıcıların kuyruk ve önbellek verisinin geçişi paketin yerleşik geçişine dayanır; gerçek cihazda güncelleme senaryosu denenmelidir.
+
+### Karmaşıklık sadeleştirmesi (2026-09-30)
+
+- Ölçüm: `tools/quality/complexity`. CC>10 metot oranı %0,53 (5 metot; en yüksek CC 14, `Subscription.copyWith`), 60 satırı aşan metot oranı %2,89.
+- `Subscription.fromJson` küçük yardımcılara ayrıldı; `SupabaseSubscriptionRepository._fromRow` artık `Subscription.fromJson`'a devreder (camelCase/snake_case, `isArchived`/`is_archived` tek yerde).
+- `CsvImportParser.parse` başlık doğrulama ve `_parseRow` olarak, `NotificationController._generate` yenileme/deneme üreticilerine, `OfflineSyncCoordinator.apply` yaşam döngüsü geçişi yardımcısına bölündü.
+- Uzun `build` metotları özel alt widget'lara bölündü (trend/insights/hero kartları, giriş/kayıt/şifre ekranları, dashboard, abonelik listesi, detay bölümleri vb.). Davranış değişmedi.
+- `shared/widgets/app_offline_banner.dart` içine `AppStatusBanner` eklendi (çevrimdışı şeridi veya kapatılabilir hata bandı); dashboard ve abonelik listesi kullanır.
+- `AppTheme.dark` metin, buton ve girdi temalarını ayrı statik üyelere ayırır; `AppRouter.contentRoutes` abonelik/analiz/ayar gruplarına bölündü (sıra kuralı korunur).
+- Doğrulama: 723 test yeşil, `flutter analyze` temiz, `flutter build apk --release` başarılı (60,2 MB).

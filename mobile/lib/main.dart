@@ -22,9 +22,10 @@ void main() async {
     );
   }
 
+  final notifications = LocalNotificationService();
   if (!kIsWeb) {
-    await LocalNotificationService.initialize();
+    await notifications.initialize();
   }
 
-  runApp(const SubscriptTrackApp());
+  runApp(SubscriptTrackApp(notifications: notifications));
 }

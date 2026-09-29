@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/storage/local_storage.dart';
+import '../../../../core/errors/error_messages.dart';
 import '../../../auth/presentation/auth_controller.dart';
 
 class DeleteAccountScreen extends StatefulWidget {
@@ -48,13 +48,13 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     }
 
     try {
-      await widget.auth.deleteAccount(LocalStorage.instance);
+      await widget.auth.deleteAccount();
       // AuthController unauthenticated durumuna geçer → router login'e yönlendirir.
     } catch (e) {
       if (mounted) {
         setState(() {
           _deleting = false;
-          _error = e.toString();
+          _error = userMessageFor(e);
         });
       }
     }
@@ -105,7 +105,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Onaylamak için aşağıya "sil" yazın:'),
+          const Text('Onaylamak için aşağıya "sil" yaz:'),
           const SizedBox(height: 12),
           TextField(
             controller: _confirm,

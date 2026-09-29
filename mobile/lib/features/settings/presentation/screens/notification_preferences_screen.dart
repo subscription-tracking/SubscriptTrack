@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../../../core/services/local_notification_service.dart';
+import '../../../../core/services/notification_scheduler.dart';
 import '../settings_controller.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
@@ -16,11 +17,13 @@ class NotificationPreferencesScreen extends StatefulWidget {
 class _NotificationPreferencesScreenState
     extends State<NotificationPreferencesScreen> {
   bool _requestingPermission = false;
+  late final NotificationScheduler _notifications =
+      context.read<NotificationScheduler>();
 
   Future<void> _toggleNotifications(bool value) async {
     if (value) {
       setState(() => _requestingPermission = true);
-      final granted = await LocalNotificationService.requestPermission();
+      final granted = await _notifications.requestPermission();
       setState(() => _requestingPermission = false);
       if (!granted && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -31,13 +34,13 @@ class _NotificationPreferencesScreenState
         return;
       }
     } else {
-      await LocalNotificationService.cancelAll();
+      await _notifications.cancelAll();
     }
     await widget.controller.setNotifications(value);
   }
 
   Future<void> _sendTest() async {
-    final granted = await LocalNotificationService.arePermissionsGranted();
+    final granted = await _notifications.arePermissionsGranted();
     if (!granted) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -47,7 +50,7 @@ class _NotificationPreferencesScreenState
       }
       return;
     }
-    await LocalNotificationService.sendTestNotification();
+    await _notifications.sendTestNotification();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Test bildirimi gönderildi.')),

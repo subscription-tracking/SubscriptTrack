@@ -51,7 +51,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _name.text.trim().isNotEmpty && _name.text.trim() != current;
   }
 
-  bool get _emailChanged => _email.text.trim().toLowerCase() != widget.auth.user?.email.toLowerCase();
+  bool get _emailChanged =>
+      _email.text.trim().toLowerCase() != widget.auth.user?.email.toLowerCase();
 
   bool get _canChangePassword =>
       _currentPassword.text.isNotEmpty &&
@@ -80,7 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
     setState(() => _savingEmail = false);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(ok ? 'E-posta güncellendi. Supabase ayarına göre doğrulama istenebilir.' : (widget.auth.error ?? 'E-posta güncellenemedi.')),
+      content: Text(ok
+          ? 'E-posta güncellendi. Yeni adresine doğrulama bağlantısı gönderilebilir.'
+          : (widget.auth.error ?? 'E-posta güncellenemedi.')),
     ));
     if (!ok) widget.auth.clearError();
   }
@@ -111,152 +114,205 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
+  void _refresh() => setState(() {});
+
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final user = widget.auth.user;
     if (user == null) return const SizedBox.shrink();
+    final titleSmall = Theme.of(context).textTheme.titleSmall;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Center(
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: colors.primaryContainer,
-              child: Text(
-                (user.displayName?.isNotEmpty == true
-                        ? user.displayName!
-                        : user.email)[0]
-                    .toUpperCase(),
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onPrimaryContainer,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Center(
-            child: Text(
-              user.email,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Center(
-            child: Text(
-              'Üye olma: ${_formatDate(user.createdAt)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+          _ProfileHeader(
+            email: user.email,
+            displayName: user.displayName,
+            memberSince: _formatDate(user.createdAt),
           ),
           const SizedBox(height: 28),
-          Text('İsim', style: Theme.of(context).textTheme.titleSmall),
+          Text('İsim', style: titleSmall),
           const SizedBox(height: 8),
           TextField(
             controller: _name,
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) => _refresh(),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.person_outline),
               hintText: 'Adın',
             ),
           ),
           const SizedBox(height: 12),
-          FilledButton(
-            onPressed: (_nameChanged && !_savingName) ? _saveName : null,
-            child: _savingName
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
-                  )
-                : const Text('Kaydet'),
+          _BusyButton(
+            label: 'Kaydet',
+            busy: _savingName,
+            onPressed: _nameChanged ? _saveName : null,
           ),
           const SizedBox(height: 28),
-          Text('E-posta', style: Theme.of(context).textTheme.titleSmall),
+          Text('E-posta', style: titleSmall),
           const SizedBox(height: 8),
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) => _refresh(),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.email_outlined),
-              helperText: 'Supabase e-posta doğrulaması açıksa yeni adrese onay gönderilir.',
+              helperText:
+                  'E-posta adresini doğrulaman istenirse yeni adresine bir bağlantı gönderilir.',
             ),
           ),
           const SizedBox(height: 12),
-          FilledButton(
-            onPressed: (_emailChanged && !_savingEmail) ? _saveEmail : null,
-            child: _savingEmail ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('E-postayı güncelle'),
+          _BusyButton(
+            label: 'E-postayı güncelle',
+            busy: _savingEmail,
+            onPressed: _emailChanged ? _saveEmail : null,
           ),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 20),
-          Text('Şifre değiştir', style: Theme.of(context).textTheme.titleSmall),
+          Text('Şifre değiştir', style: titleSmall),
           const SizedBox(height: 12),
-          TextField(
-            controller: _currentPassword,
-            obscureText: _obscureCurrent,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              labelText: 'Mevcut şifre',
-              prefixIcon: const Icon(Icons.lock_outline),
-              suffixIcon: IconButton(
-                icon: Icon(_obscureCurrent
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined),
-                onPressed: () =>
-                    setState(() => _obscureCurrent = !_obscureCurrent),
-              ),
-            ),
-          ),
+          _passwordFields(),
           const SizedBox(height: 12),
-          TextField(
-            controller: _newPassword,
-            obscureText: _obscureNew,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              labelText: 'Yeni şifre (en az 6 karakter)',
-              prefixIcon: const Icon(Icons.lock_reset_outlined),
-              suffixIcon: IconButton(
-                icon: Icon(_obscureNew
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined),
-                onPressed: () => setState(() => _obscureNew = !_obscureNew),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _confirmPassword,
-            obscureText: _obscureNew,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              labelText: 'Yeni şifre (tekrar)',
-              prefixIcon: const Icon(Icons.lock_reset_outlined),
-              errorText: _passwordError,
-            ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton(
-            onPressed: (_canChangePassword && !_changingPassword)
-                ? _changePassword
-                : null,
-            child: _changingPassword
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
-                  )
-                : const Text('Şifreyi güncelle'),
+          _BusyButton(
+            label: 'Şifreyi güncelle',
+            busy: _changingPassword,
+            onPressed: _canChangePassword ? _changePassword : null,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _passwordFields() {
+    return Column(
+      children: [
+        TextField(
+          controller: _currentPassword,
+          obscureText: _obscureCurrent,
+          onChanged: (_) => _refresh(),
+          decoration: InputDecoration(
+            labelText: 'Mevcut şifre',
+            prefixIcon: const Icon(Icons.lock_outline),
+            suffixIcon: _VisibilityToggle(
+              obscured: _obscureCurrent,
+              onPressed: () =>
+                  setState(() => _obscureCurrent = !_obscureCurrent),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _newPassword,
+          obscureText: _obscureNew,
+          onChanged: (_) => _refresh(),
+          decoration: InputDecoration(
+            labelText: 'Yeni şifre (en az 6 karakter)',
+            prefixIcon: const Icon(Icons.lock_reset_outlined),
+            suffixIcon: _VisibilityToggle(
+              obscured: _obscureNew,
+              onPressed: () => setState(() => _obscureNew = !_obscureNew),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _confirmPassword,
+          obscureText: _obscureNew,
+          onChanged: (_) => _refresh(),
+          decoration: InputDecoration(
+            labelText: 'Yeni şifre (tekrar)',
+            prefixIcon: const Icon(Icons.lock_reset_outlined),
+            errorText: _passwordError,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({
+    required this.email,
+    required this.displayName,
+    required this.memberSince,
+  });
+
+  final String email;
+  final String? displayName;
+  final String memberSince;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final small = Theme.of(context).textTheme.bodySmall;
+    final initial = (displayName?.isNotEmpty == true ? displayName! : email)[0];
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 40,
+          backgroundColor: colors.primaryContainer,
+          child: Text(
+            initial.toUpperCase(),
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: colors.onPrimaryContainer,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(email, style: small),
+        const SizedBox(height: 2),
+        Text('Üye olma: $memberSince', style: small),
+      ],
+    );
+  }
+}
+
+/// İşlem sürerken düğme pasif olur ve etiket yerine ilerleme göstergesi çıkar.
+class _BusyButton extends StatelessWidget {
+  const _BusyButton({
+    required this.label,
+    required this.busy,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool busy;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      onPressed: busy ? null : onPressed,
+      child: busy
+          ? const SizedBox(
+              height: 18,
+              width: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Text(label),
+    );
+  }
+}
+
+class _VisibilityToggle extends StatelessWidget {
+  const _VisibilityToggle({required this.obscured, required this.onPressed});
+
+  final bool obscured;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+          obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+      onPressed: onPressed,
     );
   }
 }

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/navigation/app_routes.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
-import 'delete_account_screen.dart';
-import 'export_data_screen.dart';
-import 'privacy_policy_screen.dart';
-import 'terms_of_service_screen.dart';
 
 class PrivacyCenterScreen extends StatelessWidget {
   const PrivacyCenterScreen(
@@ -31,7 +29,7 @@ class PrivacyCenterScreen extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     const Text(
-                        'Aboneliklerin ve tasarruf kayıtların yalnızca hesabınla ilişkilidir. RLS ile diğer kullanıcılar bu verilere erişemez.'),
+                        'Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Bu bilgilere yalnızca sen erişebilirsin.'),
                   ]),
             ),
           ),
@@ -39,38 +37,25 @@ class PrivacyCenterScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.policy_outlined),
             title: const Text('Gizlilik Politikası'),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (_) => const PrivacyPolicyScreen())),
+            onTap: () => context.push(AppRoutes.privacyPolicy),
           ),
           ListTile(
             leading: const Icon(Icons.gavel_outlined),
             title: const Text('Kullanım Şartları'),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (_) => const TermsOfServiceScreen())),
+            onTap: () => context.push(AppRoutes.termsOfService),
           ),
           ListTile(
             leading: const Icon(Icons.download_outlined),
             title: const Text('Verilerimi dışa aktar'),
             subtitle: const Text('CSV olarak paylaş veya panoya kopyala'),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (_) =>
-                        ExportDataScreen(subscriptions: subscriptions))),
+            onTap: () => context.push(AppRoutes.exportData),
           ),
           ListTile(
             leading: Icon(Icons.delete_forever_outlined, color: error),
             title: Text('Hesabımı ve verilerimi sil',
                 style: TextStyle(color: error)),
             subtitle: const Text('Bu işlem geri alınamaz'),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (_) => DeleteAccountScreen(auth: auth))),
+            onTap: () => context.push(AppRoutes.deleteAccount),
           ),
         ],
       ),

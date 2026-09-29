@@ -9,7 +9,7 @@ import '../../domain/subscription_models.dart';
 import '../../presentation/subscription_controller.dart';
 
 /// Parser'ın (csv_import_parser.dart) gerçekte beklediği başlıklarla birebir
-/// eşleşir — "Veri dışa aktar" ekranının ürettiği Türkçe başlıklarla (Ad,
+/// eşleşir — "Verileri dışa aktar" ekranının ürettiği Türkçe başlıklarla (Ad,
 /// Tutar, ...) AYNI DEĞİL; o dosya bugün olduğu haliyle tekrar içe
 /// aktarılamaz. Şablon bilerek gerçek parser formatını gösteriyor.
 const _csvTemplate =
@@ -29,14 +29,15 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
   bool _importing = false;
 
   Future<void> _pick() async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['csv'],
-      withData: true,
     );
-    if (picked == null || picked.files.single.bytes == null) return;
-    setState(() => _result = CsvImportParser.parse(
-        utf8.decode(picked.files.single.bytes!, allowMalformed: true)));
+    if (picked == null) return;
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    setState(() => _result =
+        CsvImportParser.parse(utf8.decode(bytes, allowMalformed: true)));
   }
 
   Future<void> _import() async {

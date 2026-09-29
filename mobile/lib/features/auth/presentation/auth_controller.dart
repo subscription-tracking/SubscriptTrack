@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/errors/error_messages.dart';
 import '../../../core/storage/local_storage.dart';
-import '../../settings/presentation/settings_controller.dart';
+import '../../../core/preferences/app_preferences.dart';
 import '../data/auth_repository.dart';
 import '../data/supabase_auth_repository.dart';
 import '../domain/auth_models.dart';
@@ -18,8 +18,9 @@ export '../domain/auth_models.dart';
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
 class AuthController extends ChangeNotifier {
-  AuthController({AuthDataSource? repository})
-      : _repo = repository ??
+  AuthController({AuthDataSource? repository, AppPreferences? settings})
+      : _settings = settings,
+        _repo = repository ??
             (EnvironmentConfig.isSupabaseConfigured
                 ? SupabaseAuthRepository()
                 : EnvironmentConfig.enableLocalAuth
@@ -27,7 +28,8 @@ class AuthController extends ChangeNotifier {
                     : const UnavailableAuthRepository());
 
   final AuthDataSource _repo;
-  StreamSubscription<sb.AuthState>? _authSubscription;
+  final AppPreferences? _settings;
+  StreamSubscription<AuthStateChange>? _authSubscription;
 
   AuthStatus _status = AuthStatus.unknown;
   AppUser? _user;
@@ -53,50 +55,38 @@ class AuthController extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<bool> init() async {
-    if (EnvironmentConfig.isSupabaseConfigured) {
-      _authSubscription =
-          sb.Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-        switch (data.event) {
-          case sb.AuthChangeEvent.passwordRecovery:
-            _passwordRecoveryMode = true;
-            notifyListeners();
-          case sb.AuthChangeEvent.userUpdated:
-            _passwordRecoveryMode = false;
-            _user = data.session?.user == null
-                ? _user
-                : AppUser(
-                    id: data.session!.user.id,
-                    email: data.session!.user.email ?? '',
-                    displayName: data
-                        .session!.user.userMetadata?['display_name'] as String?,
-                    createdAt: DateTime.parse(data.session!.user.createdAt),
-                  );
-            notifyListeners();
-          case sb.AuthChangeEvent.signedIn:
-          case sb.AuthChangeEvent.tokenRefreshed:
-            if (data.session?.user != null) {
-              _user = AppUser(
-                id: data.session!.user.id,
-                email: data.session!.user.email ?? '',
-                displayName:
-                    data.session!.user.userMetadata?['display_name'] as String?,
-                createdAt: DateTime.parse(data.session!.user.createdAt),
-              );
-              _status = AuthStatus.authenticated;
-              _initialized = true;
-              notifyListeners();
-            }
-          case sb.AuthChangeEvent.signedOut:
-            _user = null;
-            _status = AuthStatus.unauthenticated;
-            _passwordRecoveryMode = false;
-            _initialized = true;
-            notifyListeners();
-          default:
-            break;
+  void _onAuthStateChange(AuthStateChange change) {
+    final user = change.user;
+    switch (change.event) {
+      case AuthStateEvent.passwordRecovery:
+        _passwordRecoveryMode = true;
+        notifyListeners();
+      case AuthStateEvent.userUpdated:
+        _passwordRecoveryMode = false;
+        _user = user ?? _user;
+        notifyListeners();
+      case AuthStateEvent.signedIn:
+      case AuthStateEvent.tokenRefreshed:
+        if (user != null) {
+          _user = user;
+          _status = AuthStatus.authenticated;
+          _initialized = true;
+          notifyListeners();
         }
-      });
+      case AuthStateEvent.signedOut:
+        _user = null;
+        _status = AuthStatus.unauthenticated;
+        _passwordRecoveryMode = false;
+        _initialized = true;
+        notifyListeners();
+    }
+  }
+
+  Future<bool> init() async {
+    if (_repo is AuthStateDataSource) {
+      _authSubscription = (_repo as AuthStateDataSource)
+          .authStateChanges
+          .listen(_onAuthStateChange);
     }
 
     final results = await Future.wait<dynamic>([
@@ -135,8 +125,9 @@ class AuthController extends ChangeNotifier {
     _setLoading(true);
     try {
       _user = await _repo.signUp(email: email, password: password);
-      final requiresVerification = _repo is SupabaseAuthRepository &&
-          _repo.lastSignUpRequiresEmailConfirmation;
+      final requiresVerification = _repo is EmailConfirmationDataSource &&
+          (_repo as EmailConfirmationDataSource)
+              .lastSignUpRequiresEmailConfirmation;
       _emailVerificationRequired = requiresVerification;
       _status = requiresVerification
           ? AuthStatus.unauthenticated
@@ -149,7 +140,7 @@ class AuthController extends ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       return false;
     } finally {
       _setLoading(false);
@@ -164,7 +155,7 @@ class AuthController extends ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       return false;
     } finally {
       _setLoading(false);
@@ -185,7 +176,7 @@ class AuthController extends ChangeNotifier {
       _error = null;
       return started;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       return false;
     } finally {
       _setLoading(false);
@@ -199,7 +190,8 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteAccount(LocalStorage localStorage) async {
+  Future<void> deleteAccount([LocalStorage? storage]) async {
+    final localStorage = storage ?? LocalStorage.instance;
     if (_user == null) return;
     final userId = _user!.id;
     final email = _user!.email;
@@ -208,7 +200,7 @@ class AuthController extends ChangeNotifier {
     await Future.wait([
       localStorage.deleteSubscriptions(userId),
       localStorage.deleteFinancialEvents(userId),
-      SettingsController.instance.clearAccountPaymentMethods(),
+      _settings?.clearAccountPaymentMethods() ?? Future<void>.value(),
       _clearNotificationReadState(),
     ]);
     _user = null;
@@ -220,7 +212,9 @@ class AuthController extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('notif_read_ids');
-    } catch (_) {}
+    } catch (e) {
+      logIgnoredError('AuthController.clearReadIds', e);
+    }
   }
 
   Future<bool> updatePassword(String newPassword) async {
@@ -231,7 +225,7 @@ class AuthController extends ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       return false;
     } finally {
       _setLoading(false);
@@ -266,7 +260,7 @@ class AuthController extends ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       return false;
     } finally {
       _setLoading(false);
@@ -283,7 +277,7 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       notifyListeners();
       return false;
     }
@@ -296,7 +290,7 @@ class AuthController extends ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = userMessageFor(e);
       return false;
     } finally {
       _setLoading(false);

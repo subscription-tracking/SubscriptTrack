@@ -45,3 +45,13 @@ desktop.ini
 
 # Logs
 *.log
+
+# Build/çıktı artefaktları (izlenmez)
+outputs/
+mobile/outputs/
+mobile/*.log
+mobile/screen*.png
+node_modules/
+mobile/coverage/
+tools/quality/complexity/.dart_tool/
+tools/quality/__pycache__/

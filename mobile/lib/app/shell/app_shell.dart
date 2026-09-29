@@ -76,7 +76,7 @@ class _AppShellState extends State<AppShell> {
         final greeting =
             name?.isNotEmpty == true ? 'Merhaba, $name' : 'Merhaba';
         return TopBar(
-          icon: Icons.bolt_rounded,
+          icon: Icons.home_outlined,
           subtitle: date,
           title: greeting,
         );

@@ -7,7 +7,7 @@ class SecureStorage {
   static final SecureStorage instance = SecureStorage._();
 
   static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(),
   );
 
   static const _keyCurrentUser = 'current_user';

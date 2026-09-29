@@ -1,4 +1,5 @@
 import '../../../core/domain/money.dart';
+import '../../../core/utils/csv_safety.dart';
 import '../domain/subscription_models.dart';
 
 class CsvSubscriptionRow {
@@ -36,75 +37,89 @@ class CsvImportResult {
 /// Beklenen başlıklar: name, amount, currency, billing_cycle,
 /// next_renewal_date, category. Türkçe başlıklar da kabul edilir.
 class CsvImportParser {
+  static const _required = [
+    'name',
+    'amount',
+    'currency',
+    'billing_cycle',
+    'next_renewal_date',
+    'category',
+  ];
+  static const _optional = [
+    'status',
+    'notes',
+    'payment_method',
+    'trial_end_date',
+    'trial_price_after',
+  ];
+
   static CsvImportResult parse(String input) {
     final lines = _records(input);
     if (lines.isEmpty) return const CsvImportResult([], ['CSV dosyası boş.']);
-    final headers = lines.first.map((e) => _header(e)).toList();
-    final required = [
-      'name',
-      'amount',
-      'currency',
-      'billing_cycle',
-      'next_renewal_date',
-      'category'
-    ];
-    final missing = required.where((h) => !headers.contains(h)).toList();
+    final headers = lines.first.map(_header).toList();
+    final missing = _required.where((h) => !headers.contains(h)).toList();
     if (missing.isNotEmpty) {
       return CsvImportResult([], ['Eksik başlık: ${missing.join(', ')}']);
     }
     final indexes = {
-      for (final h in [
-        ...required,
-        'status',
-        'notes',
-        'payment_method',
-        'trial_end_date',
-        'trial_price_after'
-      ])
-        h: headers.indexOf(h),
+      for (final h in [..._required, ..._optional]) h: headers.indexOf(h),
     };
     final rows = <CsvSubscriptionRow>[];
     final errors = <String>[];
     final seen = <String>{};
     for (var i = 1; i < lines.length; i++) {
-      final values = lines[i];
-      String value(String key) {
-        final index = indexes[key] ?? -1;
-        return index >= 0 && index < values.length ? values[index].trim() : '';
+      final row = _parseRow(lines[i], indexes);
+      final error = row == null
+          ? 'ad, tutar veya tarih geçersiz.'
+          : (seen.add(row.name.toLowerCase())
+              ? null
+              : 'aynı abonelik tekrar ediyor.');
+      if (error != null) {
+        errors.add('Satır ${i + 1}: $error');
+      } else {
+        rows.add(row!);
       }
-
-      final name = value('name');
-      final amountText = value('amount');
-      final date = _parseStrictIsoDate(value('next_renewal_date'));
-      final trialEndDate = _optionalDate(value('trial_end_date'));
-      final key = name.toLowerCase();
-      if (name.isEmpty ||
-          Money.parse(amountText) == Money.zero ||
-          date == null ||
-          (value('trial_end_date').trim().isNotEmpty && trialEndDate == null)) {
-        errors.add('Satır ${i + 1}: ad, tutar veya tarih geçersiz.');
-        continue;
-      }
-      if (!seen.add(key)) {
-        errors.add('Satır ${i + 1}: aynı abonelik tekrar ediyor.');
-        continue;
-      }
-      rows.add(CsvSubscriptionRow(
-        name: name,
-        amount: Money.parse(amountText),
-        currency:
-            value('currency').isEmpty ? 'TRY' : value('currency').toUpperCase(),
-        billingCycle: _cycle(value('billing_cycle')),
-        nextRenewalDate: date,
-        category: _category(value('category')),
-        status: _status(value('status')),
-        notes: _emptyAsNull(value('notes')),
-        paymentMethod: _emptyAsNull(value('payment_method')),
-        trialEndDate: trialEndDate,
-        trialPriceAfter: _optionalMoney(value('trial_price_after')),
-      ));
     }
     return CsvImportResult(rows, errors);
+  }
+
+  /// Tek bir kaydı satıra çevirir; ad, tutar veya tarih geçersizse `null`.
+  static CsvSubscriptionRow? _parseRow(
+    List<String> values,
+    Map<String, int> indexes,
+  ) {
+    String value(String key) {
+      final index = indexes[key] ?? -1;
+      final raw =
+          index >= 0 && index < values.length ? values[index].trim() : '';
+      // Dışa aktarma sırasında formül koruması için eklenen `'` geri alınır.
+      return CsvSafety.restoreFormula(raw);
+    }
+
+    final name = value('name');
+    final amount = Money.parse(value('amount'));
+    final date = _parseStrictIsoDate(value('next_renewal_date'));
+    final trialEndDate = _optionalDate(value('trial_end_date'));
+    final trialEndGiven = value('trial_end_date').trim().isNotEmpty;
+    final invalid = name.isEmpty ||
+        amount == Money.zero ||
+        date == null ||
+        (trialEndGiven && trialEndDate == null);
+    if (invalid) return null;
+    final currency = value('currency');
+    return CsvSubscriptionRow(
+      name: name,
+      amount: amount,
+      currency: currency.isEmpty ? 'TRY' : currency.toUpperCase(),
+      billingCycle: _cycle(value('billing_cycle')),
+      nextRenewalDate: date,
+      category: _category(value('category')),
+      status: _status(value('status')),
+      notes: _emptyAsNull(value('notes')),
+      paymentMethod: _emptyAsNull(value('payment_method')),
+      trialEndDate: trialEndDate,
+      trialPriceAfter: _optionalMoney(value('trial_price_after')),
+    );
   }
 
   static List<List<String>> _records(String input) => input

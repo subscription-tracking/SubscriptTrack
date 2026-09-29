@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../subscriptions/domain/subscription_models.dart';
-import '../../../subscriptions/presentation/screens/subscription_detail_screen.dart';
 import '../../../subscriptions/presentation/subscription_controller.dart';
 import '../../../../shared/widgets/service_identity.dart';
 
@@ -25,15 +26,7 @@ class CalendarEventItem extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => SubscriptionDetailScreen(
-              subscription: subscription,
-              controller: controller,
-            ),
-          ),
-        ),
+        onTap: () => context.push(AppRoutes.subscription(subscription.id)),
         leading: ServiceIdentity(
           name: subscription.name,
           category: subscription.category,
@@ -44,7 +37,7 @@ class CalendarEventItem extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle:
-            Text(isTrial ? 'Trial bitişi' : subscription.billingCycle.label),
+            Text(isTrial ? 'Deneme bitişi' : subscription.billingCycle.label),
         trailing: Text(
           DateTimeUtils.formatCurrency(
             subscription.amount.amount,

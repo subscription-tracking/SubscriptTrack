@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
+import '../../../core/config/app_environment.dart';
+
 class PaymentMethodsApiException implements Exception {
   const PaymentMethodsApiException(this.message);
   final String message;
@@ -15,6 +17,11 @@ class PaymentMethodsApi {
       : _client = client ?? sb.Supabase.instance.client;
 
   final sb.SupabaseClient _client;
+
+  /// Backend yapılandırılmış ve kullanıcı oturum açmışsa uzak senkron yapılabilir.
+  static bool get isAvailable =>
+      EnvironmentConfig.isSupabaseConfigured &&
+      sb.Supabase.instance.client.auth.currentUser != null;
 
   Future<List<String>> load() async {
     try {
