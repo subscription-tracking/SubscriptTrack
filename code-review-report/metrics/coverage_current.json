@@ -1,0 +1,181 @@
+{
+ "reported": {
+  "hit": 7172,
+  "found": 7827,
+  "pct": 91.6
+ },
+ "corrected": {
+  "hit": 7172,
+  "found": 7890,
+  "pct": 90.9
+ },
+ "files_total": 149,
+ "files_not_in_lcov": 3,
+ "files_not_in_lcov_sample": [
+  "lib/main.dart",
+  "lib/core/datasources/subscription_data_source.dart",
+  "lib/features/subscriptions/presentation/widgets/form/subscription_presets.dart"
+ ],
+ "by_layer": {
+  "layer:app": {
+   "hit": 425,
+   "found": 466,
+   "pct": 91.2
+  },
+  "layer:core-services": {
+   "hit": 514,
+   "found": 625,
+   "pct": 82.2
+  },
+  "layer:data": {
+   "hit": 829,
+   "found": 911,
+   "pct": 91.0
+  },
+  "layer:domain": {
+   "hit": 375,
+   "found": 422,
+   "pct": 88.9
+  },
+  "layer:other": {
+   "hit": 0,
+   "found": 14,
+   "pct": 0.0
+  },
+  "layer:presentation": {
+   "hit": 5029,
+   "found": 5452,
+   "pct": 92.2
+  }
+ },
+ "by_feature": {
+  "app": {
+   "hit": 425,
+   "found": 466,
+   "pct": 91.2
+  },
+  "core": {
+   "hit": 576,
+   "found": 694,
+   "pct": 83.0
+  },
+  "feature:auth": {
+   "hit": 646,
+   "found": 713,
+   "pct": 90.6
+  },
+  "feature:calendar": {
+   "hit": 177,
+   "found": 223,
+   "pct": 79.4
+  },
+  "feature:dashboard": {
+   "hit": 500,
+   "found": 584,
+   "pct": 85.6
+  },
+  "feature:notifications": {
+   "hit": 223,
+   "found": 247,
+   "pct": 90.3
+  },
+  "feature:onboarding": {
+   "hit": 350,
+   "found": 353,
+   "pct": 99.2
+  },
+  "feature:savings": {
+   "hit": 142,
+   "found": 144,
+   "pct": 98.6
+  },
+  "feature:settings": {
+   "hit": 929,
+   "found": 974,
+   "pct": 95.4
+  },
+  "feature:stats": {
+   "hit": 735,
+   "found": 759,
+   "pct": 96.8
+  },
+  "feature:subscriptions": {
+   "hit": 2132,
+   "found": 2356,
+   "pct": 90.5
+  },
+  "other": {
+   "hit": 0,
+   "found": 14,
+   "pct": 0.0
+  },
+  "shared": {
+   "hit": 337,
+   "found": 363,
+   "pct": 92.8
+  }
+ },
+ "domain_pct": 88.9,
+ "lowest_files": [
+  [
+   "lib/core/services/notification_platform.dart",
+   6.8,
+   59
+  ],
+  [
+   "lib/features/settings/presentation/screens/feedback_screen.dart",
+   55.3,
+   47
+  ],
+  [
+   "lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   61.1,
+   36
+  ],
+  [
+   "lib/shared/widgets/app_offline_banner.dart",
+   62.5,
+   32
+  ],
+  [
+   "lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
+   62.7,
+   59
+  ],
+  [
+   "lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   67.6,
+   139
+  ],
+  [
+   "lib/shared/widgets/subscription_status_chip.dart",
+   73.5,
+   34
+  ],
+  [
+   "lib/features/auth/presentation/screens/login_screen.dart",
+   73.8,
+   126
+  ],
+  [
+   "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   75.9,
+   87
+  ],
+  [
+   "lib/features/subscriptions/domain/subscription_selectors.dart",
+   77.8,
+   45
+  ],
+  [
+   "lib/features/subscriptions/data/payment_history_store.dart",
+   81.2,
+   32
+  ],
+  [
+   "lib/features/subscriptions/data/subscription_status_operations.dart",
+   81.4,
+   70
+  ]
+ ]
+}

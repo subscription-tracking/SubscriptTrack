@@ -1,0 +1,165 @@
+{
+ "size": {
+  "files": 149,
+  "total_lines": 19940,
+  "max_lines": 381,
+  "max_file": "lib/features/stats/presentation/widgets/trend_card.dart",
+  "median_lines": 110,
+  "p90_lines": 281,
+  "over_300": 11,
+  "over_400": 0,
+  "over_300_pct": 7.4,
+  "top10": [
+   [
+    "lib/features/stats/presentation/widgets/trend_card.dart",
+    381
+   ],
+   [
+    "lib/features/settings/presentation/screens/settings_screen.dart",
+    370
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+    340
+   ],
+   [
+    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+    335
+   ],
+   [
+    "lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+    322
+   ],
+   [
+    "lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+    319
+   ],
+   [
+    "lib/features/settings/presentation/screens/profile_screen.dart",
+    319
+   ],
+   [
+    "lib/features/auth/presentation/auth_controller.dart",
+    315
+   ],
+   [
+    "lib/features/subscriptions/domain/subscription_models.dart",
+    312
+   ],
+   [
+    "lib/app/router/app_router.dart",
+    309
+   ]
+  ]
+ },
+ "architecture": {
+  "file_import_cycles": 0,
+  "file_import_cycle_files": 0,
+  "cycles_detail": [],
+  "feature_layer_cycles": 0,
+  "layer_violations": 0,
+  "layer_violations_detail": [],
+  "navigator_push_files": 0,
+  "max_fan_out": 36,
+  "max_fan_out_excl_app": 20,
+  "max_fan_out_excl_app_file": "lib/features/subscriptions/presentation/subscription_controller.dart",
+  "max_fan_out_file": "lib/app/router/app_router.dart",
+  "max_fan_in": 50,
+  "max_fan_in_file": "lib/features/subscriptions/domain/subscription_models.dart",
+  "top_fan_out": [
+   [
+    "lib/app/router/app_router.dart",
+    36
+   ],
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    20
+   ],
+   [
+    "lib/features/stats/presentation/screens/stats_screen.dart",
+    12
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+    12
+   ],
+   [
+    "lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+    12
+   ]
+  ],
+  "top_fan_in": [
+   [
+    "lib/features/subscriptions/domain/subscription_models.dart",
+    50
+   ],
+   [
+    "lib/core/domain/money.dart",
+    27
+   ],
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    23
+   ],
+   [
+    "lib/core/utils/date_time_utils.dart",
+    19
+   ],
+   [
+    "lib/core/navigation/app_routes.dart",
+    17
+   ]
+  ]
+ },
+ "duplication": {
+  "window": 6,
+  "significant_lines": 11656,
+  "duplicated_lines": 622,
+  "duplicated_pct": 5.3,
+  "top_files": [
+   [
+    "lib/features/subscriptions/data/subscription_operations.dart",
+    82
+   ],
+   [
+    "lib/features/auth/presentation/screens/login_screen.dart",
+    51
+   ],
+   [
+    "lib/features/auth/presentation/screens/register_screen.dart",
+    44
+   ],
+   [
+    "lib/features/settings/presentation/screens/privacy_policy_screen.dart",
+    37
+   ],
+   [
+    "lib/features/settings/presentation/screens/terms_of_service_screen.dart",
+    37
+   ],
+   [
+    "lib/features/auth/presentation/auth_controller.dart",
+    36
+   ],
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    30
+   ],
+   [
+    "lib/features/subscriptions/data/local_subscription_repository.dart",
+    19
+   ]
+  ]
+ },
+ "maintainability": {
+  "public_types": 204,
+  "documented_types": 69,
+  "doc_ratio_pct": 33.8,
+  "todo": 0,
+  "color_literals": 116,
+  "turkish_string_literals": 580,
+  "semantics_calls": 9,
+  "tracked_artifacts": 0,
+  "tracked_artifacts_sample": []
+ }
+}

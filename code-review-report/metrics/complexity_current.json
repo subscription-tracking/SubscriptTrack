@@ -1,0 +1,7477 @@
+{
+ "files": 149,
+ "methods": [
+  {
+   "file": "../../../mobile/lib/app/app.dart",
+   "name": "SubscriptTrackApp.createState",
+   "line": 19,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/app.dart",
+   "name": "_SubscriptTrackAppState.initState",
+   "line": 30,
+   "lines": 10,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/app.dart",
+   "name": "_SubscriptTrackAppState.dispose",
+   "line": 41,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/app.dart",
+   "name": "_SubscriptTrackAppState.build",
+   "line": 50,
+   "lines": 30,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter.create",
+   "line": 43,
+   "lines": 62,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter._redirect",
+   "line": 106,
+   "lines": 16,
+   "cc": 11,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter.legalRoutes",
+   "line": 133,
+   "lines": 11,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter.contentRoutes",
+   "line": 145,
+   "lines": 10,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter._subscriptionRoutes",
+   "line": 156,
+   "lines": 39,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter._insightRoutes",
+   "line": 196,
+   "lines": 35,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter._settingsRoutes",
+   "line": 232,
+   "lines": 48,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter._route",
+   "line": 281,
+   "lines": 9,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "AppRouter._find",
+   "line": 291,
+   "lines": 7,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/app/router/app_router.dart",
+   "name": "_NotFoundScreen.build",
+   "line": 303,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/app_shell.dart",
+   "name": "AppShell.createState",
+   "line": 16,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/app_shell.dart",
+   "name": "_AppShellState.build",
+   "line": 39,
+   "lines": 23,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/app_shell.dart",
+   "name": "_AppShellState._topBarFor",
+   "line": 63,
+   "lines": 38,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "AuthenticatedShell.createState",
+   "line": 30,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState.initState",
+   "line": 47,
+   "lines": 34,
+   "cc": 3,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._seedTestAccountIfEmpty",
+   "line": 82,
+   "lines": 45,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._handleColdStartNotification",
+   "line": 128,
+   "lines": 6,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._findSubscription",
+   "line": 135,
+   "lines": 6,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._handleNotificationTap",
+   "line": 142,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._handleSnoozeRequested",
+   "line": 155,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._onSubscriptionsChanged",
+   "line": 161,
+   "lines": 15,
+   "cc": 7,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._onSettingsChanged",
+   "line": 177,
+   "lines": 8,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState.didChangeAppLifecycleState",
+   "line": 186,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._refreshDeviceTimezone",
+   "line": 192,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState._scheduleNotifications",
+   "line": 198,
+   "lines": 18,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState.dispose",
+   "line": 217,
+   "lines": 16,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/authenticated_shell.dart",
+   "name": "_AuthenticatedShellState.build",
+   "line": 234,
+   "lines": 11,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/bottom_navigation.dart",
+   "name": "BottomNavigation.build",
+   "line": 22,
+   "lines": 68,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/top_bar.dart",
+   "name": "TopBar.build",
+   "line": 25,
+   "lines": 38,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/top_bar.dart",
+   "name": "TopBar._title",
+   "line": 64,
+   "lines": 39,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/shell/top_bar.dart",
+   "name": "TopBar.preferredSize",
+   "line": 104,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/splash_screen.dart",
+   "name": "SplashScreen.build",
+   "line": 6,
+   "lines": 54,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/theme/app_theme.dart",
+   "name": "AppStatusColors.copyWith",
+   "line": 55,
+   "lines": 13,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/theme/app_theme.dart",
+   "name": "AppStatusColors.lerp",
+   "line": 69,
+   "lines": 10,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/app/theme/app_theme.dart",
+   "name": "AppStatusColorsX.statusColors",
+   "line": 82,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/theme/app_theme.dart",
+   "name": "AppTheme.dark",
+   "line": 200,
+   "lines": 63,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/app/theme/app_theme.dart",
+   "name": "_withHankenGrotesk",
+   "line": 265,
+   "lines": 39,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/config/app_environment.dart",
+   "name": "EnvironmentConfig.current",
+   "line": 5,
+   "lines": 7,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/config/app_environment.dart",
+   "name": "EnvironmentConfig.isSupabaseConfigured",
+   "line": 15,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/config/app_environment.dart",
+   "name": "EnvironmentConfig.isSocialSignInAvailable",
+   "line": 18,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/currency.dart",
+   "name": ".symbolOf",
+   "line": 22,
+   "lines": 11,
+   "cc": 7,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/currency.dart",
+   "name": ".nameOf",
+   "line": 34,
+   "lines": 10,
+   "cc": 6,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/currency.dart",
+   "name": ".normalize",
+   "line": 45,
+   "lines": 11,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/currency.dart",
+   "name": ".options",
+   "line": 57,
+   "lines": 3,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/currency.dart",
+   "name": ".onboardingOptions",
+   "line": 61,
+   "lines": 4,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.parse",
+   "line": 7,
+   "lines": 9,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.fromJson",
+   "line": 17,
+   "lines": 6,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.amount",
+   "line": 26,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.minorUnits",
+   "line": 28,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.decimalString",
+   "line": 30,
+   "lines": 6,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.toJson",
+   "line": 37,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.+",
+   "line": 39,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.-",
+   "line": 41,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.*",
+   "line": 43,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money./",
+   "line": 45,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.compareTo",
+   "line": 47,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.==",
+   "line": 49,
+   "lines": 3,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.hashCode",
+   "line": 53,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/domain/money.dart",
+   "name": "Money.toString",
+   "line": 56,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/errors/app_exception.dart",
+   "name": "AppException.toString",
+   "line": 5,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/errors/error_messages.dart",
+   "name": "userMessageFor",
+   "line": 7,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/errors/error_messages.dart",
+   "name": "logIgnoredError",
+   "line": 20,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/navigation/app_routes.dart",
+   "name": "AppRoutes.addSubscriptionOn",
+   "line": 24,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/navigation/app_routes.dart",
+   "name": "AppRoutes.subscription",
+   "line": 28,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/navigation/app_routes.dart",
+   "name": "AppRoutes.editSubscription",
+   "line": 30,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/network/support_catalog_api.dart",
+   "name": "SupportApiException.toString",
+   "line": 8,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/network/support_catalog_api.dart",
+   "name": "SupportCatalogApi.canCreateTicket",
+   "line": 19,
+   "lines": 5,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/network/support_catalog_api.dart",
+   "name": "SupportCatalogApi.createTicket",
+   "line": 25,
+   "lines": 13,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/network/support_catalog_api.dart",
+   "name": "SupportCatalogApi.fetchCatalog",
+   "line": 39,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/preferences/app_preferences.dart",
+   "name": "InMemoryAppPreferences.paymentMethods",
+   "line": 30,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/preferences/app_preferences.dart",
+   "name": "InMemoryAppPreferences.addPaymentMethod",
+   "line": 33,
+   "lines": 6,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/preferences/app_preferences.dart",
+   "name": "InMemoryAppPreferences.clearAccountPaymentMethods",
+   "line": 40,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "AppLockGate.createState",
+   "line": 10,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_AppLockGateState.initState",
+   "line": 15,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_AppLockGateState.didChangeAppLifecycleState",
+   "line": 22,
+   "lines": 9,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_AppLockGateState.dispose",
+   "line": 32,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_AppLockGateState.build",
+   "line": 38,
+   "lines": 17,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_LockOverlay.createState",
+   "line": 61,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_LockOverlayState.dispose",
+   "line": 69,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_LockOverlayState._unlock",
+   "line": 75,
+   "lines": 6,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_gate.dart",
+   "name": "_LockOverlayState.build",
+   "line": 82,
+   "lines": 37,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.locked",
+   "line": 25,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.enabled",
+   "line": 26,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.biometricEnabled",
+   "line": 27,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.loaded",
+   "line": 28,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.lockTimeout",
+   "line": 30,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.load",
+   "line": 34,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.setLockTimeout",
+   "line": 43,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.handleBackground",
+   "line": 49,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.handleResume",
+   "line": 62,
+   "lines": 10,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.setPin",
+   "line": 73,
+   "lines": 10,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.verifyPin",
+   "line": 84,
+   "lines": 10,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.setBiometricEnabled",
+   "line": 95,
+   "lines": 13,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.unlockWithBiometric",
+   "line": 109,
+   "lines": 18,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.lock",
+   "line": 128,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService.disable",
+   "line": 134,
+   "lines": 9,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "AppLockService._hash",
+   "line": 144,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/app_lock_service.dart",
+   "name": "_HashComparator.matches",
+   "line": 150,
+   "lines": 10,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService._unavailable",
+   "line": 46,
+   "lines": 1,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.initialize",
+   "line": 48,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService._dispatchNotificationResponse",
+   "line": 57,
+   "lines": 9,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.dispatchNotificationResponseForTesting",
+   "line": 67,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.getLaunchNotificationSubscriptionId",
+   "line": 74,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.arePermissionsGranted",
+   "line": 83,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.refreshDeviceLocalTimezone",
+   "line": 92,
+   "lines": 25,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.requestPermission",
+   "line": 118,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.scheduleRenewalReminders",
+   "line": 124,
+   "lines": 54,
+   "cc": 7,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.scheduleFingerprint",
+   "line": 179,
+   "lines": 19,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.snooze",
+   "line": 199,
+   "lines": 28,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.canScheduleAdditionalNotification",
+   "line": 228,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.sendTestNotification",
+   "line": 232,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.showPushNotification",
+   "line": 238,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.cancelAll",
+   "line": 253,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.pendingNotificationIds",
+   "line": 259,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/local_notification_service.dart",
+   "name": "LocalNotificationService.cancelForSubscription",
+   "line": 265,
+   "lines": 12,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.initialize",
+   "line": 89,
+   "lines": 24,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.schedule",
+   "line": 114,
+   "lines": 30,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.show",
+   "line": 145,
+   "lines": 25,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.cancelAll",
+   "line": 171,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.cancel",
+   "line": 174,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.pending",
+   "line": 177,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform._android",
+   "line": 183,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform._ios",
+   "line": 187,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.areNotificationsEnabled",
+   "line": 191,
+   "lines": 8,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.requestPermission",
+   "line": 200,
+   "lines": 17,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.canScheduleExact",
+   "line": 218,
+   "lines": 6,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_platform.dart",
+   "name": "FlutterNotificationPlatform.launchPayload",
+   "line": 225,
+   "lines": 6,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_read_sync_service.dart",
+   "name": "NotificationReadSyncService._client",
+   "line": 9,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_read_sync_service.dart",
+   "name": "NotificationReadSyncService.syncRead",
+   "line": 11,
+   "lines": 13,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.initialize",
+   "line": 53,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.getLaunchNotificationSubscriptionId",
+   "line": 56,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.arePermissionsGranted",
+   "line": 59,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.requestPermission",
+   "line": 62,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.refreshDeviceLocalTimezone",
+   "line": 65,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.scheduleRenewalReminders",
+   "line": 68,
+   "lines": 9,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.snooze",
+   "line": 78,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.sendTestNotification",
+   "line": 81,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.cancelAll",
+   "line": 84,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/notification_scheduler.dart",
+   "name": "NoopNotificationScheduler.cancelForSubscription",
+   "line": 87,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutation.toJson",
+   "line": 23,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutation.fromJson",
+   "line": 29,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue._synchronized",
+   "line": 52,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue._load",
+   "line": 58,
+   "lines": 22,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue._save",
+   "line": 81,
+   "lines": 10,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.enqueue",
+   "line": 92,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.peek",
+   "line": 98,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.removeFirst",
+   "line": 107,
+   "lines": 7,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.replaceSubscriptionId",
+   "line": 115,
+   "lines": 17,
+   "cc": 3,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.drain",
+   "line": 133,
+   "lines": 10,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.isEmpty",
+   "line": 144,
+   "lines": 2,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.length",
+   "line": 147,
+   "lines": 1,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/offline_mutation_queue.dart",
+   "name": "OfflineMutationQueue.clear",
+   "line": 149,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/reminder_planner.dart",
+   "name": "ReminderPlanner.plan",
+   "line": 38,
+   "lines": 23,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/services/reminder_planner.dart",
+   "name": "ReminderPlanner.fingerprint",
+   "line": 62,
+   "lines": 37,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/core/services/reminder_planner.dart",
+   "name": "ReminderPlanner._renewalReminders",
+   "line": 100,
+   "lines": 47,
+   "cc": 7,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/core/services/reminder_planner.dart",
+   "name": "ReminderPlanner._trialReminders",
+   "line": 148,
+   "lines": 31,
+   "cc": 5,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/core/services/reminder_planner.dart",
+   "name": "ReminderPlanner._dateKey",
+   "line": 180,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/services/reminder_planner.dart",
+   "name": "ReminderPlanner._stableId",
+   "line": 183,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.readSubscriptions",
+   "line": 22,
+   "lines": 14,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.writeSubscriptions",
+   "line": 37,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.deleteSubscriptions",
+   "line": 40,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.readPaymentEvents",
+   "line": 43,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.writePaymentEvents",
+   "line": 46,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.readSavingsEvents",
+   "line": 49,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.writeSavingsEvents",
+   "line": 52,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/local_storage.dart",
+   "name": "LocalStorage.deleteFinancialEvents",
+   "line": 55,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.writeAppPinHash",
+   "line": 19,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.readAppPinHash",
+   "line": 22,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.deleteAppLock",
+   "line": 24,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.writeLockTimeoutMinutes",
+   "line": 30,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.readLockTimeoutMinutes",
+   "line": 33,
+   "lines": 7,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.writeBiometricLock",
+   "line": 41,
+   "lines": 4,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.readBiometricLock",
+   "line": 46,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.writeCurrentUser",
+   "line": 49,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.readCurrentUser",
+   "line": 52,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.deleteCurrentUser",
+   "line": 54,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.writeCredentials",
+   "line": 57,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.readCredentials",
+   "line": 60,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.deleteCredentialsForEmail",
+   "line": 62,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_storage.dart",
+   "name": "SecureStorage.deleteAllUserData",
+   "line": 72,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_supabase_storage.dart",
+   "name": "SecureSupabaseStorage.initialize",
+   "line": 16,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_supabase_storage.dart",
+   "name": "SecureSupabaseStorage.hasAccessToken",
+   "line": 19,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_supabase_storage.dart",
+   "name": "SecureSupabaseStorage.accessToken",
+   "line": 23,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_supabase_storage.dart",
+   "name": "SecureSupabaseStorage.removePersistedSession",
+   "line": 26,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/storage/secure_supabase_storage.dart",
+   "name": "SecureSupabaseStorage.persistSession",
+   "line": 29,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/csv_safety.dart",
+   "name": "CsvSafety.neutralizeFormula",
+   "line": 10,
+   "lines": 3,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/csv_safety.dart",
+   "name": "CsvSafety.restoreFormula",
+   "line": 14,
+   "lines": 5,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/csv_safety.dart",
+   "name": "CsvSafety.field",
+   "line": 20,
+   "lines": 6,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.addMonthsClamped",
+   "line": 4,
+   "lines": 14,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils._advanceOnce",
+   "line": 19,
+   "lines": 14,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils._addMonthsWithPreferredDay",
+   "line": 34,
+   "lines": 15,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.nextOccurrenceOnOrAfter",
+   "line": 50,
+   "lines": 30,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.nextRenewalDate",
+   "line": 81,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.formatDate",
+   "line": 90,
+   "lines": 11,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.formatCurrency",
+   "line": 109,
+   "lines": 12,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils._monthName",
+   "line": 122,
+   "lines": 15,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.renewalLabel",
+   "line": 138,
+   "lines": 8,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.currentUser",
+   "line": 20,
+   "lines": 11,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.signUp",
+   "line": 32,
+   "lines": 34,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.signIn",
+   "line": 67,
+   "lines": 20,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.signOut",
+   "line": 88,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.deleteAccount",
+   "line": 91,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.sendPasswordResetEmail",
+   "line": 97,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.updatePassword",
+   "line": 103,
+   "lines": 17,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.updateDisplayName",
+   "line": 121,
+   "lines": 23,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository.updateEmail",
+   "line": 145,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository._hash",
+   "line": 154,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository._loadCredentials",
+   "line": 157,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "AuthRepository._saveCredentials",
+   "line": 166,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.currentUser",
+   "line": 180,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.signIn",
+   "line": 183,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.signUp",
+   "line": 187,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.signOut",
+   "line": 191,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.deleteAccount",
+   "line": 194,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.sendPasswordResetEmail",
+   "line": 197,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.updatePassword",
+   "line": 201,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.updateDisplayName",
+   "line": 205,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/auth_repository.dart",
+   "name": "UnavailableAuthRepository.updateEmail",
+   "line": 209,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository._client",
+   "line": 24,
+   "lines": 1,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.authStateChanges",
+   "line": 29,
+   "lines": 17,
+   "cc": 8,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.currentUser",
+   "line": 47,
+   "lines": 5,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.signUp",
+   "line": 53,
+   "lines": 20,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.signIn",
+   "line": 74,
+   "lines": 19,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.signInWithProvider",
+   "line": 94,
+   "lines": 14,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.signOut",
+   "line": 109,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.deleteAccount",
+   "line": 114,
+   "lines": 16,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.sendPasswordResetEmail",
+   "line": 131,
+   "lines": 14,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.updatePassword",
+   "line": 146,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.updateDisplayName",
+   "line": 159,
+   "lines": 15,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository.updateEmail",
+   "line": 175,
+   "lines": 19,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository._toAppUser",
+   "line": 197,
+   "lines": 6,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/data/supabase_auth_repository.dart",
+   "name": "SupabaseAuthRepository._localizeError",
+   "line": 204,
+   "lines": 7,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/domain/auth_models.dart",
+   "name": "AppUser.toJson",
+   "line": 14,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/domain/auth_models.dart",
+   "name": "AppUser.fromJson",
+   "line": 21,
+   "lines": 7,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.status",
+   "line": 43,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.user",
+   "line": 44,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.error",
+   "line": 45,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.loading",
+   "line": 46,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.initialized",
+   "line": 47,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.onboardingNeeded",
+   "line": 48,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.passwordRecoveryMode",
+   "line": 49,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.emailVerificationRequired",
+   "line": 50,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.dispose",
+   "line": 52,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController._onAuthStateChange",
+   "line": 58,
+   "lines": 26,
+   "cc": 8,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.init",
+   "line": 85,
+   "lines": 27,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.onboardingDone",
+   "line": 113,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.restartOnboarding",
+   "line": 118,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.signUp",
+   "line": 124,
+   "lines": 25,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.signIn",
+   "line": 150,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.signInWithProvider",
+   "line": 165,
+   "lines": 20,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.signOut",
+   "line": 186,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.deleteAccount",
+   "line": 193,
+   "lines": 17,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController._clearNotificationReadState",
+   "line": 211,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.updatePassword",
+   "line": 220,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.changePassword",
+   "line": 235,
+   "lines": 20,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.updateDisplayName",
+   "line": 256,
+   "lines": 13,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.updateEmail",
+   "line": 270,
+   "lines": 15,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.sendPasswordResetEmail",
+   "line": 286,
+   "lines": 13,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController.clearError",
+   "line": 300,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController._setLoading",
+   "line": 305,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/auth_controller.dart",
+   "name": "AuthController._checkOnboarding",
+   "line": 310,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "ForgotPasswordScreen.createState",
+   "line": 19,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "_ForgotPasswordScreenState.dispose",
+   "line": 28,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "_ForgotPasswordScreenState._submit",
+   "line": 34,
+   "lines": 6,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "_ForgotPasswordScreenState.build",
+   "line": 41,
+   "lines": 28,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "_UnavailableInLocalMode.build",
+   "line": 74,
+   "lines": 23,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "_FormView.build",
+   "line": 114,
+   "lines": 63,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart",
+   "name": "_SuccessView.build",
+   "line": 183,
+   "lines": 30,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "LoginScreen.createState",
+   "line": 15,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState.dispose",
+   "line": 25,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._submit",
+   "line": 32,
+   "lines": 16,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._quickTestLogin",
+   "line": 57,
+   "lines": 29,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState.build",
+   "line": 87,
+   "lines": 40,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._header",
+   "line": 128,
+   "lines": 23,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._fields",
+   "line": 152,
+   "lines": 42,
+   "cc": 6,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._submitButton",
+   "line": 195,
+   "lines": 14,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._socialButtons",
+   "line": 210,
+   "lines": 16,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._testAccountButton",
+   "line": 227,
+   "lines": 13,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_LoginScreenState._socialSignIn",
+   "line": 241,
+   "lines": 11,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/login_screen.dart",
+   "name": "_OrDivider.build",
+   "line": 259,
+   "lines": 17,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "RegisterScreen.createState",
+   "line": 14,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState.dispose",
+   "line": 26,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState._submit",
+   "line": 34,
+   "lines": 24,
+   "cc": 8,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState.build",
+   "line": 59,
+   "lines": 35,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState._header",
+   "line": 95,
+   "lines": 23,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState._fields",
+   "line": 119,
+   "lines": 45,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState._termsCheckbox",
+   "line": 165,
+   "lines": 22,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_RegisterScreenState._submitButton",
+   "line": 188,
+   "lines": 14,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/register_screen.dart",
+   "name": "_LegalLink.build",
+   "line": 210,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "ResetPasswordScreen.createState",
+   "line": 10,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState.dispose",
+   "line": 21,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._submit",
+   "line": 28,
+   "lines": 9,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState.build",
+   "line": 38,
+   "lines": 28,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._header",
+   "line": 67,
+   "lines": 20,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._passwordField",
+   "line": 88,
+   "lines": 20,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._confirmField",
+   "line": 109,
+   "lines": 17,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._visibilityButton",
+   "line": 127,
+   "lines": 7,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._errorText",
+   "line": 135,
+   "lines": 12,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/auth/presentation/screens/reset_password_screen.dart",
+   "name": "_ResetPasswordScreenState._submitButton",
+   "line": 148,
+   "lines": 15,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
+   "name": "CalendarController.renewalsForDay",
+   "line": 10,
+   "lines": 7,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
+   "name": "CalendarController.trialsForDay",
+   "line": 18,
+   "lines": 7,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
+   "name": "CalendarController.renewalDaysInMonth",
+   "line": 26,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
+   "name": "CalendarController.trialDaysInMonth",
+   "line": 36,
+   "lines": 6,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
+   "name": "CalendarController.totalsByCurrencyForMonth",
+   "line": 43,
+   "lines": 12,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "CalendarScreen.createState",
+   "line": 19,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState.initState",
+   "line": 27,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._prevMonth",
+   "line": 35,
+   "lines": 4,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._nextMonth",
+   "line": 40,
+   "lines": 4,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState.build",
+   "line": 45,
+   "lines": 7,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._buildContent",
+   "line": 53,
+   "lines": 45,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._urgentDays",
+   "line": 99,
+   "lines": 11,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._monthHeader",
+   "line": 111,
+   "lines": 37,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._weekdayRow",
+   "line": 149,
+   "lines": 15,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._buildGrid",
+   "line": 165,
+   "lines": 64,
+   "cc": 7,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_CalendarScreenState._monthName",
+   "line": 230,
+   "lines": 15,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/screens/calendar_screen.dart",
+   "name": "_EmptyDayState.build",
+   "line": 252,
+   "lines": 44,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/widgets/calendar_day_cell.dart",
+   "name": "CalendarDayCell._cellColors",
+   "line": 23,
+   "lines": 10,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/widgets/calendar_day_cell.dart",
+   "name": "CalendarDayCell._dotColor",
+   "line": 34,
+   "lines": 6,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/widgets/calendar_day_cell.dart",
+   "name": "CalendarDayCell.build",
+   "line": 41,
+   "lines": 56,
+   "cc": 8,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/calendar/presentation/widgets/calendar_event_item.dart",
+   "name": "CalendarEventItem.build",
+   "line": 22,
+   "lines": 32,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen._openStats",
+   "line": 31,
+   "lines": 7,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen._completedThisMonth",
+   "line": 39,
+   "lines": 11,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen._annualLabel",
+   "line": 51,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen.build",
+   "line": 57,
+   "lines": 32,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen._summary",
+   "line": 90,
+   "lines": 31,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen._renewals",
+   "line": 122,
+   "lines": 36,
+   "cc": 6,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "DashboardScreen._overview",
+   "line": 159,
+   "lines": 33,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+   "name": "_FirstSubscriptionPrompt.build",
+   "line": 198,
+   "lines": 18,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "DashboardCategoryDonutCard.build",
+   "line": 20,
+   "lines": 65,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "DashboardCategoryDonutCard._groupTotals",
+   "line": 86,
+   "lines": 14,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "DashboardCategoryDonutCard._group",
+   "line": 101,
+   "lines": 15,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "DashboardCategoryDonutCard._groupColor",
+   "line": 117,
+   "lines": 11,
+   "cc": 6,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "_DonutChart.build",
+   "line": 141,
+   "lines": 50,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "_LegendRow.build",
+   "line": 204,
+   "lines": 28,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "DashboardDonutPainter.paint",
+   "line": 240,
+   "lines": 36,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+   "name": "DashboardDonutPainter.shouldRepaint",
+   "line": 277,
+   "lines": 3,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "DashboardHeroCard.build",
+   "line": 27,
+   "lines": 43,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "DashboardHeroCard._totalsColumn",
+   "line": 71,
+   "lines": 32,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "DashboardHeroCard.calculateMonthChange",
+   "line": 104,
+   "lines": 7,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "_MonthChange.build",
+   "line": 118,
+   "lines": 23,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "_AnalysisLink.build",
+   "line": 148,
+   "lines": 28,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "AnalysisPill.build",
+   "line": 183,
+   "lines": 33,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "MonthProgressRing.build",
+   "line": 228,
+   "lines": 43,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "RingPainter.paint",
+   "line": 284,
+   "lines": 31,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
+   "name": "RingPainter.shouldRepaint",
+   "line": 316,
+   "lines": 5,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_quick_actions.dart",
+   "name": "DashboardQuickActionsRow.build",
+   "line": 15,
+   "lines": 54,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_quick_actions.dart",
+   "name": "_QuickActionButton.build",
+   "line": 84,
+   "lines": 46,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_stat_chips.dart",
+   "name": "DashboardStatChipsRow.build",
+   "line": 15,
+   "lines": 27,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_stat_chips.dart",
+   "name": "DashboardStatChip.build",
+   "line": 54,
+   "lines": 28,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_stat_chips.dart",
+   "name": "DashboardSectionHeader.build",
+   "line": 96,
+   "lines": 27,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "DashboardNextPaymentCard.build",
+   "line": 21,
+   "lines": 34,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "_NextPaymentSummary.build",
+   "line": 63,
+   "lines": 70,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "_ReminderHint.build",
+   "line": 138,
+   "lines": 37,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "DashboardEmptyRenewalsCard.build",
+   "line": 180,
+   "lines": 41,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "DashboardTrialList.build",
+   "line": 233,
+   "lines": 14,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "DashboardSavingsSummary.build",
+   "line": 254,
+   "lines": 26,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   "name": "DashboardEmptyIntro.build",
+   "line": 287,
+   "lines": 31,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/data/notification_repository.dart",
+   "name": "NotificationRepository._client",
+   "line": 12,
+   "lines": 5,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/data/notification_repository.dart",
+   "name": "NotificationRepository.fetchRecent",
+   "line": 18,
+   "lines": 19,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/data/notification_repository.dart",
+   "name": "NotificationRepository._fromRow",
+   "line": 38,
+   "lines": 19,
+   "cc": 8,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/data/notification_repository.dart",
+   "name": "NotificationRepository._parseType",
+   "line": 58,
+   "lines": 9,
+   "cc": 8,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/data/notification_repository.dart",
+   "name": "NotificationRepository._title",
+   "line": 68,
+   "lines": 8,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/data/notification_repository.dart",
+   "name": "NotificationRepository._body",
+   "line": 77,
+   "lines": 12,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/domain/app_notification.dart",
+   "name": "NotificationTypeExt.icon",
+   "line": 11,
+   "lines": 8,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/domain/notification_rule.dart",
+   "name": "NotificationRule.copyWith",
+   "line": 10,
+   "lines": 5,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/domain/notification_rule.dart",
+   "name": "NotificationRule.toJson",
+   "line": 16,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/domain/notification_rule.dart",
+   "name": "NotificationRule.fromJson",
+   "line": 21,
+   "lines": 5,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/domain/notification_rule.dart",
+   "name": "NotificationRule.==",
+   "line": 27,
+   "lines": 6,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/domain/notification_rule.dart",
+   "name": "NotificationRule.hashCode",
+   "line": 34,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.all",
+   "line": 28,
+   "lines": 6,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.unreadCount",
+   "line": 35,
+   "lines": 3,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.isRead",
+   "line": 39,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.loadReadState",
+   "line": 41,
+   "lines": 12,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.load",
+   "line": 54,
+   "lines": 22,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.refresh",
+   "line": 77,
+   "lines": 11,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.markRead",
+   "line": 89,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.dismiss",
+   "line": 96,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController.markAllRead",
+   "line": 105,
+   "lines": 10,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController._saveReadState",
+   "line": 116,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController._generate",
+   "line": 126,
+   "lines": 10,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController._dateKey",
+   "line": 137,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController._renewalNotification",
+   "line": 141,
+   "lines": 29,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/notification_controller.dart",
+   "name": "NotificationController._trialNotification",
+   "line": 171,
+   "lines": 34,
+   "cc": 7,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/screens/notification_center_screen.dart",
+   "name": "NotificationCenterScreen.build",
+   "line": 21,
+   "lines": 7,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/screens/notification_center_screen.dart",
+   "name": "NotificationCenterScreen._buildContent",
+   "line": 29,
+   "lines": 28,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/screens/notification_center_screen.dart",
+   "name": "_EmptyNotifications.build",
+   "line": 62,
+   "lines": 19,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/screens/notification_center_screen.dart",
+   "name": "_NotificationTile._avatarColor",
+   "line": 94,
+   "lines": 8,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/screens/notification_center_screen.dart",
+   "name": "_NotificationTile._open",
+   "line": 103,
+   "lines": 13,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/notifications/presentation/screens/notification_center_screen.dart",
+   "name": "_NotificationTile.build",
+   "line": 117,
+   "lines": 36,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "OnboardingScreen.shouldShow",
+   "line": 20,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "OnboardingScreen.markDone",
+   "line": 25,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "OnboardingScreen.createState",
+   "line": 30,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState.dispose",
+   "line": 68,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._finish",
+   "line": 74,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._currentAccent",
+   "line": 80,
+   "lines": 3,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._currentBg",
+   "line": 84,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState.build",
+   "line": 87,
+   "lines": 59,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._topBar",
+   "line": 147,
+   "lines": 35,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._pages",
+   "line": 183,
+   "lines": 14,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._progressDots",
+   "line": 198,
+   "lines": 21,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._primaryButton",
+   "line": 220,
+   "lines": 35,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._blob",
+   "line": 256,
+   "lines": 17,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_InfoPage.build",
+   "line": 296,
+   "lines": 36,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/currency_page.dart",
+   "name": "CurrencyPage.build",
+   "line": 20,
+   "lines": 51,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/currency_page.dart",
+   "name": "CurrencyPage._floatingChips",
+   "line": 72,
+   "lines": 30,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/currency_page.dart",
+   "name": "CurrencyPage._currencyChip",
+   "line": 103,
+   "lines": 25,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/currency_page.dart",
+   "name": "_CurrencyOption.build",
+   "line": 145,
+   "lines": 74,
+   "cc": 8,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+   "name": "AnalyticsIllustration.createState",
+   "line": 9,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+   "name": "_AnalyticsIllustrationState.initState",
+   "line": 25,
+   "lines": 10,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+   "name": "_AnalyticsIllustrationState.dispose",
+   "line": 36,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+   "name": "_AnalyticsIllustrationState.build",
+   "line": 43,
+   "lines": 57,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+   "name": "_RingPainter.paint",
+   "line": 107,
+   "lines": 23,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+   "name": "_RingPainter.shouldRepaint",
+   "line": 131,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "CalendarIllustration.createState",
+   "line": 6,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "_CalendarIllustrationState.initState",
+   "line": 14,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "_CalendarIllustrationState.dispose",
+   "line": 23,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "_CalendarIllustrationState.build",
+   "line": 31,
+   "lines": 30,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "_CalendarIllustrationState._calendarCard",
+   "line": 62,
+   "lines": 40,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "_CalendarIllustrationState._dayGrid",
+   "line": 103,
+   "lines": 17,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/calendar_illustration.dart",
+   "name": "_CalendarIllustrationState._dueBadge",
+   "line": 121,
+   "lines": 19,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/illustrations/subscriptions_illustration.dart",
+   "name": "SubscriptionsIllustration.build",
+   "line": 10,
+   "lines": 65,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/onboarding_motion.dart",
+   "name": "OnboardingBob.createState",
+   "line": 11,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/onboarding_motion.dart",
+   "name": "_BobState.initState",
+   "line": 19,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/onboarding_motion.dart",
+   "name": "_BobState.dispose",
+   "line": 28,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/onboarding_motion.dart",
+   "name": "_BobState.build",
+   "line": 34,
+   "lines": 19,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/widgets/onboarding_motion.dart",
+   "name": "OnboardingGlowOrb.build",
+   "line": 61,
+   "lines": 20,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/data/savings_repository.dart",
+   "name": "SavingsRepository._client",
+   "line": 18,
+   "lines": 5,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/data/savings_repository.dart",
+   "name": "SavingsRepository.record",
+   "line": 24,
+   "lines": 37,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/data/savings_repository.dart",
+   "name": "SavingsRepository.fetch",
+   "line": 62,
+   "lines": 25,
+   "cc": 7,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/data/savings_repository.dart",
+   "name": "SavingsRepository._readLocal",
+   "line": 88,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/domain/savings_event.dart",
+   "name": "SavingsEvent.toJson",
+   "line": 16,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/domain/savings_event.dart",
+   "name": "SavingsEvent.fromJson",
+   "line": 24,
+   "lines": 12,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/presentation/screens/savings_screen.dart",
+   "name": "SavingsScreen.build",
+   "line": 14,
+   "lines": 25,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/presentation/screens/savings_screen.dart",
+   "name": "SavingsScreen._errorView",
+   "line": 40,
+   "lines": 17,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/presentation/screens/savings_screen.dart",
+   "name": "SavingsScreen._content",
+   "line": 58,
+   "lines": 28,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/presentation/screens/savings_screen.dart",
+   "name": "_Top3Card.build",
+   "line": 100,
+   "lines": 43,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/presentation/screens/savings_screen.dart",
+   "name": "_SavingsEventTile.build",
+   "line": 150,
+   "lines": 17,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/savings/presentation/screens/savings_screen.dart",
+   "name": "_SavingsRow.build",
+   "line": 173,
+   "lines": 25,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/payment_methods_api.dart",
+   "name": "PaymentMethodsApiException.toString",
+   "line": 9,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/payment_methods_api.dart",
+   "name": "PaymentMethodsApi.isAvailable",
+   "line": 21,
+   "lines": 4,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/payment_methods_api.dart",
+   "name": "PaymentMethodsApi.load",
+   "line": 26,
+   "lines": 17,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/payment_methods_api.dart",
+   "name": "PaymentMethodsApi.replace",
+   "line": 44,
+   "lines": 11,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/payment_methods_api.dart",
+   "name": "PaymentMethodsApi._message",
+   "line": 56,
+   "lines": 6,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/supabase_export_repository.dart",
+   "name": "ExportException.toString",
+   "line": 10,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/supabase_export_repository.dart",
+   "name": "SupabaseExportRepository._client",
+   "line": 22,
+   "lines": 1,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/data/supabase_export_repository.dart",
+   "name": "SupabaseExportRepository.createAndProcess",
+   "line": 24,
+   "lines": 32,
+   "cc": 10,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/domain/subscription_csv_exporter.dart",
+   "name": "SubscriptionCsvExporter.build",
+   "line": 26,
+   "lines": 26,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/domain/subscription_csv_exporter.dart",
+   "name": "SubscriptionCsvExporter._date",
+   "line": 53,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/appearance_screen.dart",
+   "name": "AppearanceScreen.build",
+   "line": 10,
+   "lines": 30,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/appearance_screen.dart",
+   "name": "_TimezoneTile._currentLabel",
+   "line": 63,
+   "lines": 7,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/appearance_screen.dart",
+   "name": "_TimezoneTile.build",
+   "line": 71,
+   "lines": 10,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/appearance_screen.dart",
+   "name": "_TimezoneTile._showPicker",
+   "line": 82,
+   "lines": 52,
+   "cc": 2,
+   "depth": 5
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/appearance_screen.dart",
+   "name": "_SectionHeader.build",
+   "line": 140,
+   "lines": 10,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/app_lock_settings_screen.dart",
+   "name": "AppLockSettingsScreen.createState",
+   "line": 9,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/app_lock_settings_screen.dart",
+   "name": "_AppLockSettingsScreenState.dispose",
+   "line": 22,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/app_lock_settings_screen.dart",
+   "name": "_AppLockSettingsScreenState._setPin",
+   "line": 28,
+   "lines": 15,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/app_lock_settings_screen.dart",
+   "name": "_AppLockSettingsScreenState.build",
+   "line": 44,
+   "lines": 65,
+   "cc": 9,
+   "depth": 4
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/delete_account_screen.dart",
+   "name": "DeleteAccountScreen.createState",
+   "line": 11,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/delete_account_screen.dart",
+   "name": "_DeleteAccountScreenState._canDelete",
+   "line": 22,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/delete_account_screen.dart",
+   "name": "_DeleteAccountScreenState.dispose",
+   "line": 25,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/delete_account_screen.dart",
+   "name": "_DeleteAccountScreenState._delete",
+   "line": 32,
+   "lines": 30,
+   "cc": 6,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/delete_account_screen.dart",
+   "name": "_DeleteAccountScreenState.build",
+   "line": 63,
+   "lines": 72,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/export_data_screen.dart",
+   "name": "ExportDataScreen._buildCsv",
+   "line": 15,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/export_data_screen.dart",
+   "name": "ExportDataScreen._shareAsFile",
+   "line": 21,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/export_data_screen.dart",
+   "name": "ExportDataScreen._copyToClipboard",
+   "line": 30,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/export_data_screen.dart",
+   "name": "ExportDataScreen._createCloudExport",
+   "line": 39,
+   "lines": 18,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/export_data_screen.dart",
+   "name": "ExportDataScreen.build",
+   "line": 58,
+   "lines": 70,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "FeedbackScreen.createState",
+   "line": 9,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "_FeedbackScreenState.initState",
+   "line": 18,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "_FeedbackScreenState._onMessageChanged",
+   "line": 24,
+   "lines": 1,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "_FeedbackScreenState.dispose",
+   "line": 26,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "_FeedbackScreenState._share",
+   "line": 33,
+   "lines": 10,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "_FeedbackScreenState._createTicket",
+   "line": 44,
+   "lines": 20,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/feedback_screen.dart",
+   "name": "_FeedbackScreenState.build",
+   "line": 65,
+   "lines": 69,
+   "cc": 8,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/notification_preferences_screen.dart",
+   "name": "NotificationPreferencesScreen.createState",
+   "line": 12,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/notification_preferences_screen.dart",
+   "name": "_NotificationPreferencesScreenState._toggleNotifications",
+   "line": 23,
+   "lines": 18,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/notification_preferences_screen.dart",
+   "name": "_NotificationPreferencesScreenState._sendTest",
+   "line": 42,
+   "lines": 18,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/notification_preferences_screen.dart",
+   "name": "_NotificationPreferencesScreenState._pickReminderHour",
+   "line": 61,
+   "lines": 11,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/notification_preferences_screen.dart",
+   "name": "_NotificationPreferencesScreenState.build",
+   "line": 73,
+   "lines": 69,
+   "cc": 6,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "PaymentMethodsScreen.createState",
+   "line": 10,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_PaymentMethodsScreenState._showAddDialog",
+   "line": 15,
+   "lines": 33,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_PaymentMethodsScreenState._showEditDialog",
+   "line": 49,
+   "lines": 33,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_PaymentMethodsScreenState._confirmDelete",
+   "line": 83,
+   "lines": 24,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_PaymentMethodsScreenState.build",
+   "line": 108,
+   "lines": 34,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_PaymentMethodsScreenState._methodList",
+   "line": 143,
+   "lines": 15,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_EmptyMethods.build",
+   "line": 165,
+   "lines": 23,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_MethodCard.build",
+   "line": 201,
+   "lines": 41,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/payment_methods_screen.dart",
+   "name": "_SyncErrorBanner.build",
+   "line": 248,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/privacy_center_screen.dart",
+   "name": "PrivacyCenterScreen.build",
+   "line": 14,
+   "lines": 50,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/privacy_policy_screen.dart",
+   "name": "PrivacyPolicyScreen.build",
+   "line": 15,
+   "lines": 71,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/privacy_policy_screen.dart",
+   "name": "_Section.build",
+   "line": 94,
+   "lines": 19,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/privacy_policy_screen.dart",
+   "name": "_LegalSummary.build",
+   "line": 119,
+   "lines": 19,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "ProfileScreen.createState",
+   "line": 10,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState.initState",
+   "line": 28,
+   "lines": 9,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState.dispose",
+   "line": 38,
+   "lines": 9,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._nameChanged",
+   "line": 48,
+   "lines": 5,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._emailChanged",
+   "line": 54,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._canChangePassword",
+   "line": 57,
+   "lines": 4,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._saveName",
+   "line": 62,
+   "lines": 15,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._saveEmail",
+   "line": 78,
+   "lines": 12,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._changePassword",
+   "line": 91,
+   "lines": 23,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._formatDate",
+   "line": 115,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._refresh",
+   "line": 117,
+   "lines": 1,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState.build",
+   "line": 119,
+   "lines": 68,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileScreenState._passwordFields",
+   "line": 188,
+   "lines": 45,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_ProfileHeader.build",
+   "line": 246,
+   "lines": 26,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_BusyButton.build",
+   "line": 286,
+   "lines": 16,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/profile_screen.dart",
+   "name": "_VisibilityToggle.build",
+   "line": 310,
+   "lines": 8,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "ProfileTab.build",
+   "line": 15,
+   "lines": 53,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "ProfileTab._preferences",
+   "line": 69,
+   "lines": 23,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "ProfileTab._appAndPrivacy",
+   "line": 93,
+   "lines": 24,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "ProfileTab._initials",
+   "line": 118,
+   "lines": 12,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "ProfileTab._confirmSignOut",
+   "line": 131,
+   "lines": 14,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "_SectionLabel.build",
+   "line": 153,
+   "lines": 18,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "_SettingTile.build",
+   "line": 188,
+   "lines": 61,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "_AccountSummaryCard.build",
+   "line": 264,
+   "lines": 72,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/settings_screen.dart",
+   "name": "_SignOutButton.build",
+   "line": 343,
+   "lines": 26,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/terms_of_service_screen.dart",
+   "name": "TermsOfServiceScreen.build",
+   "line": 15,
+   "lines": 72,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/terms_of_service_screen.dart",
+   "name": "_Section.build",
+   "line": 95,
+   "lines": 19,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/screens/terms_of_service_screen.dart",
+   "name": "_LegalSummary.build",
+   "line": 120,
+   "lines": 19,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.currency",
+   "line": 26,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.notificationsEnabled",
+   "line": 29,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.daysBefore",
+   "line": 30,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.reminderHour",
+   "line": 32,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.timezone",
+   "line": 36,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.paymentMethods",
+   "line": 38,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.paymentMethodsSyncError",
+   "line": 40,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.load",
+   "line": 42,
+   "lines": 16,
+   "cc": 9,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.setCurrency",
+   "line": 59,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController._normalizeCurrency",
+   "line": 66,
+   "lines": 6,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.setNotifications",
+   "line": 73,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.setDaysBefore",
+   "line": 80,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.setReminderHour",
+   "line": 87,
+   "lines": 7,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.setTimezone",
+   "line": 95,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.addPaymentMethod",
+   "line": 102,
+   "lines": 8,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.removePaymentMethod",
+   "line": 111,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.renamePaymentMethod",
+   "line": 117,
+   "lines": 8,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController._loadRemotePaymentMethods",
+   "line": 126,
+   "lines": 10,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController._savePaymentMethods",
+   "line": 137,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.retryPaymentMethodsSync",
+   "line": 143,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController._syncRemotePaymentMethods",
+   "line": 148,
+   "lines": 9,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/settings/presentation/settings_controller.dart",
+   "name": "SettingsController.clearAccountPaymentMethods",
+   "line": 158,
+   "lines": 10,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository._client",
+   "line": 21,
+   "lines": 5,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository.fetch",
+   "line": 27,
+   "lines": 24,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository.record",
+   "line": 52,
+   "lines": 31,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository.delete",
+   "line": 84,
+   "lines": 23,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository.update",
+   "line": 108,
+   "lines": 32,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository._readLocal",
+   "line": 141,
+   "lines": 11,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/data/payment_events_repository.dart",
+   "name": "PaymentEventsRepository._recordLocal",
+   "line": 153,
+   "lines": 16,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/payment_analytics.dart",
+   "name": "PaymentAnalytics.monthlyTotals",
+   "line": 8,
+   "lines": 15,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/payment_analytics.dart",
+   "name": "PaymentAnalytics.totalForMonth",
+   "line": 24,
+   "lines": 17,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/payment_analytics.dart",
+   "name": "PaymentAnalytics.monthOverMonthPercent",
+   "line": 42,
+   "lines": 21,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/payment_event.dart",
+   "name": "PaymentEvent.toJson",
+   "line": 16,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/payment_event.dart",
+   "name": "PaymentEvent.fromJson",
+   "line": 24,
+   "lines": 8,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/stats_view_model.dart",
+   "name": "StatsViewModel.build",
+   "line": 39,
+   "lines": 49,
+   "cc": 7,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/domain/stats_view_model.dart",
+   "name": "StatsViewModel.categoryBreakdown",
+   "line": 89,
+   "lines": 11,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/payment_history_screen.dart",
+   "name": "PaymentHistoryScreen._validateAmount",
+   "line": 13,
+   "lines": 7,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/payment_history_screen.dart",
+   "name": "PaymentHistoryScreen._edit",
+   "line": 21,
+   "lines": 38,
+   "cc": 4,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/payment_history_screen.dart",
+   "name": "PaymentHistoryScreen._add",
+   "line": 60,
+   "lines": 62,
+   "cc": 6,
+   "depth": 5
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/payment_history_screen.dart",
+   "name": "PaymentHistoryScreen.build",
+   "line": 123,
+   "lines": 47,
+   "cc": 3,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/stats_screen.dart",
+   "name": "StatsScreen.createState",
+   "line": 33,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/stats_screen.dart",
+   "name": "_StatsScreenState._open",
+   "line": 41,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/stats_screen.dart",
+   "name": "_StatsScreenState.build",
+   "line": 43,
+   "lines": 46,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/stats_screen.dart",
+   "name": "_StatsScreenState._buildBody",
+   "line": 90,
+   "lines": 63,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/screens/stats_screen.dart",
+   "name": "_StateMessage.build",
+   "line": 160,
+   "lines": 14,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/action_cards.dart",
+   "name": "ActionCards.build",
+   "line": 13,
+   "lines": 28,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/action_cards.dart",
+   "name": "ActionTile.build",
+   "line": 59,
+   "lines": 56,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/category_breakdown_card.dart",
+   "name": "CategoryBreakdownCard.build",
+   "line": 29,
+   "lines": 56,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/category_breakdown_card.dart",
+   "name": "_CategoryRow.build",
+   "line": 102,
+   "lines": 58,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/currency_selector.dart",
+   "name": "CurrencySelector.build",
+   "line": 15,
+   "lines": 28,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/hero_spending_card.dart",
+   "name": "HeroSpendingCard.build",
+   "line": 26,
+   "lines": 54,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/hero_spending_card.dart",
+   "name": "HeroSpendingCard._change",
+   "line": 81,
+   "lines": 3,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/hero_spending_card.dart",
+   "name": "_TitleRow.build",
+   "line": 91,
+   "lines": 36,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/hero_spending_card.dart",
+   "name": "_ChangeBadge.build",
+   "line": 142,
+   "lines": 26,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/hero_spending_card.dart",
+   "name": "_ChangeBadge._look",
+   "line": 169,
+   "lines": 31,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/insights_card.dart",
+   "name": "InsightsCard._sharePct",
+   "line": 23,
+   "lines": 7,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/insights_card.dart",
+   "name": "InsightsCard.build",
+   "line": 31,
+   "lines": 43,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/insights_card.dart",
+   "name": "_HighestExpense.build",
+   "line": 88,
+   "lines": 73,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/insights_card.dart",
+   "name": "_DueSoonBanner.build",
+   "line": 172,
+   "lines": 56,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "TrendCard.build",
+   "line": 24,
+   "lines": 50,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_Header.build",
+   "line": 87,
+   "lines": 34,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_RangeSelector.build",
+   "line": 129,
+   "lines": 22,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_RangeOption.build",
+   "line": 164,
+   "lines": 21,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_CurrentTotal.build",
+   "line": 198,
+   "lines": 26,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_Bars.build",
+   "line": 232,
+   "lines": 28,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_Bars._showLabel",
+   "line": 261,
+   "lines": 7,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_Bar.build",
+   "line": 285,
+   "lines": 44,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_NoHistoryHint.build",
+   "line": 334,
+   "lines": 28,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/stats/presentation/widgets/trend_card.dart",
+   "name": "_monthLabel",
+   "line": 364,
+   "lines": 17,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser.parse",
+   "line": 56,
+   "lines": 29,
+   "cc": 8,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._parseRow",
+   "line": 86,
+   "lines": 38,
+   "cc": 10,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._records",
+   "line": 125,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._split",
+   "line": 131,
+   "lines": 23,
+   "cc": 8,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._header",
+   "line": 155,
+   "lines": 10,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._parseStrictIsoDate",
+   "line": 166,
+   "lines": 14,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._cycle",
+   "line": 181,
+   "lines": 6,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._category",
+   "line": 187,
+   "lines": 4,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._status",
+   "line": 192,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._emptyAsNull",
+   "line": 195,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._optionalDate",
+   "line": 198,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart",
+   "name": "CsvImportParser._optionalMoney",
+   "line": 201,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository._synchronized",
+   "line": 16,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository._readAll",
+   "line": 22,
+   "lines": 8,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository._writeAll",
+   "line": 31,
+   "lines": 6,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.getAll",
+   "line": 38,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.create",
+   "line": 41,
+   "lines": 40,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.update",
+   "line": 82,
+   "lines": 8,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.delete",
+   "line": 91,
+   "lines": 7,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.archive",
+   "line": 99,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.restore",
+   "line": 103,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.pause",
+   "line": 107,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.resume",
+   "line": 111,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository.cancel",
+   "line": 115,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/local_subscription_repository.dart",
+   "name": "LocalSubscriptionRepository._setStatus",
+   "line": 119,
+   "lines": 8,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator.pendingCount",
+   "line": 27,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator.enqueue",
+   "line": 29,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator.replay",
+   "line": 36,
+   "lines": 20,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator.apply",
+   "line": 57,
+   "lines": 24,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator._applyTransition",
+   "line": 82,
+   "lines": 22,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator._applyCreate",
+   "line": 105,
+   "lines": 30,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/offline_sync_coordinator.dart",
+   "name": "OfflineSyncCoordinator._setStatus",
+   "line": 136,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.savingsEvents",
+   "line": 23,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.paymentEvents",
+   "line": 24,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.load",
+   "line": 26,
+   "lines": 10,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.record",
+   "line": 37,
+   "lines": 15,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.remove",
+   "line": 53,
+   "lines": 4,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.update",
+   "line": 58,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.recordSavings",
+   "line": 64,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/payment_history_store.dart",
+   "name": "PaymentHistoryStore.savingsByCurrency",
+   "line": 79,
+   "lines": 9,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_cache.dart",
+   "name": "SubscriptionCache.write",
+   "line": 17,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_cache.dart",
+   "name": "SubscriptionCache.read",
+   "line": 27,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.findById",
+   "line": 50,
+   "lines": 4,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations._applyLocalChange",
+   "line": 55,
+   "lines": 15,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations._expireEndedTrials",
+   "line": 71,
+   "lines": 6,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations._advanceOverdueRenewals",
+   "line": 78,
+   "lines": 7,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.applyLifecycleRules",
+   "line": 86,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.guarded",
+   "line": 92,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.markRenewed",
+   "line": 107,
+   "lines": 9,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations._serializeAdd",
+   "line": 123,
+   "lines": 11,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.add",
+   "line": 135,
+   "lines": 28,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations._addInternal",
+   "line": 164,
+   "lines": 77,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.edit",
+   "line": 242,
+   "lines": 29,
+   "cc": 5,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_operations.dart",
+   "name": "SubscriptionOperations.delete",
+   "line": 272,
+   "lines": 17,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_realtime_sync.dart",
+   "name": "SubscriptionRealtimeSync.tryStart",
+   "line": 17,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_realtime_sync.dart",
+   "name": "SubscriptionRealtimeSync.merge",
+   "line": 32,
+   "lines": 12,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_realtime_sync.dart",
+   "name": "SubscriptionRealtimeSync.cancel",
+   "line": 45,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations._updateLocalStatus",
+   "line": 40,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.deleteMany",
+   "line": 46,
+   "lines": 27,
+   "cc": 5,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.archiveMany",
+   "line": 74,
+   "lines": 30,
+   "cc": 7,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.archive",
+   "line": 105,
+   "lines": 3,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.restore",
+   "line": 109,
+   "lines": 3,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.pause",
+   "line": 113,
+   "lines": 17,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.resume",
+   "line": 131,
+   "lines": 3,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations.cancel",
+   "line": 135,
+   "lines": 17,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/subscription_status_operations.dart",
+   "name": "SubscriptionStatusOperations._updateStatus",
+   "line": 153,
+   "lines": 25,
+   "cc": 7,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository._client",
+   "line": 15,
+   "lines": 1,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.getAll",
+   "line": 19,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.watchAll",
+   "line": 34,
+   "lines": 10,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.create",
+   "line": 45,
+   "lines": 38,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.update",
+   "line": 84,
+   "lines": 29,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.delete",
+   "line": 114,
+   "lines": 12,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.archive",
+   "line": 127,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.restore",
+   "line": 131,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.pause",
+   "line": 135,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.resume",
+   "line": 139,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository.cancel",
+   "line": 143,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository._setStatus",
+   "line": 149,
+   "lines": 15,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/data/supabase_subscription_repository.dart",
+   "name": "SupabaseSubscriptionRepository._fromRow",
+   "line": 165,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_lifecycle.dart",
+   "name": "SubscriptionLifecycle._dateOnly",
+   "line": 6,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_lifecycle.dart",
+   "name": "SubscriptionLifecycle.endedTrials",
+   "line": 8,
+   "lines": 13,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_lifecycle.dart",
+   "name": "SubscriptionLifecycle.overdueRenewals",
+   "line": 22,
+   "lines": 13,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_lifecycle.dart",
+   "name": "SubscriptionLifecycle.advanceOverdue",
+   "line": 36,
+   "lines": 4,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_lifecycle.dart",
+   "name": "SubscriptionLifecycle.markRenewed",
+   "line": 41,
+   "lines": 7,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_lifecycle.dart",
+   "name": "SubscriptionLifecycle._nextOnOrAfter",
+   "line": 49,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionStatusExt.label",
+   "line": 8,
+   "lines": 8,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionStatusExt.key",
+   "line": 17,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionStatusExt.fromKey",
+   "line": 19,
+   "lines": 2,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionStatusExt.canTransitionTo",
+   "line": 53,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "BillingCycleLabel.label",
+   "line": 60,
+   "lines": 6,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "BillingCycleLabel.intervalDays",
+   "line": 67,
+   "lines": 6,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "BillingCycleLabel.key",
+   "line": 74,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "BillingCycleLabel.fromKey",
+   "line": 76,
+   "lines": 2,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionCategoryLabel.label",
+   "line": 94,
+   "lines": 12,
+   "cc": 11,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionCategoryLabel.key",
+   "line": 107,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "SubscriptionCategoryLabel.fromKey",
+   "line": 109,
+   "lines": 3,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.isTrial",
+   "line": 151,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.isExpired",
+   "line": 152,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.isNotStartedAt",
+   "line": 154,
+   "lines": 10,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.isNotStarted",
+   "line": 165,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.isArchived",
+   "line": 167,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.monthlyAmount",
+   "line": 169,
+   "lines": 6,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.daysUntilRenewal",
+   "line": 176,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.projectedRenewals",
+   "line": 184,
+   "lines": 14,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.copyWith",
+   "line": 199,
+   "lines": 33,
+   "cc": 14,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.toJson",
+   "line": 233,
+   "lines": 18,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.fromJson",
+   "line": 252,
+   "lines": 27,
+   "cc": 9,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription._pick",
+   "line": 280,
+   "lines": 3,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription._text",
+   "line": 284,
+   "lines": 7,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription._date",
+   "line": 292,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription._rules",
+   "line": 296,
+   "lines": 6,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription._status",
+   "line": 303,
+   "lines": 8,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors._byStatus",
+   "line": 22,
+   "lines": 2,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.active",
+   "line": 25,
+   "lines": 4,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.notStarted",
+   "line": 30,
+   "lines": 3,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.trials",
+   "line": 34,
+   "lines": 4,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.paused",
+   "line": 39,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.cancelled",
+   "line": 42,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.expired",
+   "line": 45,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.archived",
+   "line": 48,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.upcomingRenewals",
+   "line": 51,
+   "lines": 4,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.projectedRenewals",
+   "line": 56,
+   "lines": 13,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.totalsByCurrency",
+   "line": 70,
+   "lines": 13,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.totalMonthly",
+   "line": 84,
+   "lines": 9,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "AddSubscriptionScreen.createState",
+   "line": 26,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "_AddSubscriptionScreenState._confirmDuplicateNameIfAny",
+   "line": 40,
+   "lines": 31,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "_AddSubscriptionScreenState._warnIfNotificationsDisabled",
+   "line": 72,
+   "lines": 19,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "_AddSubscriptionScreenState._save",
+   "line": 92,
+   "lines": 36,
+   "cc": 12,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "_AddSubscriptionScreenState._recordInitialPayment",
+   "line": 129,
+   "lines": 15,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "_AddSubscriptionScreenState._showSaveError",
+   "line": 145,
+   "lines": 9,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   "name": "_AddSubscriptionScreenState.build",
+   "line": 155,
+   "lines": 43,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/archived_subscriptions_screen.dart",
+   "name": "ArchivedSubscriptionsScreen.build",
+   "line": 14,
+   "lines": 23,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/archived_subscriptions_screen.dart",
+   "name": "ArchivedSubscriptionsScreen._restore",
+   "line": 38,
+   "lines": 7,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/archived_subscriptions_screen.dart",
+   "name": "_EmptyArchive.build",
+   "line": 50,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/archived_subscriptions_screen.dart",
+   "name": "_ArchivedTile.build",
+   "line": 72,
+   "lines": 42,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/csv_import_screen.dart",
+   "name": "CsvImportScreen.createState",
+   "line": 23,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/csv_import_screen.dart",
+   "name": "_CsvImportScreenState._pick",
+   "line": 31,
+   "lines": 11,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/csv_import_screen.dart",
+   "name": "_CsvImportScreenState._import",
+   "line": 43,
+   "lines": 35,
+   "cc": 7,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/csv_import_screen.dart",
+   "name": "_CsvImportScreenState._showTemplate",
+   "line": 79,
+   "lines": 49,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/csv_import_screen.dart",
+   "name": "_CsvImportScreenState.build",
+   "line": 129,
+   "lines": 54,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
+   "name": "EditSubscriptionScreen.createState",
+   "line": 22,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
+   "name": "_EditSubscriptionScreenState.initState",
+   "line": 30,
+   "lines": 21,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
+   "name": "_EditSubscriptionScreenState._save",
+   "line": 52,
+   "lines": 37,
+   "cc": 8,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
+   "name": "_EditSubscriptionScreenState.build",
+   "line": 90,
+   "lines": 33,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+   "name": "SubscriptionDetailScreen._latest",
+   "line": 26,
+   "lines": 4,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+   "name": "SubscriptionDetailScreen.build",
+   "line": 33,
+   "lines": 5,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+   "name": "SubscriptionDetailScreen._buildScreen",
+   "line": 39,
+   "lines": 72,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+   "name": "SubscriptionDetailScreen._navigateToEdit",
+   "line": 112,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+   "name": "SubscriptionDetailScreen._handleAction",
+   "line": 116,
+   "lines": 14,
+   "cc": 9,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+   "name": "SubscriptionDetailScreen._confirmDelete",
+   "line": 131,
+   "lines": 12,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "SubscriptionListScreen.createState",
+   "line": 23,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState.initState",
+   "line": 37,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._onSearchChanged",
+   "line": 44,
+   "lines": 6,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState.dispose",
+   "line": 51,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._filtered",
+   "line": 59,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._enterSelectionMode",
+   "line": 67,
+   "lines": 8,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._exitSelectionMode",
+   "line": 76,
+   "lines": 6,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._toggleSelected",
+   "line": 83,
+   "lines": 10,
+   "cc": 3,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._confirmBulkArchive",
+   "line": 94,
+   "lines": 13,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._confirmBulkDelete",
+   "line": 108,
+   "lines": 15,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._showFilterSheet",
+   "line": 124,
+   "lines": 31,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._applyAndClose",
+   "line": 156,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._categoryChips",
+   "line": 162,
+   "lines": 21,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._sortOptions",
+   "line": 184,
+   "lines": 19,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._sheetLinks",
+   "line": 204,
+   "lines": 27,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState.build",
+   "line": 232,
+   "lines": 79,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._tab",
+   "line": 312,
+   "lines": 23,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+   "name": "_SubscriptionListScreenState._openAdd",
+   "line": 336,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.new",
+   "line": 29,
+   "lines": 46,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.notifyListeners",
+   "line": 97,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.active",
+   "line": 103,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.notStarted",
+   "line": 104,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.trials",
+   "line": 105,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.paused",
+   "line": 106,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.cancelled",
+   "line": 107,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.expired",
+   "line": 108,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.archived",
+   "line": 109,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.allItems",
+   "line": 111,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController._page",
+   "line": 112,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.visibleActive",
+   "line": 114,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.visibleTrials",
+   "line": 115,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.visiblePaused",
+   "line": 116,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.visibleCancelled",
+   "line": 117,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.visibleExpired",
+   "line": 118,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.upcomingRenewals",
+   "line": 120,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.projectedRenewals",
+   "line": 122,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.totalMonthly",
+   "line": 127,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.totalsByCurrency",
+   "line": 130,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.loading",
+   "line": 132,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.isOffline",
+   "line": 133,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.error",
+   "line": 134,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.lastSyncAt",
+   "line": 135,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.pendingMutationCount",
+   "line": 136,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.savingsEvents",
+   "line": 137,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.paymentEvents",
+   "line": 138,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.savingsByCurrency",
+   "line": 139,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.recordPayment",
+   "line": 141,
+   "lines": 12,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.deletePayment",
+   "line": 154,
+   "lines": 2,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.updatePayment",
+   "line": 157,
+   "lines": 2,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.hasMore",
+   "line": 160,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.loadMore",
+   "line": 161,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.load",
+   "line": 167,
+   "lines": 37,
+   "cc": 6,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.markRenewed",
+   "line": 205,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.markPaidAndRenewed",
+   "line": 207,
+   "lines": 16,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.add",
+   "line": 226,
+   "lines": 28,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.edit",
+   "line": 255,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.delete",
+   "line": 256,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.deleteMany",
+   "line": 257,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.archiveMany",
+   "line": 258,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.archive",
+   "line": 259,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.restore",
+   "line": 260,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.pause",
+   "line": 261,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.resume",
+   "line": 262,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.cancel",
+   "line": 263,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.clearError",
+   "line": 265,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController._setLoading",
+   "line": 270,
+   "lines": 4,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "SubscriptionController.dispose",
+   "line": 275,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "_ControllerHost.items",
+   "line": 288,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "_ControllerHost.error",
+   "line": 291,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "_ControllerHost.setLoading",
+   "line": 294,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_controller.dart",
+   "name": "_ControllerHost.notify",
+   "line": 297,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_list_view_model.dart",
+   "name": "SubscriptionSortOptionX.label",
+   "line": 6,
+   "lines": 6,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/subscription_list_view_model.dart",
+   "name": "filterAndSortSubscriptions",
+   "line": 14,
+   "lines": 26,
+   "cc": 8,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_action_buttons.dart",
+   "name": "DetailActionButtonsSection.build",
+   "line": 26,
+   "lines": 31,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_action_buttons.dart",
+   "name": "DetailActionButtonsSection._outlinedStyle",
+   "line": 58,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_action_buttons.dart",
+   "name": "DetailActionButtonsSection._pauseResumeButton",
+   "line": 64,
+   "lines": 12,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_action_buttons.dart",
+   "name": "DetailActionButtonsSection._archiveButton",
+   "line": 77,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_action_buttons.dart",
+   "name": "DetailActionButtonsSection._cancelButton",
+   "line": 86,
+   "lines": 17,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "DetailHeroHeader.build",
+   "line": 24,
+   "lines": 32,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "_Backdrop.build",
+   "line": 62,
+   "lines": 36,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "_TopControls.build",
+   "line": 113,
+   "lines": 37,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "_TopControls._menuItems",
+   "line": 151,
+   "lines": 16,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "_TopControls._item",
+   "line": 168,
+   "lines": 15,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "_BrandInfo.build",
+   "line": 190,
+   "lines": 69,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+   "name": "DetailGlassIconButton.build",
+   "line": 271,
+   "lines": 20,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_card.dart",
+   "name": "DetailNextPaymentCard.build",
+   "line": 16,
+   "lines": 36,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_card.dart",
+   "name": "DetailNextPaymentCard._statusColor",
+   "line": 53,
+   "lines": 6,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_card.dart",
+   "name": "DetailNextPaymentCard._dateColumn",
+   "line": 60,
+   "lines": 25,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_card.dart",
+   "name": "DetailNextPaymentCard._daysBadge",
+   "line": 86,
+   "lines": 35,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_card.dart",
+   "name": "DetailGridCategoryAndCycle.build",
+   "line": 131,
+   "lines": 25,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_card.dart",
+   "name": "_InfoTile.build",
+   "line": 171,
+   "lines": 53,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_history.dart",
+   "name": "DetailPaymentHistorySection.build",
+   "line": 18,
+   "lines": 63,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_history.dart",
+   "name": "DetailPaymentHistorySection._recentPayments",
+   "line": 82,
+   "lines": 19,
+   "cc": 4,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_history.dart",
+   "name": "DetailPaymentHistorySection._showAll",
+   "line": 102,
+   "lines": 22,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_payment_history.dart",
+   "name": "DetailHistoryTile.build",
+   "line": 138,
+   "lines": 59,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+   "name": "_SectionCaption.build",
+   "line": 10,
+   "lines": 12,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+   "name": "_CompactTextButton.build",
+   "line": 31,
+   "lines": 19,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+   "name": "_SurfaceCard.build",
+   "line": 58,
+   "lines": 13,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+   "name": "DetailPaymentMethodSection.build",
+   "line": 83,
+   "lines": 60,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+   "name": "DetailReminderSection._label",
+   "line": 155,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+   "name": "DetailReminderSection.build",
+   "line": 158,
+   "lines": 47,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "formatFormDate",
+   "line": 5,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "FormDatePickers._in",
+   "line": 10,
+   "lines": 1,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "FormDatePickers.startDate",
+   "line": 12,
+   "lines": 16,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "FormDatePickers.nextRenewal",
+   "line": 29,
+   "lines": 17,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "FormDatePickers.initialPayment",
+   "line": 47,
+   "lines": 12,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "FormDatePickers.deferredPayment",
+   "line": 60,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
+   "name": "FormDatePickers.trialEnd",
+   "line": 73,
+   "lines": 12,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection.build",
+   "line": 41,
+   "lines": 49,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection._trialFields",
+   "line": 91,
+   "lines": 35,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection._dateOrPrompt",
+   "line": 127,
+   "lines": 2,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection._categoryField",
+   "line": 130,
+   "lines": 14,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection._paymentMethodField",
+   "line": 145,
+   "lines": 27,
+   "cc": 3,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection._initialPaymentStatusField",
+   "line": 173,
+   "lines": 19,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_details_section.dart",
+   "name": "FormDetailsSection._initialPaymentDate",
+   "line": 193,
+   "lines": 20,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_renewal_section.dart",
+   "name": "FormRenewalSection.build",
+   "line": 28,
+   "lines": 49,
+   "cc": 4,
+   "depth": 5
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection.build",
+   "line": 31,
+   "lines": 16,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection._presetsTitle",
+   "line": 48,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection._presetChips",
+   "line": 63,
+   "lines": 21,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection._presetChip",
+   "line": 85,
+   "lines": 34,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection._nameField",
+   "line": 120,
+   "lines": 25,
+   "cc": 1,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection._currencyAndAmount",
+   "line": 146,
+   "lines": 33,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/form_service_section.dart",
+   "name": "FormServiceSection._billingCycleField",
+   "line": 180,
+   "lines": 18,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form/quick_add_payment_method_dialog.dart",
+   "name": "showQuickAddPaymentMethodDialog",
+   "line": 3,
+   "lines": 38,
+   "cc": 2,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form_date_tile.dart",
+   "name": "FormDateTile.build",
+   "line": 19,
+   "lines": 13,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/form_section.dart",
+   "name": "FormSection.build",
+   "line": 16,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/list_empty_state.dart",
+   "name": "SubscriptionListEmptyState.build",
+   "line": 12,
+   "lines": 15,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/list_header.dart",
+   "name": "SubscriptionListHeader.build",
+   "line": 15,
+   "lines": 40,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/pill_tab_bar.dart",
+   "name": "PillTabBar.createState",
+   "line": 15,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/pill_tab_bar.dart",
+   "name": "_PillTabBarState.initState",
+   "line": 20,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/pill_tab_bar.dart",
+   "name": "_PillTabBarState.dispose",
+   "line": 26,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/pill_tab_bar.dart",
+   "name": "_PillTabBarState._onChanged",
+   "line": 32,
+   "lines": 1,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/pill_tab_bar.dart",
+   "name": "_PillTabBarState.build",
+   "line": 34,
+   "lines": 45,
+   "cc": 6,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/selection_bar.dart",
+   "name": "SubscriptionSelectionBar.build",
+   "line": 17,
+   "lines": 36,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/subscription_filter_chip.dart",
+   "name": "SubscriptionFilterChip.build",
+   "line": 15,
+   "lines": 30,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/subscription_tile.dart",
+   "name": "SubscriptionListTile.build",
+   "line": 27,
+   "lines": 50,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/subscription_tile.dart",
+   "name": "_TileTitle.build",
+   "line": 85,
+   "lines": 49,
+   "cc": 5,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/subscription_tile.dart",
+   "name": "_TileTrailing.build",
+   "line": 141,
+   "lines": 48,
+   "cc": 9,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/list/tab_view.dart",
+   "name": "SubscriptionTabView.build",
+   "line": 43,
+   "lines": 58,
+   "cc": 7,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+   "name": "SubscriptionForm.createState",
+   "line": 33,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+   "name": "_SubscriptionFormState.initState",
+   "line": 46,
+   "lines": 9,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+   "name": "_SubscriptionFormState._loadRemoteCatalog",
+   "line": 56,
+   "lines": 17,
+   "cc": 6,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+   "name": "_SubscriptionFormState.dispose",
+   "line": 74,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+   "name": "_SubscriptionFormState._pick",
+   "line": 82,
+   "lines": 6,
+   "cc": 3,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+   "name": "_SubscriptionFormState.build",
+   "line": 89,
+   "lines": 51,
+   "cc": 1,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form_data.dart",
+   "name": "SubscriptionFormData._defaultNextRenewalDate",
+   "line": 33,
+   "lines": 12,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form_data.dart",
+   "name": "SubscriptionFormData.recalculateNextRenewal",
+   "line": 63,
+   "lines": 11,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form_validators.dart",
+   "name": "SubscriptionFormValidators.name",
+   "line": 5,
+   "lines": 2,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form_validators.dart",
+   "name": "SubscriptionFormValidators.amount",
+   "line": 8,
+   "lines": 4,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form_validators.dart",
+   "name": "SubscriptionFormValidators.trialPrice",
+   "line": 13,
+   "lines": 11,
+   "cc": 5,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/presentation/widgets/subscription_form_validators.dart",
+   "name": "SubscriptionFormValidators._isPositive",
+   "line": 25,
+   "lines": 4,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/main.dart",
+   "name": "main",
+   "line": 10,
+   "lines": 22,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/design/app_tokens.dart",
+   "name": "AppSpacing.screenWithBottomNav",
+   "line": 15,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/design/responsive.dart",
+   "name": "AppBreakpoints.isCompact",
+   "line": 12,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/design/responsive.dart",
+   "name": "AppBreakpoints.isExpanded",
+   "line": 15,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/design/responsive.dart",
+   "name": "ResponsiveCenter.build",
+   "line": 33,
+   "lines": 12,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "AmbientBackground.build",
+   "line": 21,
+   "lines": 46,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "AmbientBackground._blob",
+   "line": 68,
+   "lines": 17,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "BrandMark.build",
+   "line": 93,
+   "lines": 25,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "GlowOrb.build",
+   "line": 128,
+   "lines": 21,
+   "cc": 2,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "EntranceFade.createState",
+   "line": 158,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "_EntranceFadeState.initState",
+   "line": 169,
+   "lines": 12,
+   "cc": 2,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "_EntranceFadeState.dispose",
+   "line": 182,
+   "lines": 6,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/ambient_background.dart",
+   "name": "_EntranceFadeState.build",
+   "line": 189,
+   "lines": 7,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_animated_money.dart",
+   "name": "AppAnimatedMoney.build",
+   "line": 20,
+   "lines": 14,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "AppBounceable.createState",
+   "line": 19,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "_AppBounceableState.initState",
+   "line": 28,
+   "lines": 15,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "_AppBounceableState.dispose",
+   "line": 44,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "_AppBounceableState._onTapDown",
+   "line": 50,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "_AppBounceableState._onTapUp",
+   "line": 56,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "_AppBounceableState._onTapCancel",
+   "line": 62,
+   "lines": 5,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_bounceable.dart",
+   "name": "_AppBounceableState.build",
+   "line": 68,
+   "lines": 14,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_confirm_dialog.dart",
+   "name": "AppConfirmDialog.show",
+   "line": 21,
+   "lines": 22,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_confirm_dialog.dart",
+   "name": "AppConfirmDialog.build",
+   "line": 44,
+   "lines": 22,
+   "cc": 2,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_empty_state.dart",
+   "name": "AppEmptyState.build",
+   "line": 24,
+   "lines": 49,
+   "cc": 7,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_offline_banner.dart",
+   "name": "AppOfflineBanner.build",
+   "line": 19,
+   "lines": 23,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_offline_banner.dart",
+   "name": "AppOfflineBanner._formatRelativeTime",
+   "line": 43,
+   "lines": 7,
+   "cc": 4,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_offline_banner.dart",
+   "name": "AppStatusBanner.build",
+   "line": 72,
+   "lines": 19,
+   "cc": 3,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_section_header.dart",
+   "name": "AppSectionHeader.build",
+   "line": 15,
+   "lines": 18,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_shimmer.dart",
+   "name": "AppShimmer.createState",
+   "line": 16,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_shimmer.dart",
+   "name": "_AppShimmerState.initState",
+   "line": 24,
+   "lines": 8,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_shimmer.dart",
+   "name": "_AppShimmerState.dispose",
+   "line": 33,
+   "lines": 5,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_shimmer.dart",
+   "name": "_AppShimmerState.build",
+   "line": 39,
+   "lines": 27,
+   "cc": 1,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/app_surface.dart",
+   "name": "AppSurface.build",
+   "line": 19,
+   "lines": 12,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/async_state_view.dart",
+   "name": "AsyncStateView.build",
+   "line": 41,
+   "lines": 36,
+   "cc": 9,
+   "depth": 3
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/service_identity.dart",
+   "name": "ServiceIdentity.colorFor",
+   "line": 25,
+   "lines": 14,
+   "cc": 3,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/service_identity.dart",
+   "name": "ServiceIdentity.build",
+   "line": 40,
+   "lines": 57,
+   "cc": 4,
+   "depth": 2
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/service_identity.dart",
+   "name": "ServiceIdentity._categoryColor",
+   "line": 175,
+   "lines": 14,
+   "cc": 11,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/subscription_status_chip.dart",
+   "name": "SubscriptionStatusChip.build",
+   "line": 18,
+   "lines": 18,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/subscription_status_chip.dart",
+   "name": "SubscriptionStatusChip._urgency",
+   "line": 37,
+   "lines": 14,
+   "cc": 6,
+   "depth": 1
+  },
+  {
+   "file": "../../../mobile/lib/shared/widgets/subscription_status_chip.dart",
+   "name": "SubscriptionStatusChip._state",
+   "line": 52,
+   "lines": 26,
+   "cc": 9,
+   "depth": 1
+  }
+ ]
+}

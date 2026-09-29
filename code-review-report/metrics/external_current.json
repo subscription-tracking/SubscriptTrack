@@ -1,0 +1,14 @@
+{
+ "analyzer_issues": 0,
+ "tests_stable": true,
+ "secrets_found": 1,
+ "advisor_proxy": {
+  "errors": 0,
+  "warns": 5,
+  "note": "canl\u00c4\u00b1 advisor \u00c3\u00b6l\u00c3\u00a7\u00c3\u00bclemedi; migration SQL statik taramas\u00c4\u00b1 (proxy)"
+ },
+ "outdated_direct_major": 0,
+ "apk_mb": 60.2,
+ "apk_note": "Release APK (evrensel, 3 ABI): 60,2 MB; ba\u011f\u0131ml\u0131l\u0131k g\u00fcncellemeleri sonras\u0131 `flutter build apk --release` (pub get dahil) ba\u015far\u0131l\u0131. Play i\u00e7in ABI b\u00f6l\u00fcnm\u00fc\u015f boyut \u00e7ok daha k\u00fc\u00e7\u00fckt\u00fcr.",
+ "tests_total": 723
+}

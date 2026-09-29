@@ -1,0 +1,187 @@
+{
+ "size": {
+  "files": 86,
+  "total_lines": 17524,
+  "max_lines": 1177,
+  "max_file": "lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+  "median_lines": 126.5,
+  "p90_lines": 407,
+  "over_300": 12,
+  "over_400": 10,
+  "over_300_pct": 14.0,
+  "top10": [
+   [
+    "lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+    1177
+   ],
+   [
+    "lib/features/stats/presentation/screens/stats_screen.dart",
+    1176
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+    1157
+   ],
+   [
+    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+    977
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+    943
+   ],
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    846
+   ],
+   [
+    "lib/features/subscriptions/presentation/widgets/subscription_form.dart",
+    711
+   ],
+   [
+    "lib/core/services/local_notification_service.dart",
+    486
+   ],
+   [
+    "lib/app/theme/app_theme.dart",
+    431
+   ],
+   [
+    "lib/features/settings/presentation/screens/settings_screen.dart",
+    407
+   ]
+  ]
+ },
+ "architecture": {
+  "file_import_cycles": 0,
+  "file_import_cycle_files": 0,
+  "cycles_detail": [],
+  "feature_layer_cycles": 2,
+  "layer_violations": 3,
+  "layer_violations_detail": [
+   [
+    "lib/features/auth/presentation/auth_controller.dart",
+    "package:supabase_flutter/supabase_flutter.dart",
+    "presentation/shared/app -> supabase_flutter"
+   ],
+   [
+    "lib/features/settings/presentation/settings_controller.dart",
+    "package:supabase_flutter/supabase_flutter.dart",
+    "presentation/shared/app -> supabase_flutter"
+   ],
+   [
+    "lib/features/settings/presentation/screens/feedback_screen.dart",
+    "package:supabase_flutter/supabase_flutter.dart",
+    "presentation/shared/app -> supabase_flutter"
+   ]
+  ],
+  "navigator_push_files": 14,
+  "max_fan_out": 14,
+  "max_fan_out_excl_app": 14,
+  "max_fan_out_excl_app_file": "lib/features/subscriptions/presentation/subscription_controller.dart",
+  "max_fan_out_file": "lib/features/subscriptions/presentation/subscription_controller.dart",
+  "max_fan_in": 25,
+  "max_fan_in_file": "lib/features/subscriptions/domain/subscription_models.dart",
+  "top_fan_out": [
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    14
+   ],
+   [
+    "lib/features/settings/presentation/screens/settings_screen.dart",
+    13
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+    13
+   ],
+   [
+    "lib/app/shell/authenticated_shell.dart",
+    11
+   ],
+   [
+    "lib/features/dashboard/presentation/screens/dashboard_screen.dart",
+    11
+   ]
+  ],
+  "top_fan_in": [
+   [
+    "lib/features/subscriptions/domain/subscription_models.dart",
+    25
+   ],
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    20
+   ],
+   [
+    "lib/core/domain/money.dart",
+    16
+   ],
+   [
+    "lib/core/config/app_environment.dart",
+    13
+   ],
+   [
+    "lib/core/utils/date_time_utils.dart",
+    13
+   ]
+  ]
+ },
+ "duplication": {
+  "window": 6,
+  "significant_lines": 10487,
+  "duplicated_lines": 706,
+  "duplicated_pct": 6.7,
+  "top_files": [
+   [
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    95
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+    86
+   ],
+   [
+    "lib/features/auth/presentation/screens/login_screen.dart",
+    52
+   ],
+   [
+    "lib/features/auth/presentation/screens/register_screen.dart",
+    44
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+    40
+   ],
+   [
+    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+    39
+   ],
+   [
+    "lib/features/stats/presentation/screens/stats_screen.dart",
+    39
+   ],
+   [
+    "lib/features/auth/presentation/auth_controller.dart",
+    37
+   ]
+  ]
+ },
+ "maintainability": {
+  "public_types": 117,
+  "documented_types": 29,
+  "doc_ratio_pct": 24.8,
+  "todo": 0,
+  "color_literals": 145,
+  "turkish_string_literals": 576,
+  "semantics_calls": 9,
+  "tracked_artifacts": 30,
+  "tracked_artifacts_sample": [
+   "mobile/android/.gradle/8.4/checksums/checksums.lock",
+   "mobile/android/.gradle/8.4/checksums/md5-checksums.bin",
+   "mobile/android/.gradle/8.4/checksums/sha1-checksums.bin",
+   "mobile/android/.gradle/8.4/dependencies-accessors/dependencies-accessors.lock",
+   "mobile/android/.gradle/8.4/dependencies-accessors/gc.properties"
+  ]
+ }
+}

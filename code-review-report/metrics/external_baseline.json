@@ -1,0 +1,11 @@
+{
+ "analyzer_issues": 2,
+ "tests_stable": false,
+ "secrets_found": 1,
+ "advisor_proxy": {
+  "errors": 0,
+  "warns": 5,
+  "note": "canl\u0131 advisor \u00f6l\u00e7\u00fclemedi; migration SQL statik taramas\u0131 (proxy)"
+ },
+ "outdated_direct_major": 9
+}

@@ -1,0 +1,7 @@
+name: complexity
+description: Dart metot karmaşıklığı ölçümü (analyzer AST).
+publish_to: none
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+dependencies:
+  analyzer: 10.1.0
