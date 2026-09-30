@@ -201,3 +201,15 @@ test('027 pins search_path on set_updated_at', async () => {
 
   assert.match(migration, /ALTER FUNCTION public\.set_updated_at\(\) SET search_path = public;/);
 });
+
+test('031 wraps auth.uid() in RLS policies as an InitPlan and is idempotent', async () => {
+  const migration = await readFile(
+    new URL('../migrations/031_rls_initplan_optimization.sql', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(migration, /ALTER POLICY/);
+  assert.match(migration, /\(select auth\.uid\(\)\)/);
+  assert.ok(migration.includes(String.raw`!~* 'select\s+auth\.uid\(\)'`), 'must skip already-wrapped policies');
+  assert.doesNotMatch(migration, /DROP POLICY/i, 'must not drop policies');
+});
