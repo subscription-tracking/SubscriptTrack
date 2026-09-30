@@ -5,14 +5,14 @@
    "max_file_lines": 300,
    "files_over_300_pct": 0.0,
    "complexity": {
-    "methods": 979,
+    "methods": 980,
     "avg_cc": 2.27,
     "max_cc": 14,
     "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
     "cc_over_10": 1,
     "cc_over_10_pct": 0.1,
-    "lines_over_60": 1,
-    "lines_over_60_pct": 0.1,
+    "lines_over_60": 0,
+    "lines_over_60_pct": 0.0,
     "max_depth": 5
    },
    "architecture": {
@@ -112,7 +112,7 @@
   "category_scores": {
    "static_analysis": 10,
    "size": 10.0,
-   "complexity": 8.0,
+   "complexity": 8.7,
    "architecture": 9.3,
    "duplication": 10,
    "tests": 10.0,
@@ -120,16 +120,16 @@
    "maintainability": 8.0,
    "performance": 7.3
   },
-  "overall": 9.2,
+  "overall": 9.3,
   "complexity_detail": {
-   "methods": 979,
+   "methods": 980,
    "avg_cc": 2.27,
    "max_cc": 14,
    "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
    "cc_over_10": 1,
    "cc_over_10_pct": 0.1,
-   "lines_over_60": 1,
-   "lines_over_60_pct": 0.1,
+   "lines_over_60": 0,
+   "lines_over_60_pct": 0.0,
    "max_depth": 5,
    "top10": [
     [
@@ -195,12 +195,6 @@
    ],
    "longest": [
     [
-     "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
-     "_OnboardingScreenState.build",
-     1,
-     61
-    ],
-    [
      "lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
      "DetailPaymentMethodSection.build",
      3,
@@ -223,6 +217,12 @@
      "SubscriptionTabView.build",
      7,
      58
+    ],
+    [
+     "lib/features/onboarding/presentation/widgets/illustrations/analytics_illustration.dart",
+     "_AnalyticsIllustrationState.build",
+     1,
+     57
     ]
    ]
   }
