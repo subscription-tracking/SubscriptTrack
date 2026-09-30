@@ -62,61 +62,12 @@ class PaymentHistoryScreen extends StatelessWidget {
         .where((s) => s.status != SubscriptionStatus.archived)
         .toList();
     if (subscriptions.isEmpty) return;
-    var selected = subscriptions.first;
-    final amount =
-        TextEditingController(text: selected.amount.amount.toStringAsFixed(2));
-    final formKey = GlobalKey<FormState>();
     await showDialog<void>(
       context: context,
-      builder: (context) => StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-                title: const Text('Ödeme kaydı ekle'),
-                content: Form(
-                    key: formKey,
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      DropdownButtonFormField(
-                        initialValue: selected,
-                        items: subscriptions
-                            .map((s) =>
-                                DropdownMenuItem(value: s, child: Text(s.name)))
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              selected = value;
-                              amount.text =
-                                  selected.amount.amount.toStringAsFixed(2);
-                            });
-                          }
-                        },
-                        decoration:
-                            const InputDecoration(labelText: 'Abonelik'),
-                      ),
-                      TextFormField(
-                          controller: amount,
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          decoration: InputDecoration(
-                              labelText: 'Tutar (${selected.currency})'),
-                          validator: _validateAmount),
-                    ])),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('İptal')),
-                  FilledButton(
-                      onPressed: () async {
-                        if (!formKey.currentState!.validate()) return;
-                        final ok = await controller.recordPayment(
-                            subscriptionId: selected.id,
-                            amount:
-                                Money.parse(amount.text.replaceAll(',', '.')),
-                            currency: selected.currency);
-                        if (context.mounted && ok) Navigator.pop(context);
-                      },
-                      child: const Text('Kaydet')),
-                ],
-              )),
+      builder: (_) => _AddPaymentDialog(
+        controller: controller,
+        subscriptions: subscriptions,
+      ),
     );
   }
 
@@ -167,4 +118,80 @@ class PaymentHistoryScreen extends StatelessWidget {
                   });
             }),
       );
+}
+
+/// "Ödeme kaydı ekle" iletişim kutusu: abonelik seçimi ve tutar girişi.
+class _AddPaymentDialog extends StatefulWidget {
+  const _AddPaymentDialog({
+    required this.controller,
+    required this.subscriptions,
+  });
+
+  final SubscriptionController controller;
+  final List<Subscription> subscriptions;
+
+  @override
+  State<_AddPaymentDialog> createState() => _AddPaymentDialogState();
+}
+
+class _AddPaymentDialogState extends State<_AddPaymentDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late Subscription _selected = widget.subscriptions.first;
+  late final TextEditingController _amount =
+      TextEditingController(text: _selected.amount.amount.toStringAsFixed(2));
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    final ok = await widget.controller.recordPayment(
+      subscriptionId: _selected.id,
+      amount: Money.parse(_amount.text.replaceAll(',', '.')),
+      currency: _selected.currency,
+    );
+    if (mounted && ok) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Ödeme kaydı ekle'),
+      content: Form(
+        key: _formKey,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          DropdownButtonFormField(
+            initialValue: _selected,
+            items: widget.subscriptions
+                .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
+                .toList(),
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                _selected = value;
+                _amount.text = value.amount.amount.toStringAsFixed(2);
+              });
+            },
+            decoration: const InputDecoration(labelText: 'Abonelik'),
+          ),
+          TextFormField(
+            controller: _amount,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration:
+                InputDecoration(labelText: 'Tutar (${_selected.currency})'),
+            validator: PaymentHistoryScreen._validateAmount,
+          ),
+        ]),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal')),
+        FilledButton(onPressed: _save, child: const Text('Kaydet')),
+      ],
+    );
+  }
 }

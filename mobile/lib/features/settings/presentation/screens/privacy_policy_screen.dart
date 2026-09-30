@@ -33,56 +33,56 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const _Section(
-                title: 'Hangi verileri topluyoruz',
-                body:
-                    'Hesabını oluşturduğunda e-posta adresini; uygulamayı kullanırken '
-                    'eklediğin abonelik kayıtlarını (servis adı, tutar, para birimi, '
-                    'yenileme sıklığı, kategori, notlar), ödeme yöntemi adlarını '
-                    '(gerçek kart bilgisi değil, yalnızca senin verdiğin bir isim) ve '
-                    'hatırlatma tercihlerini saklarız.',
-              ),
-              const _Section(
-                title: 'Verilerini nerede saklıyoruz',
-                body:
-                    'Verilerin Supabase altyapısında güvenli biçimde saklanır. '
-                    'Abonelik kayıtların hesabına bağlıdır. Diğer kullanıcılar bu '
-                    'kayıtlara erişemez.',
-              ),
-              const _Section(
-                title: 'Verilerini nasıl paylaşıyoruz',
-                body:
-                    'Abonelik verilerini reklam, analiz veya pazarlama amacıyla '
-                    'üçüncü taraflarla paylaşmayız veya satmayız. Veriler yalnızca '
-                    'uygulamanın çalışması için altyapı sağlayıcımız Supabase '
-                    'tarafından işlenir.',
-              ),
-              const _Section(
-                title: 'Bildirimler',
-                body:
-                    'Yenileme hatırlatmaları cihazında zamanlanır; bildirim içeriği cihazından '
-                    'dışarı gönderilmez.',
-              ),
-              const _Section(
-                title: 'Hakların (KVKK)',
-                body:
-                    '6698 sayılı KVKK kapsamında verilerine erişme, düzeltme ve '
-                    'silme hakkına sahipsin. Verilerini istediğin an Ayarlar → '
-                    'Gizlilik ve veri merkezi → "Verilerimi dışa aktar" ile '
-                    'indirebilir, "Hesabımı ve verilerimi sil" ile hesabınla '
-                    'birlikte kalıcı olarak silebilirsin.',
-              ),
-              const _Section(
-                title: 'İletişim',
-                body: 'Gizlilikle ilgili sorular için uygulama içindeki "Geri '
-                    'bildirim gönder" ekranını kullanabilirsin.',
-              ),
+              ..._sections,
             ],
           ),
         ),
       ),
     );
   }
+
+  static const _sections = <Widget>[
+    _Section(
+      title: 'Hangi verileri topluyoruz',
+      body: 'Hesabını oluşturduğunda e-posta adresini; uygulamayı kullanırken '
+          'eklediğin abonelik kayıtlarını (servis adı, tutar, para birimi, '
+          'yenileme sıklığı, kategori, notlar), ödeme yöntemi adlarını '
+          '(gerçek kart bilgisi değil, yalnızca senin verdiğin bir isim) ve '
+          'hatırlatma tercihlerini saklarız.',
+    ),
+    _Section(
+      title: 'Verilerini nerede saklıyoruz',
+      body: 'Verilerin Supabase altyapısında güvenli biçimde saklanır. '
+          'Abonelik kayıtların hesabına bağlıdır. Diğer kullanıcılar bu '
+          'kayıtlara erişemez.',
+    ),
+    _Section(
+      title: 'Verilerini nasıl paylaşıyoruz',
+      body: 'Abonelik verilerini reklam, analiz veya pazarlama amacıyla '
+          'üçüncü taraflarla paylaşmayız veya satmayız. Veriler yalnızca '
+          'uygulamanın çalışması için altyapı sağlayıcımız Supabase '
+          'tarafından işlenir.',
+    ),
+    _Section(
+      title: 'Bildirimler',
+      body:
+          'Yenileme hatırlatmaları cihazında zamanlanır; bildirim içeriği cihazından '
+          'dışarı gönderilmez.',
+    ),
+    _Section(
+      title: 'Hakların (KVKK)',
+      body: '6698 sayılı KVKK kapsamında verilerine erişme, düzeltme ve '
+          'silme hakkına sahipsin. Verilerini istediğin an Ayarlar → '
+          'Gizlilik ve veri merkezi → "Verilerimi dışa aktar" ile '
+          'indirebilir, "Hesabımı ve verilerimi sil" ile hesabınla '
+          'birlikte kalıcı olarak silebilirsin.',
+    ),
+    _Section(
+      title: 'İletişim',
+      body: 'Gizlilikle ilgili sorular için uygulama içindeki "Geri '
+          'bildirim gönder" ekranını kullanabilirsin.',
+    ),
+  ];
 }
 
 class _Section extends StatelessWidget {

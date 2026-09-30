@@ -25,41 +25,7 @@ class DetailPaymentHistorySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Text(
-                'GEÇMİŞ ÖDEMELER',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: cs.onSurfaceVariant,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: payments.isNotEmpty
-                  ? () => _showAll(context, payments)
-                  : null,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                'Tümünü gör',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: cs.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
+        _header(context, cs, payments),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
@@ -74,6 +40,44 @@ class DetailPaymentHistorySection extends StatelessWidget {
                       style: TextStyle(color: cs.onSurfaceVariant)),
                 )
               : _recentPayments(cs, payments),
+        ),
+      ],
+    );
+  }
+
+  Widget _header(
+      BuildContext context, ColorScheme cs, List<PaymentEvent> payments) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            'GEÇMİŞ ÖDEMELER',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurfaceVariant,
+              letterSpacing: 1.0,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed:
+              payments.isNotEmpty ? () => _showAll(context, payments) : null,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            'Tümünü gör',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: cs.primary,
+            ),
+          ),
         ),
       ],
     );

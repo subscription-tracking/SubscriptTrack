@@ -48,34 +48,38 @@ class NextPaymentSummary extends StatelessWidget {
             ],
           ),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        _trailing(cs, textTheme),
+      ],
+    );
+  }
+
+  Widget _trailing(ColorScheme cs, TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          DateTimeUtils.formatCurrency(
+            subscription.amount.amount,
+            symbol: subscription.currency,
+          ),
+          style: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: cs.onSurface,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              DateTimeUtils.formatCurrency(
-                subscription.amount.amount,
-                symbol: subscription.currency,
-              ),
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: cs.onSurface,
+              'Detay',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: cs.primary,
               ),
             ),
-            const SizedBox(height: 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Detay',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: cs.primary,
-                  ),
-                ),
-                Icon(Icons.chevron_right_rounded, size: 14, color: cs.primary),
-              ],
-            ),
+            Icon(Icons.chevron_right_rounded, size: 14, color: cs.primary),
           ],
         ),
       ],

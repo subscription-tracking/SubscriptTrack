@@ -100,21 +100,7 @@ class _NotificationPreferencesScreenState
                 child: Text('Kaç gün önce hatırlatılsın?',
                     style: Theme.of(context).textTheme.labelLarge),
               ),
-              RadioGroup<int>(
-                groupValue: ctrl.daysBefore,
-                onChanged: (v) async {
-                  if (v != null) await ctrl.setDaysBefore(v);
-                },
-                child: Column(
-                  children: [1, 3, 7]
-                      .map((days) => RadioListTile<int>(
-                            title: Text(
-                                days == 1 ? '1 gün önce' : '$days gün önce'),
-                            value: days,
-                          ))
-                      .toList(),
-                ),
-              ),
+              _daysSelector(ctrl),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.schedule_outlined),
@@ -136,6 +122,24 @@ class _NotificationPreferencesScreenState
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _daysSelector(SettingsController ctrl) {
+    return RadioGroup<int>(
+      groupValue: ctrl.daysBefore,
+      onChanged: (v) async {
+        if (v != null) await ctrl.setDaysBefore(v);
+      },
+      child: Column(
+        children: [
+          for (final days in const [1, 3, 7])
+            RadioListTile<int>(
+              title: Text(days == 1 ? '1 gün önce' : '$days gün önce'),
+              value: days,
+            ),
+        ],
       ),
     );
   }

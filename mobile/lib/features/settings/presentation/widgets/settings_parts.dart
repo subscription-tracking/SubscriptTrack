@@ -60,44 +60,47 @@ class SettingsTile extends StatelessWidget {
                 border: Border(
                     bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
               ),
-              child: Row(
-                children: [
-                  Icon(icon, size: 20, color: labelColor),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      label,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: labelColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                  ),
-                  if (value != null) ...[
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        value!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 4),
-                  Icon(Icons.chevron_right,
-                      size: 20, color: cs.onSurfaceVariant),
-                ],
-              ),
+              child: _row(context, cs, labelColor),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _row(BuildContext context, ColorScheme cs, Color labelColor) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: labelColor),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: labelColor,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+        ),
+        if (value != null) ...[
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+            ),
+          ),
+        ],
+        const SizedBox(width: 4),
+        Icon(Icons.chevron_right, size: 20, color: cs.onSurfaceVariant),
+      ],
     );
   }
 }
@@ -139,54 +142,55 @@ class AccountSummaryCard extends StatelessWidget {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: cs.primary.withValues(alpha: 0.16),
-                  child: Text(
-                    initials,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: cs.primary,
-                          fontWeight: FontWeight.w800,
-                        ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Hesap bilgileri',
-                          style:
-                              Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                  )),
-                      const SizedBox(height: 2),
-                      Text(name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  )),
-                      const SizedBox(height: 2),
-                      Text(email,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                  )),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
-              ]),
+              child: _row(context, cs),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _row(BuildContext context, ColorScheme cs) {
+    return Row(children: [
+      CircleAvatar(
+        radius: 26,
+        backgroundColor: cs.primary.withValues(alpha: 0.16),
+        child: Text(
+          initials,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: cs.primary,
+                fontWeight: FontWeight.w800,
+              ),
+        ),
+      ),
+      const SizedBox(width: 14),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Hesap bilgileri',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    )),
+            const SizedBox(height: 2),
+            Text(name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    )),
+            const SizedBox(height: 2),
+            Text(email,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    )),
+          ],
+        ),
+      ),
+      Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+    ]);
   }
 }
 

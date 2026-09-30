@@ -172,18 +172,23 @@ class ServiceIdentity extends StatelessWidget {
     'bitwarden': (Icons.shield_rounded, Color(0xFF175DDC)),
   };
 
+  static const _categoryColors = <SubscriptionCategory, Color>{
+    SubscriptionCategory.streaming: Color(0xFFE56B6F),
+    SubscriptionCategory.music: Color(0xFF49B8A8),
+    SubscriptionCategory.gaming: Color(0xFF9A72FF),
+    SubscriptionCategory.cloud: Color(0xFF60A5FA),
+    SubscriptionCategory.fitness: Color(0xFFF472B6),
+    SubscriptionCategory.news: Color(0xFFF5A524),
+    SubscriptionCategory.food: Color(0xFFFB923C),
+    SubscriptionCategory.education: Color(0xFF38BDF8),
+  };
+
+  /// Sabit rengi olmayan kategoriler (yazılım, diğer) temadan renk alır.
   static Color _categoryColor(
-          BuildContext context, SubscriptionCategory category) =>
-      switch (category) {
-        SubscriptionCategory.streaming => const Color(0xFFE56B6F),
-        SubscriptionCategory.music => const Color(0xFF49B8A8),
-        SubscriptionCategory.gaming => const Color(0xFF9A72FF),
-        SubscriptionCategory.software => Theme.of(context).colorScheme.primary,
-        SubscriptionCategory.cloud => const Color(0xFF60A5FA),
-        SubscriptionCategory.fitness => const Color(0xFFF472B6),
-        SubscriptionCategory.news => const Color(0xFFF5A524),
-        SubscriptionCategory.food => const Color(0xFFFB923C),
-        SubscriptionCategory.education => const Color(0xFF38BDF8),
-        SubscriptionCategory.other => context.statusColors.muted,
-      };
+      BuildContext context, SubscriptionCategory category) {
+    return _categoryColors[category] ??
+        (category == SubscriptionCategory.software
+            ? Theme.of(context).colorScheme.primary
+            : context.statusColors.muted);
+  }
 }

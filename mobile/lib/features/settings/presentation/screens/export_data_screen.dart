@@ -69,30 +69,7 @@ class ExportDataScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(children: [
-                        Icon(Icons.table_chart_outlined,
-                            color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text('Tekrar içe aktarılabilir CSV',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ]),
-                      const SizedBox(height: 8),
-                      Text(
-                        '$total abonelik; dışa aktarılan dosya tekrar içe aktarılabilir.',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _infoCard(context, total),
               const SizedBox(height: 20),
               if (!kIsWeb)
                 FilledButton.icon(
@@ -122,6 +99,33 @@ class ExportDataScreen extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _infoCard(BuildContext context, int total) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Icon(Icons.table_chart_outlined,
+                  color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text('Tekrar içe aktarılabilir CSV',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Text(
+              '$total abonelik; dışa aktarılan dosya tekrar içe aktarılabilir.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -48,13 +48,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: DetailHeroHeader(
-                subscription: subscription,
-                brandColor: brandColor,
-                onBack: () => Navigator.pop(context),
-                onEdit: () => _navigateToEdit(context),
-                onMenuAction: (action) => _handleAction(context, action),
-              ),
+              child: _hero(context, subscription, brandColor),
             ),
             SliverPadding(
               padding: const EdgeInsets.all(20),
@@ -82,23 +76,7 @@ class SubscriptionDetailScreen extends StatelessWidget {
                     controller: controller,
                   ),
                   const SizedBox(height: 28),
-                  DetailActionButtonsSection(
-                    subscription: subscription,
-                    onRenewed: () async {
-                      await controller.markPaidAndRenewed(subscription.id);
-                      if (context.mounted) Navigator.pop(context);
-                    },
-                    onPauseResume: () =>
-                        subscription.status == SubscriptionStatus.active
-                            ? _handleAction(context, DetailMenuAction.pause)
-                            : _handleAction(context, DetailMenuAction.resume),
-                    onArchive: () =>
-                        _handleAction(context, DetailMenuAction.archive),
-                    onCancel: () =>
-                        _handleAction(context, DetailMenuAction.cancel),
-                    onDelete: () =>
-                        _handleAction(context, DetailMenuAction.delete),
-                  ),
+                  _actions(context, subscription),
                   const SizedBox(height: 32),
                 ]),
               ),
@@ -106,6 +84,32 @@ class SubscriptionDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _actions(BuildContext context, Subscription subscription) {
+    return DetailActionButtonsSection(
+      subscription: subscription,
+      onRenewed: () async {
+        await controller.markPaidAndRenewed(subscription.id);
+        if (context.mounted) Navigator.pop(context);
+      },
+      onPauseResume: () => subscription.status == SubscriptionStatus.active
+          ? _handleAction(context, DetailMenuAction.pause)
+          : _handleAction(context, DetailMenuAction.resume),
+      onArchive: () => _handleAction(context, DetailMenuAction.archive),
+      onCancel: () => _handleAction(context, DetailMenuAction.cancel),
+      onDelete: () => _handleAction(context, DetailMenuAction.delete),
+    );
+  }
+
+  Widget _hero(BuildContext context, Subscription subscription, Color color) {
+    return DetailHeroHeader(
+      subscription: subscription,
+      brandColor: color,
+      onBack: () => Navigator.pop(context),
+      onEdit: () => _navigateToEdit(context),
+      onMenuAction: (action) => _handleAction(context, action),
     );
   }
 

@@ -69,22 +69,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Card(
-            color: colors.errorContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(children: [
-                Icon(Icons.warning_outlined, color: colors.error),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Bu işlem geri alınamaz. Hesabın ve tüm abonelik verilerin kalıcı olarak silinecek.',
-                    style: TextStyle(color: colors.onErrorContainer),
-                  ),
-                ),
-              ]),
-            ),
-          ),
+          _warningCard(colors),
           const SizedBox(height: 24),
           const Text('Devam etmek için şifreni gir:'),
           const SizedBox(height: 12),
@@ -129,6 +114,25 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 : const Text('Hesabı kalıcı olarak sil'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _warningCard(ColorScheme colors) {
+    return Card(
+      color: colors.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(children: [
+          Icon(Icons.warning_outlined, color: colors.error),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Bu işlem geri alınamaz. Hesabın ve tüm abonelik verilerin kalıcı olarak silinecek.',
+              style: TextStyle(color: colors.onErrorContainer),
+            ),
+          ),
+        ]),
       ),
     );
   }

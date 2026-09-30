@@ -197,61 +197,68 @@ class _BrandInfo extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Container(
-          width: 76,
-          height: 76,
-          decoration: BoxDecoration(
-            color: const Color(0xFF0D1017),
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-                color: Colors.white.withValues(alpha: 0.25), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Center(
-            child: ServiceIdentity(
-              name: subscription.name,
-              category: subscription.category,
-              size: 44,
-            ),
-          ),
-        ),
+        _logoTile(),
         const SizedBox(width: 16),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                subscription.name,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text('${subscription.billingCycle.label} • ',
-                      style: detailStyle),
-                  AppAnimatedMoney(
-                    amount: subscription.amount.amount,
-                    symbol: subscription.currency,
-                    style: detailStyle,
-                  ),
-                ],
-              ),
-            ],
+          child: _titleColumn(detailStyle),
+        ),
+      ],
+    );
+  }
+
+  Widget _logoTile() {
+    return Container(
+      width: 76,
+      height: 76,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D1017),
+        borderRadius: BorderRadius.circular(22),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
+        ],
+      ),
+      child: Center(
+        child: ServiceIdentity(
+          name: subscription.name,
+          category: subscription.category,
+          size: 44,
+        ),
+      ),
+    );
+  }
+
+  Widget _titleColumn(TextStyle detailStyle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          subscription.name,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            letterSpacing: -0.5,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Text('${subscription.billingCycle.label} • ', style: detailStyle),
+            AppAnimatedMoney(
+              amount: subscription.amount.amount,
+              symbol: subscription.currency,
+              style: detailStyle,
+            ),
+          ],
         ),
       ],
     );

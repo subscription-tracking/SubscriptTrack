@@ -1,15 +1,15 @@
 {
  "reported": {
-  "hit": 7180,
-  "found": 7836,
-  "pct": 91.6
+  "hit": 7259,
+  "found": 7914,
+  "pct": 91.7
  },
  "corrected": {
-  "hit": 7180,
-  "found": 7899,
-  "pct": 90.9
+  "hit": 7259,
+  "found": 7977,
+  "pct": 91.0
  },
- "files_total": 161,
+ "files_total": 162,
  "files_not_in_lcov": 3,
  "files_not_in_lcov_sample": [
   "lib/main.dart",
@@ -18,9 +18,9 @@
  ],
  "by_layer": {
   "layer:app": {
-   "hit": 425,
-   "found": 466,
-   "pct": 91.2
+   "hit": 431,
+   "found": 472,
+   "pct": 91.3
   },
   "layer:core-services": {
    "hit": 514,
@@ -28,14 +28,14 @@
    "pct": 82.2
   },
   "layer:data": {
-   "hit": 841,
-   "found": 925,
-   "pct": 90.9
+   "hit": 852,
+   "found": 935,
+   "pct": 91.1
   },
   "layer:domain": {
-   "hit": 375,
-   "found": 422,
-   "pct": 88.9
+   "hit": 365,
+   "found": 412,
+   "pct": 88.6
   },
   "layer:other": {
    "hit": 0,
@@ -43,16 +43,16 @@
    "pct": 0.0
   },
   "layer:presentation": {
-   "hit": 5025,
-   "found": 5447,
-   "pct": 92.3
+   "hit": 5097,
+   "found": 5519,
+   "pct": 92.4
   }
  },
  "by_feature": {
   "app": {
-   "hit": 425,
-   "found": 466,
-   "pct": 91.2
+   "hit": 431,
+   "found": 472,
+   "pct": 91.3
   },
   "core": {
    "hit": 576,
@@ -60,19 +60,19 @@
    "pct": 83.0
   },
   "feature:auth": {
-   "hit": 647,
-   "found": 715,
+   "hit": 649,
+   "found": 717,
    "pct": 90.5
   },
   "feature:calendar": {
-   "hit": 177,
-   "found": 223,
-   "pct": 79.4
+   "hit": 179,
+   "found": 225,
+   "pct": 79.6
   },
   "feature:dashboard": {
-   "hit": 500,
-   "found": 584,
-   "pct": 85.6
+   "hit": 503,
+   "found": 587,
+   "pct": 85.7
   },
   "feature:notifications": {
    "hit": 223,
@@ -80,8 +80,8 @@
    "pct": 90.3
   },
   "feature:onboarding": {
-   "hit": 350,
-   "found": 353,
+   "hit": 363,
+   "found": 366,
    "pct": 99.2
   },
   "feature:savings": {
@@ -90,19 +90,19 @@
    "pct": 98.6
   },
   "feature:settings": {
-   "hit": 929,
-   "found": 974,
-   "pct": 95.4
+   "hit": 959,
+   "found": 1004,
+   "pct": 95.5
   },
   "feature:stats": {
-   "hit": 735,
-   "found": 759,
-   "pct": 96.8
+   "hit": 753,
+   "found": 777,
+   "pct": 96.9
   },
   "feature:subscriptions": {
-   "hit": 2139,
-   "found": 2363,
-   "pct": 90.5
+   "hit": 2151,
+   "found": 2373,
+   "pct": 90.6
   },
   "other": {
    "hit": 0,
@@ -110,12 +110,12 @@
    "pct": 0.0
   },
   "shared": {
-   "hit": 337,
-   "found": 363,
-   "pct": 92.8
+   "hit": 330,
+   "found": 357,
+   "pct": 92.4
   }
  },
- "domain_pct": 88.9,
+ "domain_pct": 88.6,
  "lowest_files": [
   [
    "lib/core/services/notification_platform.dart",
@@ -123,14 +123,19 @@
    59
   ],
   [
-   "lib/features/settings/presentation/screens/feedback_screen.dart",
-   55.3,
-   47
+   "lib/features/subscriptions/domain/subscription_enums.dart",
+   56.7,
+   30
   ],
   [
    "lib/features/dashboard/presentation/widgets/dashboard_hero_parts.dart",
    57.0,
    93
+  ],
+  [
+   "lib/features/settings/presentation/screens/feedback_screen.dart",
+   58.8,
+   51
   ],
   [
    "lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
@@ -146,11 +151,6 @@
    "lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
    62.7,
    59
-  ],
-  [
-   "lib/features/subscriptions/domain/subscription_enums.dart",
-   67.5,
-   40
   ],
   [
    "lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
@@ -169,8 +169,8 @@
   ],
   [
    "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
-   75.9,
-   87
+   76.4,
+   89
   ],
   [
    "lib/features/subscriptions/domain/subscription_selectors.dart",

@@ -169,14 +169,7 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
       body: ResponsiveCenter(
         child: Column(
           children: [
-            AppStatusBanner(
-              isOffline: controller.isOffline,
-              error: controller.error,
-              lastSyncAt: controller.lastSyncAt,
-              pendingCount: controller.pendingMutationCount,
-              onRetry: controller.load,
-              onDismissError: controller.clearError,
-            ),
+            _banner(controller),
             _selectionMode
                 ? SubscriptionSelectionBar(
                     count: _selectedIds.length,
@@ -198,36 +191,53 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
               ],
             ),
             Expanded(
-              child: TabBarView(
-                controller: _tabs,
-                children: [
-                  _tab(
-                    controller,
-                    controller.visibleActive,
-                    message: 'Aktif abonelik yok',
-                    detail:
-                        'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
-                    showStatus: false,
-                  ),
-                  _tab(
-                    controller,
-                    controller.visibleTrials,
-                    message: 'Deneme aboneliği yok',
-                    detail: 'Ücretsiz denemelerini burada takip edebilirsin.',
-                  ),
-                  _tab(
-                    controller,
-                    history,
-                    message: 'Geçmiş abonelik yok',
-                    detail:
-                        'Duraklatılan, iptal edilen ve süresi dolan kayıtlar burada görünür.',
-                  ),
-                ],
-              ),
+              child: _tabViews(controller, history),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _banner(SubscriptionController controller) {
+    return AppStatusBanner(
+      isOffline: controller.isOffline,
+      error: controller.error,
+      lastSyncAt: controller.lastSyncAt,
+      pendingCount: controller.pendingMutationCount,
+      onRetry: controller.load,
+      onDismissError: controller.clearError,
+    );
+  }
+
+  Widget _tabViews(
+    SubscriptionController controller,
+    List<Subscription> history,
+  ) {
+    return TabBarView(
+      controller: _tabs,
+      children: [
+        _tab(
+          controller,
+          controller.visibleActive,
+          message: 'Aktif abonelik yok',
+          detail: 'İlk aboneliğini ekleyerek harcamalarını takip etmeye başla.',
+          showStatus: false,
+        ),
+        _tab(
+          controller,
+          controller.visibleTrials,
+          message: 'Deneme aboneliği yok',
+          detail: 'Ücretsiz denemelerini burada takip edebilirsin.',
+        ),
+        _tab(
+          controller,
+          history,
+          message: 'Geçmiş abonelik yok',
+          detail:
+              'Duraklatılan, iptal edilen ve süresi dolan kayıtlar burada görünür.',
+        ),
+      ],
     );
   }
 

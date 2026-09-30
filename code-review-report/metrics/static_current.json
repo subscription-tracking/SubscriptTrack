@@ -1,11 +1,11 @@
 {
  "size": {
-  "files": 161,
-  "total_lines": 20054,
+  "files": 162,
+  "total_lines": 20172,
   "max_lines": 300,
   "max_file": "lib/features/auth/presentation/auth_controller.dart",
-  "median_lines": 109,
-  "p90_lines": 227,
+  "median_lines": 108.5,
+  "p90_lines": 229,
   "over_300": 0,
   "over_400": 0,
   "over_300_pct": 0.0,
@@ -19,24 +19,16 @@
     300
    ],
    [
-    "lib/features/calendar/presentation/screens/calendar_screen.dart",
-    297
-   ],
-   [
     "lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
-    292
+    299
    ],
    [
-    "lib/features/subscriptions/data/subscription_operations.dart",
+    "lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
     290
    ],
    [
     "lib/app/router/app_router.dart",
-    281
-   ],
-   [
-    "lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
-    281
+    288
    ],
    [
     "lib/core/services/local_notification_service.dart",
@@ -49,6 +41,14 @@
    [
     "lib/features/auth/presentation/screens/login_screen.dart",
     277
+   ],
+   [
+    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
+    272
+   ],
+   [
+    "lib/features/subscriptions/data/subscription_operations.dart",
+    266
    ]
   ]
  },
@@ -113,17 +113,17 @@
  },
  "duplication": {
   "window": 6,
-  "significant_lines": 11705,
-  "duplicated_lines": 622,
-  "duplicated_pct": 5.3,
+  "significant_lines": 11758,
+  "duplicated_lines": 598,
+  "duplicated_pct": 5.1,
   "top_files": [
-   [
-    "lib/features/subscriptions/data/subscription_operations.dart",
-    82
-   ],
    [
     "lib/features/auth/presentation/screens/login_screen.dart",
     51
+   ],
+   [
+    "lib/features/subscriptions/data/subscription_operations.dart",
+    47
    ],
    [
     "lib/features/auth/presentation/screens/register_screen.dart",
@@ -143,18 +143,18 @@
    ],
    [
     "lib/features/subscriptions/presentation/subscription_controller.dart",
-    30
+    29
    ],
    [
-    "lib/features/subscriptions/data/local_subscription_repository.dart",
-    19
+    "lib/features/stats/presentation/widgets/insights_card.dart",
+    24
    ]
   ]
  },
  "maintainability": {
-  "public_types": 227,
+  "public_types": 228,
   "documented_types": 72,
-  "doc_ratio_pct": 31.7,
+  "doc_ratio_pct": 31.6,
   "todo": 0,
   "color_literals": 116,
   "turkish_string_literals": 580,

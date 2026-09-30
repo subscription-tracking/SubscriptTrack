@@ -5,14 +5,14 @@
    "max_file_lines": 300,
    "files_over_300_pct": 0.0,
    "complexity": {
-    "methods": 938,
-    "avg_cc": 2.36,
+    "methods": 976,
+    "avg_cc": 2.29,
     "max_cc": 14,
     "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
-    "cc_over_10": 5,
-    "cc_over_10_pct": 0.5,
-    "lines_over_60": 27,
-    "lines_over_60_pct": 2.9,
+    "cc_over_10": 1,
+    "cc_over_10_pct": 0.1,
+    "lines_over_60": 0,
+    "lines_over_60_pct": 0.0,
     "max_depth": 5
    },
    "architecture": {
@@ -27,11 +27,11 @@
    },
    "architecture_score_excl_composition_root": 9.3,
    "architecture_score_incl_composition_root": 7.3,
-   "duplicated_pct": 5.3,
+   "duplicated_pct": 5.1,
    "coverage": {
-    "reported_pct": 91.6,
-    "corrected_pct": 90.9,
-    "domain_pct": 88.9,
+    "reported_pct": 91.7,
+    "corrected_pct": 91.0,
+    "domain_pct": 88.6,
     "tests_stable": true,
     "files_not_in_lcov": 3
    },
@@ -76,7 +76,7 @@
    },
    "outdated_direct_major": 0,
    "maintainability": {
-    "doc_ratio_pct": 31.7,
+    "doc_ratio_pct": 31.6,
     "tracked_artifacts": 0,
     "todo": 0,
     "color_literals": 116,
@@ -112,7 +112,7 @@
   "category_scores": {
    "static_analysis": 10,
    "size": 10.0,
-   "complexity": 7.3,
+   "complexity": 8.7,
    "architecture": 9.3,
    "duplication": 6,
    "tests": 10.0,
@@ -120,16 +120,16 @@
    "maintainability": 8.0,
    "performance": 7.3
   },
-  "overall": 8.8,
+  "overall": 9.1,
   "complexity_detail": {
-   "methods": 938,
-   "avg_cc": 2.36,
+   "methods": 976,
+   "avg_cc": 2.29,
    "max_cc": 14,
    "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
-   "cc_over_10": 5,
-   "cc_over_10_pct": 0.5,
-   "lines_over_60": 27,
-   "lines_over_60_pct": 2.9,
+   "cc_over_10": 1,
+   "cc_over_10_pct": 0.1,
+   "lines_over_60": 0,
+   "lines_over_60_pct": 0.0,
    "max_depth": 5,
    "top10": [
     [
@@ -137,30 +137,6 @@
      "Subscription.copyWith",
      14,
      33
-    ],
-    [
-     "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
-     "_AddSubscriptionScreenState._save",
-     12,
-     36
-    ],
-    [
-     "lib/app/router/app_router.dart",
-     "AppRouter._redirect",
-     11,
-     16
-    ],
-    [
-     "lib/features/subscriptions/domain/subscription_enums.dart",
-     "SubscriptionCategoryLabel.label",
-     11,
-     12
-    ],
-    [
-     "lib/shared/widgets/service_identity.dart",
-     "ServiceIdentity._categoryColor",
-     11,
-     14
     ],
     [
      "lib/features/settings/data/supabase_export_repository.dart",
@@ -175,12 +151,6 @@
      38
     ],
     [
-     "lib/features/settings/presentation/screens/app_lock_settings_screen.dart",
-     "_AppLockSettingsScreenState.build",
-     9,
-     65
-    ],
-    [
      "lib/features/settings/presentation/settings_controller.dart",
      "SettingsController.load",
      9,
@@ -191,38 +161,68 @@
      "Subscription.fromJson",
      9,
      27
+    ],
+    [
+     "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+     "_AddSubscriptionScreenState._save",
+     9,
+     22
+    ],
+    [
+     "lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
+     "SubscriptionDetailScreen._handleAction",
+     9,
+     14
+    ],
+    [
+     "lib/features/subscriptions/presentation/widgets/list/subscription_tile.dart",
+     "_TileTrailing.build",
+     9,
+     48
+    ],
+    [
+     "lib/shared/widgets/async_state_view.dart",
+     "AsyncStateView.build",
+     9,
+     36
+    ],
+    [
+     "lib/shared/widgets/subscription_status_chip.dart",
+     "SubscriptionStatusChip._state",
+     9,
+     26
     ]
    ],
    "longest": [
     [
-     "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
-     "_SubscriptionListScreenState.build",
-     4,
-     79
+     "lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
+     "DetailPaymentMethodSection.build",
+     3,
+     60
     ],
     [
-     "lib/features/subscriptions/data/subscription_operations.dart",
-     "SubscriptionOperations._addInternal",
+     "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+     "_OnboardingScreenState.build",
+     1,
+     59
+    ],
+    [
+     "lib/features/subscriptions/presentation/widgets/detail/detail_payment_history.dart",
+     "DetailHistoryTile.build",
+     1,
+     59
+    ],
+    [
+     "lib/features/stats/presentation/widgets/category_breakdown_card.dart",
+     "_CategoryRow.build",
+     1,
+     58
+    ],
+    [
+     "lib/features/subscriptions/presentation/widgets/list/tab_view.dart",
+     "SubscriptionTabView.build",
      7,
-     77
-    ],
-    [
-     "lib/features/onboarding/presentation/widgets/currency_page.dart",
-     "_CurrencyOption.build",
-     8,
-     74
-    ],
-    [
-     "lib/features/stats/presentation/widgets/insights_card.dart",
-     "_HighestExpense.build",
-     2,
-     73
-    ],
-    [
-     "lib/features/settings/presentation/screens/delete_account_screen.dart",
-     "_DeleteAccountScreenState.build",
-     5,
-     72
+     58
     ]
    ]
   }
