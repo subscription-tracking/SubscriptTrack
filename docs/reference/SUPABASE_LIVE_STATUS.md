@@ -9,7 +9,7 @@
 | Tablolar | 15, hepsinde RLS açık |
 | Güvenlik advisor | 0 hata, 5 uyarı (4 tasarım gereği RPC, 1 aksiyon gerekli) |
 | Performans advisor | 0 uyarı (migration 031 sonrası; öncesi 15), 14 bilgi notu |
-| Edge Function | 4 adet, hepsi kimlik doğruluyor |
+| Edge Function | 4 adet, hepsi kimlik doğruluyor; hız sınırı kodu ve migration 032 repoda hazır, **canlıda uygulanmadı/deploy edilmedi** |
 | Realtime | Yalnızca `subscriptions` |
 | Storage | `exports` (özel) |
 | Zamanlanmış iş | `notification-producer` (pg_cron, saatlik: `0 * * * *`) |
@@ -89,6 +89,31 @@ Bilinen açık bulgular ve hız sınırı eksikliği: [SECURITY.md](../architect
 ## Repo ile canlı arasındaki sapma
 
 Repodaki `backend/migrations/001–005` zinciri `users`, `services`, `categories`, `billing_schedules` tablolarını oluşturur; **canlıda bu tablolar yoktur**. Canlıda ayrıca repodaki tek tek migration'lardan üretilmemiş bir geçmiş vardır (migration geçmişi boş). Kalıcı çözüm: canlıdan bir baseline migration üretmek ve "canlıya elle DDL yok" kuralı (bkz. [RELEASE.md](../operations/RELEASE.md#9-veritabanı-migration-ve-canlı-şema)).
+
+## Açık doğrulama: hesap silme sonrası kalıntı veri (silme kuralları)
+
+**Durum: doğrulanmadı.** `delete-account` yalnızca Auth kullanıcısını siler; diğer tabloların temizlenmesi yabancı anahtarların `ON DELETE CASCADE` olmasına bağlıdır. Repodaki migration'lar (`001`, `007`, `010–012`, `015`) `CASCADE` tanımlar, ancak canlı şema repodan farklı olduğu için bu yalnızca **niyet**tir. Canlıda aşağıdaki **salt okunur** sorguları SQL Editor'de çalıştırıp sonucu bu bölüme işleyin:
+
+```sql
+-- 1) Tüm yabancı anahtarlar ve silme kuralları
+SELECT c.conrelid::regclass AS tablo, c.conname, c.confrelid::regclass AS hedef,
+       CASE c.confdeltype WHEN 'a' THEN 'NO ACTION' WHEN 'r' THEN 'RESTRICT'
+            WHEN 'c' THEN 'CASCADE' WHEN 'n' THEN 'SET NULL' WHEN 'd' THEN 'SET DEFAULT' END AS silme_kurali
+FROM pg_constraint c
+WHERE c.contype = 'f' AND c.connamespace = 'public'::regnamespace
+ORDER BY 1, 2;
+
+-- 2) user_id kolonu olup auth.users'a yabancı anahtarı OLMAYAN tablolar (silmede kalıntı bırakır)
+SELECT t.table_name
+FROM information_schema.columns t
+WHERE t.table_schema = 'public' AND t.column_name = 'user_id'
+  AND NOT EXISTS (
+    SELECT 1 FROM pg_constraint c
+    WHERE c.contype = 'f' AND c.conrelid = ('public.' || t.table_name)::regclass
+      AND c.confrelid = 'auth.users'::regclass);
+```
+
+Beklenen: 2. sorgu boş döner; 1. sorguda `auth.users`'a giden tüm `user_id` anahtarları `CASCADE`. Aksi halde hesap silme kalıntı veri bırakır ve bir migration ile düzeltilmelidir.
 
 ## Nasıl yeniden alınır
 

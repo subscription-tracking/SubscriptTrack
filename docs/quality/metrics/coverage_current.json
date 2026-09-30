@@ -1,12 +1,12 @@
 {
  "reported": {
-  "hit": 7236,
-  "found": 7893,
-  "pct": 91.7
+  "hit": 7248,
+  "found": 7898,
+  "pct": 91.8
  },
  "corrected": {
-  "hit": 7236,
-  "found": 7956,
+  "hit": 7248,
+  "found": 7961,
   "pct": 91.0
  },
  "files_total": 167,
@@ -18,14 +18,14 @@
  ],
  "by_layer": {
   "layer:app": {
-   "hit": 431,
-   "found": 472,
-   "pct": 91.3
+   "hit": 436,
+   "found": 477,
+   "pct": 91.4
   },
   "layer:core-services": {
-   "hit": 513,
+   "hit": 520,
    "found": 624,
-   "pct": 82.2
+   "pct": 83.3
   },
   "layer:data": {
    "hit": 852,
@@ -50,14 +50,14 @@
  },
  "by_feature": {
   "app": {
-   "hit": 431,
-   "found": 472,
-   "pct": 91.3
+   "hit": 436,
+   "found": 477,
+   "pct": 91.4
   },
   "core": {
-   "hit": 575,
+   "hit": 582,
    "found": 693,
-   "pct": 83.0
+   "pct": 84.0
   },
   "feature:auth": {
    "hit": 614,

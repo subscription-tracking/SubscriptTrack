@@ -10,7 +10,7 @@
  "outdated_direct_major": 0,
  "apk_mb": 21.8,
  "apk_note": "Play'e ABI bölünmüş APK gider: arm64-v8a 21,8 MB (2026-09-30 ölçümü; armeabi-v7a 19,5, x86_64 23,2 MB). Puan arm64-v8a ile hesaplanır. Evrensel (3 ABI) APK 60,2 MB'tır (önceki ölçüm) ve kullanıcıya inmez. Ölçüm: <code>flutter build apk --release --split-per-abi</code>. APK debug anahtarıyla imzalıdır (yalnızca test).",
- "tests_total": 738,
+ "tests_total": 745,
  "apk_universal_mb": 60.2,
  "tests_runs": [
   true,

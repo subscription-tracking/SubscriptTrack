@@ -1,6 +1,6 @@
 {
- "v1_overall": 9.4,
- "v2_overall": 8.7,
+ "v1_overall": 9.5,
+ "v2_overall": 8.4,
  "weights_v2": {
   "static_analysis": 5,
   "size": 8,
@@ -30,7 +30,7 @@
   "architecture": 9.3,
   "duplication": 10,
   "tests": 10.0,
-  "security": 8.3,
+  "security": 9.3,
   "maintainability": 8.0,
   "performance": 9.3
  },
@@ -40,40 +40,91 @@
   "complexity": 8.7,
   "architecture": 9.3,
   "duplication": 10,
-  "tests": 8.4,
+  "tests": 7.3,
   "security": 7.9,
   "maintainability": 8.0,
   "performance": 8
  },
- "mutation": {
+ "mutation_run1": {
   "sample": 20,
-  "compile_errors": 8,
-  "equivalent": 1,
-  "raw_valid": 12,
-  "raw_killed": 9,
-  "raw_killed_pct": 75.0,
   "valid": 11,
-  "killed": 9,
-  "killed_pct": 81.8,
-  "score": 9,
+  "killed": 9
+ },
+ "mutation": {
+  "sample": 25,
+  "compile_errors": 4,
+  "equivalent": 0,
+  "raw_valid": 21,
+  "raw_killed": 13,
+  "raw_killed_pct": 61.9,
+  "valid": 21,
+  "killed": 13,
+  "killed_pct": 61.9,
+  "score": 6,
   "survivors": [
    {
-    "file": "lib/core/utils/date_time_utils.dart",
-    "line": 23,
-    "orig": "final month = totalMonths % 12 + 1;",
-    "mut": "final month = totalMonths % 12 - 1;",
+    "file": "lib/features/subscriptions/data/subscription_operations.dart",
+    "line": 103,
+    "orig": "return false;",
+    "mut": "return true;",
     "killed": false,
-    "compile_err": false,
-    "note": "tam pakette (738 test) de yakalanmadı: addMonthsClamped yalnızca preferredDay==null iken kullanılıyor, gerçek akışlar hep veriyor; bu yol test edilmiyor (gerçek boşluk)"
+    "compile_err": false
+   },
+   {
+    "file": "lib/features/subscriptions/data/subscription_operations.dart",
+    "line": 112,
+    "orig": "return false;",
+    "mut": "return true;",
+    "killed": false,
+    "compile_err": false
+   },
+   {
+    "file": "lib/features/subscriptions/data/subscription_operations.dart",
+    "line": 227,
+    "orig": "return true;",
+    "mut": "return false;",
+    "killed": false,
+    "compile_err": false
+   },
+   {
+    "file": "lib/features/subscriptions/data/subscription_operations.dart",
+    "line": 191,
+    "orig": "if (rules.any((r) => r.daysBefore != 3 || !r.enabled)) {",
+    "mut": "if (rules.any((r) => r.daysBefore == 3 || !r.enabled)) {",
+    "killed": false,
+    "compile_err": false
+   },
+   {
+    "file": "lib/features/subscriptions/data/subscription_operations.dart",
+    "line": 232,
+    "orig": "final idx = _host.items.indexWhere((s) => s.id == updated.id);",
+    "mut": "final idx = _host.items.indexWhere((s) => s.id != updated.id);",
+    "killed": false,
+    "compile_err": false
+   },
+   {
+    "file": "lib/core/utils/date_time_utils.dart",
+    "line": 53,
+    "orig": "final year = date.year + totalMonths ~/ 12;",
+    "mut": "final year = date.year - totalMonths ~/ 12;",
+    "killed": false,
+    "compile_err": false
    },
    {
     "file": "lib/core/services/app_lock_service.dart",
-    "line": 136,
-    "orig": "_enabled = false;",
-    "mut": "_enabled = true;",
+    "line": 20,
+    "orig": "bool _biometricEnabled = false;",
+    "mut": "bool _biometricEnabled = true;",
     "killed": false,
-    "compile_err": false,
-    "note": "disable() sonrası _enabled durumu doğrulanmıyor (gerçek boşluk)"
+    "compile_err": false
+   },
+   {
+    "file": "lib/core/services/app_lock_service.dart",
+    "line": 100,
+    "orig": "if (!supported || !canCheck || enrolled.isEmpty) {",
+    "mut": "if (!supported && !canCheck || enrolled.isEmpty) {",
+    "killed": false,
+    "compile_err": false
    }
   ]
  },
@@ -82,13 +133,13 @@
   "domain": 10,
   "kararlılık": 10,
   "backend davranış testi": 3,
-  "mutasyon": 9
+  "mutasyon": 6
  },
  "security_parts": {
   "gizli sızıntı (anon hariç)": 10,
   "RLS korumasız tablo": 10,
   "kimliksiz edge function": 10,
-  "hız sınırsız edge function": 4,
+  "hız sınırsız edge function (canlı)": 4,
   "canlı advisor (yalnızca aksiyon gerektiren uyarılar)": 8,
   "bağımlılık ana sürüm": 10,
   "açık düşük bulgu (edge function)": 6,
@@ -124,16 +175,24 @@
    "performance_advisor_warns_before": 15,
    "performance_advisor_warns_after_031": 0,
    "open_low_findings": [
-    "delete-account/process-export/support-catalog hata durumunda String(err)/error.message döndürüyor",
-    "Access-Control-Allow-Origin: * (delete-account, payment-methods)",
-    "support-catalog POST category doğrulanmıyor"
+    "delete-account/process-export/support-catalog hata durumunda String(err)/error.message döndürüyor (repoda düzeltildi, canlıda deploy bekliyor)",
+    "Access-Control-Allow-Origin: * (repoda düzeltildi, canlıda deploy bekliyor)",
+    "support-catalog POST category doğrulanmıyor (repoda düzeltildi, canlıda deploy bekliyor)",
+    "Uygulama kilidi PIN'inde deneme sınırı yok, PIN salt'sız SHA-256 (düzeltilmedi)"
+   ],
+   "rate_limit_deployed": false,
+   "fixes_in_repo_not_deployed": [
+    "hız sınırı (migration 032 + _shared/ratelimit.js)",
+    "genel hata mesajı (iç hata sızıntısı)",
+    "CORS izin listesi",
+    "support-catalog category doğrulaması"
    ]
   },
   "release": {
    "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
    "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
    "ios_build": "hiç alınmadı",
-   "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30, e46c543); android-release-candidate (flutter build appbundle --release) kırmızı: Gradle checkReleaseDuplicateClasses / JetifyTransform (Flutter motor jar'ları)"
+   "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30); android-release-candidate 'Java heap space' ile kırmızıydı; Gradle bellek sınırı 4 GB'a çıkarıldı (repoda), yerelde AAB derlendi (57,4 MB), CI'da henüz doğrulanmadı"
   }
  }
 }

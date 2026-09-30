@@ -123,3 +123,22 @@ Kapsam daraltması geri alındı: git dışı dosyalar, kalite raporu ve kalan b
 | **Ürün kuralı ↔ kod çelişkileri (karar bekliyor)** | (1) Arayüz herhangi bir abonelik için **kalıcı silme** sunuyor; AGENTS.md/DOMAIN/ADR 0006 normal akışta silmeyi yasaklar. (2) Yükleme sırasında gecikmiş yenileme tarihi **otomatik ilerletiliyor**; DOMAIN "sessizce ilerletilmez" der. Belgelerde her iki çelişki açıkça işaretlendi, kod değiştirilmedi |
 | MOBILE.md'ye kopyalanan bayat paragraf (`mistakenRecord`) | Bulundu ve düzeltildi |
 | Graphify | **Yapılamadı:** LLM API anahtarı yok (84 dosya semantik çıkarım gerektiriyor) |
+
+---
+
+# 5. tur: kod ve güvenlik işleri (2026-09-30)
+
+| Konu | Sonuç |
+|---|---|
+| CI Android AAB hatası | Kök neden **Java heap space** (Jetify, Gradle JVM 1,5 GB). `gradle.properties` bellek sınırı 4 GB'a çıkarıldı, yerelde AAB derlendi; **CI'da doğrulanmadı** (push gerekir) |
+| Test boşlukları | `addMonthsClamped` ve `AppLockService.disable()` testleri yazıldı; iki kaçan mutantın artık yakalandığı doğrulandı |
+| Yeni bağımsız mutasyon örneği | %61,9 (13/21); ilk örneğin %81,8'i şişirilmişti. Hayatta kalanlar: `SubscriptionOperations` hata/dönüş yolları, `_addMonthsWithPreferredDay` yıl hesabı, biyometri koşulu. Düzeltilmedi |
+| Edge Function sertleştirme | Genel hata mesajı, CORS izin listesi, `category` doğrulaması, kullanıcı başına hız sınırı (migration 032) **repoda hazır ve testli**; canlıda migration/deploy **yapılmadı**, puan canlı duruma göre |
+| Backend testleri | 21 → 29 |
+| Ölü smoke betiği | `staging-smoke.mjs` ve `smoke:staging` kaldırıldı |
+| `.gitignore` | `.codex-remote-attachments/` ve `.mcp.json` eklendi |
+| 4 ekran (web) | PIN kilit katmanı çalışıyor; "bulunamadı" çıkmaz sokaktı, düzeltildi; splash ve yeni şifre ekranları görsel olarak incelenemedi |
+| **Yeni bulgu** | Uygulama kilidi PIN'inde **deneme sınırı yok**, PIN salt'sız SHA-256 (düzeltilmedi, tasarım kararı) |
+| Canlı FK/silme kuralları kontrolü, canlıdan baseline taslağı | **Yapılamadı:** canlı veritabanına erişim ("Production Deploy") engellendi; kullanıcının çalıştıracağı sorgular `SUPABASE_LIVE_STATUS.md`'de |
+| Gizli bulgu | `DateTimeUtils.addMonthsClamped` negatif ay için hatalı (`~/` sıfıra yuvarlar); üretimde yalnızca pozitif ay kullanıldığı için etkisiz, düzeltilmedi |
+

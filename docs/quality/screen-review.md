@@ -80,3 +80,13 @@ Bulguların 1–14. maddeleri giderildi; web derlemesinde 2, 3, 12 ve tarih biç
 Bu turda ek gözlem: Abonelikler > Deneme sekmesi boş durumu ("Deneme aboneliği yok" + "Abonelik ekle") doğru çalışıyor.
 
 Kapsam dışı bırakılanlar: Görünüm ve Uygulama kilidi ekranlarının yeniden tasarımı, yalnızca web'de görülen iki madde.
+
+## Ek: denenmeyen 4 ekran (2026-09-30, web derlemesi, yerel mod)
+
+| Ekran | Sonuç |
+|---|---|
+| Splash | Yaklaşık yarım saniyede onboarding'e geçiyor; ekran görüntüsü yakalanamadı (incelenmedi) |
+| Yeni şifre (`/reset-password`) | Yerel modda tetiklenemez (Supabase kurtarma oturumu gerekir); oturum açıkken ana sayfaya yönleniyor, görsel olarak incelenmedi |
+| PIN kilit katmanı | Çalışıyor: "Uygulama kilitli", PIN alanı (0/8), "Kilidi aç"; yanlış PIN'de kırmızı "PIN hatalı". **Bulgu:** deneme sınırı / bekleme yok (bkz. SECURITY.md) |
+| "Bulunamadı" | **Bulgu (düzeltildi):** yalnızca ortada tek satır metin vardı, derin bağlantıyla açılınca çıkış yoktu. "Ana sayfaya dön" düğmesi eklendi, rota testine işlendi |
+
