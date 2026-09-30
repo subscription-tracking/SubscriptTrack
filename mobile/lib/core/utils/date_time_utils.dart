@@ -95,6 +95,25 @@ class DateTimeUtils {
   }) =>
       _advanceOnce(current, cycleKey, preferredDay: anchorDate.day);
 
+  /// "30 Eylül 2026" biçiminde uzun tarih (göreli "Bugün/Yarın" yok).
+  static String formatLongDate(DateTime d) =>
+      '${d.day} ${_fullMonthNames[d.month - 1]} ${d.year}';
+
+  static const _fullMonthNames = [
+    'Ocak',
+    'Şubat',
+    'Mart',
+    'Nisan',
+    'Mayıs',
+    'Haziran',
+    'Temmuz',
+    'Ağustos',
+    'Eylül',
+    'Ekim',
+    'Kasım',
+    'Aralık',
+  ];
+
   static String formatDate(DateTime date) {
     // Compare calendar days, not hours, to avoid late-night inDays=0 edge case.
     final diff = dayNumber(date) - dayNumber(DateTime.now());

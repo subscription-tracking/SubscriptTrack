@@ -191,14 +191,25 @@ void main() {
       expect(find.text('D'), findsOneWidget);
     });
 
+    testWidgets('abonelik sayısı 3 ten azsa başlık gerçek adedi yazar',
+        (tester) async {
+      await pump(tester, [
+        testSubscription('1', name: 'A', amount: '100.00'),
+        testSubscription('2', name: 'B', amount: '50.00'),
+      ]);
+      expect(find.text('En yüksek tutarlı 2 aboneliğini iptal edersen'),
+          findsOneWidget);
+      expect(find.textContaining('3 aboneliğini'), findsNothing);
+    });
+
     testWidgets('birden çok para biriminde her biri ayrı kartta',
         (tester) async {
       await pump(tester, [
         testSubscription('1', name: 'A', amount: '10.00'),
         testSubscription('2', name: 'B', amount: '5.00', currency: 'USD'),
       ]);
-      expect(find.textContaining('3 TRY aboneliğini'), findsOneWidget);
-      expect(find.textContaining('3 USD aboneliğini'), findsOneWidget);
+      expect(find.text('TRY aboneliğini iptal edersen'), findsOneWidget);
+      expect(find.text('USD aboneliğini iptal edersen'), findsOneWidget);
     });
 
     testWidgets('iptal/duraklatma geçmişi listelenir', (tester) async {

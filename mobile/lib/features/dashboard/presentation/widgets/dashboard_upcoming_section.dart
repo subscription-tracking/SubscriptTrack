@@ -159,9 +159,7 @@ class DashboardSavingsSummary extends StatelessWidget {
 }
 
 class DashboardEmptyIntro extends StatelessWidget {
-  const DashboardEmptyIntro({required this.onAdd, super.key});
-
-  final VoidCallback onAdd;
+  const DashboardEmptyIntro({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -185,11 +183,6 @@ class DashboardEmptyIntro extends StatelessWidget {
           Text(
               'Aboneliklerini ekle; aylık giderlerini, yenileme tarihlerini ve ücretsiz denemelerini tek yerde takip et.',
               style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 10),
-          TextButton.icon(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Hemen başla')),
         ],
       ),
     );

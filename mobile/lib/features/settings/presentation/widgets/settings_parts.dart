@@ -89,7 +89,7 @@ class SettingsTile extends StatelessWidget {
           Flexible(
             child: Text(
               value!,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(

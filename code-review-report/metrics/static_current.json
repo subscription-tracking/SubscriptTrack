@@ -1,11 +1,11 @@
 {
  "size": {
-  "files": 166,
-  "total_lines": 20159,
+  "files": 167,
+  "total_lines": 20281,
   "max_lines": 300,
   "max_file": "lib/features/auth/presentation/auth_controller.dart",
-  "median_lines": 102.0,
-  "p90_lines": 225,
+  "median_lines": 101,
+  "p90_lines": 227,
   "over_300": 0,
   "over_400": 0,
   "over_300_pct": 0.0,
@@ -48,7 +48,7 @@
    ],
    [
     "lib/features/settings/presentation/screens/payment_methods_screen.dart",
-    263
+    256
    ]
   ]
  },
@@ -99,11 +99,11 @@
    ],
    [
     "lib/features/subscriptions/presentation/subscription_controller.dart",
-    24
+    25
    ],
    [
     "lib/core/utils/date_time_utils.dart",
-    22
+    24
    ],
    [
     "lib/core/navigation/app_routes.dart",
@@ -113,9 +113,9 @@
  },
  "duplication": {
   "window": 6,
-  "significant_lines": 11731,
-  "duplicated_lines": 349,
-  "duplicated_pct": 3.0,
+  "significant_lines": 11794,
+  "duplicated_lines": 337,
+  "duplicated_pct": 2.9,
   "top_files": [
    [
     "lib/features/subscriptions/data/subscription_operations.dart",
@@ -152,12 +152,12 @@
   ]
  },
  "maintainability": {
-  "public_types": 236,
-  "documented_types": 79,
-  "doc_ratio_pct": 33.5,
+  "public_types": 237,
+  "documented_types": 80,
+  "doc_ratio_pct": 33.8,
   "todo": 0,
   "color_literals": 116,
-  "turkish_string_literals": 576,
+  "turkish_string_literals": 585,
   "semantics_calls": 8,
   "tracked_artifacts": 0,
   "tracked_artifacts_sample": []

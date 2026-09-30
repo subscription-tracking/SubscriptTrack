@@ -117,9 +117,13 @@ class SubscriptionDetailScreen extends StatelessWidget {
     context.push(AppRoutes.editSubscription(subscription.id));
   }
 
-  Future<void> _handleAction(BuildContext ctx, DetailMenuAction action) async {
+  /// Menü eyleminin çalıştıracağı işlem; silme onaylanmadıysa `null`.
+  Future<Future<void> Function()?> _runnerFor(
+    BuildContext ctx,
+    DetailMenuAction action,
+  ) async {
     final id = subscription.id;
-    final Future<void> Function()? run = switch (action) {
+    return switch (action) {
       DetailMenuAction.pause => () => controller.pause(id),
       DetailMenuAction.resume => () => controller.resume(id),
       DetailMenuAction.cancel => () => controller.cancel(id),
@@ -127,9 +131,25 @@ class SubscriptionDetailScreen extends StatelessWidget {
       DetailMenuAction.delete =>
         (await _confirmDelete(ctx)) ? () => controller.delete(id) : null,
     };
-    if (run == null) return;
+  }
+
+  Future<void> _handleAction(BuildContext ctx, DetailMenuAction action) async {
+    final run = await _runnerFor(ctx, action);
+    if (run == null || !ctx.mounted) return;
+    final messenger = ScaffoldMessenger.of(ctx);
     await run();
+    if (action == DetailMenuAction.archive) _showArchivedUndo(messenger);
     if (ctx.mounted) Navigator.pop(ctx);
+  }
+
+  void _showArchivedUndo(ScaffoldMessengerState messenger) {
+    messenger.showSnackBar(SnackBar(
+      content: Text('${subscription.name} arşivlendi.'),
+      action: SnackBarAction(
+        label: 'Geri al',
+        onPressed: () => controller.restore(subscription.id),
+      ),
+    ));
   }
 
   Future<bool> _confirmDelete(BuildContext ctx) async {

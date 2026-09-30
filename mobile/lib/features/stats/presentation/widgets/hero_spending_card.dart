@@ -50,7 +50,7 @@ class HeroSpendingCard extends StatelessWidget {
               _ChangeBadge(
                 change: _change(),
                 currency: currency,
-                hasPaymentHistory: hasPaymentHistory,
+                hasPaymentHistory: hasPaymentHistory && _hasComparison,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -69,6 +69,9 @@ class HeroSpendingCard extends StatelessWidget {
       ),
     );
   }
+
+  /// Önceki ayda ödeme kaydı yoksa yüzde/tutar karşılaştırması anlamsızdır.
+  bool get _hasComparison => trend.length >= 2 && trend[trend.length - 2] > 0;
 
   /// Bir önceki aya göre değişim (minor unit); veri yoksa 0.
   int _change() =>

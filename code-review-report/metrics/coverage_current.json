@@ -1,15 +1,15 @@
 {
  "reported": {
-  "hit": 7203,
-  "found": 7858,
+  "hit": 7236,
+  "found": 7893,
   "pct": 91.7
  },
  "corrected": {
-  "hit": 7203,
-  "found": 7921,
-  "pct": 90.9
+  "hit": 7236,
+  "found": 7956,
+  "pct": 91.0
  },
- "files_total": 166,
+ "files_total": 167,
  "files_not_in_lcov": 3,
  "files_not_in_lcov_sample": [
   "lib/main.dart",
@@ -23,8 +23,8 @@
    "pct": 91.3
   },
   "layer:core-services": {
-   "hit": 511,
-   "found": 622,
+   "hit": 513,
+   "found": 624,
    "pct": 82.2
   },
   "layer:data": {
@@ -43,8 +43,8 @@
    "pct": 0.0
   },
   "layer:presentation": {
-   "hit": 5044,
-   "found": 5466,
+   "hit": 5075,
+   "found": 5499,
    "pct": 92.3
   }
  },
@@ -55,14 +55,14 @@
    "pct": 91.3
   },
   "core": {
-   "hit": 573,
-   "found": 691,
-   "pct": 82.9
+   "hit": 575,
+   "found": 693,
+   "pct": 83.0
   },
   "feature:auth": {
-   "hit": 628,
+   "hit": 614,
    "found": 695,
-   "pct": 90.4
+   "pct": 88.3
   },
   "feature:calendar": {
    "hit": 179,
@@ -70,9 +70,9 @@
    "pct": 79.6
   },
   "feature:dashboard": {
-   "hit": 503,
-   "found": 587,
-   "pct": 85.7
+   "hit": 501,
+   "found": 586,
+   "pct": 85.5
   },
   "feature:notifications": {
    "hit": 223,
@@ -85,24 +85,24 @@
    "pct": 99.2
   },
   "feature:savings": {
-   "hit": 142,
-   "found": 144,
-   "pct": 98.6
+   "hit": 148,
+   "found": 150,
+   "pct": 98.7
   },
   "feature:settings": {
-   "hit": 929,
-   "found": 974,
+   "hit": 927,
+   "found": 972,
    "pct": 95.4
   },
   "feature:stats": {
-   "hit": 742,
-   "found": 766,
-   "pct": 96.9
+   "hit": 753,
+   "found": 768,
+   "pct": 98.0
   },
   "feature:subscriptions": {
-   "hit": 2153,
-   "found": 2376,
-   "pct": 90.6
+   "hit": 2185,
+   "found": 2404,
+   "pct": 90.9
   },
   "other": {
    "hit": 0,
@@ -121,6 +121,11 @@
    "lib/core/services/notification_platform.dart",
    6.8,
    59
+  ],
+  [
+   "lib/features/auth/presentation/screens/login_screen.dart",
+   51.6,
+   95
   ],
   [
    "lib/features/subscriptions/domain/subscription_enums.dart",
@@ -153,14 +158,9 @@
    32
   ],
   [
-   "lib/features/auth/presentation/screens/login_screen.dart",
-   66.3,
-   95
-  ],
-  [
    "lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
-   71.6,
-   81
+   70.9,
+   79
   ],
   [
    "lib/shared/widgets/subscription_status_chip.dart",
@@ -168,14 +168,14 @@
    34
   ],
   [
-   "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
-   76.1,
-   88
-  ],
-  [
    "lib/features/subscriptions/domain/subscription_selectors.dart",
    78.7,
    47
+  ],
+  [
+   "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
+   78.9,
+   71
   ]
  ]
 }

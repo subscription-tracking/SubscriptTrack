@@ -16,6 +16,7 @@ class FormServiceSection extends StatelessWidget {
     required this.presets,
     required this.outlineColor,
     required this.update,
+    this.showPresets = true,
     super.key,
   });
 
@@ -23,6 +24,7 @@ class FormServiceSection extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController amountController;
   final List<(String, SubscriptionCategory)> presets;
+  final bool showPresets;
   final Color outlineColor;
 
   /// Ebeveyn State'in `setState`'i.
@@ -33,9 +35,11 @@ class FormServiceSection extends StatelessWidget {
     return FormSection(
       outlineColor: outlineColor,
       children: [
-        _presetsTitle(context),
-        _presetChips(context),
-        const SizedBox(height: 20),
+        if (showPresets) ...[
+          _presetsTitle(context),
+          _presetChips(context),
+          const SizedBox(height: 20),
+        ],
         _nameField(),
         const SizedBox(height: 16),
         _currencyAndAmount(),
@@ -117,6 +121,17 @@ class FormServiceSection extends StatelessWidget {
     );
   }
 
+  /// Ad, bilinen bir servisle birebir eşleşirse kategoriyi de ondan alır.
+  void _applyPresetCategory(String name) {
+    final key = name.trim().toLowerCase();
+    for (final (presetName, category) in presets) {
+      if (presetName.toLowerCase() == key) {
+        data.category = category;
+        return;
+      }
+    }
+  }
+
   Widget _nameField() {
     return TextFormField(
       controller: nameController,
@@ -138,7 +153,10 @@ class FormServiceSection extends StatelessWidget {
         ),
         suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
       ),
-      onChanged: (v) => update(() => data.name = v),
+      onChanged: (v) => update(() {
+        data.name = v;
+        _applyPresetCategory(v);
+      }),
       validator: SubscriptionFormValidators.name,
     );
   }

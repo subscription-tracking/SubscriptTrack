@@ -23,7 +23,7 @@ void main() {
     await _pump(tester, ProfileScreen(auth: s.auth));
 
     expect(find.text('kisi@example.com'), findsWidgets);
-    expect(find.text('Üye olma: 15/1/2026'), findsOneWidget);
+    expect(find.text('Üye olma: 15 Ocak 2026'), findsOneWidget);
     // Görünen ad yoksa e-postanın yerel kısmı kullanılır.
     expect(find.widgetWithText(TextField, 'kisi'), findsOneWidget);
     expect(find.text('K'), findsOneWidget);

@@ -200,7 +200,7 @@ class _FirstSubscriptionPrompt extends StatelessWidget {
     void add() => context.push(AppRoutes.addSubscription);
     return Column(
       children: [
-        DashboardEmptyIntro(onAdd: add),
+        const DashboardEmptyIntro(),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,

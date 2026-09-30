@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/domain/currency.dart';
 import '../../../../core/preferences/app_preferences.dart';
-import '../../../../shared/design/responsive.dart';
 import '../../domain/subscription_models.dart';
-import '../../../../shared/widgets/loading_filled_button.dart';
 import '../subscription_controller.dart';
+import '../widgets/subscription_form_scaffold.dart';
 import '../widgets/subscription_form.dart';
 
 class EditSubscriptionScreen extends StatefulWidget {
@@ -61,42 +60,21 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
       Navigator.pop(context);
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.controller.error ?? 'Bir hata oluştu.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-      widget.controller.clearError();
+      showFormSaveError(context, widget.controller);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Aboneliği düzenle')),
-      body: ListenableBuilder(
-        listenable: widget.controller,
-        builder: (context, _) => ResponsiveCenter(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-            children: [
-              SubscriptionForm(
-                formKey: _formKey,
-                data: _data,
-                settings: context.read<AppPreferences>(),
-              ),
-              const SizedBox(height: 28),
-              LoadingFilledButton(
-                label: 'Güncelle',
-                loading: widget.controller.loading,
-                onPressed: _save,
-                tall: false,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return SubscriptionFormScaffold(
+      title: 'Aboneliği düzenle',
+      actionLabel: 'Güncelle',
+      controller: widget.controller,
+      formKey: _formKey,
+      data: _data,
+      settings: context.read<AppPreferences>(),
+      onSave: _save,
+      showPresets: false,
     );
   }
 }

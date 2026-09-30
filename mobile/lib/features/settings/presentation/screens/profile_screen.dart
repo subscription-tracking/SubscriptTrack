@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../widgets/profile_parts.dart';
 
@@ -113,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
+  String _formatDate(DateTime d) => DateTimeUtils.formatLongDate(d);
 
   void _refresh() => setState(() {});
 
@@ -185,6 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onChanged: (_) => _refresh(),
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.email_outlined),
+          helperMaxLines: 3,
           helperText:
               'E-posta adresini doğrulaman istenirse yeni adresine bir bağlantı gönderilir.',
         ),
