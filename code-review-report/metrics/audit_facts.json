@@ -1,0 +1,24 @@
+{
+  "collected": "2026-09-30",
+  "duplication_cross_check": {"tool": "jscpd 4 (min-tokens 50, min-lines 6)", "duplicated_pct": 1.08, "own_tool_pct": 2.9, "note": "bağımsız araç bizim aracımızdan daha düşük buluyor; tekrar puanı şişirilmemiş"},
+  "backend": {"edge_function_tests": 0, "edge_functions": 4, "migration_tests": "215 satır, SQL metni üzerinde regex; canlı DB davranış testi yok"},
+  "security": {
+    "advisor_errors": 0,
+    "advisor_total_warns": 5,
+    "advisor_actionable_warns": 1,
+    "advisor_note": "5 uyarı: 4 SECURITY DEFINER RPC (auth.uid() null kontrolü, user_id sahiplik filtresi ve 026'daki abonelik sahipliği kaynaktan doğrulandı, anon EXECUTE 027'de kaldırıldı: tasarım gereği) + 1 Leaked Password Protection kapalı (aksiyon gerekir)",
+    "performance_advisor_warns_before": 15,
+    "performance_advisor_warns_after_031": 0,
+    "open_low_findings": [
+      "delete-account/process-export/support-catalog hata durumunda String(err)/error.message döndürüyor",
+      "Access-Control-Allow-Origin: * (delete-account, payment-methods)",
+      "support-catalog POST category doğrulanmıyor"
+    ]
+  },
+  "release": {
+    "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
+    "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
+    "ios_build": "hiç alınmadı",
+    "ci": "mobile-quality.yml var; son uzak koşu (2026-09-28) kırmızı: app_offline_banner.dart o sırada izlenmiyordu, sonra eklendi; 12 yerel commit itilmedi, güncel HEAD CI'da hiç koşmadı"
+  }
+}
