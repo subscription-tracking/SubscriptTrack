@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/datasources/auth_data_source.dart';
@@ -9,6 +8,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/error_messages.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../core/preferences/app_preferences.dart';
+import '../data/auth_local_state.dart';
 import '../data/auth_repository.dart';
 import '../data/supabase_auth_repository.dart';
 import '../domain/auth_models.dart';
@@ -83,15 +83,14 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<bool> init() async {
-    if (_repo is AuthStateDataSource) {
-      _authSubscription = (_repo as AuthStateDataSource)
-          .authStateChanges
-          .listen(_onAuthStateChange);
+    final Object source = _repo;
+    if (source is AuthStateDataSource) {
+      _authSubscription = source.authStateChanges.listen(_onAuthStateChange);
     }
 
     final results = await Future.wait<dynamic>([
       _repo.currentUser(),
-      _checkOnboarding(),
+      AuthLocalState.onboardingNeeded(),
     ]);
     // Always apply onboarding state.
     _onboardingNeeded = results[1] as bool;
@@ -110,14 +109,13 @@ class AuthController extends ChangeNotifier {
     return _user != null;
   }
 
-  void onboardingDone() {
-    _onboardingNeeded = false;
-    notifyListeners();
-  }
+  void onboardingDone() => _setOnboardingNeeded(false);
 
   /// Kullanıcının isteğiyle (Ayarlar'dan) tanıtım turunu yeniden gösterir.
-  void restartOnboarding() {
-    _onboardingNeeded = true;
+  void restartOnboarding() => _setOnboardingNeeded(true);
+
+  void _setOnboardingNeeded(bool value) {
+    _onboardingNeeded = value;
     notifyListeners();
   }
 
@@ -185,9 +183,7 @@ class AuthController extends ChangeNotifier {
 
   Future<void> signOut() async {
     await _repo.signOut();
-    _user = null;
-    _status = AuthStatus.unauthenticated;
-    notifyListeners();
+    _endSession();
   }
 
   Future<void> deleteAccount([LocalStorage? storage]) async {
@@ -197,24 +193,18 @@ class AuthController extends ChangeNotifier {
     final email = _user!.email;
     await _repo.deleteAccount(email);
     // Only clear local data after the server confirms permanent deletion.
-    await Future.wait([
-      localStorage.deleteSubscriptions(userId),
-      localStorage.deleteFinancialEvents(userId),
-      _settings?.clearAccountPaymentMethods() ?? Future<void>.value(),
-      _clearNotificationReadState(),
-    ]);
+    await AuthLocalState.wipeAccountData(
+      storage: localStorage,
+      userId: userId,
+      preferences: _settings,
+    );
+    _endSession();
+  }
+
+  void _endSession() {
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
-  }
-
-  static Future<void> _clearNotificationReadState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('notif_read_ids');
-    } catch (e) {
-      logIgnoredError('AuthController.clearReadIds', e);
-    }
   }
 
   Future<bool> updatePassword(String newPassword) async {
@@ -305,10 +295,5 @@ class AuthController extends ChangeNotifier {
   void _setLoading(bool value) {
     _loading = value;
     notifyListeners();
-  }
-
-  static Future<bool> _checkOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('onboarding_done') != true;
   }
 }

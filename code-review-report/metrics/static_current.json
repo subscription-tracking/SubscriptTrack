@@ -1,54 +1,54 @@
 {
  "size": {
-  "files": 149,
-  "total_lines": 19940,
-  "max_lines": 381,
-  "max_file": "lib/features/stats/presentation/widgets/trend_card.dart",
-  "median_lines": 110,
-  "p90_lines": 281,
-  "over_300": 11,
+  "files": 161,
+  "total_lines": 20054,
+  "max_lines": 300,
+  "max_file": "lib/features/auth/presentation/auth_controller.dart",
+  "median_lines": 109,
+  "p90_lines": 227,
+  "over_300": 0,
   "over_400": 0,
-  "over_300_pct": 7.4,
+  "over_300_pct": 0.0,
   "top10": [
    [
-    "lib/features/stats/presentation/widgets/trend_card.dart",
-    381
-   ],
-   [
-    "lib/features/settings/presentation/screens/settings_screen.dart",
-    370
-   ],
-   [
-    "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
-    340
-   ],
-   [
-    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
-    335
-   ],
-   [
-    "lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
-    322
-   ],
-   [
-    "lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
-    319
-   ],
-   [
-    "lib/features/settings/presentation/screens/profile_screen.dart",
-    319
-   ],
-   [
     "lib/features/auth/presentation/auth_controller.dart",
-    315
+    300
    ],
    [
-    "lib/features/subscriptions/domain/subscription_models.dart",
-    312
+    "lib/features/subscriptions/presentation/subscription_controller.dart",
+    300
+   ],
+   [
+    "lib/features/calendar/presentation/screens/calendar_screen.dart",
+    297
+   ],
+   [
+    "lib/features/subscriptions/presentation/widgets/detail/detail_hero_header.dart",
+    292
+   ],
+   [
+    "lib/features/subscriptions/data/subscription_operations.dart",
+    290
    ],
    [
     "lib/app/router/app_router.dart",
-    309
+    281
+   ],
+   [
+    "lib/features/dashboard/presentation/widgets/dashboard_category_donut.dart",
+    281
+   ],
+   [
+    "lib/core/services/local_notification_service.dart",
+    278
+   ],
+   [
+    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+    278
+   ],
+   [
+    "lib/features/auth/presentation/screens/login_screen.dart",
+    277
    ]
   ]
  },
@@ -64,7 +64,7 @@
   "max_fan_out_excl_app": 20,
   "max_fan_out_excl_app_file": "lib/features/subscriptions/presentation/subscription_controller.dart",
   "max_fan_out_file": "lib/app/router/app_router.dart",
-  "max_fan_in": 50,
+  "max_fan_in": 52,
   "max_fan_in_file": "lib/features/subscriptions/domain/subscription_models.dart",
   "top_fan_out": [
    [
@@ -91,19 +91,19 @@
   "top_fan_in": [
    [
     "lib/features/subscriptions/domain/subscription_models.dart",
-    50
+    52
    ],
    [
     "lib/core/domain/money.dart",
-    27
+    28
    ],
    [
     "lib/features/subscriptions/presentation/subscription_controller.dart",
-    23
+    24
    ],
    [
     "lib/core/utils/date_time_utils.dart",
-    19
+    20
    ],
    [
     "lib/core/navigation/app_routes.dart",
@@ -113,7 +113,7 @@
  },
  "duplication": {
   "window": 6,
-  "significant_lines": 11656,
+  "significant_lines": 11705,
   "duplicated_lines": 622,
   "duplicated_pct": 5.3,
   "top_files": [
@@ -152,9 +152,9 @@
   ]
  },
  "maintainability": {
-  "public_types": 204,
-  "documented_types": 69,
-  "doc_ratio_pct": 33.8,
+  "public_types": 227,
+  "documented_types": 72,
+  "doc_ratio_pct": 31.7,
   "todo": 0,
   "color_literals": 116,
   "turkish_string_literals": 580,

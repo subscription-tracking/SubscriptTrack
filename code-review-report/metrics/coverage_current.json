@@ -1,15 +1,15 @@
 {
  "reported": {
-  "hit": 7172,
-  "found": 7827,
+  "hit": 7180,
+  "found": 7836,
   "pct": 91.6
  },
  "corrected": {
-  "hit": 7172,
-  "found": 7890,
+  "hit": 7180,
+  "found": 7899,
   "pct": 90.9
  },
- "files_total": 149,
+ "files_total": 161,
  "files_not_in_lcov": 3,
  "files_not_in_lcov_sample": [
   "lib/main.dart",
@@ -28,9 +28,9 @@
    "pct": 82.2
   },
   "layer:data": {
-   "hit": 829,
-   "found": 911,
-   "pct": 91.0
+   "hit": 841,
+   "found": 925,
+   "pct": 90.9
   },
   "layer:domain": {
    "hit": 375,
@@ -43,9 +43,9 @@
    "pct": 0.0
   },
   "layer:presentation": {
-   "hit": 5029,
-   "found": 5452,
-   "pct": 92.2
+   "hit": 5025,
+   "found": 5447,
+   "pct": 92.3
   }
  },
  "by_feature": {
@@ -60,9 +60,9 @@
    "pct": 83.0
   },
   "feature:auth": {
-   "hit": 646,
-   "found": 713,
-   "pct": 90.6
+   "hit": 647,
+   "found": 715,
+   "pct": 90.5
   },
   "feature:calendar": {
    "hit": 177,
@@ -100,8 +100,8 @@
    "pct": 96.8
   },
   "feature:subscriptions": {
-   "hit": 2132,
-   "found": 2356,
+   "hit": 2139,
+   "found": 2363,
    "pct": 90.5
   },
   "other": {
@@ -128,6 +128,11 @@
    47
   ],
   [
+   "lib/features/dashboard/presentation/widgets/dashboard_hero_parts.dart",
+   57.0,
+   93
+  ],
+  [
    "lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
    61.1,
    36
@@ -143,9 +148,14 @@
    59
   ],
   [
-   "lib/features/dashboard/presentation/widgets/dashboard_hero_card.dart",
-   67.6,
-   139
+   "lib/features/subscriptions/domain/subscription_enums.dart",
+   67.5,
+   40
+  ],
+  [
+   "lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
+   71.6,
+   81
   ],
   [
    "lib/shared/widgets/subscription_status_chip.dart",
@@ -166,16 +176,6 @@
    "lib/features/subscriptions/domain/subscription_selectors.dart",
    77.8,
    45
-  ],
-  [
-   "lib/features/subscriptions/data/payment_history_store.dart",
-   81.2,
-   32
-  ],
-  [
-   "lib/features/subscriptions/data/subscription_status_operations.dart",
-   81.4,
-   70
   ]
  ]
 }
