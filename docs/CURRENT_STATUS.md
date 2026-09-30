@@ -6,7 +6,7 @@ Bu dosya **özellik durumunun ve dağıtım bilgisinin tek kaynağıdır**. Baş
 
 ## Genel durum
 
-SubscriptTrack; Flutter mobil istemci, Supabase (Auth, PostgreSQL + RLS, RPC, Realtime, Edge Functions) ve GitHub Pages web önizlemesinden oluşur ([ARCHITECTURE.md](architecture/ARCHITECTURE.md)). Özelliklerin çoğu kodda ve testlerde tamamdır. **Yayına hazır değildir:** imzalı release üretimi, gerçek cihaz doğrulaması ve iOS build tamamlanmadı, CI'daki Android release derlemesi şu an başarısız (aşağıda).
+SubscriptTrack; Flutter mobil istemci, Supabase (Auth, PostgreSQL + RLS, RPC, Realtime, Edge Functions) ve GitHub Pages web önizlemesinden oluşur ([ARCHITECTURE.md](architecture/ARCHITECTURE.md)). Özelliklerin çoğu kodda ve testlerde tamamdır. **Yayına hazır değildir:** imzalı release üretimi, gerçek cihaz doğrulaması ve iOS build tamamlanmadı (CI yeşil, bkz. aşağıda).
 
 ## Teknoloji
 
@@ -57,7 +57,7 @@ Ayrıntılı, tarihli anlık görüntü: [SUPABASE_LIVE_STATUS.md](reference/SUP
 
 - Git dalı: `main` (güncel commit için `git log`).
 - GitHub Pages web önizleme: https://subscription-tracking.github.io/SubscriptTrack/ (workflow: Deploy web preview).
-- **CI "Mobile quality gate" (2026-09-30 son koşu):** `analyze-and-test` ve `backend-test` **başarılı**; `android-release-candidate` (Android App Bundle release derlemesi) **başarısız** — Gradle `Java heap space` (Jetify, Flutter motor jar'ları). Düzeltme (Gradle bellek sınırı 4 GB) repoda ve yerelde AAB derlendi, fakat **CI'da henüz doğrulanmadı** (push bekliyor).
+- **CI "Mobile quality gate" (2026-09-30, `28f2106`):** `analyze-and-test`, `backend-test` ve `android-release-candidate` (imzasız release AAB derlemesi, 6 dk 20 sn) **başarılı**. AAB hatası (`Java heap space`) Gradle bellek sınırı 1,5 GB → 4 GB ile giderildi. Üretilen AAB imzasızdır; Play'e yüklenebilir imzalı sürüm için upload keystore gerekir ([RELEASE.md](operations/RELEASE.md#7-android-imzalama-planlı)).
 - Release APK/AAB dosyaları git'te tutulmaz; yerel, git dışı çıktı klasöründedir ve depoda yayınlanmış bir "son sürüm" yoktur.
 - Supabase proje ref: `tdbljrojcmyjwchawfif`.
 

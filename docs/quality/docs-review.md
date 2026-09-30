@@ -130,7 +130,7 @@ Kapsam daraltması geri alındı: git dışı dosyalar, kalite raporu ve kalan b
 
 | Konu | Sonuç |
 |---|---|
-| CI Android AAB hatası | Kök neden **Java heap space** (Jetify, Gradle JVM 1,5 GB). `gradle.properties` bellek sınırı 4 GB'a çıkarıldı, yerelde AAB derlendi; **CI'da doğrulanmadı** (push gerekir) |
+| CI Android AAB hatası | Kök neden **Java heap space** (Jetify, Gradle JVM 1,5 GB). `gradle.properties` bellek sınırı 4 GB'a çıkarıldı; push sonrası **CI'da doğrulandı: tüm işler yeşil** (AAB 6 dk 20 sn) |
 | Test boşlukları | `addMonthsClamped` ve `AppLockService.disable()` testleri yazıldı; iki kaçan mutantın artık yakalandığı doğrulandı |
 | Yeni bağımsız mutasyon örneği | %61,9 (13/21); ilk örneğin %81,8'i şişirilmişti. Hayatta kalanlar: `SubscriptionOperations` hata/dönüş yolları, `_addMonthsWithPreferredDay` yıl hesabı, biyometri koşulu. Düzeltilmedi |
 | Edge Function sertleştirme | Genel hata mesajı, CORS izin listesi, `category` doğrulaması, kullanıcı başına hız sınırı (migration 032) **repoda hazır ve testli**; canlıda migration/deploy **yapılmadı**, puan canlı duruma göre |

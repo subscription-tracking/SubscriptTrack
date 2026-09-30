@@ -36,6 +36,6 @@
     "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
     "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
     "ios_build": "hiç alınmadı",
-    "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30); android-release-candidate 'Java heap space' ile kırmızıydı; Gradle bellek sınırı 4 GB'a çıkarıldı (repoda), yerelde AAB derlendi (57,4 MB), CI'da henüz doğrulanmadı"
+    "ci": "mobile-quality.yml (2026-09-30, 28f2106): analyze-and-test, backend-test ve android-release-candidate (imzasız AAB) yeşil; AAB hatası Gradle bellek sınırı 4 GB ile giderildi; docs-check ve web önizleme yeşil"
   }
 }
