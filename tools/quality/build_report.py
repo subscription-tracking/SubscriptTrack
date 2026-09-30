@@ -223,7 +223,7 @@ if A2:
 {sec_tbl}
 <div class="note">Güvenlikte v1 8.3 puanı, açık düşük bulguları (hata metni sızıntısı, CORS <code>*</code>, doğrulanmayan <code>category</code>) ve doğrulanmamış kritik kontrolleri (RLS politikalarının gerçek DB'ye karşı davranış testi, cihazda secure-storage geçişi/R8) hesaba katmıyordu. Canlı advisor artık gerçek: 0 hata, 5 uyarı; bunların 4'i incelenmiş tasarım gereği RPC uyarısı, 1'i aksiyon gerektiriyor (Leaked Password Protection).</div>
 {rel_tbl}
-<div class="note warn"><b>Yayına hazırlık düşük çünkü:</b> release derlemesi Play anahtarı yoksa debug keystore'a düşüyor; release APK gerçek cihazda (bildirim, biyometri, R8, secure-storage geçişi) doğrulanmadı; iOS build hiç alınmadı; GitHub'daki "Mobile quality gate": <code>analyze-and-test</code> ve <code>backend-test</code> yeşil, ama <code>android-release-candidate</code> (release AAB derlemesi) Gradle <code>checkReleaseDuplicateClasses</code> / <code>JetifyTransform</code> hatasıyla kırmızı (2026-09-30).</div>
+<div class="note warn"><b>Yayına hazırlık düşük çünkü:</b> release derlemesi Play anahtarı yoksa debug keystore'a düşüyor (imzalı release yok); release APK gerçek cihazda (bildirim, biyometri, R8, secure-storage geçişi) doğrulanmadı; iOS build hiç alınmadı. CI artık yeşil: <code>analyze-and-test</code>, <code>backend-test</code> ve <code>android-release-candidate</code> (imzasız AAB) geçiyor (2026-09-30).</div>
 <div class="note"><b>v2'nin sınırları:</b> tek geliştirici, tek kod tabanı; eşikler hâlâ öznel seçim. Bağımsız çapraz doğrulama yalnızca tekrarda (jscpd) yapıldı. Karmaşıklık, mimari ve boyut için ikinci bağımsız araç yok. Erişilebilirlik, çok dillilik, bağımlılık zafiyet taraması (osv) ölçülmedi ve puanlanmadı.</div>
 """
 

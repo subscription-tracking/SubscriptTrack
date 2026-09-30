@@ -61,9 +61,9 @@ node scripts/supabase-smoke.mjs   # canlı erişim/envanter kontrolü
 |---|---|---|
 | `analyze-and-test` | `flutter analyze`, `flutter test` | Başarılı |
 | `backend-test` | `npm test` | Başarılı |
-| `android-release-candidate` | `flutter build appbundle --release` (imzasız AAB) | **Başarısız (2026-09-30 koşusu):** Gradle `JetifyTransform` **`Java heap space`** hatası. Düzeltme repoda: `gradle.properties` `-Xmx1536M` → `-Xmx4G`; yerelde AAB derlendi (57,4 MB). **CI'da doğrulanmadı** (push gerekir) |
+| `android-release-candidate` | `flutter build appbundle --release` (imzasız AAB) | **Başarılı** (2026-09-30, `28f2106`, 6 dk 20 sn). Önceki koşu `JetifyTransform` `Java heap space` ile kırmızıydı; `gradle.properties` `-Xmx1536M` → `-Xmx4G` ile giderildi |
 
-Kök neden: AAB üç ABI'nin Flutter motor jar'larını aynı anda Jetify'a soktuğu için Gradle JVM'i 1,5 GB belleğe sığmıyordu (APK tek ABI'ye bölündüğünde sığıyordu). Bellek sınırı yükseltildi; push sonrası CI'ın yeşile döndüğü doğrulanmalıdır. Yerelde `flutter build apk --release` debug anahtarıyla üretilebilmiştir.
+Kök neden: AAB üç ABI'nin Flutter motor jar'larını aynı anda Jetify'a soktuğu için Gradle JVM'i 1,5 GB belleğe sığmıyordu (APK tek ABI'ye bölündüğünde sığıyordu). Bellek sınırı yükseltildi ve CI'ın yeşile döndüğü doğrulandı. Yerelde `flutter build apk --release` debug anahtarıyla üretilebilmiştir.
 
 ## 7. Android imzalama (Planlı)
 
@@ -82,7 +82,7 @@ Kök neden: AAB üç ABI'nin Flutter motor jar'larını aynı anda Jetify'a sokt
 - [x] Backend testleri yeşil (CI)
 - [x] Secret taraması: çalışma ağacında gizli değer yok (gitleaks, `security_scan_test`); git geçmişindeki tek bulgu publishable anon anahtarıdır
 - [x] Doğrudan bağımlılıklar güncel (ana sürüm geride yok)
-- [ ] CI'da Android release AAB derlemesi (düzeltme repoda, CI'da henüz doğrulanmadı, bölüm 6)
+- [x] CI'da Android release AAB derlemesi (imzasız; yeşil, bölüm 6)
 
 **Staging / canlı doğrulama** (ayrı staging projesi yok; testler tek Supabase projesinde yapılır)
 - [ ] Gerçek Supabase oturumuyla CRUD, yaşam döngüsü ve offline replay smoke testi
