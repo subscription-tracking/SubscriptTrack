@@ -19,15 +19,23 @@
     "performance_advisor_warns_before": 15,
     "performance_advisor_warns_after_031": 0,
     "open_low_findings": [
-      "delete-account/process-export/support-catalog hata durumunda String(err)/error.message döndürüyor",
-      "Access-Control-Allow-Origin: * (delete-account, payment-methods)",
-      "support-catalog POST category doğrulanmıyor"
+      "delete-account/process-export/support-catalog hata durumunda String(err)/error.message döndürüyor (repoda düzeltildi, canlıda deploy bekliyor)",
+      "Access-Control-Allow-Origin: * (repoda düzeltildi, canlıda deploy bekliyor)",
+      "support-catalog POST category doğrulanmıyor (repoda düzeltildi, canlıda deploy bekliyor)",
+      "Uygulama kilidi PIN'inde deneme sınırı yok, PIN salt'sız SHA-256 (düzeltilmedi)"
+    ],
+    "rate_limit_deployed": false,
+    "fixes_in_repo_not_deployed": [
+      "hız sınırı (migration 032 + _shared/ratelimit.js)",
+      "genel hata mesajı (iç hata sızıntısı)",
+      "CORS izin listesi",
+      "support-catalog category doğrulaması"
     ]
   },
   "release": {
     "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
     "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
     "ios_build": "hiç alınmadı",
-    "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30, e46c543); android-release-candidate (flutter build appbundle --release) kırmızı: Gradle checkReleaseDuplicateClasses / JetifyTransform (Flutter motor jar'ları)"
+    "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30); android-release-candidate 'Java heap space' ile kırmızıydı; Gradle bellek sınırı 4 GB'a çıkarıldı (repoda), yerelde AAB derlendi (57,4 MB), CI'da henüz doğrulanmadı"
   }
 }

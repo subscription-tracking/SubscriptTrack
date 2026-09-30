@@ -53,7 +53,7 @@ S31_SMOKE_CONFIRM=run node scripts/authenticated-feature-smoke.mjs
 node scripts/supabase-smoke.mjs   # canlı erişim/envanter kontrolü
 ```
 
-> `backend/scripts/staging-smoke.mjs` ve `npm run smoke:staging`, var olmayan bir staging API'sini hedefler ve **kullanılmaz** (ayrı API sunucusu yoktur, bkz. [ADR 0009](../decisions/0009-supabase-only-architecture.md)); kaldırılması Planlıdır.
+> Var olmayan bir staging API'sini hedefleyen `staging-smoke.mjs` ve `npm run smoke:staging` **kaldırıldı** (ayrı API sunucusu yoktur, bkz. [ADR 0009](../decisions/0009-supabase-only-architecture.md)).
 
 ## 6. CI (`.github/workflows/mobile-quality.yml`)
 
@@ -61,9 +61,9 @@ node scripts/supabase-smoke.mjs   # canlı erişim/envanter kontrolü
 |---|---|---|
 | `analyze-and-test` | `flutter analyze`, `flutter test` | Başarılı |
 | `backend-test` | `npm test` | Başarılı |
-| `android-release-candidate` | `flutter build appbundle --release` (imzasız AAB) | **Başarısız:** Gradle `checkReleaseDuplicateClasses` / `JetifyTransform` hatası (Flutter motor jar'ları) |
+| `android-release-candidate` | `flutter build appbundle --release` (imzasız AAB) | **Başarısız (2026-09-30 koşusu):** Gradle `JetifyTransform` **`Java heap space`** hatası. Düzeltme repoda: `gradle.properties` `-Xmx1536M` → `-Xmx4G`; yerelde AAB derlendi (57,4 MB). **CI'da doğrulanmadı** (push gerekir) |
 
-Bu hata giderilmeden CI'da release adayı üretilemez; nedeni (JDK/Gradle/Flutter sürüm uyumu) araştırılmalıdır. Yerelde `flutter build apk --release` debug anahtarıyla üretilebilmiştir.
+Kök neden: AAB üç ABI'nin Flutter motor jar'larını aynı anda Jetify'a soktuğu için Gradle JVM'i 1,5 GB belleğe sığmıyordu (APK tek ABI'ye bölündüğünde sığıyordu). Bellek sınırı yükseltildi; push sonrası CI'ın yeşile döndüğü doğrulanmalıdır. Yerelde `flutter build apk --release` debug anahtarıyla üretilebilmiştir.
 
 ## 7. Android imzalama (Planlı)
 
@@ -82,7 +82,7 @@ Bu hata giderilmeden CI'da release adayı üretilemez; nedeni (JDK/Gradle/Flutte
 - [x] Backend testleri yeşil (CI)
 - [x] Secret taraması: çalışma ağacında gizli değer yok (gitleaks, `security_scan_test`); git geçmişindeki tek bulgu publishable anon anahtarıdır
 - [x] Doğrudan bağımlılıklar güncel (ana sürüm geride yok)
-- [ ] CI'da Android release AAB derlemesi (şu an başarısız, bölüm 6)
+- [ ] CI'da Android release AAB derlemesi (düzeltme repoda, CI'da henüz doğrulanmadı, bölüm 6)
 
 **Staging / canlı doğrulama** (ayrı staging projesi yok; testler tek Supabase projesinde yapılır)
 - [ ] Gerçek Supabase oturumuyla CRUD, yaşam döngüsü ve offline replay smoke testi

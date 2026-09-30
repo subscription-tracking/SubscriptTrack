@@ -1,0 +1,202 @@
+[
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 103,
+  "orig": "return false;",
+  "mut": "return true;",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 112,
+  "orig": "return false;",
+  "mut": "return true;",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 261,
+  "orig": "_host.items.removeWhere((s) => s.id == subscriptionId);",
+  "mut": "_host.items.removeWhere((s) => s.id != subscriptionId);",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 227,
+  "orig": "return true;",
+  "mut": "return false;",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_lifecycle.dart",
+  "line": 18,
+  "orig": "DateTimeUtils.dayNumber(end) < today;",
+  "mut": "DateTimeUtils.dayNumber(end) <= today;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_lifecycle.dart",
+  "line": 17,
+  "orig": "end != null &&",
+  "mut": "end != null ||",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 191,
+  "orig": "if (rules.any((r) => r.daysBefore != 3 || !r.enabled)) {",
+  "mut": "if (rules.any((r) => r.daysBefore == 3 || !r.enabled)) {",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 232,
+  "orig": "final idx = _host.items.indexWhere((s) => s.id == updated.id);",
+  "mut": "final idx = _host.items.indexWhere((s) => s.id != updated.id);",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/utils/date_time_utils.dart",
+  "line": 53,
+  "orig": "final year = date.year + totalMonths ~/ 12;",
+  "mut": "final year = date.year - totalMonths ~/ 12;",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 99,
+  "orig": "return true;",
+  "mut": "return false;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_selectors.dart",
+  "line": 60,
+  "orig": "return days >= 0 && days <= 30;",
+  "mut": "return days >= 0 || days <= 30;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/utils/date_time_utils.dart",
+  "line": 23,
+  "orig": "final month = totalMonths % 12 + 1;",
+  "mut": "final month = totalMonths % 12 - 1;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/domain/currency.dart",
+  "line": 49,
+  "orig": "'₺' || 'TL' || 'TRY' => 'TRY',",
+  "mut": "'₺' || 'TL' && 'TRY' => 'TRY',",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/reminder_planner.dart",
+  "line": 156,
+  "orig": "if (end == null) continue;",
+  "mut": "if (end != null) continue;",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 137,
+  "orig": "_biometricEnabled = false;",
+  "mut": "_biometricEnabled = true;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 60,
+  "orig": "if (index != -1) _host.items[index] = updated;",
+  "mut": "if (index == -1) _host.items[index] = updated;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 78,
+  "orig": "_enabled = true;",
+  "mut": "_enabled = false;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 67,
+  "orig": "if (!_enabled || backgroundedAt == null) return;",
+  "mut": "if (!_enabled || backgroundedAt != null) return;",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/domain/money.dart",
+  "line": 50,
+  "orig": "bool operator ==(Object other) =>",
+  "mut": "bool operator !=(Object other) =>",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 20,
+  "orig": "bool _biometricEnabled = false;",
+  "mut": "bool _biometricEnabled = true;",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_lifecycle.dart",
+  "line": 30,
+  "orig": "s.status == SubscriptionStatus.active &&",
+  "mut": "s.status == SubscriptionStatus.active ||",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_models.dart",
+  "line": 56,
+  "orig": "status != SubscriptionStatus.trial) {",
+  "mut": "status == SubscriptionStatus.trial) {",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 74,
+  "orig": "if (pin.length < 4 || pin.length > 8 || int.tryParse(pin) == null) {",
+  "mut": "if (pin.length <= 4 || pin.length > 8 || int.tryParse(pin) == null) {",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 100,
+  "orig": "if (!supported || !canCheck || enrolled.isEmpty) {",
+  "mut": "if (!supported && !canCheck || enrolled.isEmpty) {",
+  "killed": false,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 35,
+  "orig": "_enabled = (await _storage.readAppPinHash()) != null;",
+  "mut": "_enabled = (await _storage.readAppPinHash()) == null;",
+  "killed": true,
+  "compile_err": false
+ }
+]

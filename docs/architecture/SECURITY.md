@@ -18,13 +18,13 @@
 | Edge Function'lar JWT doğrular, service-role sorguları `user.id` ile kısıtlı | Uygulandı | 4/4 fonksiyon `auth.getUser()` kullanır |
 | Service-role anahtarı istemcide yok | Uygulandı | İstemcide yalnızca `SUPABASE_ANON_KEY` (publishable); çalışma ağacında gizli değer yok (gitleaks) |
 | Oturum belirteçleri güvenli depoda | Uygulandı | `flutter_secure_storage`; eski depodan taşıma cihazda **doğrulanmadı** |
-| Uygulama kilidi (PIN, arka plan süresi, biyometri) | Kısmi | Kod ve testler var; gerçek cihaz doğrulaması yok |
+| Uygulama kilidi (PIN, arka plan süresi, biyometri) | Kısmi | Kod ve testler var; web'de kilit katmanı ve "PIN hatalı" davranışı görüldü; gerçek cihaz/biyometri doğrulaması yok; **deneme sınırı yok** (bkz. bilinen açık bulgular) |
 | CSV formül enjeksiyonu (dışa aktarma) etkisizleştirme | Uygulandı | `process-export` ve uygulama içi export |
 | Export dosyası özel bucket'ta, 1 saatlik imzalı bağlantı | Uygulandı | Bucket `exports` özel |
 | Hesap silme uygulama içinden | Uygulandı | `delete-account`; silme sonrası kalıntı veri kontrolü **doğrulanmadı** |
 | E-posta doğrulama | Uygulandı | "Confirm email" açık |
 | Leaked Password Protection | **Açık** | Canlıda kapalı; aksiyon gerekli |
-| Uygulama düzeyinde hız sınırı (auth hariç Supabase platform sınırları) | **Planlı** | 4 Edge Function'da yok |
+| Uygulama düzeyinde hız sınırı (auth hariç Supabase platform sınırları) | **Kısmi** | Kod ve migration 032 repoda hazır, testli (`_shared/ratelimit.js`, 4/4 fonksiyonda çağrı); **canlıda migration uygulanmadı ve fonksiyonlar yeniden deploy edilmedi, yani bugün etkin değil** |
 | Sertifika sabitleme, root/jailbreak tespiti | Kapsam dışı | Risk/operasyon maliyeti nedeniyle |
 | Bağımlılık zafiyet taraması (osv/SAST) | Planlı | Yalnızca `flutter pub outdated`: 0/11 doğrudan paket ana sürüm geride |
 | RLS politikalarının gerçek veritabanına karşı davranış testi | Planlı | Yalnızca SQL metni üzerinde testler var |
@@ -34,10 +34,11 @@
 
 | Önem | Bulgu | Konum |
 |---|---|---|
-| Orta | Uygulama düzeyinde hız sınırı yok (destek kaydı spam'i, hesap silme/dışa aktarma denemeleri) | 4 Edge Function |
-| Düşük | Hata durumunda iç ayrıntı sızıntısı (`String(err)`, `error.message`) | `delete-account`, `process-export`, `support-catalog` |
-| Düşük | `Access-Control-Allow-Origin: *` (Bearer token gerektirdiği için etkisi sınırlı) | `delete-account`, `payment-methods` |
-| Düşük | `support-catalog` POST'ta `category` doğrulanmıyor / uzunluk sınırı yok | `support-catalog` |
+| Orta | Uygulama düzeyinde hız sınırı **canlıda etkin değil** (destek kaydı spam'i, hesap silme/dışa aktarma denemeleri). Repoda çözüm hazır; canlıya alınması bekliyor | 4 Edge Function |
+| Düşük | Hata durumunda iç ayrıntı sızıntısı (`String(err)`, `error.message`): **repoda düzeltildi** (genel mesaj, ayrıntı yalnızca sunucu günlüğünde), canlıda yeniden deploy bekliyor | `delete-account`, `process-export`, `support-catalog` |
+| Düşük | `Access-Control-Allow-Origin: *`: **repoda düzeltildi** (yalnızca GitHub Pages ve localhost kaynakları yansıtılır), canlıda yeniden deploy bekliyor | `delete-account`, `payment-methods` |
+| Düşük | `support-catalog` POST'ta `category` doğrulanmıyor: **repoda düzeltildi** (metin, en çok 60 karakter), canlıda yeniden deploy bekliyor | `support-catalog` |
+| Düşük | **Uygulama kilidi PIN'inde deneme sınırı yok** ve PIN salt'sız SHA-256 olarak saklanıyor (4–8 hane, ~10⁴ kombinasyon); cihaza fiziksel erişimi olan bir saldırgan sınırsız deneyebilir | `core/services/app_lock_service.dart` (2026-09-30 incelemesi; düzeltilmedi, tasarım kararı gerekir) |
 | Bilgi | Git geçmişinde anon JWT var; rolü `anon` (publishable, istemcide zaten açık olması tasarım gereği) | Temmuz 2026 commit'i |
 | Bilgi | `notification_deliveries`, `notification_rules`, `exports` tablolarında RLS açık ama tek politika `ALL`; `service_catalog` herkese açık okuma | Bilinçli |
 

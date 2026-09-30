@@ -44,6 +44,13 @@ Hepsi `SECURITY DEFINER`; `auth.uid()` boşsa `42501 not authenticated` ile redd
 
 Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; veriye service-role ile erişirken her zaman `user.id` ile kısıtlar. Hız sınırı uygulanmaz ([SECURITY.md](../architecture/SECURITY.md#3-bilinen-açık-bulgular)).
 
+### Hız sınırı ve hata yanıtları (repoda hazır, canlıda etkin değil)
+
+- Kullanıcı başına sabit pencere sayacı (`public.check_rate_limit`, migration 032; yalnızca `service_role`). Aşılınca `429` ve `Retry-After`. Sınırlar (1 saat): `delete-account` 3, `process-export` 10, `support-catalog` POST 10 / GET 120, `payment-methods` PUT 60 / GET 240. Sayaç veritabanına ulaşamazsa istek geçirilir (fail-open) ve hata günlüğe yazılır.
+- İç hata metni istemciye dönmez: `500 { "error": "Beklenmeyen bir hata oluştu" }`; ayrıntı yalnızca sunucu günlüğündedir.
+- CORS: yalnızca `https://subscription-tracking.github.io` ve `localhost` kaynakları yansıtılır (`*` yok); mobil istemci Origin göndermez.
+- Bu davranışlar canlıya **henüz deploy edilmedi**; canlıda eski sürüm çalışır ([SUPABASE_LIVE_STATUS.md](SUPABASE_LIVE_STATUS.md)).
+
 ### `payment-methods`
 | | |
 |---|---|
@@ -55,8 +62,8 @@ Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; ve
 | | |
 |---|---|
 | `GET` | `200 { "services": [{ "id", "name", "category" }] }` (`is_active`, `sort_order` sırasıyla) |
-| `POST` | Gövde `{ "message": string (1–2000), "category"?: string }` → `201 { "id", "status", "created_at" }`; mesaj geçersizse `400` |
-| Not | `category` doğrulanmıyor (açık bulgu) |
+| `POST` | Gövde `{ "message": string (1–2000), "category"?: string (en çok 60 karakter) }` → `201 { "id", "status", "created_at" }`; mesaj geçersizse `400` |
+| Not | Canlıdaki eski sürüm `category`'yi doğrulamaz; repodaki sürüm 60 karakter sınırı uygular |
 
 ### `process-export`
 | | |
@@ -82,4 +89,4 @@ Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; ve
 | `/api/v1` REST sunucusu, OpenAPI | Kapsam dışı |
 | Cihaz token kaydı, uzak push (FCM/APNs) | Kapsam dışı |
 | Dashboard/takvim toplamlarının sunucuda hesaplanması | Kapsam dışı (istemcide hesaplanır) |
-| Uygulama düzeyinde hız sınırı | Planlı |
+| Uygulama düzeyinde hız sınırı | Kısmi: repoda hazır (aşağıda), **canlıda etkin değil** |

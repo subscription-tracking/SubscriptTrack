@@ -1,42 +1,42 @@
 {
  "subscriptions": 1000,
- "controller_load_ms": 15.56,
- "notify_selectors_ms": 0.52,
- "projected_renewals_unused_by_ui_ms": 508.4,
+ "controller_load_ms": 13.0,
+ "notify_selectors_ms": 0.39,
+ "projected_renewals_unused_by_ui_ms": 360.32,
  "scaling": {
   "50": {
-   "load_ms": 7.46,
-   "notify_selectors_ms": 0.24,
-   "projected_renewals_unused_by_ui_ms": 45.03
+   "load_ms": 2.74,
+   "notify_selectors_ms": 0.13,
+   "projected_renewals_unused_by_ui_ms": 21.27
   },
   "200": {
-   "load_ms": 6.54,
-   "notify_selectors_ms": 0.28,
-   "projected_renewals_unused_by_ui_ms": 92.92
+   "load_ms": 3.97,
+   "notify_selectors_ms": 0.16,
+   "projected_renewals_unused_by_ui_ms": 74.45
   },
   "1000": {
-   "load_ms": 15.56,
-   "notify_selectors_ms": 0.52,
-   "projected_renewals_unused_by_ui_ms": 508.4
+   "load_ms": 13.0,
+   "notify_selectors_ms": 0.39,
+   "projected_renewals_unused_by_ui_ms": 360.32
   }
  },
- "stats_view_model_ms": 1.81,
- "list_filter_sort_ms": 0.29,
- "reminder_planner_ms": 10.76,
- "calendar_month_ms": 0.17,
- "stats_screen_pump_200_ms": 35.23,
- "list_screen_pump_1000_ms": 12.73,
+ "stats_view_model_ms": 1.42,
+ "list_filter_sort_ms": 0.22,
+ "reminder_planner_ms": 8.83,
+ "calendar_month_ms": 0.15,
+ "stats_screen_pump_200_ms": 17.24,
+ "list_screen_pump_1000_ms": 3.88,
  "list_screen_built_tiles": 7,
  "note": "Host makine mikro-benchmarkı (cihaz/frame süresi değildir); 3 koşunun metrik başına medyanı (ms).",
  "runs": 3,
  "spread_load_ms": [
-  19.91,
-  14.49,
-  15.56
+  14.91,
+  13.0,
+  12.99
  ],
  "spread_notify_ms": [
-  0.52,
-  0.63,
-  0.42
+  0.39,
+  0.39,
+  0.36
  ]
 }

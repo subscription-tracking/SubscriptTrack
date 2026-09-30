@@ -1,5 +1,5 @@
 {
- "tables": 19,
+ "tables": 20,
  "rls_missing": [
   "categories",
   "services"
@@ -12,7 +12,8 @@
  "rls_no_policy": [
   "exports",
   "notification_deliveries",
-  "notification_rules"
+  "notification_rules",
+  "rate_limits"
  ],
  "functions": [
   "delete-account",
@@ -21,12 +22,7 @@
   "support-catalog"
  ],
  "functions_without_auth": [],
- "functions_without_rate_limit": [
-  "delete-account",
-  "payment-methods",
-  "process-export",
-  "support-catalog"
- ],
+ "functions_without_rate_limit": [],
  "secrets_total": 1,
  "secrets_public_anon": 1,
  "secrets_non_public": 0,

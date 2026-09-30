@@ -29,7 +29,7 @@
    "architecture_score_incl_composition_root": 7.3,
    "duplicated_pct": 2.9,
    "coverage": {
-    "reported_pct": 91.7,
+    "reported_pct": 91.8,
     "corrected_pct": 91.0,
     "domain_pct": 88.6,
     "tests_stable": true,
@@ -37,7 +37,7 @@
    },
    "secrets_found": 0,
    "security_scan": {
-    "tables": 19,
+    "tables": 20,
     "rls_missing": [
      "categories",
      "services"
@@ -50,7 +50,8 @@
     "rls_no_policy": [
      "exports",
      "notification_deliveries",
-     "notification_rules"
+     "notification_rules",
+     "rate_limits"
     ],
     "functions": [
      "delete-account",
@@ -59,12 +60,7 @@
      "support-catalog"
     ],
     "functions_without_auth": [],
-    "functions_without_rate_limit": [
-     "delete-account",
-     "payment-methods",
-     "process-export",
-     "support-catalog"
-    ],
+    "functions_without_rate_limit": [],
     "secrets_total": 1,
     "secrets_public_anon": 1,
     "secrets_non_public": 0
@@ -80,32 +76,32 @@
     "tracked_artifacts": 0,
     "todo": 0,
     "color_literals": 116,
-    "turkish_string_literals": 585,
+    "turkish_string_literals": 586,
     "semantics_calls": 8
    },
    "benchmark": {
     "subscriptions": 1000,
-    "controller_load_ms": 15.56,
-    "notify_selectors_ms": 0.52,
-    "projected_renewals_unused_by_ui_ms": 508.4,
-    "stats_view_model_ms": 1.81,
-    "list_filter_sort_ms": 0.29,
-    "reminder_planner_ms": 10.76,
-    "calendar_month_ms": 0.17,
-    "stats_screen_pump_200_ms": 35.23,
-    "list_screen_pump_1000_ms": 12.73,
+    "controller_load_ms": 13.0,
+    "notify_selectors_ms": 0.39,
+    "projected_renewals_unused_by_ui_ms": 360.32,
+    "stats_view_model_ms": 1.42,
+    "list_filter_sort_ms": 0.22,
+    "reminder_planner_ms": 8.83,
+    "calendar_month_ms": 0.15,
+    "stats_screen_pump_200_ms": 17.24,
+    "list_screen_pump_1000_ms": 3.88,
     "list_screen_built_tiles": 7,
     "note": "Host makine mikro-benchmarkı (cihaz/frame süresi değildir); 3 koşunun metrik başına medyanı (ms).",
     "runs": 3,
     "spread_load_ms": [
-     19.91,
-     14.49,
-     15.56
+     14.91,
+     13.0,
+     12.99
     ],
     "spread_notify_ms": [
-     0.52,
-     0.63,
-     0.42
+     0.39,
+     0.39,
+     0.36
     ]
    },
    "apk_mb": 21.8
@@ -117,11 +113,11 @@
    "architecture": 9.3,
    "duplication": 10,
    "tests": 10.0,
-   "security": 8.3,
+   "security": 9.3,
    "maintainability": 8.0,
    "performance": 9.3
   },
-  "overall": 9.4,
+  "overall": 9.5,
   "complexity_detail": {
    "methods": 991,
    "avg_cc": 2.27,

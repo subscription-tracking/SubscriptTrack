@@ -36,7 +36,8 @@ def load(n, d=None):
 
 v1 = load('scores.json')['current']
 facts = load('audit_facts.json')
-mut = load('mutation.json', [])
+mut1 = load('mutation.json', [])          # 1. örnek (düzeltmeden ÖNCE)
+mut = load('mutation_run2.json', mut1)    # 2. bağımsız örnek (düzeltmeden SONRA): puana esas
 
 # ---- v2 ağırlıkları (kod kalitesi) ------------------------------------------
 W2 = {'static_analysis': 5, 'size': 8, 'complexity': 12, 'architecture': 15, 'duplication': 5,
@@ -66,7 +67,9 @@ sec_parts = {
     'gizli sızıntı (anon hariç)': R.secrets_found(sec['secrets_non_public']),
     'RLS korumasız tablo': R.rls_unmitigated(len(sec['rls_unmitigated'])),
     'kimliksiz edge function': R.functions_without_auth(len(sec['functions_without_auth'])),
-    'hız sınırsız edge function': R.functions_without_rate_limit(len(sec['functions_without_rate_limit'])),
+    # Puan CANLI duruma göredir: kod repoda olsa da deploy/migration yapılmadıysa etkin sayılmaz.
+    'hız sınırsız edge function (canlı)': R.functions_without_rate_limit(
+        len(sec['functions_without_rate_limit']) if facts['security'].get('rate_limit_deployed') else len(sec['functions'])),
     'canlı advisor (yalnızca aksiyon gerektiren uyarılar)': R.advisor_findings(facts['security']['advisor_errors'], facts['security']['advisor_actionable_warns']),
     'bağımlılık ana sürüm': R.outdated_direct_major(v1['metrics'].get('outdated_direct_major', 0)),
     'açık düşük bulgu (edge function)': R.by_upper(low_open, [(0, 10), (2, 8), (4, 6)]),
@@ -93,6 +96,7 @@ release = R.mean(rel_scores.values())
 out = {
     'v1_overall': v1['overall'], 'v2_overall': overall_v2, 'weights_v2': W2, 'labels_v2': L2,
     'v1_categories': v1['category_scores'], 'v2_categories': cats,
+    'mutation_run1': {'sample': len(mut1), 'valid': len([x for x in mut1 if not x.get('compile_err') and not x.get('equivalent')]), 'killed': sum(1 for x in mut1 if not x.get('compile_err') and not x.get('equivalent') and x['killed'])},
     'mutation': {'sample': len(mut), 'compile_errors': len(mut) - len(raw_valid), 'equivalent': len(raw_valid) - len(valid), 'raw_valid': len(raw_valid), 'raw_killed': raw_killed, 'raw_killed_pct': round(100 * raw_killed / len(raw_valid), 1), 'valid': len(valid),
                  'killed': killed, 'killed_pct': mut_pct, 'score': mut_score,
                  'survivors': [x for x in valid if not x['killed']]},

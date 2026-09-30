@@ -108,7 +108,7 @@
   {
    "file": "D:/SubscriptTrack/mobile/lib/app/router/route_helpers.dart",
    "name": "contentRoute",
-   "line": 7,
+   "line": 8,
    "lines": 9,
    "cc": 1,
    "depth": 2
@@ -116,7 +116,7 @@
   {
    "file": "D:/SubscriptTrack/mobile/lib/app/router/route_helpers.dart",
    "name": "findSubscription",
-   "line": 17,
+   "line": 18,
    "lines": 8,
    "cc": 4,
    "depth": 2
@@ -124,10 +124,10 @@
   {
    "file": "D:/SubscriptTrack/mobile/lib/app/router/route_helpers.dart",
    "name": "RouteNotFoundScreen.build",
-   "line": 29,
-   "lines": 5,
+   "line": 30,
+   "lines": 19,
    "cc": 1,
-   "depth": 0
+   "depth": 1
   },
   {
    "file": "D:/SubscriptTrack/mobile/lib/app/shell/app_shell.dart",

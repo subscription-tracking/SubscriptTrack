@@ -67,9 +67,12 @@ Realtime yayınında olan tek tablo.
 - `support_tickets`: `id`, `user_id`, `category` (`'general'`), `message`, `status` (`'open'`), `created_at`, `updated_at`. Yalnızca oku/ekle.
 - `device_tokens`: `id`, `user_id`, `token`, `platform`, `created_at`. **Planlı/kullanılmıyor:** uzak push yok, istemci yazmaz (bkz. [NOTIFICATIONS.md](../architecture/NOTIFICATIONS.md)).
 
+### 2.10 `rate_limits` (repoda var, **canlıda yok**)
+`user_id` (auth.users, cascade), `bucket`, `window_start`, `count`; PK `(user_id, bucket)`. RLS açık, politika yok, yalnızca `service_role` (migration 032, `check_rate_limit` fonksiyonu). Canlıya uygulanana kadar canlı şemada bulunmaz.
+
 ## 3. Repo migration'ında olup canlıda bulunmayan yapılar
 
-`backend/migrations/001–005` şunları tanımlar; **canlıda yoktur**: `users`, `services`, `categories`, `billing_schedules`. Kanonik şema bu belgedir; repo ile canlıyı eşitleme işi [RELEASE.md](../operations/RELEASE.md#9-veritabanı-migration-ve-canlı-şema) içinde izlenir.
+`backend/migrations/001–005` şunları tanımlar; **canlıda yoktur**: `users`, `services`, `categories`, `billing_schedules`. Ayrıca migration 032 `rate_limits` tablosunu ve `check_rate_limit` fonksiyonunu tanımlar; henüz canlıda uygulanmamıştır. Kanonik şema bu belgedir; repo ile canlıyı eşitleme işi [RELEASE.md](../operations/RELEASE.md#9-veritabanı-migration-ve-canlı-şema) içinde izlenir.
 
 ## 4. Silme ve saklama
 
