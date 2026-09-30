@@ -103,32 +103,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-          Positioned.fill(
-            // RepaintBoundary: the blur below is expensive to rasterize,
-            // and without this it gets re-composited every frame just
-            // because a sibling (the floating icons / pulsing badge) is
-            // animating.
-            child: RepaintBoundary(
-              child: IgnorePointer(
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: -120,
-                      right: -90,
-                      child: AmbientBlob(
-                          color: _currentAccent, size: 220, opacity: 0.16),
-                    ),
-                    Positioned(
-                      bottom: 100,
-                      left: -100,
-                      child: AmbientBlob(
-                          color: _currentAccent, size: 180, opacity: 0.1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          _blobs(),
           SafeArea(
             child: Column(
               children: [
@@ -142,6 +117,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _blobs() {
+    return Positioned.fill(
+      // RepaintBoundary: the blur below is expensive to rasterize,
+      // and without this it gets re-composited every frame just
+      // because a sibling (the floating icons / pulsing badge) is
+      // animating.
+      child: RepaintBoundary(
+        child: IgnorePointer(
+          child: Stack(
+            children: [
+              Positioned(
+                top: -120,
+                right: -90,
+                child: AmbientBlob(
+                    color: _currentAccent, size: 220, opacity: 0.16),
+              ),
+              Positioned(
+                bottom: 100,
+                left: -100,
+                child:
+                    AmbientBlob(color: _currentAccent, size: 180, opacity: 0.1),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

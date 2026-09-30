@@ -3277,14 +3277,22 @@
    "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
    "name": "_OnboardingScreenState.build",
    "line": 87,
-   "lines": 61,
+   "lines": 36,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+   "name": "_OnboardingScreenState._blobs",
+   "line": 124,
+   "lines": 28,
    "cc": 1,
    "depth": 0
   },
   {
    "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
    "name": "_OnboardingScreenState._topBar",
-   "line": 149,
+   "line": 153,
    "lines": 35,
    "cc": 1,
    "depth": 0
@@ -3292,7 +3300,7 @@
   {
    "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
    "name": "_OnboardingScreenState._pages",
-   "line": 185,
+   "line": 189,
    "lines": 14,
    "cc": 2,
    "depth": 3
@@ -3300,7 +3308,7 @@
   {
    "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
    "name": "_OnboardingScreenState._progressDots",
-   "line": 200,
+   "line": 204,
    "lines": 21,
    "cc": 3,
    "depth": 1
@@ -3308,7 +3316,7 @@
   {
    "file": "../../../mobile/lib/features/onboarding/presentation/screens/onboarding_screen.dart",
    "name": "_OnboardingScreenState._primaryButton",
-   "line": 222,
+   "line": 226,
    "lines": 35,
    "cc": 3,
    "depth": 1
