@@ -134,41 +134,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             memberSince: _formatDate(user.createdAt),
           ),
           const SizedBox(height: 28),
-          Text('İsim', style: titleSmall),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _name,
-            onChanged: (_) => _refresh(),
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.person_outline),
-              hintText: 'Adın',
-            ),
-          ),
-          const SizedBox(height: 12),
-          ProfileBusyButton(
-            label: 'Kaydet',
-            busy: _savingName,
-            onPressed: _nameChanged ? _saveName : null,
-          ),
+          ..._nameSection(titleSmall),
           const SizedBox(height: 28),
-          Text('E-posta', style: titleSmall),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _email,
-            keyboardType: TextInputType.emailAddress,
-            onChanged: (_) => _refresh(),
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.email_outlined),
-              helperText:
-                  'E-posta adresini doğrulaman istenirse yeni adresine bir bağlantı gönderilir.',
-            ),
-          ),
-          const SizedBox(height: 12),
-          ProfileBusyButton(
-            label: 'E-postayı güncelle',
-            busy: _savingEmail,
-            onPressed: _emailChanged ? _saveEmail : null,
-          ),
+          ..._emailSection(titleSmall),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 20),
@@ -184,6 +152,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _nameSection(TextStyle? titleSmall) {
+    return [
+      Text('İsim', style: titleSmall),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _name,
+        onChanged: (_) => _refresh(),
+        decoration: const InputDecoration(
+          prefixIcon: Icon(Icons.person_outline),
+          hintText: 'Adın',
+        ),
+      ),
+      const SizedBox(height: 12),
+      ProfileBusyButton(
+        label: 'Kaydet',
+        busy: _savingName,
+        onPressed: _nameChanged ? _saveName : null,
+      ),
+    ];
+  }
+
+  List<Widget> _emailSection(TextStyle? titleSmall) {
+    return [
+      Text('E-posta', style: titleSmall),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _email,
+        keyboardType: TextInputType.emailAddress,
+        onChanged: (_) => _refresh(),
+        decoration: const InputDecoration(
+          prefixIcon: Icon(Icons.email_outlined),
+          helperText:
+              'E-posta adresini doğrulaman istenirse yeni adresine bir bağlantı gönderilir.',
+        ),
+      ),
+      const SizedBox(height: 12),
+      ProfileBusyButton(
+        label: 'E-postayı güncelle',
+        busy: _savingEmail,
+        onPressed: _emailChanged ? _saveEmail : null,
+      ),
+    ];
   }
 
   Widget _passwordFields() {

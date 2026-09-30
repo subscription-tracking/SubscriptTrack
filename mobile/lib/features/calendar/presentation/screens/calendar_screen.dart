@@ -10,6 +10,7 @@ import '../calendar_controller.dart';
 import '../widgets/calendar_day_cell.dart';
 import '../widgets/calendar_event_item.dart';
 import '../../../../shared/design/app_tokens.dart';
+import '../widgets/empty_day_state.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({required this.controller, super.key});
@@ -75,7 +76,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         const Divider(height: 24),
         Expanded(
           child: selectedEvents.isEmpty
-              ? _EmptyDayState(
+              ? EmptyDayState(
                   hasSelection: selected != null,
                   onAddForDay: selected == null
                       ? null
@@ -163,6 +164,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildGrid(Set<DateTime> renewalDays, Set<DateTime> urgentDays) {
+    final cells = _cells(renewalDays, urgentDays);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(1);
+        final minCellHeight = textScale > 1.2 ? 46.0 : 40.0;
+        return GridView.count(
+          crossAxisCount: 7,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          childAspectRatio: constraints.maxWidth / 7 / minCellHeight,
+          children: cells,
+        );
+      },
+    );
+  }
+
+  List<Widget> _cells(Set<DateTime> renewalDays, Set<DateTime> urgentDays) {
     final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     final startOffset = (firstDay.weekday - 1) % 7;
     final daysInMonth =
@@ -211,20 +230,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ));
       }
     }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final textScale = MediaQuery.textScalerOf(context).scale(1);
-        final minCellHeight = textScale > 1.2 ? 46.0 : 40.0;
-        return GridView.count(
-          crossAxisCount: 7,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: constraints.maxWidth / 7 / minCellHeight,
-          children: cells,
-        );
-      },
-    );
+    return cells;
   }
 
   String _monthName(int month) => const [
@@ -242,55 +248,4 @@ class _CalendarScreenState extends State<CalendarScreen> {
         'Kasım',
         'Aralık'
       ][month];
-}
-
-class _EmptyDayState extends StatelessWidget {
-  const _EmptyDayState({required this.hasSelection, this.onAddForDay});
-  final bool hasSelection;
-  final VoidCallback? onAddForDay;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: cs.primary.withValues(alpha: 0.08),
-              border: Border.all(
-                  color: cs.primary.withValues(alpha: 0.18), width: 0.5),
-            ),
-            child: Icon(
-              hasSelection
-                  ? Icons.check_circle_outline_rounded
-                  : Icons.touch_app_rounded,
-              size: 24,
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            hasSelection ? 'Bu gün yenileme yok' : 'Bir gün seç',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                ),
-          ),
-          if (onAddForDay != null) ...[
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: onAddForDay,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Bu tarihte başlayan abonelik ekle'),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 }

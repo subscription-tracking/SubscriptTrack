@@ -87,18 +87,20 @@ enum SubscriptionCategory {
 }
 
 extension SubscriptionCategoryLabel on SubscriptionCategory {
-  String get label => switch (this) {
-        SubscriptionCategory.streaming => 'Video & Dizi',
-        SubscriptionCategory.music => 'Müzik',
-        SubscriptionCategory.gaming => 'Oyun',
-        SubscriptionCategory.software => 'Yazılım',
-        SubscriptionCategory.cloud => 'Bulut Depolama',
-        SubscriptionCategory.fitness => 'Spor & Sağlık',
-        SubscriptionCategory.news => 'Haber & Dergi',
-        SubscriptionCategory.food => 'Yemek',
-        SubscriptionCategory.education => 'Eğitim',
-        SubscriptionCategory.other => 'Diğer',
-      };
+  static const _labels = <SubscriptionCategory, String>{
+    SubscriptionCategory.streaming: 'Video & Dizi',
+    SubscriptionCategory.music: 'Müzik',
+    SubscriptionCategory.gaming: 'Oyun',
+    SubscriptionCategory.software: 'Yazılım',
+    SubscriptionCategory.cloud: 'Bulut Depolama',
+    SubscriptionCategory.fitness: 'Spor & Sağlık',
+    SubscriptionCategory.news: 'Haber & Dergi',
+    SubscriptionCategory.food: 'Yemek',
+    SubscriptionCategory.education: 'Eğitim',
+    SubscriptionCategory.other: 'Diğer',
+  };
+
+  String get label => _labels[this]!;
 
   String get key => name;
 

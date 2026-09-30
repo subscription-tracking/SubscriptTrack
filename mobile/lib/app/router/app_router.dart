@@ -45,47 +45,7 @@ class AppRouter {
         initialLocation: AppRoutes.splash,
         redirect: (context, state) => _redirect(auth, state.matchedLocation),
         routes: [
-          GoRoute(
-            path: AppRoutes.splash,
-            builder: (_, __) => const SplashScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.onboarding,
-            builder: (context, _) => OnboardingScreen(
-              onDone: () async {
-                await OnboardingScreen.markDone();
-                if (context.mounted) {
-                  context.read<AuthController>().onboardingDone();
-                }
-              },
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.login,
-            builder: (context, _) => LoginScreen(
-              controller: context.read<AuthController>(),
-              onRegisterTap: () => context.go(AppRoutes.register),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.register,
-            builder: (context, _) => RegisterScreen(
-              controller: context.read<AuthController>(),
-              onLoginTap: () => context.go(AppRoutes.login),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.forgotPassword,
-            builder: (context, _) => ForgotPasswordScreen(
-              controller: context.read<AuthController>(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.resetPassword,
-            builder: (context, _) => ResetPasswordScreen(
-              controller: context.read<AuthController>(),
-            ),
-          ),
+          ..._authRoutes(),
           ...legalRoutes(),
           // Oturum açmış kullanıcının tüm ekranları: controller'lar bu
           // kabukta oluşturulup Provider ile alt rotalara sağlanır.
@@ -103,13 +63,54 @@ class AppRouter {
         ],
       );
 
+  /// Oturumdan önce erişilen ekranlar: açılış, tanıtım, giriş ve şifre akışları.
+  static List<RouteBase> _authRoutes() => [
+        GoRoute(
+          path: AppRoutes.splash,
+          builder: (_, __) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.onboarding,
+          builder: (context, _) => OnboardingScreen(
+            onDone: () async {
+              await OnboardingScreen.markDone();
+              if (context.mounted) {
+                context.read<AuthController>().onboardingDone();
+              }
+            },
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (context, _) => LoginScreen(
+            controller: context.read<AuthController>(),
+            onRegisterTap: () => context.go(AppRoutes.register),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.register,
+          builder: (context, _) => RegisterScreen(
+            controller: context.read<AuthController>(),
+            onLoginTap: () => context.go(AppRoutes.login),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.forgotPassword,
+          builder: (context, _) => ForgotPasswordScreen(
+            controller: context.read<AuthController>(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.resetPassword,
+          builder: (context, _) => ResetPasswordScreen(
+            controller: context.read<AuthController>(),
+          ),
+        ),
+      ];
+
   static String? _redirect(AuthController auth, String loc) {
     // Oturumdan bağımsız, zorunlu tek-ekran durumları önce gelir.
-    final forced = auth.initialized
-        ? (auth.passwordRecoveryMode
-            ? AppRoutes.resetPassword
-            : (auth.onboardingNeeded ? AppRoutes.onboarding : null))
-        : AppRoutes.splash;
+    final forced = _forcedRoute(auth);
     if (forced != null) return loc == forced ? null : forced;
     return switch (auth.status) {
       AuthStatus.unknown => AppRoutes.splash,
@@ -118,6 +119,12 @@ class AppRouter {
       AuthStatus.authenticated =>
         _authOnlyRoutes.contains(loc) ? AppRoutes.home : null,
     };
+  }
+
+  static String? _forcedRoute(AuthController auth) {
+    if (!auth.initialized) return AppRoutes.splash;
+    if (auth.passwordRecoveryMode) return AppRoutes.resetPassword;
+    return auth.onboardingNeeded ? AppRoutes.onboarding : null;
   }
 
   /// Oturum açıkken anlamsız olan (giriş/kayıt/tanıtım vb.) rotalar.

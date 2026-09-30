@@ -89,7 +89,6 @@ class _HighestExpense extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final name = subscription.name;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -103,47 +102,9 @@ class _HighestExpense extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: TextStyle(
-                  color: cs.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
+          _avatar(cs),
           const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'En Yüksek Gider: $name',
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Aylık abonelik giderlerinin %$sharePct’ini oluşturuyor.',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: _texts(cs, textTheme)),
           const SizedBox(width: 8),
           Text(
             DateTimeUtils.formatCurrency(
@@ -156,6 +117,46 @@ class _HighestExpense extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _avatar(ColorScheme cs) {
+    final name = subscription.name;
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          name.isNotEmpty ? name[0].toUpperCase() : '?',
+          style: TextStyle(color: cs.primary, fontWeight: FontWeight.w800),
+        ),
+      ),
+    );
+  }
+
+  Widget _texts(ColorScheme cs, TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'En Yüksek Gider: ${subscription.name}',
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Aylık abonelik giderlerinin %$sharePct’ini oluşturuyor.',
+          style: textTheme.bodySmall?.copyWith(
+            color: cs.onSurfaceVariant,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -96,7 +96,24 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
 
     final amount = Money.parse(_data.amount);
 
-    final ok = await widget.controller.add(
+    final ok = await _submitData(amount);
+
+    if (!mounted) return;
+    if (!ok) {
+      _showSaveError();
+      return;
+    }
+    if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
+      await _recordInitialPayment(amount);
+      if (!mounted) return;
+    }
+    await _warnIfNotificationsDisabled();
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
+  Future<bool> _submitData(Money amount) {
+    return widget.controller.add(
       name: _data.name,
       amount: amount,
       currency: _data.currency,
@@ -111,19 +128,6 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
           _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
       notificationRules: _data.notificationRules,
     );
-
-    if (!mounted) return;
-    if (!ok) {
-      _showSaveError();
-      return;
-    }
-    if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
-      await _recordInitialPayment(amount);
-      if (!mounted) return;
-    }
-    await _warnIfNotificationsDisabled();
-    if (!mounted) return;
-    Navigator.pop(context);
   }
 
   Future<void> _recordInitialPayment(Money amount) {

@@ -19,7 +19,6 @@ class DashboardCategoryDonutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final groups = _groupTotals();
     if (groups.isEmpty) return const SizedBox.shrink();
 
@@ -46,40 +45,50 @@ class DashboardCategoryDonutCard extends StatelessWidget {
           onAction: onViewAll,
         ),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainer,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: cs.outlineVariant, width: 0.5),
-          ),
-          child: Row(
-            children: [
-              _DonutChart(
-                slices: slices,
-                total: total,
-                currency: primaryCurrency,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final e in entries.take(3))
-                      _LegendRow(
-                        label: e.key,
-                        percent: total == 0
-                            ? 0
-                            : (e.value.amount / total * 100).round(),
-                        color: _groupColor(context, e.key),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        _summary(context, slices, total, primaryCurrency, entries),
       ],
+    );
+  }
+
+  Widget _summary(
+      BuildContext context,
+      List<(double, Color)> slices,
+      double total,
+      String currency,
+      List<MapEntry<String, ({double amount, String currency, int count})>>
+          entries) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant, width: 0.5),
+      ),
+      child: Row(
+        children: [
+          _DonutChart(
+            slices: slices,
+            total: total,
+            currency: currency,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final e in entries.take(3))
+                  _LegendRow(
+                    label: e.key,
+                    percent:
+                        total == 0 ? 0 : (e.value.amount / total * 100).round(),
+                    color: _groupColor(context, e.key),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

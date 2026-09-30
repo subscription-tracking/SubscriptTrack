@@ -67,34 +67,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         appBar: AppBar(title: const Text('Geri bildirim')),
         body: ResponsiveCenter(
           child: ListView(padding: const EdgeInsets.all(20), children: [
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Nasıl gönderilir?',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
-                    SizedBox(height: 6),
-                    Text(
-                        'Mesajını paylaşabilir veya doğrudan destek kaydı oluşturabilirsin.'),
-                  ],
-                ),
-              ),
-            ),
+            _howToCard(),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-                initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Tür'),
-                items: const [
-                  DropdownMenuItem(
-                      value: 'Özellik isteği', child: Text('Özellik isteği')),
-                  DropdownMenuItem(
-                      value: 'Hata bildirimi', child: Text('Hata bildirimi')),
-                  DropdownMenuItem(
-                      value: 'Genel öneri', child: Text('Genel öneri'))
-                ],
-                onChanged: (v) => setState(() => _type = v ?? _type)),
+            _typeDropdown(),
             const SizedBox(height: 16),
             TextField(
                 controller: _message,
@@ -131,4 +106,37 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           ]),
         ),
       );
+
+  Widget _howToCard() {
+    return const Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Nasıl gönderilir?',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+            SizedBox(height: 6),
+            Text(
+                'Mesajını paylaşabilir veya doğrudan destek kaydı oluşturabilirsin.'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _typeDropdown() {
+    return DropdownButtonFormField<String>(
+      initialValue: _type,
+      decoration: const InputDecoration(labelText: 'Tür'),
+      items: const [
+        DropdownMenuItem(
+            value: 'Özellik isteği', child: Text('Özellik isteği')),
+        DropdownMenuItem(
+            value: 'Hata bildirimi', child: Text('Hata bildirimi')),
+        DropdownMenuItem(value: 'Genel öneri', child: Text('Genel öneri'))
+      ],
+      onChanged: (v) => setState(() => _type = v ?? _type),
+    );
+  }
 }

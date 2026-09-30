@@ -88,7 +88,6 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   Widget _buildBody(SubscriptionController controller, StatsViewModel model) {
-    final highest = model.highestSubscription;
     return ListView(
       padding: widget.embedded
           ? AppSpacing.screenWithBottomNav(context)
@@ -100,14 +99,7 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
       children: [
         const SizedBox(height: 8),
-        if (model.availableCurrencies.length > 1) ...[
-          CurrencySelector(
-            currencies: model.availableCurrencies,
-            selected: model.currency,
-            onChanged: (c) => setState(() => _selectedCurrency = c),
-          ),
-          const SizedBox(height: 16),
-        ],
+        ..._currencySelector(model),
         HeroSpendingCard(
           monthly: model.monthly,
           yearly: model.yearly,
@@ -126,16 +118,7 @@ class _StatsScreenState extends State<StatsScreen> {
           onMonthsChanged: (val) => setState(() => _months = val),
         ),
         const SizedBox(height: 20),
-        if (highest != null || model.dueSoon.isNotEmpty) ...[
-          InsightsCard(
-            highestSub: highest,
-            totalMonthly: model.monthly,
-            currency: model.currency,
-            dueSubscriptions: model.dueSoon,
-            onReviewDue: () => _open(AppRoutes.savings),
-          ),
-          const SizedBox(height: 20),
-        ],
+        ..._insights(model),
         CategoryBreakdownCard(
           entries: model.categories,
           total: model.monthly,
@@ -149,6 +132,35 @@ class _StatsScreenState extends State<StatsScreen> {
         const SizedBox(height: 16),
       ],
     );
+  }
+
+  List<Widget> _currencySelector(StatsViewModel model) {
+    return [
+      if (model.availableCurrencies.length > 1) ...[
+        CurrencySelector(
+          currencies: model.availableCurrencies,
+          selected: model.currency,
+          onChanged: (c) => setState(() => _selectedCurrency = c),
+        ),
+        const SizedBox(height: 16),
+      ],
+    ];
+  }
+
+  List<Widget> _insights(StatsViewModel model) {
+    final highest = model.highestSubscription;
+    return [
+      if (highest != null || model.dueSoon.isNotEmpty) ...[
+        InsightsCard(
+          highestSub: highest,
+          totalMonthly: model.monthly,
+          currency: model.currency,
+          dueSubscriptions: model.dueSoon,
+          onReviewDue: () => _open(AppRoutes.savings),
+        ),
+        const SizedBox(height: 20),
+      ],
+    ];
   }
 }
 

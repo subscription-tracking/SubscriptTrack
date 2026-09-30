@@ -295,7 +295,7 @@ Controller yeni bağımlılıkları isteğe bağlı ctor parametresi olarak alı
 
 ### Karmaşıklık sadeleştirmesi (2026-09-30)
 
-- Ölçüm: `tools/quality/complexity`. CC>10 metot oranı %0,53 (5 metot; en yüksek CC 14, `Subscription.copyWith`), 60 satırı aşan metot oranı %2,89.
+- Ölçüm: `tools/quality/complexity`. CC>10 tek metot kaldı (`Subscription.copyWith`, CC 14; 13 isteğe bağlı parametrenin `??` birleşimi, bölünmedi); 60 satırı aşan metot yok (0/976).
 - `Subscription.fromJson` küçük yardımcılara ayrıldı; `SupabaseSubscriptionRepository._fromRow` artık `Subscription.fromJson`'a devreder (camelCase/snake_case, `isArchived`/`is_archived` tek yerde).
 - `CsvImportParser.parse` başlık doğrulama ve `_parseRow` olarak, `NotificationController._generate` yenileme/deneme üreticilerine, `OfflineSyncCoordinator.apply` yaşam döngüsü geçişi yardımcısına bölündü.
 - Uzun `build` metotları özel alt widget'lara bölündü (trend/insights/hero kartları, giriş/kayıt/şifre ekranları, dashboard, abonelik listesi, detay bölümleri vb.). Davranış değişmedi.
@@ -311,4 +311,15 @@ Hiçbir `lib` dosyası 300 satırı aşmaz (en büyük 300; başlangıçta 1.177
 - `subscription_models.dart`: enum ve etiket uzantıları `subscription_enums.dart` dosyasına ayrıldı; eski import yolları `export` ile çalışır.
 - `auth_controller.dart`: yerel yan durum (`AuthLocalState`: onboarding kontrolü, okundu bilgisi, hesap verisi silme) `auth/data/auth_local_state.dart` dosyasına alındı.
 - `app_theme.dart`: renk paleti `app_colors.dart` dosyasına ayrıldı (yeniden dışa aktarılır); `app_router.dart`: `contentRoute`, `findSubscription`, `RouteNotFoundScreen` `route_helpers.dart` dosyasına taşındı.
+- Doğrulama: 723 test yeşil, analyzer temiz.
+
+### Uzun metot sadeleştirmesi (2026-09-30)
+
+60 satırı aşan 27 metotun tamamı bölündü (en uzun metot 60 satır).
+
+- Ekran `build` metotları özel yardımcılara ayrıldı (`_warningCard`, `_infoCard`, `_daysSelector`, `_nameSection`, `_tabViews` vb.); uzun sabit metinler (`terms_of_service`, `privacy_policy`) `static const _sections` listesine alındı.
+- `payment_history_screen.dart`: "Ödeme kaydı ekle" iletişim kutusu `_AddPaymentDialog` (StatefulWidget) oldu.
+- `SubscriptionOperations.add`: taslak `Subscription` (yerel `local-...` kimlikli) `add` içinde oluşturulur; `_addInternal(draft)` önce `_createRemote(draft)` dener, bağlantı yoksa aynı taslağı iyimser ekler ve kuyruğa alır (önceden alanlar iki kez kuruluyordu).
+- `AppRouter._redirect` + `_forcedRoute`; `SubscriptionCategoryLabel.label` ve `ServiceIdentity._categoryColor` tablo tabanlı oldu.
+- `calendar/presentation/widgets/empty_day_state.dart`, `shared/widgets/app_offline_banner.dart` içine `AppStatusBanner` eklendi.
 - Doğrulama: 723 test yeşil, analyzer temiz.

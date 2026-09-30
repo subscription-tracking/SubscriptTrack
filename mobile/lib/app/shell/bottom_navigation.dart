@@ -32,58 +32,58 @@ class BottomNavigation extends StatelessWidget {
         border: Border(top: BorderSide(color: cs.outlineVariant, width: 0.5)),
       ),
       child: Row(
-        children: List.generate(_items.length, (i) {
-          final active = i == currentIndex;
-          final item = _items[i];
-          final color = active ? cs.primary : cs.onSurfaceVariant;
-          return Expanded(
-            child: Semantics(
-              label: item.$3,
-              excludeSemantics: true,
-              button: true,
-              selected: active,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => onChanged(i),
-                  child: SizedBox(
-                    height: AppSizes.bottomNavHeight,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          curve: Curves.easeOut,
-                          width: active ? 30 : 0,
-                          height: 2,
-                          margin: const EdgeInsets.only(bottom: 7),
-                          decoration: BoxDecoration(
-                            color: cs.primary,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        Icon(active ? item.$1 : item.$2,
-                            color: color, size: 22),
-                        const SizedBox(height: 3),
-                        Text(
-                          item.$3,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: color,
-                            fontSize: 11,
-                            fontWeight:
-                                active ? FontWeight.w700 : FontWeight.w500,
-                          ),
-                        ),
-                      ],
+        children: List.generate(_items.length, (i) => _buildItem(cs, i)),
+      ),
+    );
+  }
+
+  Widget _buildItem(ColorScheme cs, int i) {
+    final active = i == currentIndex;
+    final item = _items[i];
+    final color = active ? cs.primary : cs.onSurfaceVariant;
+    return Expanded(
+      child: Semantics(
+        label: item.$3,
+        excludeSemantics: true,
+        button: true,
+        selected: active,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => onChanged(i),
+            child: SizedBox(
+              height: AppSizes.bottomNavHeight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    width: active ? 30 : 0,
+                    height: 2,
+                    margin: const EdgeInsets.only(bottom: 7),
+                    decoration: BoxDecoration(
+                      color: cs.primary,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                ),
+                  Icon(active ? item.$1 : item.$2, color: color, size: 22),
+                  const SizedBox(height: 3),
+                  Text(
+                    item.$3,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 11,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }

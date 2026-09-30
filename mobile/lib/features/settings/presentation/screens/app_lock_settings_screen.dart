@@ -67,43 +67,49 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
               FilledButton(
                   onPressed: _setPin, child: const Text('PIN’i etkinleştir')),
             ],
-            SwitchListTile(
-              title: const Text('Biyometrik kilit açma'),
-              value: widget.service.biometricEnabled,
-              onChanged: widget.service.enabled
-                  ? (value) async {
-                      try {
-                        await widget.service.setBiometricEnabled(value);
-                      } on StateError catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text(e.message)));
-                        }
-                      }
-                    }
-                  : null,
-            ),
-            if (widget.service.enabled) ...[
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
-                child: Text('Kilit süresi'),
-              ),
-              RadioGroup<Duration>(
-                groupValue: widget.service.lockTimeout,
-                onChanged: (value) {
-                  if (value != null) widget.service.setLockTimeout(value);
-                },
-                child: Column(
-                  children: _lockTimeoutOptions
-                      .map((option) => RadioListTile<Duration>(
-                            title: Text(option.$2),
-                            value: option.$1,
-                          ))
-                      .toList(),
-                ),
-              ),
-            ],
+            _biometricTile(context),
+            if (widget.service.enabled) ..._timeoutSection(),
           ]),
         ),
       );
+
+  Widget _biometricTile(BuildContext context) {
+    return SwitchListTile(
+      title: const Text('Biyometrik kilit açma'),
+      value: widget.service.biometricEnabled,
+      onChanged: widget.service.enabled
+          ? (value) async {
+              try {
+                await widget.service.setBiometricEnabled(value);
+              } on StateError catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.message)));
+                }
+              }
+            }
+          : null,
+    );
+  }
+
+  List<Widget> _timeoutSection() {
+    return [
+      const Padding(
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
+        child: Text('Kilit süresi'),
+      ),
+      RadioGroup<Duration>(
+        groupValue: widget.service.lockTimeout,
+        onChanged: (value) {
+          if (value != null) widget.service.setLockTimeout(value);
+        },
+        child: Column(
+          children: [
+            for (final option in _lockTimeoutOptions)
+              RadioListTile<Duration>(title: Text(option.$2), value: option.$1),
+          ],
+        ),
+      ),
+    ];
+  }
 }

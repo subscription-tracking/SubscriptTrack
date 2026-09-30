@@ -33,57 +33,55 @@ class TermsOfServiceScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const _Section(
-                title: 'Hizmetin kapsamı',
-                body:
-                    'SubscriptTrack, aboneliklerini takip etmene, yenileme tarihlerini '
-                    'görmene ve harcamalarını analiz etmene yardımcı olan bir kişisel '
-                    'finans takip aracıdır. Uygulama üzerinden gerçek bir ödeme veya '
-                    'abonelik satın alma/iptal işlemi yapılmaz — yalnızca senin '
-                    'girdiğin bilgileri kaydeder ve hatırlatır.',
-              ),
-              const _Section(
-                title: 'Hesabın',
-                body:
-                    'Hesabını oluştururken doğru bir e-posta adresi kullanmalısın. '
-                    'Hesabının ve şifrenin güvenliğinden sen sorumlusun.',
-              ),
-              const _Section(
-                title: 'Girdiğin veriler',
-                body:
-                    'Uygulamaya girdiğin abonelik bilgilerinin (tutar, tarih, servis '
-                    'adı vb.) doğruluğundan sen sorumlusun. Uygulama bu bilgilere '
-                    'dayanarak hesaplama ve hatırlatma yapar; üçüncü taraf servis '
-                    'sağlayıcılarının (Netflix, Spotify vb.) gerçek fatura/faturalama '
-                    'bilgisiyle otomatik senkronize olmaz.',
-              ),
-              const _Section(
-                title: 'Sorumluluk sınırı',
-                body:
-                    'Hatırlatma bildirimleri cihaz ayarlarına, izinlere ve işletim '
-                    'sistemi davranışına bağlıdır; bir bildirimin gecikmesi veya '
-                    'iletilmemesi durumunda oluşabilecek maddi kayıplardan uygulama '
-                    'sorumlu tutulamaz. Uygulama "olduğu gibi" sunulur.',
-              ),
-              const _Section(
-                title: 'Hesap silme',
-                body:
-                    'Ayarlar → Gizlilik ve veri merkezi → "Hesabımı ve verilerimi '
-                    'sil" üzerinden hesabını ve tüm verilerini kalıcı olarak '
-                    'silebilirsin. Bu işlem geri alınamaz.',
-              ),
-              const _Section(
-                title: 'Değişiklikler',
-                body:
-                    'Bu şartlar zaman zaman güncellenebilir; önemli değişiklikler '
-                    'uygulama içinde bildirilir.',
-              ),
+              ..._sections,
             ],
           ),
         ),
       ),
     );
   }
+
+  static const _sections = <Widget>[
+    _Section(
+      title: 'Hizmetin kapsamı',
+      body: 'SubscriptTrack, aboneliklerini takip etmene, yenileme tarihlerini '
+          'görmene ve harcamalarını analiz etmene yardımcı olan bir kişisel '
+          'finans takip aracıdır. Uygulama üzerinden gerçek bir ödeme veya '
+          'abonelik satın alma/iptal işlemi yapılmaz — yalnızca senin '
+          'girdiğin bilgileri kaydeder ve hatırlatır.',
+    ),
+    _Section(
+      title: 'Hesabın',
+      body: 'Hesabını oluştururken doğru bir e-posta adresi kullanmalısın. '
+          'Hesabının ve şifrenin güvenliğinden sen sorumlusun.',
+    ),
+    _Section(
+      title: 'Girdiğin veriler',
+      body: 'Uygulamaya girdiğin abonelik bilgilerinin (tutar, tarih, servis '
+          'adı vb.) doğruluğundan sen sorumlusun. Uygulama bu bilgilere '
+          'dayanarak hesaplama ve hatırlatma yapar; üçüncü taraf servis '
+          'sağlayıcılarının (Netflix, Spotify vb.) gerçek fatura/faturalama '
+          'bilgisiyle otomatik senkronize olmaz.',
+    ),
+    _Section(
+      title: 'Sorumluluk sınırı',
+      body: 'Hatırlatma bildirimleri cihaz ayarlarına, izinlere ve işletim '
+          'sistemi davranışına bağlıdır; bir bildirimin gecikmesi veya '
+          'iletilmemesi durumunda oluşabilecek maddi kayıplardan uygulama '
+          'sorumlu tutulamaz. Uygulama "olduğu gibi" sunulur.',
+    ),
+    _Section(
+      title: 'Hesap silme',
+      body: 'Ayarlar → Gizlilik ve veri merkezi → "Hesabımı ve verilerimi '
+          'sil" üzerinden hesabını ve tüm verilerini kalıcı olarak '
+          'silebilirsin. Bu işlem geri alınamaz.',
+    ),
+    _Section(
+      title: 'Değişiklikler',
+      body: 'Bu şartlar zaman zaman güncellenebilir; önemli değişiklikler '
+          'uygulama içinde bildirilir.',
+    ),
+  ];
 }
 
 class _Section extends StatelessWidget {

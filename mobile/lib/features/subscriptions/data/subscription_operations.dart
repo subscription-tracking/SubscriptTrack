@@ -146,7 +146,9 @@ class SubscriptionOperations {
     Money? trialPriceAfter,
     List<NotificationRule> notificationRules = const [],
   }) =>
-      _serializeAdd(() => _addInternal(
+      _serializeAdd(() => _addInternal(Subscription(
+            id: 'local-${_uuid.v4()}',
+            userId: _userId,
             name: name,
             amount: amount,
             currency: currency,
@@ -158,43 +160,36 @@ class SubscriptionOperations {
             paymentMethod: paymentMethod,
             trialEndDate: trialEndDate,
             trialPriceAfter: trialPriceAfter,
-            notificationRules: notificationRules,
-          ));
+            notificationRules: notificationRules.isEmpty
+                ? const [NotificationRule(daysBefore: 3)]
+                : notificationRules,
+            createdAt: DateTime.now().toUtc(),
+          )));
 
-  Future<bool> _addInternal({
-    required String name,
-    required Money amount,
-    required String currency,
-    required BillingCycle billingCycle,
-    required DateTime startDate,
-    required DateTime nextRenewalDate,
-    required SubscriptionCategory category,
-    String? notes,
-    String? paymentMethod,
-    DateTime? trialEndDate,
-    Money? trialPriceAfter,
-    List<NotificationRule> notificationRules = const [],
-  }) async {
+  Future<Subscription> _createRemote(Subscription draft) => _repo.create(
+        userId: _userId,
+        name: draft.name,
+        amount: draft.amount,
+        currency: draft.currency,
+        billingCycle: draft.billingCycle,
+        startDate: draft.startDate,
+        nextRenewalDate: draft.nextRenewalDate,
+        category: draft.category,
+        notes: draft.notes,
+        paymentMethod: draft.paymentMethod,
+        trialEndDate: draft.trialEndDate,
+        trialPriceAfter: draft.trialPriceAfter,
+      );
+
+  /// [draft] yerel (`local-...`) kimlikli taslaktır: sunucu kaydı başarılı olursa
+  /// gerçek kayıtla, bağlantı yoksa iyimser olarak kendisiyle eklenir.
+  Future<bool> _addInternal(Subscription draft) async {
     _host.setLoading(true);
     try {
-      var sub = await _repo.create(
-        userId: _userId,
-        name: name,
-        amount: amount,
-        currency: currency,
-        billingCycle: billingCycle,
-        startDate: startDate,
-        nextRenewalDate: nextRenewalDate,
-        category: category,
-        notes: notes,
-        paymentMethod: paymentMethod,
-        trialEndDate: trialEndDate,
-        trialPriceAfter: trialPriceAfter,
-      );
-      if (notificationRules.isNotEmpty &&
-          notificationRules.any((r) => r.daysBefore != 3 || !r.enabled)) {
-        sub = await _repo
-            .update(sub.copyWith(notificationRules: notificationRules));
+      var sub = await _createRemote(draft);
+      final rules = draft.notificationRules;
+      if (rules.any((r) => r.daysBefore != 3 || !r.enabled)) {
+        sub = await _repo.update(sub.copyWith(notificationRules: rules));
       }
       _host.items.add(sub);
       _host.error = null;
@@ -205,27 +200,8 @@ class SubscriptionOperations {
       // Test 48: bağlantı yokken de abonelik eklenebilmeli. Geçici bir
       // local id ile İYİMSER (optimistic) olarak listeye ekliyoruz; bağlantı
       // gelince OfflineSyncCoordinator bunu gerçek sunucu kaydıyla değiştirecek.
-      final localSub = Subscription(
-        id: 'local-${_uuid.v4()}',
-        userId: _userId,
-        name: name,
-        amount: amount,
-        currency: currency,
-        billingCycle: billingCycle,
-        startDate: startDate,
-        nextRenewalDate: nextRenewalDate,
-        category: category,
-        notes: notes,
-        paymentMethod: paymentMethod,
-        trialEndDate: trialEndDate,
-        trialPriceAfter: trialPriceAfter,
-        notificationRules: notificationRules.isEmpty
-            ? const [NotificationRule(daysBefore: 3)]
-            : notificationRules,
-        createdAt: DateTime.now().toUtc(),
-      );
-      _host.items.add(localSub);
-      await _sync.enqueue('create', localSub.toJson());
+      _host.items.add(draft);
+      await _sync.enqueue('create', draft.toJson());
       _host.error = null;
       await _cache.write(_host.items);
       _host.notify();

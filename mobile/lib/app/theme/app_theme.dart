@@ -121,6 +121,35 @@ abstract final class AppTheme {
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   );
 
+  static const _appBarTheme = AppBarTheme(
+    backgroundColor: AppColors.background,
+    surfaceTintColor: Colors.transparent,
+    scrolledUnderElevation: 0,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
+
+  static const _cardTheme = CardThemeData(
+    color: AppColors.surface,
+    surfaceTintColor: Colors.transparent,
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      side: BorderSide(color: AppColors.border, width: 0.5),
+    ),
+  );
+
+  static final _chipTheme = ChipThemeData(
+    backgroundColor: AppColors.surfaceHigh,
+    selectedColor: AppColors.primary.withValues(alpha: 0.15),
+    labelStyle: const TextStyle(color: AppColors.onSurfaceVar, fontSize: 13),
+    side: const BorderSide(color: AppColors.border, width: 0.5),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+    padding: const EdgeInsets.symmetric(horizontal: 4),
+  );
+
   static ThemeData get dark {
     return ThemeData(
       useMaterial3: true,
@@ -128,24 +157,8 @@ abstract final class AppTheme {
       colorScheme: _scheme,
       scaffoldBackgroundColor: AppColors.background,
       textTheme: _withHankenGrotesk(_baseTextTheme),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-        ),
-      ),
-      cardTheme: const CardThemeData(
-        color: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          side: BorderSide(color: AppColors.border, width: 0.5),
-        ),
-      ),
+      appBarTheme: _appBarTheme,
+      cardTheme: _cardTheme,
       filledButtonTheme: _filledButtonTheme,
       outlinedButtonTheme: _outlinedButtonTheme,
       navigationBarTheme: const NavigationBarThemeData(
@@ -155,15 +168,7 @@ abstract final class AppTheme {
         indicatorColor: Colors.transparent,
       ),
       inputDecorationTheme: _inputDecorationTheme,
-      chipTheme: ChipThemeData(
-        backgroundColor: AppColors.surfaceHigh,
-        selectedColor: AppColors.primary.withValues(alpha: 0.15),
-        labelStyle:
-            const TextStyle(color: AppColors.onSurfaceVar, fontSize: 13),
-        side: const BorderSide(color: AppColors.border, width: 0.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-      ),
+      chipTheme: _chipTheme,
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 0.5,

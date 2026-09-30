@@ -170,43 +170,9 @@ class _CurrencyOption extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? cs.primary.withValues(alpha: 0.14)
-                        : cs.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
-                      symbol,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: selected ? cs.primary : cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ),
+                _symbolBadge(cs),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: selected ? cs.onSurface : cs.onSurfaceVariant,
-                        ),
-                      ),
-                      Text(code,
-                          style: textTheme.bodySmall?.copyWith(fontSize: 11)),
-                    ],
-                  ),
-                ),
+                Expanded(child: _labels(cs, textTheme)),
                 if (selected)
                   Icon(Icons.check_circle_rounded, color: cs.primary, size: 20),
               ],
@@ -214,6 +180,45 @@ class _CurrencyOption extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _symbolBadge(ColorScheme cs) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: selected
+            ? cs.primary.withValues(alpha: 0.14)
+            : cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
+        child: Text(
+          symbol,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: selected ? cs.primary : cs.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _labels(ColorScheme cs, TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          name,
+          style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: selected ? cs.onSurface : cs.onSurfaceVariant,
+          ),
+        ),
+        Text(code, style: textTheme.bodySmall?.copyWith(fontSize: 11)),
+      ],
     );
   }
 }

@@ -133,21 +133,7 @@ class _FormView extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          TextFormField(
-            controller: email,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.done,
-            onFieldSubmitted: (_) => onSubmit(),
-            decoration: const InputDecoration(
-              labelText: 'E-posta',
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'E-posta gerekli.';
-              if (!v.contains('@')) return 'Geçerli bir e-posta gir.';
-              return null;
-            },
-          ),
+          _emailField(),
           if (controller.error != null) ...[
             const SizedBox(height: 12),
             Text(
@@ -172,6 +158,24 @@ class _FormView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _emailField() {
+    return TextFormField(
+      controller: email,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (_) => onSubmit(),
+      decoration: const InputDecoration(
+        labelText: 'E-posta',
+        prefixIcon: Icon(Icons.email_outlined),
+      ),
+      validator: (v) {
+        if (v == null || v.trim().isEmpty) return 'E-posta gerekli.';
+        if (!v.contains('@')) return 'Geçerli bir e-posta gir.';
+        return null;
+      },
     );
   }
 }
