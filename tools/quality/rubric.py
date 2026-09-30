@@ -108,6 +108,20 @@ def advisor_findings(errors, warns):
     return by_upper(warns, [(0, 10), (3, 8), (10, 6)])
 
 
+def rls_unmitigated(n):
+    # RLS'siz ve yazma yetkisi geri alınmamış tablo sayısı
+    return by_upper(n, [(0, 10), (1, 6), (3, 4)])
+
+
+def functions_without_auth(n):
+    return 10 if n == 0 else 3
+
+
+def functions_without_rate_limit(n):
+    # Uygulama düzeyinde hız sınırı olmayan edge function sayısı
+    return by_upper(n, [(0, 10), (1, 8), (2, 6), (4, 4)])
+
+
 def outdated_direct_major(n):
     return by_upper(n, [(0, 10), (2, 8), (5, 6)])
 

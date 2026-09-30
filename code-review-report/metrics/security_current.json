@@ -1,0 +1,34 @@
+{
+ "tables": 19,
+ "rls_missing": [
+  "categories",
+  "services"
+ ],
+ "rls_missing_readonly_catalog": [
+  "categories",
+  "services"
+ ],
+ "rls_unmitigated": [],
+ "rls_no_policy": [
+  "exports",
+  "notification_deliveries",
+  "notification_rules"
+ ],
+ "functions": [
+  "delete-account",
+  "payment-methods",
+  "process-export",
+  "support-catalog"
+ ],
+ "functions_without_auth": [],
+ "functions_without_rate_limit": [
+  "delete-account",
+  "payment-methods",
+  "process-export",
+  "support-catalog"
+ ],
+ "secrets_total": 1,
+ "secrets_public_anon": 1,
+ "secrets_non_public": 0,
+ "note": "Kaynak taraması; canlı veritabanı/edge ortamı doğrulanmadı."
+}

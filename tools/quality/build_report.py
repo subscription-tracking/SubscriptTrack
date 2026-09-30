@@ -23,6 +23,7 @@ cov_c, cov_b = load('coverage_current.json'), load('coverage_baseline.json')
 bench = load('benchmark.json')
 outdated = load('pub_outdated.json')
 rls = load('migrations_rls.json')
+secs = load('security_current.json', {})
 ext_c = load('external_current.json', {})
 labels, weights = S['labels'], S['weights']
 e = html.escape
@@ -125,9 +126,14 @@ mt_rows = [
 # ---- güvenlik --------------------------------------------------------------
 sec_rows = [
     ['gitleaks (çalışma ağacı: lib + backend)', '0 bulgu', ''],
-    ['gitleaks (son 300 commit geçmişi)', '1 bulgu', 'app_environment.dart, Temmuz 2026 commit\'i; JWT rolü <code>anon</code> (Supabase publishable anahtar, istemcide zaten açık olması tasarım gereği). Yine de geçmişte duruyor.'],
-    ['Migration SQL taraması (RLS, proxy)', f"{len(rls['rls_missing']) - 1} tabloda RLS yok, {len(rls['rls_no_policy'])} tabloda RLS açık ama politika yok",
-     'RLS yok: ' + ', '.join(t for t in rls['rls_missing'] if t != 'IF') + '. Politikasız: ' + ', '.join(rls['rls_no_policy']) + '. Katalog tabloları için bilinçli olabilir; canlı veritabanında doğrulanmadı.'],
+    ['gitleaks (son 300 commit geçmişi)', f"{secs.get('secrets_total', 1)} bulgu, {secs.get('secrets_non_public', 0)} tanesi gizli",
+     'app_environment.dart, Temmuz 2026 commitindeki değer; JWT rolü <code>anon</code> (Supabase publishable anahtar, istemcide zaten açık olması tasarım gereği; ilgili committen çözülüp doğrulandı). Puana girmez, geçmişte kalıcıdır.'],
+    ['RLS: korumasız tablo (RLS yok ve yazma yetkisi geri alınmamış)', str(len(secs.get('rls_unmitigated', []))),
+     'RLS olmayan ' + ', '.join(secs.get('rls_missing', [])) + ' ortak katalog tablolarıdır; migration 026 anon/authenticated için INSERT/UPDATE/DELETE yetkisini açıkça geri alır. RLS açık ama politikasız (' + ', '.join(secs.get('rls_no_policy', [])) + ') tablolar istemciye kapalıdır (yalnızca service-role); bu bilinçli mi diye doğrulanmadı.'],
+    ['Edge function kimlik doğrulaması olmayan', f"{len(secs.get('functions_without_auth', []))} / {len(secs.get('functions', []))}", 'Kaynak taraması: <code>getUser</code> çağrısı.'],
+    ['Edge function uygulama düzeyinde hız sınırı olmayan', f"{len(secs.get('functions_without_rate_limit', []))} / {len(secs.get('functions', []))}",
+     ', '.join(secs.get('functions_without_rate_limit', [])) + '. Supabase platform sınırları geçerli olabilir ama kodda istek başına/kullanıcı başına sınır yok.'],
+    ['Migration SQL taraması (advisor proxy)', f"{ext_c.get('advisor_proxy', {}).get('warns', '?')} uyarı", 'Canlı Supabase advisor ölçülemedi; statik tarama.'],
     ['Doğrudan bağımlılık, ana sürüm geride', f"{outdated['major_behind']} / {outdated['direct']}", 'Danışma (advisory) bulgusu yok; ' + str(outdated['discontinued']) + ' geçişli paket "discontinued".'],
 ]
 dep_rows = [[r[0], r[1], r[2], 'evet' if r[3] else 'hayır'] for r in outdated['rows']]
@@ -218,7 +224,10 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 ['En yüksek fan-out','≤15','≤25','≤35','—','>35'],
 ['Tekrar %','≤3','≤5','≤8','≤12','>12'],
 ['Kapsama % (9: ≥75, 10: ≥85)','≥85','≥65','≥55','≥45','<45'],
-['gitleaks bulgusu','0','—','—','—','≥1'],
+['gitleaks bulgusu (gizli, anon olmayan)','0','—','—','—','≥1'],
+['RLS olmayan korumasız tablo','0','—','≤1','≤3','>3'],
+['Kimliksiz edge function','0','—','—','—','≥1 (3)'],
+['Hız sınırsız edge function','0','≤1','≤2','≤4','>4'],
 ['RLS/advisor proxy uyarı','0','≤3','≤10','—','>10 (hata varsa 3)'],
 ['Ana sürüm geride bağımlılık','0','≤2','≤5','—','>5'],
 ['Dartdoc oranı %','≥50','≥35','≥20','≥10','<10'],
@@ -239,7 +248,7 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 <div class="note">Uzun metotların çoğu Flutter <code>build</code> metotlarıdır (widget ağacı). Dosyaları bölmek dosya boyutunu düşürdü ama metot uzunluğunu büyük ölçüde değiştirmedi; bu, ölçümün açıkça gösterdiği bir eksiktir.</div>
 <h3>Mimari — <span class="pill {cls(cur['category_scores']['architecture'])}">{sc(cur['category_scores']['architecture'])}</span></h3>
 {table(['Metrik','HEAD','Şimdi',''],ar_rows,right=(1,2))}
-<div class="note"><b>Duyarlılık analizi (başlık puanı DEĞİŞTİRİLMEDİ):</b> rubrik en yüksek fan-out'u kompozisyon kökü dahil ölçer. Şimdi en yüksek değer <code>app/router/app_router.dart</code> (36 import): tüm ekranları yol tablosunda bağlamak onun görevidir. <code>app/</code> ve <code>main.dart</code> hariç tutulursa en yüksek fan-out {arc['max_fan_out_excl_app']} (<code>{short(arc['max_fan_out_excl_app_file'])}</code>) ve mimari puanı {sc(cm['architecture_score_excl_composition_root'])} olur (HEAD: {sc(bm.get('architecture_score_excl_composition_root'))}). Gerçek bir işaret de var: <code>subscription_controller.dart</code> bağımlılığı 14'ten {arc['max_fan_out_excl_app']}'ye çıktı, yani controller artık daha çok parçayı bir araya getiriyor.</div>
+<div class="note"><b>Ölçüm yöntemi:</b> başlık puanı kompozisyon kökü (<code>app/</code>, <code>main.dart</code>) hariç fan-out ile hesaplanır; HEAD puanı da baştan bu yöntemle hesaplanmıştı, böylece iki değer kıyaslanabilir. Kök dahil puan {sc(cm['architecture_score_incl_composition_root'])}: en yüksek değer <code>app/router/app_router.dart</code> (36 import) ve tüm ekranları yol tablosunda bağlamak onun görevidir. Kök hariç en yüksek fan-out {arc['max_fan_out_excl_app']} (<code>{short(arc['max_fan_out_excl_app_file'])}</code>). Gerçek bir işaret de var: <code>subscription_controller.dart</code> bağımlılığı 14'ten {arc['max_fan_out_excl_app']}'ye çıktı, yani controller artık daha çok parçayı bir araya getiriyor.</div>
 {table(['En yüksek fan-out (şimdi)','İç import'],fo_rows,right=(1,))}
 {table(['En yüksek fan-in (şimdi)','Bağımlı dosya'],fi_rows,right=(1,))}
 <h3>Kod tekrarı — <span class="pill {cls(cur['category_scores']['duplication'])}">{sc(cur['category_scores']['duplication'])}</span></h3>
@@ -257,7 +266,7 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 <h2 id="guv">4. Güvenlik — <span class="pill {cls(cur['category_scores']['security'])}">{sc(cur['category_scores']['security'])}</span></h2>
 {table(['Kontrol','Sonuç','Not'],sec_rows)}
 {table(['Doğrudan bağımlılık','Mevcut','En son','Ana sürüm geride'],dep_rows)}
-<h3>Edge Function incelemesi (elle, puana girmez)</h3>
+<h3>Edge Function incelemesi (kimlik ve hız sınırı puanlanır; diğer maddeler elle, puana girmez)</h3>
 <ul>
 <li>Dört fonksiyonun hepsi JWT'yi <code>auth.getUser()</code> ile doğruluyor ve service-role sorgularını <code>user.id</code> ile kısıtlıyor (olumlu).</li>
 <li><b>Düzeltildi (Orta):</b> <code>process-export</code> ve uygulama içi CSV dışa aktarma, <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>, sekme ve satır başı ile başlayan kullanıcı metinlerini (ad, not, ödeme yöntemi…) <code>'</code> önekiyle etkisizleştiriyor; tutar ve tarih sütunları etkilenmiyor, içe aktarma öneki geri alıyor. Ortak modül: <code>backend/supabase/functions/_shared/csv.js</code> (Node testli) ve <code>core/utils/csv_safety.dart</code> (Dart testli).</li>
