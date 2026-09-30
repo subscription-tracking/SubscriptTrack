@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/utils/date_time_utils.dart';
 import '../subscription_form_data.dart';
 
-String formatFormDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
+String formatFormDate(DateTime d) => DateTimeUtils.formatLongDate(d);
 
 /// Form tarih seçicileri. Her yöntem seçim yapıldıysa `true` döner ve
 /// [SubscriptionFormData]'yı günceller; çağıran State yeniden çizdirir.

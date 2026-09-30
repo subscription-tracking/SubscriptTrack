@@ -102,9 +102,13 @@ class PaymentHistoryScreen extends StatelessWidget {
                                 event.paidAt.toLocal())),
                             trailing:
                                 Row(mainAxisSize: MainAxisSize.min, children: [
-                              Text(DateTimeUtils.formatCurrency(
-                                  event.amount.amount,
-                                  symbol: event.currency)),
+                              Text(
+                                  DateTimeUtils.formatCurrency(
+                                      event.amount.amount,
+                                      symbol: event.currency),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15)),
                               IconButton(
                                   tooltip: 'Düzenle',
                                   icon: const Icon(Icons.edit_outlined),

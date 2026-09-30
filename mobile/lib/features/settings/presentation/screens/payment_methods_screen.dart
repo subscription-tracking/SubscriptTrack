@@ -114,13 +114,6 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Ödeme yöntemlerim'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: _showAddDialog,
-                tooltip: 'Yeni ekle',
-              ),
-            ],
           ),
           body: Column(children: [
             _SyncErrorBanner(controller: widget.controller),

@@ -143,6 +143,20 @@ void main() {
     expect(c.archived.single.id, '1');
   });
 
+  testWidgets('arşivleme "Geri al" bildirimi gösterir ve geri alınabilir',
+      (tester) async {
+    final c = await _open(tester, [testSubscription('1', name: 'Netflix')]);
+    await tester.tap(find.textContaining('Arşiv'));
+    await tester.pumpAndSettle();
+    expect(c.archived.single.id, '1');
+    expect(find.text('Netflix arşivlendi.'), findsOneWidget);
+
+    await tester.tap(find.text('Geri al'));
+    await tester.pumpAndSettle();
+    expect(c.archived, isEmpty);
+    expect(c.active.single.id, '1');
+  });
+
   testWidgets('silme onay ister; vazgeçilirse silinmez', (tester) async {
     final c = await _open(tester, [testSubscription('1', name: 'Netflix')]);
     await _openMenuItem(tester, 'Sil');

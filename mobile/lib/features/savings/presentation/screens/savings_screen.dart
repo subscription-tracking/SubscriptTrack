@@ -97,12 +97,24 @@ class _Top3Card extends StatelessWidget {
   final List<Subscription> subscriptions;
   final bool showCurrency;
 
+  /// Gerçek abonelik sayısına göre başlık ("3" sabit yazılmaz).
+  String _headline(int count) {
+    if (count == 1) {
+      return showCurrency
+          ? '$currency aboneliğini iptal edersen'
+          : 'Aboneliğini iptal edersen';
+    }
+    final unit = showCurrency ? '$currency ' : '';
+    return 'En yüksek tutarlı $count ${unit}aboneliğini iptal edersen';
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final top3 = ([...subscriptions]
           ..sort((a, b) => b.monthlyAmount.compareTo(a.monthlyAmount)))
-        .take(3);
+        .take(3)
+        .toList();
     final monthly = top3.fold(Money.zero, (Money s, e) => s + e.monthlyAmount);
     final yearly = monthly * 12;
 
@@ -117,9 +129,7 @@ class _Top3Card extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  showCurrency
-                      ? 'En yüksek tutarlı 3 $currency aboneliğini iptal edersen'
-                      : 'En yüksek tutarlı 3 aboneliğini iptal edersen',
+                  _headline(top3.length),
                   style: textTheme.titleSmall,
                 ),
                 const SizedBox(height: 12),

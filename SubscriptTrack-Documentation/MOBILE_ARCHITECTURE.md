@@ -347,3 +347,14 @@ Profil (1000 abonelik, host makine): selector hesabının baskın maliyeti algor
 - Ölçüm aracı: `tools/quality/run_benchmark.py` (3 koşu, medyan). Cihaz ölçümü değildir.
 - APK: Play'e giden ABI bölünmüş arm64 21,7 MB; ana kalem native kütüphaneler (Flutter motoru ~11 MB + Dart AOT ~8 MB). Uygulama kodu 595 KB, `timezone` verisi 451 KB. Eşiğin (20 MB) altına inmek için köklü bir değişiklik gerekir; yapılmadı.
 - Bilinçli olarak yapılmadı: `projectedRenewals` (UI'da çağrılmıyor, 374 ms) ve `notifyListeners` başına selector yeniden oluşturma (veri değişimini ayırt etmek için işlemlerin yeniden yapılandırılması gerekir).
+
+### Ekran incelemesi düzeltmeleri (2026-09-30)
+
+Tarayıcıda gezilen ekranlardan çıkan bulgular giderildi (`code-review-report/screen-review.md`).
+
+- `DateTimeUtils.formatLongDate`: "30 Eylül 2026"; formlar, profil ve detay bunu kullanır. `formatDate` (göreli "Bugün/Yarın") listelerde kalır.
+- `SubscriptionForm.showPresets` (varsayılan `true`); düzenleme ekranı `false` geçer. Ad bilinen bir servisle eşleşince kategori otomatik atanır (`FormServiceSection._applyPresetCategory`).
+- Detay ekranı arşivlemede `SnackBar` + "Geri al" (`controller.restore`) gösterir.
+- Tasarruf başlığı (`_Top3Card._headline`) gerçek abonelik sayısını yazar; istatistik hero kartı önceki ay verisi yoksa değişim göstermez.
+- Ekleme ve düzenleme ekranları ortak `SubscriptionFormScaffold` (başlık, form gövdesi, sabit alt eylem çubuğu) ve `showFormSaveError` kullanır.
+- Testler: `test/features/screen_review_fixes_test.dart` ve mevcut ekran testlerine eklemeler (738 test).

@@ -25,7 +25,7 @@ void main() {
   testWidgets('yeni yöntem eklenir; boş ad kabul edilmez', (tester) async {
     final controller = await _pump(tester);
 
-    await tester.tap(find.byTooltip('Yeni ekle'));
+    await tester.tap(find.text('Yeni ödeme yöntemi'));
     await tester.pumpAndSettle();
     expect(find.text('Yeni ödeme yöntemi ekle'), findsOneWidget);
 

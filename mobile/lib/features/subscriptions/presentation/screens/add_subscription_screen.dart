@@ -5,10 +5,9 @@ import 'package:provider/provider.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/domain/money.dart';
 import '../../../../core/services/notification_scheduler.dart';
-import '../../../../shared/design/responsive.dart';
 import '../../../../core/preferences/app_preferences.dart';
-import '../../../../shared/widgets/loading_filled_button.dart';
 import '../subscription_controller.dart';
+import '../widgets/subscription_form_scaffold.dart';
 import '../widgets/subscription_form.dart';
 
 class AddSubscriptionScreen extends StatefulWidget {
@@ -101,7 +100,7 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
 
     if (!mounted) return;
     if (!ok) {
-      _showSaveError();
+      showFormSaveError(context, widget.controller);
       return;
     }
     if (_data.initialPaymentStatus == InitialPaymentStatus.paid) {
@@ -146,48 +145,16 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
     );
   }
 
-  void _showSaveError() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(widget.controller.error ?? 'Bir hata oluştu.'),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
-    widget.controller.clearError();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Yeni abonelik')),
-      // Form içeriği, sabit eylem alanının ve Android sistem gezinmesinin
-      // altında kalmasın diye alttaki alan SafeArea içinde tutulur.
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(20, 10, 20, 16),
-        child: ListenableBuilder(
-          listenable: widget.controller,
-          builder: (context, _) => LoadingFilledButton(
-            label: 'Aboneliği kaydet',
-            loading: widget.controller.loading,
-            onPressed: _save,
-          ),
-        ),
-      ),
-      body: ListenableBuilder(
-        listenable: widget.controller,
-        builder: (context, _) => ResponsiveCenter(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-            children: [
-              SubscriptionForm(
-                formKey: _formKey,
-                data: _data,
-                settings: _preferences,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return SubscriptionFormScaffold(
+      title: 'Yeni abonelik',
+      actionLabel: 'Aboneliği kaydet',
+      controller: widget.controller,
+      formKey: _formKey,
+      data: _data,
+      settings: _preferences,
+      onSave: _save,
     );
   }
 }

@@ -55,7 +55,7 @@ class DashboardQuickActionsRow extends StatelessWidget {
               Expanded(
                 child: _QuickActionButton(
                   icon: Icons.pie_chart_outline_rounded,
-                  label: 'Kategorileri incele',
+                  label: 'Dağılım',
                   color: cs.tertiary,
                   onTap: onStats!,
                 ),

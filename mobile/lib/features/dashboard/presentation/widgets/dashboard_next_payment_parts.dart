@@ -39,7 +39,9 @@ class NextPaymentSummary extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · $daysLabel',
+                days == 0
+                    ? DateTimeUtils.formatDate(subscription.nextRenewalDate)
+                    : '${DateTimeUtils.formatDate(subscription.nextRenewalDate)} · $daysLabel',
                 style: textTheme.bodySmall?.copyWith(
                   color: urgent ? cs.error : context.statusColors.warning,
                   fontWeight: FontWeight.w600,

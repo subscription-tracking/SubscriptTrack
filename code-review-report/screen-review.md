@@ -55,3 +55,28 @@ Yöntem: uygulamanın `flutter build web --release` çıktısı yerel modda (Sup
 
 ## Sonuç
 Ekran içerikleri tutarlı ve işlevsel; kritik bir çökme veya taşma görülmedi. Öncelikli düzeltmeler 1–4 (yanıltıcı içerik ve geri alınamaz eylem). Kalan maddeler görsel tutarlılık.
+
+## Düzeltmeler (aynı gün)
+
+Bulguların 1–14. maddeleri giderildi; web derlemesinde 2, 3, 12 ve tarih biçimi maddeleri tarayıcıda yeniden doğrulandı, 738 test yeşil.
+
+| # | Düzeltme |
+|---|---|
+| 1 | Tasarruf başlığı gerçek adedi yazıyor ("En yüksek tutarlı 2 aboneliğini…", tek abonelikte "Aboneliğini iptal edersen") |
+| 2 | Önceki ayda ödeme kaydı yoksa hero kart "artış" yerine "Tahmini aylık gider" gösteriyor |
+| 3 | Düzenle ekranında "Popüler servisler" çipleri yok (`SubscriptionForm.showPresets`) |
+| 4 | Arşivleme "… arşivlendi." bildirimi ve "Geri al" eylemi gösteriyor |
+| 5 | Ad, bilinen bir servisle birebir eşleşirse (ör. "spotify") kategori de atanıyor |
+| 6 | Ana sayfa boş durumunda tek çağrı kaldı ("İlk aboneliğini ekle") |
+| 7 | Bugün yenilenen abonelikte "Bugün · 0 gün kaldı" yerine "Bugün"; detayda "BUGÜN" etiketi ve uzun tarih |
+| 8 | Tarih biçimi tek tip: "30 Eylül 2026" (`DateTimeUtils.formatLongDate`) |
+| 9 | Ödeme yöntemleri ekranında tek "ekle" denetimi (yüzen düğme) |
+| 10 | Ayar satırı değerleri 2 satıra sığıyor, profil yardım metni 3 satıra kadar, hızlı işlem etiketi "Dağılım" |
+| 11 | PIN kapalıyken biyometri anahtarı "Önce PIN kilidini etkinleştir" ipucu gösteriyor |
+| 12 | Düzenle ekranında da sabit alt eylem çubuğu ("Güncelle") |
+| 13 | Ödeme geçmişinde tutar daha belirgin |
+| 14 | "veya" ayracı yalnızca sosyal giriş düğmeleri varken çıkıyor |
+
+Bu turda ek gözlem: Abonelikler > Deneme sekmesi boş durumu ("Deneme aboneliği yok" + "Abonelik ekle") doğru çalışıyor.
+
+Kapsam dışı bırakılanlar: Görünüm ve Uygulama kilidi ekranlarının yeniden tasarımı, yalnızca web'de görülen iki madde.

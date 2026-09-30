@@ -103,10 +103,11 @@ class _LoginScreenState extends State<LoginScreen> {
         LoadingFilledButton(
             label: 'Giriş yap', loading: loading, onPressed: _submit),
         const SizedBox(height: 12),
-        if (EnvironmentConfig.isSocialSignInAvailable)
+        if (EnvironmentConfig.isSocialSignInAvailable) ...[
           ..._socialButtons(loading),
-        _OrDivider(color: Theme.of(context).colorScheme),
-        const SizedBox(height: 16),
+          _OrDivider(color: Theme.of(context).colorScheme),
+          const SizedBox(height: 16),
+        ],
         if (kDebugMode) _testAccountButton(context, loading),
         const SizedBox(height: 12),
         TextButton(

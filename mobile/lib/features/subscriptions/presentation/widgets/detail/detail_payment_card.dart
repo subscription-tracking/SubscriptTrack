@@ -72,7 +72,7 @@ class DetailNextPaymentCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          DateTimeUtils.formatDate(subscription.nextRenewalDate),
+          DateTimeUtils.formatLongDate(subscription.nextRenewalDate),
           style: TextStyle(
             fontSize: 19,
             fontWeight: FontWeight.w800,
@@ -83,8 +83,30 @@ class DetailNextPaymentCard extends StatelessWidget {
     );
   }
 
+  /// Bugün yenilenen abonelik için "0 gün kaldı" yerine tek etiket.
+  Widget _todayBadge(Color statusColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        'BUGÜN',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+          color: statusColor,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
   Widget _daysBadge(Color statusColor) {
     final isOverdue = daysLeft < 0;
+    if (daysLeft == 0) return _todayBadge(statusColor);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(

@@ -76,6 +76,9 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
   Widget _biometricTile(BuildContext context) {
     return SwitchListTile(
       title: const Text('Biyometrik kilit açma'),
+      subtitle: widget.service.enabled
+          ? null
+          : const Text('Önce PIN kilidini etkinleştir'),
       value: widget.service.biometricEnabled,
       onChanged: widget.service.enabled
           ? (value) async {

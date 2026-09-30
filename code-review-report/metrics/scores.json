@@ -5,7 +5,7 @@
    "max_file_lines": 300,
    "files_over_300_pct": 0.0,
    "complexity": {
-    "methods": 983,
+    "methods": 991,
     "avg_cc": 2.27,
     "max_cc": 14,
     "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
@@ -27,10 +27,10 @@
    },
    "architecture_score_excl_composition_root": 9.3,
    "architecture_score_incl_composition_root": 7.3,
-   "duplicated_pct": 3.0,
+   "duplicated_pct": 2.9,
    "coverage": {
     "reported_pct": 91.7,
-    "corrected_pct": 90.9,
+    "corrected_pct": 91.0,
     "domain_pct": 88.6,
     "tests_stable": true,
     "files_not_in_lcov": 3
@@ -76,11 +76,11 @@
    },
    "outdated_direct_major": 0,
    "maintainability": {
-    "doc_ratio_pct": 33.5,
+    "doc_ratio_pct": 33.8,
     "tracked_artifacts": 0,
     "todo": 0,
     "color_literals": 116,
-    "turkish_string_literals": 576,
+    "turkish_string_literals": 585,
     "semantics_calls": 8
    },
    "benchmark": {
@@ -123,7 +123,7 @@
   },
   "overall": 9.4,
   "complexity_detail": {
-   "methods": 983,
+   "methods": 991,
    "avg_cc": 2.27,
    "max_cc": 14,
    "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
@@ -170,12 +170,6 @@
      22
     ],
     [
-     "lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart",
-     "SubscriptionDetailScreen._handleAction",
-     9,
-     14
-    ],
-    [
      "lib/features/subscriptions/presentation/widgets/list/subscription_tile.dart",
      "_TileTrailing.build",
      9,
@@ -192,6 +186,12 @@
      "SubscriptionStatusChip._state",
      9,
      26
+    ],
+    [
+     "lib/app/router/app_router.dart",
+     "AppRouter._redirect",
+     8,
+     12
     ]
    ],
    "longest": [

@@ -20,8 +20,13 @@ class SubscriptionForm extends StatefulWidget {
     required this.formKey,
     required this.data,
     this.settings,
+    this.showPresets = true,
     super.key,
   });
+
+  /// Yeni abonelik eklerken "Popüler servisler" çiplerini gösterir; düzenlemede
+  /// bir çip mevcut aboneliğin adını ezeceğinden kapatılır.
+  final bool showPresets;
 
   final GlobalKey<FormState> formKey;
   final SubscriptionFormData data;
@@ -102,6 +107,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             nameController: _name,
             amountController: _amount,
             presets: _presets,
+            showPresets: widget.showPresets,
             outlineColor: outlineColor,
             update: setState,
           ),
