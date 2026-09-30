@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/navigation/app_routes.dart';
 import '../../features/subscriptions/domain/subscription_models.dart';
 import '../../features/subscriptions/presentation/subscription_controller.dart';
 
@@ -26,9 +27,23 @@ Subscription? findSubscription(SubscriptionController controller, String? id) {
 class RouteNotFoundScreen extends StatelessWidget {
   const RouteNotFoundScreen({super.key});
 
+  /// Soğuk başlangıçta derin bağlantıyla açılırsa geri dönülecek ekran
+  /// yoktur (AppBar'da geri oku çıkmaz); bu yüzden açık bir çıkış sunulur.
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('Abonelik bulunamadı.')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Abonelik bulunamadı.'),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () => context.go(AppRoutes.home),
+                child: const Text('Ana sayfaya dön'),
+              ),
+            ],
+          ),
+        ),
       );
 }

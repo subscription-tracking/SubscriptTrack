@@ -55,3 +55,8 @@ node_modules/
 mobile/coverage/
 tools/quality/complexity/.dart_tool/
 tools/quality/__pycache__/
+
+# Yerel ajan/araç dosyaları (özel ekler ve MCP yapılandırması içerebilir)
+.codex-remote-attachments/
+.mcp.json
+

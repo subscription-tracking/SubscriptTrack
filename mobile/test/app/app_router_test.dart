@@ -123,6 +123,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Abonelik bulunamadı.'), findsOneWidget);
 
+    // Çıkmaz sokak yok: "Ana sayfaya dön" kullanıcıyı ana sayfaya götürür.
+    await tester.tap(find.text('Ana sayfaya dön'));
+    await tester.pumpAndSettle();
+    expect(find.text('Abonelik bulunamadı.'), findsNothing);
+    expect(find.byType(AppShell), findsOneWidget);
+
     // Girişli kullanıcı giriş yoluna giderse ana sayfaya döner.
     router.go(AppRoutes.login);
     await tester.pumpAndSettle();

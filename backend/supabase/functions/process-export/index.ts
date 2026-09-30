@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { csvField } from '../_shared/csv.js'
+import { internalError } from '../_shared/http.js'
+import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
 const headers = { 'Content-Type': 'application/json' }
 
@@ -14,6 +16,7 @@ Deno.serve(async (req: Request) => {
   const { data: { user } } = await userClient.auth.getUser()
   if (!user) return new Response(JSON.stringify({ error: 'Geçersiz token' }), { status: 401, headers })
   const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
+  if (!(await checkRateLimit(admin, user.id, 'process-export'))) return tooManyRequests('process-export')
   try {
     const body = await req.json()
     const exportId = body?.export_id
@@ -48,6 +51,6 @@ Deno.serve(async (req: Request) => {
     if (updateError) throw updateError
     return new Response(JSON.stringify(updated), { status: 200, headers })
   } catch (error) {
-    return new Response(JSON.stringify({ error: String(error) }), { status: 500, headers })
+    return internalError(error, 'process-export')
   }
 })

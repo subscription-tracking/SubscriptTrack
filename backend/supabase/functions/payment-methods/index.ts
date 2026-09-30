@@ -1,18 +1,10 @@
 // Kullanıcıya ait ödeme yöntemi etiketleri için authenticated API sınırı.
 // Deploy: supabase functions deploy payment-methods --no-verify-jwt=false
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Content-Type': 'application/json; charset=utf-8',
-}
+import { corsHeaders, jsonResponse } from '../_shared/http.js'
+import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
 const secret = (name: string) => (Deno.env.get(name) ?? '').trim()
-
-function error(message: string, status: number) {
-  return new Response(JSON.stringify({ error: message }), { status, headers })
-}
 
 function normalizeMethods(value: unknown): string[] | null {
   if (!Array.isArray(value) || value.length > 40) return null
@@ -24,7 +16,10 @@ function normalizeMethods(value: unknown): string[] | null {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers })
+  const cors = corsHeaders(req.headers.get('Origin'))
+  const error = (message: string, status: number) => jsonResponse({ error: message }, status, cors)
+
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'GET' && req.method !== 'PUT') {
     return error('Sadece GET ve PUT desteklenir', 405)
   }
@@ -47,6 +42,9 @@ Deno.serve(async (req: Request) => {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
+  const bucket = req.method === 'GET' ? 'payment-methods:get' : 'payment-methods:put'
+  if (!(await checkRateLimit(admin, user.id, bucket))) return tooManyRequests(bucket, cors)
+
   try {
     if (req.method === 'GET') {
       const { data, error: readError } = await admin
@@ -55,7 +53,7 @@ Deno.serve(async (req: Request) => {
         .eq('user_id', user.id)
         .order('created_at')
       if (readError) throw readError
-      return new Response(JSON.stringify({ methods: data.map((row) => row.name) }), { headers })
+      return jsonResponse({ methods: data.map((row) => row.name) }, 200, cors)
     }
 
     const body = await req.json()
@@ -68,7 +66,7 @@ Deno.serve(async (req: Request) => {
       p_names: methods,
     })
     if (replaceError) throw replaceError
-    return new Response(JSON.stringify({ methods }), { headers })
+    return jsonResponse({ methods }, 200, cors)
   } catch (cause) {
     console.error('payment-methods failed', cause)
     return error('Ödeme yöntemleri şu anda kaydedilemedi', 502)
