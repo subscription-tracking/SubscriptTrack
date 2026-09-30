@@ -79,3 +79,28 @@ Yöntem: `SubscriptTrack-Documentation/` içeriği kod, dosya sistemi, GitHub CI
 7. **`graphify-out/GRAPH_REPORT.md` 14 Eylül,** `graph.json` 29 Eylül: rapor grafla uyumsuz.
 8. **`database/rls_policies.sql`** yalnızca 6 tabloyu kapsıyor (`billing_schedules` canlıda yok; `payment_methods`, `payment_events`, `support_tickets` … yok).
 9. Rapor üreten betiklerde değerler sabit yazılı (commit, Flutter sürümü): her çalıştırmada eski bilgi üretir.
+
+---
+
+# Çözüm durumu (3. tur: yeniden yapılandırma, 2026-09-30)
+
+Tek doküman kökü `docs/` kuruldu; belgeler amaca göre klasörlendi ve gerçek sisteme göre yeniden yazıldı.
+
+| Bulgu | Durum |
+|---|---|
+| API.md var olmayan REST API'yi anlatıyor | Çözüldü: Supabase gerçeğine göre yeniden yazıldı (`reference/API.md`), [ADR 0009](../decisions/0009-supabase-only-architecture.md) |
+| ARCHITECTURE.md Backend API / Queue diyagramı | Çözüldü: yeniden çizildi, Mermaid içeride |
+| DATA_MODEL canlı şemayla uyuşmuyor | Çözüldü: canlı 15 tabloya hizalandı; repo–canlı sapması belgelendi |
+| Canlı Supabase durumu hiçbir yerde yok | Çözüldü: `reference/SUPABASE_LIVE_STATUS.md` |
+| Bayat sürüm/test sayıları | Çözüldü: elle yazılan sayılar kaldırıldı, `tools/docs/check_docs.py` (CI: `docs-check.yml`) yeniden girmesini engeller |
+| `outputs/` bağlantıları (git'te yok) | Çözüldü: bağlantılar kaldırıldı, kontrol kuralı eklendi |
+| Aynı içerik 4 yerde kopya | Çözüldü: özellik durumunun tek sahibi `CURRENT_STATUS.md`; kök README özellik tablosu içermez |
+| Push/token/OpenAPI/İngilizce/açık tema/analitik iddiaları | Çözüldü: durum etiketleri (Uygulandı/Kısmi/Planlı/Kapsam dışı) |
+| ADR 0001–0003 güncel değil | Çözüldü: ADR 0009 eklendi, eski ADR'ler "kısmen geçersiz" işaretlendi (silinmedi) |
+| GITHUB_PAGES doküman eski adres (`krayirhan.github.io`) | Çözüldü: adres düzeltildi, `RELEASE.md`'ye birleştirildi |
+| MOBILE_ARCHITECTURE: yok olan `ApiClient`, `/v1/...` uç noktası, sayılar | Çözüldü: `architecture/MOBILE.md` güncel koda göre yeniden yazıldı; tarihçe `archive/ARCHITECTURE_CHANGELOG.md`'de |
+| DOMAIN alan adları canlı kolonlarla uyuşmuyor | Çözüldü: kavram → veri eşleme notu eklendi |
+| 28 Eylül denetim raporları (git dışı), Excel sürümleri, `graphify-out` | **Açık** (git dışı yerel dosyalar; bu turda değiştirilmedi) |
+| Repo migration zinciri ile canlı şema sapması | **Açık:** baseline migration (Supabase CLI/DB erişimi gerekir), bkz. `operations/RELEASE.md` bölüm 9 |
+| Web önizleme Auth yönlendirme adresi izinli listede değil | **Açık:** Supabase ayarı (canlı hesap ayarı; bu turda değiştirilmedi) |
+| CI: Android release AAB derlemesi başarısız | **Açık, yeni bulgu:** `checkReleaseDuplicateClasses` / JetifyTransform; ayrıca araştırılmalı |

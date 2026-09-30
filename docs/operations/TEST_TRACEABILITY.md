@@ -2,7 +2,7 @@
 
 Son güncelleme: 30 Eylül 2026 (tablo 19 Eylül 2026 S39 durumunu yansıtır; sonraki eklemeler bu tabloya işlenmedi)
 
-Bu tablo, test senaryoları Excel çalışma kitabı (yerel `outputs/` altında, git'te değildir; en güncel: `Abonelik_Takip_Test_Senaryolari_EN_GUNCEL_YENI.xlsx`) içindeki her satırı kaynak
+Bu tablo, test senaryoları Excel çalışma kitabı (yerel, git dışı çıktı klasöründe; en güncel: `Abonelik_Takip_Test_Senaryolari_EN_GUNCEL_YENI.xlsx`) içindeki her satırı kaynak
 testine bağlar. `Kod` yalnız otomatik testin bulunduğunu gösterir; işletim
 sistemi teslimi, fiziksel cihaz, mağaza veya canlı backend gerektiren satırlar
 `Cihaz/canlı` olarak ayrıca kabul edilmelidir.

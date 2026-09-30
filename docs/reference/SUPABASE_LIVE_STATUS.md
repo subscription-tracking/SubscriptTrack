@@ -36,7 +36,7 @@
 | Sosyal sağlayıcılar (Google, Apple, GitHub …) | Hepsi kapalı |
 | İzinli yönlendirme URL'leri | Yalnızca `subscripttrack://auth-callback` |
 
-> Bulgu: GitHub Pages web önizleme adresi izinli yönlendirme listesinde **yok**; web önizlemede e-posta doğrulama/şifre sıfırlama dönüşü bu yüzden çalışmayabilir. Ayrıntı için [RELEASE.md](../operations/RELEASE.md#github-pages-web-önizleme).
+> Bulgu: GitHub Pages web önizleme adresi izinli yönlendirme listesinde **yok**; web önizlemede e-posta doğrulama/şifre sıfırlama dönüşü bu yüzden çalışmayabilir. Ayrıntı için [RELEASE.md](../operations/RELEASE.md#4-github-pages-web-önizleme).
 
 ## RLS politikaları
 
@@ -84,11 +84,11 @@ Tetikleyiciler (`subscriptions`): `trg_subscriptions_updated_at` (BEFORE UPDATE)
 | `process-export` | POST | `auth.getUser()` | [API.md](API.md#process-export) |
 | `support-catalog` | GET, POST | `auth.getUser()` | [API.md](API.md#support-catalog) |
 
-Bilinen açık bulgular ve hız sınırı eksikliği: [SECURITY.md](../architecture/SECURITY.md#bilinen-açık-bulgular).
+Bilinen açık bulgular ve hız sınırı eksikliği: [SECURITY.md](../architecture/SECURITY.md#3-bilinen-açık-bulgular).
 
 ## Repo ile canlı arasındaki sapma
 
-Repodaki `backend/migrations/001–005` zinciri `users`, `services`, `categories`, `billing_schedules` tablolarını oluşturur; **canlıda bu tablolar yoktur**. Canlıda ayrıca repodaki tek tek migration'lardan üretilmemiş bir geçmiş vardır (migration geçmişi boş). Kalıcı çözüm: canlıdan bir baseline migration üretmek ve "canlıya elle DDL yok" kuralı (bkz. [RELEASE.md](../operations/RELEASE.md#veritabanı-migration-ve-canlı-şema)).
+Repodaki `backend/migrations/001–005` zinciri `users`, `services`, `categories`, `billing_schedules` tablolarını oluşturur; **canlıda bu tablolar yoktur**. Canlıda ayrıca repodaki tek tek migration'lardan üretilmemiş bir geçmiş vardır (migration geçmişi boş). Kalıcı çözüm: canlıdan bir baseline migration üretmek ve "canlıya elle DDL yok" kuralı (bkz. [RELEASE.md](../operations/RELEASE.md#9-veritabanı-migration-ve-canlı-şema)).
 
 ## Nasıl yeniden alınır
 

@@ -42,7 +42,7 @@ Hepsi `SECURITY DEFINER`; `auth.uid()` boşsa `42501 not authenticated` ile redd
 
 ## 5. Edge Function'lar
 
-Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; veriye service-role ile erişirken her zaman `user.id` ile kısıtlar. Hız sınırı uygulanmaz ([SECURITY.md](../architecture/SECURITY.md#bilinen-açık-bulgular)).
+Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; veriye service-role ile erişirken her zaman `user.id` ile kısıtlar. Hız sınırı uygulanmaz ([SECURITY.md](../architecture/SECURITY.md#3-bilinen-açık-bulgular)).
 
 ### `payment-methods`
 | | |

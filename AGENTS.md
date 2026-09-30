@@ -6,7 +6,7 @@ SubscriptTrack, iOS ve Android için geliştirilen mobil abonelik takip uygulama
 
 ## Çalışma kuralları
 
-- Önce ilgili Markdown dokümanlarını oku; özellikle `SubscriptTrack-Documentation/README.md`, `PRODUCT.md`, `ARCHITECTURE.md`, `DOMAIN.md`, `API.md` ve `MOBILE_ARCHITECTURE.md`.
+- Önce ilgili Markdown dokümanlarını oku; özellikle `docs/README.md`, `docs/CURRENT_STATUS.md`, `docs/product/PRODUCT.md`, `docs/architecture/ARCHITECTURE.md`, `docs/product/DOMAIN.md`, `docs/reference/API.md` ve `docs/architecture/MOBILE.md`.
 - Ürün kararları ile mevcut kod çelişirse, kullanıcıdan onay almadan kapsamı genişletme. Çelişkiyi raporla ve ilgili dokümanı işaret et.
 - Mobil istemci ile backend arasında doğrudan veritabanı bağlantısı kurma; API sözleşmesini kullan.
 - iOS ve Android davranışlarını birlikte düşün. Push için `flutter_local_notifications` (uzak push/FCM kullanılmaz), tarih hesapları için UTC + kullanıcının IANA timezone'ı kullanılmalıdır.
@@ -59,7 +59,7 @@ Graphify çıktıları `graphify-out/` altında tutulur. `graphify-out/graph.jso
 - Mobil uygulama kökü: `mobile/`
 - Mobil Dart kodu: `mobile/lib/`
 - Ortak bileşenler: `mobile/lib/shared/` ve `mobile/lib/app/shell/`
-- Ürün ve mimari belgeleri: `SubscriptTrack-Documentation/`
+- Ürün ve mimari belgeleri: `docs/` (tek doküman kökü; üretilen kalite raporu `docs/quality/`)
 - Graphify çıktıları: `graphify-out/`
 
 ## Dosya ve değişiklik kuralları
