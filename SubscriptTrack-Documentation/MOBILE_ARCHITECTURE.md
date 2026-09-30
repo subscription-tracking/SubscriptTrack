@@ -240,7 +240,7 @@ Controller yeni bağımlılıkları isteğe bağlı ctor parametresi olarak alı
 - `presentation`, `shared`, `app`: `supabase_flutter` import etmez. Oturum olayları `AuthStateDataSource`, e-posta doğrulama bilgisi `EmailConfirmationDataSource` arayüzüyle; destek/ödeme yöntemi erişimi `SupportCatalogApi.canCreateTicket` / `PaymentMethodsApi.isAvailable` ile sağlanır.
 - `domain`: `data`/`presentation`/`supabase` import etmez (`PaymentEvent` → `stats/domain`, `SavingsEvent` → `savings/domain`; repository dosyaları geriye uyumluluk için re-export eder).
 - `data`: `presentation` import etmez. `core`/`shared`: feature'ların yalnızca `domain` katmanını kullanır.
-- Hiçbir `lib` dosyası 400 satırı aşmaz.
+- Hiçbir `lib` dosyası 320 satırı aşmaz.
 
 ### Yeni saf hesap katmanları
 
@@ -268,7 +268,7 @@ Controller yeni bağımlılıkları isteğe bağlı ctor parametresi olarak alı
 
 ### Katman kuralları (ek)
 
-- `test/architecture_test.dart` ayrıca feature/katman bağımlılık grafiğinin döngüsüz olduğunu ve hiçbir `lib` dosyasının 400 satırı aşmadığını denetler.
+- `test/architecture_test.dart` ayrıca feature/katman bağımlılık grafiğinin döngüsüz olduğunu ve hiçbir `lib` dosyasının 320 satırı aşmadığını denetler.
 
 ### Bilinçli olarak ertelenenler
 
@@ -302,3 +302,13 @@ Controller yeni bağımlılıkları isteğe bağlı ctor parametresi olarak alı
 - `shared/widgets/app_offline_banner.dart` içine `AppStatusBanner` eklendi (çevrimdışı şeridi veya kapatılabilir hata bandı); dashboard ve abonelik listesi kullanır.
 - `AppTheme.dark` metin, buton ve girdi temalarını ayrı statik üyelere ayırır; `AppRouter.contentRoutes` abonelik/analiz/ayar gruplarına bölündü (sıra kuralı korunur).
 - Doğrulama: 723 test yeşil, `flutter analyze` temiz, `flutter build apk --release` başarılı (evrensel 60,2 MB; Play için ABI bölünmüş arm64-v8a 21,7 MB).
+
+### Dosya boyutu sadeleştirmesi (2026-09-30)
+
+Hiçbir `lib` dosyası 300 satırı aşmaz (en büyük 300; başlangıçta 1.177). Sınır `architecture_test.dart` içinde 320'dir.
+
+- Alt widget'lar ayrı dosyalara taşındı: `trend_card_parts.dart` + `trend_bars.dart`, `settings/presentation/widgets/settings_parts.dart` + `profile_parts.dart`, `onboarding_info_page.dart`, `dashboard_hero_parts.dart` (`dashboard_hero_card.dart` yeniden dışa aktarır), `dashboard_next_payment_parts.dart`, `subscriptions/presentation/widgets/list/filter_sheet.dart` (filtre/sıralama sayfası).
+- `subscription_models.dart`: enum ve etiket uzantıları `subscription_enums.dart` dosyasına ayrıldı; eski import yolları `export` ile çalışır.
+- `auth_controller.dart`: yerel yan durum (`AuthLocalState`: onboarding kontrolü, okundu bilgisi, hesap verisi silme) `auth/data/auth_local_state.dart` dosyasına alındı.
+- `app_theme.dart`: renk paleti `app_colors.dart` dosyasına ayrıldı (yeniden dışa aktarılır); `app_router.dart`: `contentRoute`, `findSubscription`, `RouteNotFoundScreen` `route_helpers.dart` dosyasına taşındı.
+- Doğrulama: 723 test yeşil, analyzer temiz.

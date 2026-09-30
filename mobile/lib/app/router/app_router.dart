@@ -28,7 +28,6 @@ import '../../features/settings/presentation/screens/terms_of_service_screen.dar
 import '../../features/settings/presentation/settings_controller.dart';
 import '../../features/stats/presentation/screens/payment_history_screen.dart';
 import '../../features/stats/presentation/screens/stats_screen.dart';
-import '../../features/subscriptions/domain/subscription_models.dart';
 import '../../features/subscriptions/presentation/screens/add_subscription_screen.dart';
 import '../../features/subscriptions/presentation/screens/archived_subscriptions_screen.dart';
 import '../../features/subscriptions/presentation/screens/csv_import_screen.dart';
@@ -38,6 +37,7 @@ import '../../features/subscriptions/presentation/subscription_controller.dart';
 import '../shell/app_shell.dart';
 import '../shell/authenticated_shell.dart';
 import '../splash_screen.dart';
+import 'route_helpers.dart';
 
 class AppRouter {
   static GoRouter create(AuthController auth) => GoRouter(
@@ -155,7 +155,7 @@ class AppRouter {
 
   static List<RouteBase> _subscriptionRoutes() => [
         // Sıra önemli: sabit yollar `:id` yolundan önce tanımlanmalıdır.
-        _route(AppRoutes.addSubscription, (context, state) {
+        contentRoute(AppRoutes.addSubscription, (context, state) {
           final start =
               DateTime.tryParse(state.uri.queryParameters['start'] ?? '');
           return AddSubscriptionScreen(
@@ -163,31 +163,31 @@ class AppRouter {
             initialStartDate: start,
           );
         }),
-        _route(
+        contentRoute(
           AppRoutes.archivedSubscriptions,
           (context, _) => ArchivedSubscriptionsScreen(
             controller: context.read<SubscriptionController>(),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.csvImport,
           (context, _) => CsvImportScreen(
             controller: context.read<SubscriptionController>(),
           ),
         ),
-        _route('/subscriptions/:id', (context, state) {
+        contentRoute('/subscriptions/:id', (context, state) {
           final controller = context.read<SubscriptionController>();
-          final sub = _find(controller, state.pathParameters['id']);
+          final sub = findSubscription(controller, state.pathParameters['id']);
           return sub == null
-              ? const _NotFoundScreen()
+              ? const RouteNotFoundScreen()
               : SubscriptionDetailScreen(
                   subscription: sub, controller: controller);
         }),
-        _route('/subscriptions/:id/edit', (context, state) {
+        contentRoute('/subscriptions/:id/edit', (context, state) {
           final controller = context.read<SubscriptionController>();
-          final sub = _find(controller, state.pathParameters['id']);
+          final sub = findSubscription(controller, state.pathParameters['id']);
           return sub == null
-              ? const _NotFoundScreen()
+              ? const RouteNotFoundScreen()
               : EditSubscriptionScreen(
                   subscription: sub, controller: controller);
         }),
@@ -195,7 +195,7 @@ class AppRouter {
 
   /// Takvim, bildirim merkezi ve analiz ekranları.
   static List<RouteBase> _insightRoutes() => [
-        _route(
+        contentRoute(
           AppRoutes.calendar,
           (context, _) => Scaffold(
             appBar: AppBar(title: const Text('Takvim')),
@@ -204,25 +204,25 @@ class AppRouter {
             ),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.notifications,
           (context, _) => NotificationCenterScreen(
             notificationController: context.read<NotificationController>(),
             subscriptionController: context.read<SubscriptionController>(),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.stats,
           (context, _) =>
               StatsScreen(controller: context.read<SubscriptionController>()),
         ),
-        _route(
+        contentRoute(
           AppRoutes.paymentHistory,
           (context, _) => PaymentHistoryScreen(
             controller: context.read<SubscriptionController>(),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.savings,
           (context, _) =>
               SavingsScreen(controller: context.read<SubscriptionController>()),
@@ -231,78 +231,50 @@ class AppRouter {
 
   /// Profil, tercihler, gizlilik ve hesap ekranları.
   static List<RouteBase> _settingsRoutes() => [
-        _route(
+        contentRoute(
           AppRoutes.profile,
           (context, _) => ProfileScreen(auth: context.read<AuthController>()),
         ),
-        _route(
+        contentRoute(
           AppRoutes.notificationSettings,
           (context, _) => NotificationPreferencesScreen(
             controller: context.read<SettingsController>(),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.paymentMethods,
           (context, _) => PaymentMethodsScreen(
             controller: context.read<SettingsController>(),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.appearance,
           (context, _) =>
               AppearanceScreen(controller: context.read<SettingsController>()),
         ),
-        _route(
+        contentRoute(
           AppRoutes.appLock,
           (context, _) =>
               AppLockSettingsScreen(service: context.read<AppLockService>()),
         ),
-        _route(
+        contentRoute(
           AppRoutes.privacyCenter,
           (context, _) => PrivacyCenterScreen(
             auth: context.read<AuthController>(),
             subscriptions: context.read<SubscriptionController>(),
           ),
         ),
-        _route(AppRoutes.feedback, (_, __) => const FeedbackScreen()),
-        _route(
+        contentRoute(AppRoutes.feedback, (_, __) => const FeedbackScreen()),
+        contentRoute(
           AppRoutes.exportData,
           (context, _) => ExportDataScreen(
             subscriptions: context.read<SubscriptionController>(),
           ),
         ),
-        _route(
+        contentRoute(
           AppRoutes.deleteAccount,
           (context, _) =>
               DeleteAccountScreen(auth: context.read<AuthController>()),
         ),
       ];
-
-  static GoRoute _route(
-    String path,
-    Widget Function(BuildContext context, GoRouterState state) build,
-  ) =>
-      GoRoute(
-        path: path,
-        builder: (_, state) =>
-            Builder(builder: (context) => build(context, state)),
-      );
-
-  static Subscription? _find(SubscriptionController controller, String? id) {
-    if (id == null) return null;
-    for (final sub in controller.allItems) {
-      if (sub.id == id) return sub;
-    }
-    return null;
-  }
-}
-
-class _NotFoundScreen extends StatelessWidget {
-  const _NotFoundScreen();
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: Text('Abonelik bulunamadı.')),
-      );
 }

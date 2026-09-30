@@ -143,8 +143,8 @@ void main() {
     expect(violations, isEmpty, reason: violations.join('\n'));
   });
 
-  test('hiçbir lib dosyası 400 satırı aşmaz (god-file koruması)', () {
-    const limit = 400;
+  test('hiçbir lib dosyası 320 satırı aşmaz (god-file koruması)', () {
+    const limit = 320;
     final tooLong = <String>[];
     sources.forEach((path, source) {
       final lines = '\n'.allMatches(source).length + 1;
