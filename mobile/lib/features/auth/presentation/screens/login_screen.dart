@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/app_environment.dart';
-import '../../../../shared/widgets/ambient_background.dart';
+import '../../../../shared/widgets/loading_filled_button.dart';
 import '../auth_controller.dart';
+import '../widgets/auth_form_parts.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({required this.controller, this.onRegisterTap, super.key});
@@ -86,100 +87,46 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AmbientBackground(
-        child: SafeArea(
-          child: ListenableBuilder(
-            listenable: widget.controller,
-            builder: (context, _) {
-              final loading = widget.controller.loading;
-              return Form(
-                key: _formKey,
-                child: ListView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  children: [
-                    ..._header(context),
-                    const SizedBox(height: 32),
-                    ..._fields(context),
-                    const SizedBox(height: 16),
-                    _submitButton(loading),
-                    const SizedBox(height: 12),
-                    if (EnvironmentConfig.isSocialSignInAvailable)
-                      ..._socialButtons(loading),
-                    _OrDivider(color: Theme.of(context).colorScheme),
-                    const SizedBox(height: 16),
-                    if (kDebugMode) _testAccountButton(context, loading),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: widget.onRegisterTap,
-                      child: const Text('Hesabın yok mu? Kayıt ol'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+    return AuthPageScaffold(
+      controller: widget.controller,
+      formKey: _formKey,
+      childrenBuilder: (context, loading) => [
+        ...authHeaderChildren(
+          context,
+          icon: Icons.account_balance_wallet_rounded,
+          title: 'Tekrar hoş geldin',
+          subtitle: 'Aboneliklerini yönetmek için giriş yap.',
         ),
-      ),
+        const SizedBox(height: 32),
+        ..._fields(context),
+        const SizedBox(height: 16),
+        LoadingFilledButton(
+            label: 'Giriş yap', loading: loading, onPressed: _submit),
+        const SizedBox(height: 12),
+        if (EnvironmentConfig.isSocialSignInAvailable)
+          ..._socialButtons(loading),
+        _OrDivider(color: Theme.of(context).colorScheme),
+        const SizedBox(height: 16),
+        if (kDebugMode) _testAccountButton(context, loading),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: widget.onRegisterTap,
+          child: const Text('Hesabın yok mu? Kayıt ol'),
+        ),
+      ],
     );
-  }
-
-  List<Widget> _header(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    return [
-      const BrandMark(),
-      const SizedBox(height: 28),
-      EntranceFade(
-        child: GlowOrb(
-            icon: Icons.account_balance_wallet_rounded, color: colors.primary),
-      ),
-      const SizedBox(height: 24),
-      EntranceFade(
-        child: Text('Tekrar hoş geldin',
-            style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
-      ),
-      const SizedBox(height: 6),
-      EntranceFade(
-        delay: const Duration(milliseconds: 60),
-        child: Text('Aboneliklerini yönetmek için giriş yap.',
-            style: text.bodyLarge?.copyWith(color: colors.onSurfaceVariant)),
-      ),
-    ];
   }
 
   List<Widget> _fields(BuildContext context) {
     return [
-      TextFormField(
-        controller: _email,
-        keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.next,
-        decoration: const InputDecoration(
-          labelText: 'E-posta',
-          prefixIcon: Icon(Icons.email_outlined),
-        ),
-        validator: (v) =>
-            v == null || !v.contains('@') ? 'Geçerli bir e-posta gir' : null,
-      ),
+      AuthEmailField(controller: _email),
       const SizedBox(height: 16),
-      TextFormField(
+      AuthPasswordField(
         controller: _password,
-        obscureText: _obscure,
+        obscure: _obscure,
+        onToggleObscure: () => setState(() => _obscure = !_obscure),
         textInputAction: TextInputAction.done,
-        onFieldSubmitted: (_) => _submit(),
-        decoration: InputDecoration(
-          labelText: 'Şifre',
-          prefixIcon: const Icon(Icons.lock_outline),
-          suffixIcon: IconButton(
-            icon: Icon(_obscure
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined),
-            onPressed: () => setState(() => _obscure = !_obscure),
-          ),
-        ),
-        validator: (v) =>
-            v == null || v.length < 6 ? 'En az 6 karakter gir' : null,
+        onSubmitted: _submit,
       ),
       const SizedBox(height: 8),
       Align(
@@ -190,21 +137,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     ];
-  }
-
-  Widget _submitButton(bool loading) {
-    return FilledButton(
-      onPressed: loading ? null : _submit,
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-      child: loading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: Colors.white),
-            )
-          : const Text('Giriş yap'),
-    );
   }
 
   List<Widget> _socialButtons(bool loading) {

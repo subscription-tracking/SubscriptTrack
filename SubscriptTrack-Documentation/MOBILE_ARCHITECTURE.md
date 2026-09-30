@@ -323,3 +323,15 @@ Hiçbir `lib` dosyası 300 satırı aşmaz (en büyük 300; başlangıçta 1.177
 - `AppRouter._redirect` + `_forcedRoute`; `SubscriptionCategoryLabel.label` ve `ServiceIdentity._categoryColor` tablo tabanlı oldu.
 - `calendar/presentation/widgets/empty_day_state.dart`, `shared/widgets/app_offline_banner.dart` içine `AppStatusBanner` eklendi.
 - Doğrulama: 723 test yeşil, analyzer temiz.
+
+### Kod tekrarı azaltma (2026-09-30)
+
+Tekrar oranı %5,3 → %3,0 (6 satırlık pencere).
+
+- `settings/presentation/widgets/legal_document.dart`: gizlilik politikası ve kullanım şartları ortak `LegalDocumentScreen` + `LegalSection` kullanır; ekranlar yalnızca metni tutar.
+- `auth/presentation/widgets/auth_form_parts.dart`: `AuthPageScaffold`, `authHeaderChildren`, `AuthEmailField`, `AuthPasswordField`; giriş ve kayıt ekranları paylaşır. `shared/widgets/loading_filled_button.dart` (`LoadingFilledButton`) giriş, kayıt, şifre ekranları ve abonelik ekleme/düzenleme ekranlarının yüklenirken ilerleme gösteren düğmesidir.
+- `stats/presentation/widgets/stats_card_surface.dart`: istatistik kartlarının ortak yüzeyi.
+- `AmbientBlob` (`shared/widgets/ambient_background.dart`): giriş ekranı arka planı ve tanıtım ekranı ortak ışık lekesi.
+- `SubscriptionFormData`: `notesOrNull`, `trialEndOrNull`, `trialPriceOrNull` ve `applyTo(Subscription)`; ekleme/düzenleme ekranlarındaki alan eşlemesi tek yerde.
+- Bilinçli olarak bırakılan tekrar: `add(...)` imzası (12 parametre) `SubscriptionDataSource`, iki repository, `SubscriptionOperations` ve `SubscriptionController` katmanlarında tekrarlanır. Bunu bir `NewSubscription` taslak nesnesiyle birleştirmek arayüz ve testleri geniş çapta değiştirir; ayrı iş olarak bırakıldı.
+- Doğrulama: 723 test yeşil, analyzer temiz.

@@ -1,11 +1,11 @@
 {
  "size": {
-  "files": 162,
-  "total_lines": 20172,
+  "files": 166,
+  "total_lines": 20140,
   "max_lines": 300,
   "max_file": "lib/features/auth/presentation/auth_controller.dart",
-  "median_lines": 108.5,
-  "p90_lines": 229,
+  "median_lines": 102.0,
+  "p90_lines": 225,
   "over_300": 0,
   "over_400": 0,
   "over_300_pct": 0.0,
@@ -35,20 +35,20 @@
     278
    ],
    [
-    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
-    278
-   ],
-   [
-    "lib/features/auth/presentation/screens/login_screen.dart",
-    277
-   ],
-   [
     "lib/features/subscriptions/presentation/screens/subscription_list_screen.dart",
     272
    ],
    [
     "lib/features/subscriptions/data/subscription_operations.dart",
     266
+   ],
+   [
+    "lib/features/settings/presentation/screens/payment_methods_screen.dart",
+    263
+   ],
+   [
+    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+    262
    ]
   ]
  },
@@ -113,29 +113,13 @@
  },
  "duplication": {
   "window": 6,
-  "significant_lines": 11758,
-  "duplicated_lines": 598,
-  "duplicated_pct": 5.1,
+  "significant_lines": 11732,
+  "duplicated_lines": 349,
+  "duplicated_pct": 3.0,
   "top_files": [
-   [
-    "lib/features/auth/presentation/screens/login_screen.dart",
-    51
-   ],
    [
     "lib/features/subscriptions/data/subscription_operations.dart",
     47
-   ],
-   [
-    "lib/features/auth/presentation/screens/register_screen.dart",
-    44
-   ],
-   [
-    "lib/features/settings/presentation/screens/privacy_policy_screen.dart",
-    37
-   ],
-   [
-    "lib/features/settings/presentation/screens/terms_of_service_screen.dart",
-    37
    ],
    [
     "lib/features/auth/presentation/auth_controller.dart",
@@ -146,19 +130,35 @@
     29
    ],
    [
+    "lib/features/subscriptions/data/local_subscription_repository.dart",
+    19
+   ],
+   [
     "lib/features/stats/presentation/widgets/insights_card.dart",
-    24
+    14
+   ],
+   [
+    "lib/core/datasources/subscription_data_source.dart",
+    13
+   ],
+   [
+    "lib/features/subscriptions/data/supabase_subscription_repository.dart",
+    13
+   ],
+   [
+    "lib/core/services/local_notification_service.dart",
+    13
    ]
   ]
  },
  "maintainability": {
-  "public_types": 228,
-  "documented_types": 72,
-  "doc_ratio_pct": 31.6,
+  "public_types": 236,
+  "documented_types": 79,
+  "doc_ratio_pct": 33.5,
   "todo": 0,
   "color_literals": 116,
-  "turkish_string_literals": 580,
-  "semantics_calls": 9,
+  "turkish_string_literals": 576,
+  "semantics_calls": 8,
   "tracked_artifacts": 0,
   "tracked_artifacts_sample": []
  }

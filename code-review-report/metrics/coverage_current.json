@@ -1,15 +1,15 @@
 {
  "reported": {
-  "hit": 7259,
-  "found": 7914,
+  "hit": 7205,
+  "found": 7860,
   "pct": 91.7
  },
  "corrected": {
-  "hit": 7259,
-  "found": 7977,
-  "pct": 91.0
+  "hit": 7205,
+  "found": 7923,
+  "pct": 90.9
  },
- "files_total": 162,
+ "files_total": 166,
  "files_not_in_lcov": 3,
  "files_not_in_lcov_sample": [
   "lib/main.dart",
@@ -43,9 +43,9 @@
    "pct": 0.0
   },
   "layer:presentation": {
-   "hit": 5097,
-   "found": 5519,
-   "pct": 92.4
+   "hit": 5043,
+   "found": 5465,
+   "pct": 92.3
   }
  },
  "by_feature": {
@@ -60,9 +60,9 @@
    "pct": 83.0
   },
   "feature:auth": {
-   "hit": 649,
-   "found": 717,
-   "pct": 90.5
+   "hit": 628,
+   "found": 695,
+   "pct": 90.4
   },
   "feature:calendar": {
    "hit": 179,
@@ -80,8 +80,8 @@
    "pct": 90.3
   },
   "feature:onboarding": {
-   "hit": 363,
-   "found": 366,
+   "hit": 357,
+   "found": 360,
    "pct": 99.2
   },
   "feature:savings": {
@@ -90,18 +90,18 @@
    "pct": 98.6
   },
   "feature:settings": {
-   "hit": 959,
-   "found": 1004,
-   "pct": 95.5
+   "hit": 929,
+   "found": 974,
+   "pct": 95.4
   },
   "feature:stats": {
-   "hit": 753,
-   "found": 777,
+   "hit": 742,
+   "found": 766,
    "pct": 96.9
   },
   "feature:subscriptions": {
-   "hit": 2151,
-   "found": 2373,
+   "hit": 2153,
+   "found": 2376,
    "pct": 90.6
   },
   "other": {
@@ -110,9 +110,9 @@
    "pct": 0.0
   },
   "shared": {
-   "hit": 330,
-   "found": 357,
-   "pct": 92.4
+   "hit": 342,
+   "found": 369,
+   "pct": 92.7
   }
  },
  "domain_pct": 88.6,
@@ -138,6 +138,11 @@
    51
   ],
   [
+   "lib/features/subscriptions/presentation/widgets/subscription_form_data.dart",
+   59.4,
+   32
+  ],
+  [
    "lib/features/subscriptions/presentation/widgets/form/form_date_pickers.dart",
    61.1,
    36
@@ -148,9 +153,9 @@
    32
   ],
   [
-   "lib/features/subscriptions/presentation/screens/edit_subscription_screen.dart",
-   62.7,
-   59
+   "lib/features/auth/presentation/screens/login_screen.dart",
+   66.3,
+   95
   ],
   [
    "lib/features/dashboard/presentation/widgets/dashboard_upcoming_section.dart",
@@ -163,14 +168,9 @@
    34
   ],
   [
-   "lib/features/auth/presentation/screens/login_screen.dart",
-   73.8,
-   126
-  ],
-  [
    "lib/features/subscriptions/presentation/screens/add_subscription_screen.dart",
-   76.4,
-   89
+   76.1,
+   88
   ],
   [
    "lib/features/subscriptions/domain/subscription_selectors.dart",

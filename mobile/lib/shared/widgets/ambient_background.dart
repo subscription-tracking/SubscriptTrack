@@ -48,12 +48,14 @@ class AmbientBackground extends StatelessWidget {
                   Positioned(
                     top: -120,
                     right: -90,
-                    child: _blob(accentColor, 220, 0.16),
+                    child: AmbientBlob(
+                        color: accentColor, size: 220, opacity: 0.16),
                   ),
                   Positioned(
                     bottom: -90,
                     left: -100,
-                    child: _blob(accentColor, 200, 0.12),
+                    child: AmbientBlob(
+                        color: accentColor, size: 200, opacity: 0.12),
                   ),
                 ],
               ),
@@ -64,24 +66,6 @@ class AmbientBackground extends StatelessWidget {
       ],
     );
   }
-
-  Widget _blob(Color color, double size, double opacity) => ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                color.withValues(alpha: opacity),
-                color.withValues(alpha: 0),
-              ],
-              stops: const [0.3, 1.0],
-            ),
-          ),
-        ),
-      );
 }
 
 /// The small "• SubscriptTrack" brand row used across onboarding, the top
@@ -193,4 +177,37 @@ class _EntranceFadeState extends State<EntranceFade>
       child: SlideTransition(position: _slide, child: widget.child),
     );
   }
+}
+
+/// Bulanık, yumuşak dairesel ışık lekesi (arka plan süslemesi).
+class AmbientBlob extends StatelessWidget {
+  const AmbientBlob({
+    required this.color,
+    required this.size,
+    required this.opacity,
+    super.key,
+  });
+
+  final Color color;
+  final double size;
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) => ImageFiltered(
+        imageFilter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                color.withValues(alpha: opacity),
+                color.withValues(alpha: 0),
+              ],
+              stops: const [0.3, 1.0],
+            ),
+          ),
+        ),
+      );
 }

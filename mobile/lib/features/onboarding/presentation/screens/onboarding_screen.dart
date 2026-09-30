@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:provider/provider.dart';
 import '../../../settings/presentation/settings_controller.dart';
+import '../../../../shared/widgets/ambient_background.dart' show AmbientBlob;
 import '../widgets/currency_page.dart';
 import '../widgets/illustrations/analytics_illustration.dart';
 import '../widgets/illustrations/calendar_illustration.dart';
@@ -115,12 +115,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Positioned(
                       top: -120,
                       right: -90,
-                      child: _blob(_currentAccent, 220, 0.16),
+                      child: AmbientBlob(
+                          color: _currentAccent, size: 220, opacity: 0.16),
                     ),
                     Positioned(
                       bottom: 100,
                       left: -100,
-                      child: _blob(_currentAccent, 180, 0.1),
+                      child: AmbientBlob(
+                          color: _currentAccent, size: 180, opacity: 0.1),
                     ),
                   ],
                 ),
@@ -252,24 +254,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
-  Widget _blob(Color color, double size, double opacity) => ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                color.withValues(alpha: opacity),
-                color.withValues(alpha: 0),
-              ],
-              stops: const [0.3, 1.0],
-            ),
-          ),
-        ),
-      );
 }
 
 /// A slow, continuous up/down bob — used to make floating badges feel alive.

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'stats_card_surface.dart';
 
 import '../../../../core/domain/money.dart';
 import '../../../../core/utils/date_time_utils.dart';
@@ -30,20 +31,9 @@ class InsightsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final top = highestSub;
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainer,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: cs.outlineVariant.withValues(alpha: 0.6),
-          width: 0.8,
-        ),
-      ),
-      padding: const EdgeInsets.all(20),
+    return StatsCardSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

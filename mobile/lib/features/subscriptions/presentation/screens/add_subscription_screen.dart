@@ -7,6 +7,7 @@ import '../../../../core/domain/money.dart';
 import '../../../../core/services/notification_scheduler.dart';
 import '../../../../shared/design/responsive.dart';
 import '../../../../core/preferences/app_preferences.dart';
+import '../../../../shared/widgets/loading_filled_button.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
@@ -121,11 +122,10 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
       startDate: _data.startDate,
       nextRenewalDate: _data.nextRenewalDate,
       category: _data.category,
-      notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),
+      notes: _data.notesOrNull,
       paymentMethod: _data.paymentMethod,
-      trialEndDate: _data.isTrial ? _data.trialEndDate : null,
-      trialPriceAfter:
-          _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
+      trialEndDate: _data.trialEndOrNull,
+      trialPriceAfter: _data.trialPriceOrNull,
       notificationRules: _data.notificationRules,
     );
   }
@@ -166,19 +166,10 @@ class _AddSubscriptionScreenState extends State<AddSubscriptionScreen> {
         minimum: const EdgeInsets.fromLTRB(20, 10, 20, 16),
         child: ListenableBuilder(
           listenable: widget.controller,
-          builder: (context, _) => FilledButton(
-            onPressed: widget.controller.loading ? null : _save,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-            ),
-            child: widget.controller.loading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
-                  )
-                : const Text('Aboneliği kaydet'),
+          builder: (context, _) => LoadingFilledButton(
+            label: 'Aboneliği kaydet',
+            loading: widget.controller.loading,
+            onPressed: _save,
           ),
         ),
       ),
