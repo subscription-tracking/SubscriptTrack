@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../auth/presentation/auth_controller.dart';
+import '../widgets/profile_parts.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({required this.auth, super.key});
@@ -127,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _ProfileHeader(
+          ProfileHeader(
             email: user.email,
             displayName: user.displayName,
             memberSince: _formatDate(user.createdAt),
@@ -144,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _BusyButton(
+          ProfileBusyButton(
             label: 'Kaydet',
             busy: _savingName,
             onPressed: _nameChanged ? _saveName : null,
@@ -163,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _BusyButton(
+          ProfileBusyButton(
             label: 'E-postayı güncelle',
             busy: _savingEmail,
             onPressed: _emailChanged ? _saveEmail : null,
@@ -175,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 12),
           _passwordFields(),
           const SizedBox(height: 12),
-          _BusyButton(
+          ProfileBusyButton(
             label: 'Şifreyi güncelle',
             busy: _changingPassword,
             onPressed: _canChangePassword ? _changePassword : null,
@@ -195,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           decoration: InputDecoration(
             labelText: 'Mevcut şifre',
             prefixIcon: const Icon(Icons.lock_outline),
-            suffixIcon: _VisibilityToggle(
+            suffixIcon: ProfileVisibilityToggle(
               obscured: _obscureCurrent,
               onPressed: () =>
                   setState(() => _obscureCurrent = !_obscureCurrent),
@@ -210,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           decoration: InputDecoration(
             labelText: 'Yeni şifre (en az 6 karakter)',
             prefixIcon: const Icon(Icons.lock_reset_outlined),
-            suffixIcon: _VisibilityToggle(
+            suffixIcon: ProfileVisibilityToggle(
               obscured: _obscureNew,
               onPressed: () => setState(() => _obscureNew = !_obscureNew),
             ),
@@ -228,91 +229,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({
-    required this.email,
-    required this.displayName,
-    required this.memberSince,
-  });
-
-  final String email;
-  final String? displayName;
-  final String memberSince;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final small = Theme.of(context).textTheme.bodySmall;
-    final initial = (displayName?.isNotEmpty == true ? displayName! : email)[0];
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundColor: colors.primaryContainer,
-          child: Text(
-            initial.toUpperCase(),
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: colors.onPrimaryContainer,
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(email, style: small),
-        const SizedBox(height: 2),
-        Text('Üye olma: $memberSince', style: small),
-      ],
-    );
-  }
-}
-
-/// İşlem sürerken düğme pasif olur ve etiket yerine ilerleme göstergesi çıkar.
-class _BusyButton extends StatelessWidget {
-  const _BusyButton({
-    required this.label,
-    required this.busy,
-    required this.onPressed,
-  });
-
-  final String label;
-  final bool busy;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton(
-      onPressed: busy ? null : onPressed,
-      child: busy
-          ? const SizedBox(
-              height: 18,
-              width: 18,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : Text(label),
-    );
-  }
-}
-
-class _VisibilityToggle extends StatelessWidget {
-  const _VisibilityToggle({required this.obscured, required this.onPressed});
-
-  final bool obscured;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-          obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-      onPressed: onPressed,
     );
   }
 }

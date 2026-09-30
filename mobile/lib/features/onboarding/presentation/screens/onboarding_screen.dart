@@ -6,11 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:provider/provider.dart';
 import '../../../settings/presentation/settings_controller.dart';
-import '../../../../shared/widgets/ambient_background.dart' show EntranceFade;
 import '../widgets/currency_page.dart';
 import '../widgets/illustrations/analytics_illustration.dart';
 import '../widgets/illustrations/calendar_illustration.dart';
 import '../widgets/illustrations/subscriptions_illustration.dart';
+import '../widgets/onboarding_info_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({required this.onDone, super.key});
@@ -37,7 +37,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _selectedCurrency = '₺';
 
   static const _slides = [
-    _SlideData(
+    OnboardingSlideData(
       title: 'Aboneliklerini takip et',
       body:
           'Netflix, Spotify, iCloud... Tüm aboneliklerini tek bir yerde topla ve ne kadar harcadığını gör.',
@@ -45,7 +45,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       bgColor: Color(0xFF0C0E2A),
       illustration: SubscriptionsIllustration(),
     ),
-    _SlideData(
+    OnboardingSlideData(
       title: 'Yenilemeleri kaçırma',
       body:
           'Hangi aboneliğin ne zaman yenileneceğini takvimde gör, sürpriz ödemelerle karşılaşma.',
@@ -53,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       bgColor: Color(0xFF071510),
       illustration: CalendarIllustration(),
     ),
-    _SlideData(
+    OnboardingSlideData(
       title: 'Harcamalarını analiz et',
       body:
           'Kategoriye göre ne kadar harcadığını gör, gereksiz abonelikleri tespit et ve tasarruf et.',
@@ -186,7 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       onPageChanged: (i) => setState(() => _page = i),
       itemCount: _pageCount,
       itemBuilder: (_, i) => i < _slides.length
-          ? _InfoPage(key: ValueKey('slide-$i'), data: _slides[i])
+          ? OnboardingInfoPage(key: ValueKey('slide-$i'), data: _slides[i])
           : CurrencyPage(
               key: const ValueKey('currency'),
               selected: _selectedCurrency,
@@ -272,63 +272,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
 }
 
-class _SlideData {
-  const _SlideData({
-    required this.title,
-    required this.body,
-    required this.accentColor,
-    required this.bgColor,
-    required this.illustration,
-  });
-  final String title;
-  final String body;
-  final Color accentColor;
-  final Color bgColor;
-  final Widget illustration;
-}
-
 /// A slow, continuous up/down bob — used to make floating badges feel alive.
-
-class _InfoPage extends StatelessWidget {
-  const _InfoPage({required this.data, super.key});
-  final _SlideData data;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          EntranceFade(child: data.illustration),
-          const SizedBox(height: 44),
-          EntranceFade(
-            delay: const Duration(milliseconds: 80),
-            child: Text(
-              data.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 16),
-          EntranceFade(
-            delay: const Duration(milliseconds: 140),
-            child: Text(
-              data.body,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    height: 1.65,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ─── Slide 1 illustration: orbiting real brand logos around a wallet ───────
