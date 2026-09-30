@@ -335,3 +335,15 @@ Tekrar oranı %5,3 → %3,0 (6 satırlık pencere).
 - `SubscriptionFormData`: `notesOrNull`, `trialEndOrNull`, `trialPriceOrNull` ve `applyTo(Subscription)`; ekleme/düzenleme ekranlarındaki alan eşlemesi tek yerde.
 - Bilinçli olarak bırakılan tekrar: `add(...)` imzası (12 parametre) `SubscriptionDataSource`, iki repository, `SubscriptionOperations` ve `SubscriptionController` katmanlarında tekrarlanır. Bunu bir `NewSubscription` taslak nesnesiyle birleştirmek arayüz ve testleri geniş çapta değiştirir; ayrı iş olarak bırakıldı.
 - Doğrulama: 723 test yeşil, analyzer temiz.
+
+### Performans iyileştirmesi (2026-09-30)
+
+Profil (1000 abonelik, host makine): selector hesabının baskın maliyeti algoritma değil, döngülerdeki yerel `DateTime(y, m, d)` kurucusuydu (Windows'ta çağrı başına ~17 µs; `DateTime.now()` alan okumaları da ~3 µs).
+
+- `DateTimeUtils.dayNumber(DateTime)`: yıl/ay/günden UTC tabanlı takvim günü numarası (~0,05 µs). İki tarih arasındaki tam gün sayısı `dayNumber(a) - dayNumber(b)`; yaz saati kayması yoktur. Test: `test/core/day_number_test.dart`.
+- Kullanıldığı yerler: `Subscription.isNotStartedAt/isNotStartedOnDay`, `daysUntilRenewal/daysUntilRenewalFrom`, `DateTimeUtils.nextOccurrenceOnOrAfter/formatDate/addMonthsClamped`, `SubscriptionLifecycle.endedTrials`, `CalendarController.renewalsForDay/trialsForDay`.
+- `SubscriptionSelectors` bugünün gün numarasını oluşturulurken bir kez hesaplar; `active`, `notStarted`, `upcomingRenewals` abonelik başına `DateTime.now()` çağırmaz.
+- Sonuç (3 koşu medyanı): `controller.load()` 57 → 13,5 ms, bildirim sonrası selector hesabı 49,8 → 0,43 ms. Takvim gün+ay hesabı 0,15 ms.
+- Ölçüm aracı: `tools/quality/run_benchmark.py` (3 koşu, medyan). Cihaz ölçümü değildir.
+- APK: Play'e giden ABI bölünmüş arm64 21,7 MB; ana kalem native kütüphaneler (Flutter motoru ~11 MB + Dart AOT ~8 MB). Uygulama kodu 595 KB, `timezone` verisi 451 KB. Eşiğin (20 MB) altına inmek için köklü bir değişiklik gerekir; yapılmadı.
+- Bilinçli olarak yapılmadı: `projectedRenewals` (UI'da çağrılmıyor, 374 ms) ve `notifyListeners` başına selector yeniden oluşturma (veri değişimini ayırt etmek için işlemlerin yeniden yapılandırılması gerekir).

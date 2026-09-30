@@ -1,4 +1,5 @@
 import '../../../core/domain/money.dart';
+import '../../../core/utils/date_time_utils.dart';
 import 'subscription_models.dart';
 
 /// Abonelik listesinden türetilen durum bazlı listeler ve toplamlar.
@@ -9,6 +10,10 @@ class SubscriptionSelectors {
   SubscriptionSelectors(this._items);
 
   final List<Subscription> _items;
+
+  /// Bu örneğin oluşturulduğu günün numarası; tarih karşılaştırmaları her
+  /// abonelik için `DateTime.now()` çağırmadan bunu kullanır.
+  final int _today = DateTimeUtils.dayNumber(DateTime.now());
 
   List<Subscription>? _active;
   List<Subscription>? _notStarted;
@@ -23,12 +28,13 @@ class SubscriptionSelectors {
       _items.where((s) => s.status == status).toList();
 
   List<Subscription> get active => _active ??= (_items
-      .where((s) => s.status == SubscriptionStatus.active && !s.isNotStarted)
+      .where((s) =>
+          s.status == SubscriptionStatus.active && !s.isNotStartedOnDay(_today))
       .toList()
     ..sort((a, b) => a.nextRenewalDate.compareTo(b.nextRenewalDate)));
 
   List<Subscription> get notStarted =>
-      _notStarted ??= (_items.where((s) => s.isNotStarted).toList()
+      _notStarted ??= (_items.where((s) => s.isNotStartedOnDay(_today)).toList()
         ..sort((a, b) => a.startDate.compareTo(b.startDate)));
 
   List<Subscription> get trials =>
@@ -49,9 +55,10 @@ class SubscriptionSelectors {
       _archived ??= _byStatus(SubscriptionStatus.archived);
 
   /// Önümüzdeki 30 gün içinde yenilenecek aktif abonelikler.
-  List<Subscription> get upcomingRenewals => active
-      .where((s) => s.daysUntilRenewal >= 0 && s.daysUntilRenewal <= 30)
-      .toList();
+  List<Subscription> get upcomingRenewals => active.where((s) {
+        final days = s.daysUntilRenewalFrom(_today);
+        return days >= 0 && days <= 30;
+      }).toList();
 
   /// Aktif aboneliklerin önümüzdeki [months] aydaki yenilemeleri, tarihe göre.
   List<(Subscription subscription, DateTime date)> projectedRenewals({

@@ -1,6 +1,16 @@
 class DateTimeUtils {
   DateTimeUtils._();
 
+  /// Takvim gününün, saat dilimi ve yaz saati kayması içermeyen sıra numarası
+  /// (1970-01-01 = 0). Yalnızca [d]'nin yıl/ay/gün alanlarına bakar.
+  ///
+  /// Yerel `DateTime(y, m, d)` kurucusu Windows'ta çağrı başına ~17 µs sürer ve
+  /// döngülerde baskın maliyet olur; UTC üzerinden hesap ~0,05 µs'dir. İki
+  /// günün farkı `dayNumber(a) - dayNumber(b)` ile tam gün sayısıdır.
+  static int dayNumber(DateTime d) =>
+      DateTime.utc(d.year, d.month, d.day).millisecondsSinceEpoch ~/
+      Duration.millisecondsPerDay;
+
   /// Adds [months] to [date], clamping the day to the target month's last
   /// day instead of overflowing into the following month.
   ///
@@ -11,7 +21,7 @@ class DateTimeUtils {
     final totalMonths = date.month - 1 + months;
     final year = date.year + totalMonths ~/ 12;
     final month = totalMonths % 12 + 1;
-    final daysInMonth = DateTime(year, month + 1, 0).day;
+    final daysInMonth = DateTime.utc(year, month + 1, 0).day;
     final day = date.day > daysInMonth ? daysInMonth : date.day;
     return DateTime(year, month, day);
   }
@@ -42,7 +52,7 @@ class DateTimeUtils {
     final totalMonths = date.month - 1 + months;
     final year = date.year + totalMonths ~/ 12;
     final month = totalMonths % 12 + 1;
-    final lastDay = DateTime(year, month + 1, 0).day;
+    final lastDay = DateTime.utc(year, month + 1, 0).day;
     final day = preferredDay.clamp(1, lastDay);
     return DateTime(year, month, day);
   }
@@ -64,16 +74,14 @@ class DateTimeUtils {
     DateTime reference, {
     DateTime? originalAnchor,
   }) {
-    final refDay = DateTime(reference.year, reference.month, reference.day);
+    final refDay = dayNumber(reference);
     var current = anchor;
-    var currentDay = DateTime(current.year, current.month, current.day);
-    while (currentDay.isBefore(refDay)) {
+    while (dayNumber(current) < refDay) {
       current = _advanceOnce(
         current,
         cycleKey,
         preferredDay: (originalAnchor ?? anchor).day,
       );
-      currentDay = DateTime(current.year, current.month, current.day);
     }
     return current;
   }
@@ -88,11 +96,8 @@ class DateTimeUtils {
       _advanceOnce(current, cycleKey, preferredDay: anchorDate.day);
 
   static String formatDate(DateTime date) {
-    final now = DateTime.now();
     // Compare calendar days, not hours, to avoid late-night inDays=0 edge case.
-    final today = DateTime(now.year, now.month, now.day);
-    final target = DateTime(date.year, date.month, date.day);
-    final diff = target.difference(today).inDays;
+    final diff = dayNumber(date) - dayNumber(DateTime.now());
     if (diff == 0) return 'Bugün';
     if (diff == 1) return 'Yarın';
     if (diff < 0) return 'Geçti';

@@ -10,12 +10,12 @@ abstract final class SubscriptionLifecycle {
     Iterable<Subscription> items, {
     DateTime? now,
   }) {
-    final today = _dateOnly(now ?? DateTime.now());
+    final today = DateTimeUtils.dayNumber(now ?? DateTime.now());
     return items.where((s) {
       final end = s.trialEndDate;
       return s.status == SubscriptionStatus.trial &&
           end != null &&
-          _dateOnly(end).isBefore(today);
+          DateTimeUtils.dayNumber(end) < today;
     }).toList();
   }
 

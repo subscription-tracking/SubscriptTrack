@@ -5,7 +5,7 @@
    "max_file_lines": 300,
    "files_over_300_pct": 0.0,
    "complexity": {
-    "methods": 980,
+    "methods": 983,
     "avg_cc": 2.27,
     "max_cc": 14,
     "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
@@ -85,26 +85,27 @@
    },
    "benchmark": {
     "subscriptions": 1000,
-    "runs": 3,
-    "controller_load_ms": 57.26,
-    "notify_selectors_ms": 49.78,
-    "projected_renewals_unused_by_ui_ms": 662.27,
-    "stats_view_model_ms": 2.69,
-    "list_filter_sort_ms": 0.31,
-    "reminder_planner_ms": 12.29,
-    "stats_screen_pump_200_ms": 24.35,
-    "list_screen_pump_1000_ms": 9.86,
+    "controller_load_ms": 13.53,
+    "notify_selectors_ms": 0.43,
+    "projected_renewals_unused_by_ui_ms": 374.29,
+    "stats_view_model_ms": 1.39,
+    "list_filter_sort_ms": 0.23,
+    "reminder_planner_ms": 9.58,
+    "calendar_month_ms": 0.15,
+    "stats_screen_pump_200_ms": 18.13,
+    "list_screen_pump_1000_ms": 5.97,
     "list_screen_built_tiles": 7,
-    "note": "Host makine mikro-benchmarkı; 3 koşunun metrik başına medyanı (ms). Cihaz/frame süresi değildir.",
+    "note": "Host makine mikro-benchmarkı (cihaz/frame süresi değildir); 3 koşunun metrik başına medyanı (ms).",
+    "runs": 3,
     "spread_load_ms": [
-     50.81,
-     57.26,
-     182.29
+     13.32,
+     13.53,
+     17.43
     ],
     "spread_notify_ms": [
-     43.63,
-     49.78,
-     186.03
+     0.39,
+     0.43,
+     0.51
     ]
    },
    "apk_mb": 21.7
@@ -118,11 +119,11 @@
    "tests": 10.0,
    "security": 8.3,
    "maintainability": 8.0,
-   "performance": 7.3
+   "performance": 9.3
   },
-  "overall": 9.3,
+  "overall": 9.4,
   "complexity_detail": {
-   "methods": 980,
+   "methods": 983,
    "avg_cc": 2.27,
    "max_cc": 14,
    "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",

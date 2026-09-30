@@ -1,4 +1,5 @@
 import '../../../core/domain/money.dart';
+import '../../../core/utils/date_time_utils.dart';
 import '../../subscriptions/domain/subscription_models.dart';
 import '../../subscriptions/presentation/subscription_controller.dart';
 
@@ -8,18 +9,18 @@ class CalendarController {
   final SubscriptionController subscriptions;
 
   List<Subscription> renewalsForDay(DateTime day) {
-    final target = DateTime(day.year, day.month, day.day);
-    return subscriptions.active.where((s) {
-      final d = s.nextRenewalDate.toLocal();
-      return DateTime(d.year, d.month, d.day) == target;
-    }).toList();
+    final target = DateTimeUtils.dayNumber(day);
+    return subscriptions.active
+        .where((s) =>
+            DateTimeUtils.dayNumber(s.nextRenewalDate.toLocal()) == target)
+        .toList();
   }
 
   List<Subscription> trialsForDay(DateTime day) {
-    final target = DateTime(day.year, day.month, day.day);
+    final target = DateTimeUtils.dayNumber(day);
     return subscriptions.trials.where((s) {
       final d = s.trialEndDate?.toLocal();
-      return d != null && DateTime(d.year, d.month, d.day) == target;
+      return d != null && DateTimeUtils.dayNumber(d) == target;
     }).toList();
   }
 

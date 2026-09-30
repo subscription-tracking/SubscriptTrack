@@ -1563,8 +1563,16 @@
   },
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
-   "name": "DateTimeUtils.addMonthsClamped",
+   "name": "DateTimeUtils.dayNumber",
    "line": 4,
+   "lines": 9,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
+   "name": "DateTimeUtils.addMonthsClamped",
+   "line": 14,
    "lines": 14,
    "cc": 2,
    "depth": 0
@@ -1572,7 +1580,7 @@
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils._advanceOnce",
-   "line": 19,
+   "line": 29,
    "lines": 14,
    "cc": 5,
    "depth": 0
@@ -1580,7 +1588,7 @@
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils._addMonthsWithPreferredDay",
-   "line": 34,
+   "line": 44,
    "lines": 15,
    "cc": 2,
    "depth": 1
@@ -1588,15 +1596,15 @@
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils.nextOccurrenceOnOrAfter",
-   "line": 50,
-   "lines": 30,
+   "line": 60,
+   "lines": 28,
    "cc": 3,
    "depth": 1
   },
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils.nextRenewalDate",
-   "line": 81,
+   "line": 89,
    "lines": 8,
    "cc": 1,
    "depth": 0
@@ -1604,15 +1612,15 @@
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils.formatDate",
-   "line": 90,
-   "lines": 11,
+   "line": 98,
+   "lines": 8,
    "cc": 4,
    "depth": 1
   },
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils.formatCurrency",
-   "line": 109,
+   "line": 114,
    "lines": 12,
    "cc": 2,
    "depth": 1
@@ -1620,7 +1628,7 @@
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils._monthName",
-   "line": 122,
+   "line": 127,
    "lines": 15,
    "cc": 1,
    "depth": 0
@@ -1628,7 +1636,7 @@
   {
    "file": "../../../mobile/lib/core/utils/date_time_utils.dart",
    "name": "DateTimeUtils.renewalLabel",
-   "line": 138,
+   "line": 143,
    "lines": 8,
    "cc": 6,
    "depth": 1
@@ -2476,7 +2484,7 @@
   {
    "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
    "name": "CalendarController.renewalsForDay",
-   "line": 10,
+   "line": 11,
    "lines": 7,
    "cc": 1,
    "depth": 1
@@ -2484,7 +2492,7 @@
   {
    "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
    "name": "CalendarController.trialsForDay",
-   "line": 18,
+   "line": 19,
    "lines": 7,
    "cc": 2,
    "depth": 1
@@ -2492,7 +2500,7 @@
   {
    "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
    "name": "CalendarController.renewalDaysInMonth",
-   "line": 26,
+   "line": 27,
    "lines": 9,
    "cc": 2,
    "depth": 1
@@ -2500,7 +2508,7 @@
   {
    "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
    "name": "CalendarController.trialDaysInMonth",
-   "line": 36,
+   "line": 37,
    "lines": 6,
    "cc": 2,
    "depth": 1
@@ -2508,7 +2516,7 @@
   {
    "file": "../../../mobile/lib/features/calendar/presentation/calendar_controller.dart",
    "name": "CalendarController.totalsByCurrencyForMonth",
-   "line": 43,
+   "line": 44,
    "lines": 12,
    "cc": 5,
    "depth": 2
@@ -5789,14 +5797,22 @@
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.isNotStartedAt",
    "line": 48,
-   "lines": 10,
+   "lines": 3,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.isNotStartedOnDay",
+   "line": 52,
+   "lines": 9,
    "cc": 3,
    "depth": 1
   },
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.isNotStarted",
-   "line": 59,
+   "line": 62,
    "lines": 1,
    "cc": 1,
    "depth": 0
@@ -5804,7 +5820,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.isArchived",
-   "line": 61,
+   "line": 64,
    "lines": 1,
    "cc": 1,
    "depth": 0
@@ -5812,7 +5828,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.monthlyAmount",
-   "line": 63,
+   "line": 66,
    "lines": 6,
    "cc": 5,
    "depth": 0
@@ -5820,15 +5836,23 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.daysUntilRenewal",
-   "line": 70,
-   "lines": 7,
+   "line": 73,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
+   "name": "Subscription.daysUntilRenewalFrom",
+   "line": 76,
+   "lines": 3,
    "cc": 1,
    "depth": 0
   },
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.projectedRenewals",
-   "line": 78,
+   "line": 80,
    "lines": 14,
    "cc": 2,
    "depth": 1
@@ -5836,7 +5860,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.copyWith",
-   "line": 93,
+   "line": 95,
    "lines": 33,
    "cc": 14,
    "depth": 0
@@ -5844,7 +5868,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.toJson",
-   "line": 127,
+   "line": 129,
    "lines": 18,
    "cc": 1,
    "depth": 1
@@ -5852,7 +5876,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription.fromJson",
-   "line": 146,
+   "line": 148,
    "lines": 27,
    "cc": 9,
    "depth": 0
@@ -5860,7 +5884,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription._pick",
-   "line": 174,
+   "line": 176,
    "lines": 3,
    "cc": 2,
    "depth": 0
@@ -5868,7 +5892,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription._text",
-   "line": 178,
+   "line": 180,
    "lines": 7,
    "cc": 2,
    "depth": 0
@@ -5876,7 +5900,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription._date",
-   "line": 186,
+   "line": 188,
    "lines": 3,
    "cc": 1,
    "depth": 0
@@ -5884,7 +5908,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription._rules",
-   "line": 190,
+   "line": 192,
    "lines": 6,
    "cc": 2,
    "depth": 0
@@ -5892,7 +5916,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_models.dart",
    "name": "Subscription._status",
-   "line": 197,
+   "line": 199,
    "lines": 8,
    "cc": 4,
    "depth": 1
@@ -5900,7 +5924,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors._byStatus",
-   "line": 22,
+   "line": 27,
    "lines": 2,
    "cc": 1,
    "depth": 1
@@ -5908,15 +5932,15 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.active",
-   "line": 25,
-   "lines": 4,
+   "line": 30,
+   "lines": 5,
    "cc": 2,
    "depth": 1
   },
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.notStarted",
-   "line": 30,
+   "line": 36,
    "lines": 3,
    "cc": 1,
    "depth": 1
@@ -5924,7 +5948,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.trials",
-   "line": 34,
+   "line": 40,
    "lines": 4,
    "cc": 3,
    "depth": 1
@@ -5932,22 +5956,6 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.paused",
-   "line": 39,
-   "lines": 2,
-   "cc": 1,
-   "depth": 0
-  },
-  {
-   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
-   "name": "SubscriptionSelectors.cancelled",
-   "line": 42,
-   "lines": 2,
-   "cc": 1,
-   "depth": 0
-  },
-  {
-   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
-   "name": "SubscriptionSelectors.expired",
    "line": 45,
    "lines": 2,
    "cc": 1,
@@ -5955,7 +5963,7 @@
   },
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
-   "name": "SubscriptionSelectors.archived",
+   "name": "SubscriptionSelectors.cancelled",
    "line": 48,
    "lines": 2,
    "cc": 1,
@@ -5963,16 +5971,32 @@
   },
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
-   "name": "SubscriptionSelectors.upcomingRenewals",
+   "name": "SubscriptionSelectors.expired",
    "line": 51,
-   "lines": 4,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.archived",
+   "line": 54,
+   "lines": 2,
+   "cc": 1,
+   "depth": 0
+  },
+  {
+   "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
+   "name": "SubscriptionSelectors.upcomingRenewals",
+   "line": 57,
+   "lines": 5,
    "cc": 2,
    "depth": 1
   },
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.projectedRenewals",
-   "line": 56,
+   "line": 63,
    "lines": 13,
    "cc": 3,
    "depth": 2
@@ -5980,7 +6004,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.totalsByCurrency",
-   "line": 70,
+   "line": 77,
    "lines": 13,
    "cc": 4,
    "depth": 1
@@ -5988,7 +6012,7 @@
   {
    "file": "../../../mobile/lib/features/subscriptions/domain/subscription_selectors.dart",
    "name": "SubscriptionSelectors.totalMonthly",
-   "line": 84,
+   "line": 91,
    "lines": 9,
    "cc": 2,
    "depth": 1

@@ -149,6 +149,7 @@ if bench:
         ['Bildirim sonrası selector yeniden hesabı (1000)', bench['notify_selectors_ms'], 'ms'],
         ['StatsViewModel.build (1000 abonelik, 2000 ödeme)', bench['stats_view_model_ms'], 'ms'],
         ['Liste filtre+sırala (1000)', bench['list_filter_sort_ms'], 'ms'],
+        ['Takvim gün+ay hesabı (1000)', bench.get('calendar_month_ms', '—'), 'ms'],
         ['ReminderPlanner.plan (1000)', bench['reminder_planner_ms'], 'ms'],
         ['Stats ekranı pump (200 abonelik, test ortamı)', bench['stats_screen_pump_200_ms'], 'ms'],
         ['Liste ekranı pump (1000 abonelik, test ortamı)', bench['list_screen_pump_1000_ms'], 'ms'],
