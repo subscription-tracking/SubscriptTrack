@@ -2,7 +2,7 @@
 
 // Host makinede çalışan mikro-benchmark (cihaz ölçümü DEĞİLDİR).
 // Çalıştırma: flutter test benchmark/controller_benchmark_test.dart
-// Sonuç: ../code-review-report/metrics/benchmark.json
+// Sonuç: ../docs/quality/metrics/benchmark.json
 import 'dart:convert';
 import 'dart:io';
 
@@ -249,7 +249,7 @@ void main() {
   tearDownAll(() {
     results['note'] =
         'Host makine mikro-benchmarkı; cihaz/frame süresi değildir. Medyan, milisaniye.';
-    final file = File('../code-review-report/metrics/benchmark.json');
+    final file = File('../docs/quality/metrics/benchmark.json');
     file.writeAsStringSync(const JsonEncoder.withIndent(' ').convert(results));
   });
 }

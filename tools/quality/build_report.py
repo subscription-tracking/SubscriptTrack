@@ -1,6 +1,6 @@
-"""metrics/*.json -> code-review-report/index.html (ölçüm tabanlı rapor).
+"""metrics/*.json -> docs/quality/index.html (ölçüm tabanlı rapor).
 
-Kullanım: python build_report.py <code-review-report klasörü>
+Kullanım: python build_report.py <docs/quality klasörü>
 """
 import html
 import json
@@ -389,12 +389,12 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 </ul>
 
 <h2 id="tekrar">8. Yeniden üretme</h2>
-<pre style="background:var(--card);border:1px solid var(--line);padding:12px;border-radius:10px;overflow:auto">python tools/quality/measure_static.py mobile/lib . code-review-report/metrics/static_current.json
-(cd tools/quality/complexity &amp;&amp; dart run bin/complexity.dart ../../../mobile/lib ../../../code-review-report/metrics/complexity_current.json)
-(cd mobile &amp;&amp; flutter test --coverage) &amp;&amp; python tools/quality/coverage.py mobile code-review-report/metrics/coverage_current.json
+<pre style="background:var(--card);border:1px solid var(--line);padding:12px;border-radius:10px;overflow:auto">python tools/quality/measure_static.py mobile/lib . docs/quality/metrics/static_current.json
+(cd tools/quality/complexity &amp;&amp; dart run bin/complexity.dart ../../../mobile/lib ../../../docs/quality/metrics/complexity_current.json)
+(cd mobile &amp;&amp; flutter test --coverage) &amp;&amp; python tools/quality/coverage.py mobile docs/quality/metrics/coverage_current.json
 (cd mobile &amp;&amp; flutter test benchmark/controller_benchmark_test.dart)
-python tools/quality/score.py code-review-report/metrics
-python tools/quality/build_report.py code-review-report</pre>
+python tools/quality/score.py docs/quality/metrics
+python tools/quality/build_report.py docs/quality</pre>
 </div></body></html>
 '''
 open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(page)

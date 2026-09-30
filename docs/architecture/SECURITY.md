@@ -1,0 +1,89 @@
+# Güvenlik ve Gizlilik
+
+**Durum etiketleri:** Uygulandı · Kısmi · Planlı · Kapsam dışı. Kanıt kaynakları: kaynak kod, migration'lar, canlı Supabase dashboard'u (2026-09-30, [SUPABASE_LIVE_STATUS.md](../reference/SUPABASE_LIVE_STATUS.md)) ve [kalite raporu](../quality/index.html).
+
+## 1. Hedefler
+
+- Kullanıcı yalnızca kendi verisine erişir.
+- Token ve secret'lar istemci kaynak kodunda bulunmaz.
+- Finansal veri gereksiz sistemlere aktarılmaz; banka/kart bağlantısı yoktur ([ADR 0007](../decisions/0007-no-bank-integration.md)).
+- Export bağlantıları tahmin edilemez ve süreli olur; hesap silme ve veri dışa aktarma uygulanabilir olur.
+
+## 2. Kontrol durumu
+
+| Kontrol | Durum | Kanıt / not |
+|---|---|---|
+| RLS tüm tablolarda, `auth.uid()` sahiplik politikası | Uygulandı | 15/15 tabloda açık; advisor 0 hata |
+| `SECURITY DEFINER` RPC'lerde `auth.uid()` ve sahiplik kontrolü | Uygulandı | Migration 017–027; `anon` erişimi kaldırıldı (027); ödeme kaydı abonelik sahipliğini doğrular (026) |
+| Edge Function'lar JWT doğrular, service-role sorguları `user.id` ile kısıtlı | Uygulandı | 4/4 fonksiyon `auth.getUser()` kullanır |
+| Service-role anahtarı istemcide yok | Uygulandı | İstemcide yalnızca `SUPABASE_ANON_KEY` (publishable); çalışma ağacında gizli değer yok (gitleaks) |
+| Oturum belirteçleri güvenli depoda | Uygulandı | `flutter_secure_storage`; eski depodan taşıma cihazda **doğrulanmadı** |
+| Uygulama kilidi (PIN, arka plan süresi, biyometri) | Kısmi | Kod ve testler var; gerçek cihaz doğrulaması yok |
+| CSV formül enjeksiyonu (dışa aktarma) etkisizleştirme | Uygulandı | `process-export` ve uygulama içi export |
+| Export dosyası özel bucket'ta, 1 saatlik imzalı bağlantı | Uygulandı | Bucket `exports` özel |
+| Hesap silme uygulama içinden | Uygulandı | `delete-account`; silme sonrası kalıntı veri kontrolü **doğrulanmadı** |
+| E-posta doğrulama | Uygulandı | "Confirm email" açık |
+| Leaked Password Protection | **Açık** | Canlıda kapalı; aksiyon gerekli |
+| Uygulama düzeyinde hız sınırı (auth hariç Supabase platform sınırları) | **Planlı** | 4 Edge Function'da yok |
+| Sertifika sabitleme, root/jailbreak tespiti | Kapsam dışı | Risk/operasyon maliyeti nedeniyle |
+| Bağımlılık zafiyet taraması (osv/SAST) | Planlı | Yalnızca `flutter pub outdated`: 0/11 doğrudan paket ana sürüm geride |
+| RLS politikalarının gerçek veritabanına karşı davranış testi | Planlı | Yalnızca SQL metni üzerinde testler var |
+| Sızma testi | Planlı | Yok |
+
+## 3. Bilinen açık bulgular
+
+| Önem | Bulgu | Konum |
+|---|---|---|
+| Orta | Uygulama düzeyinde hız sınırı yok (destek kaydı spam'i, hesap silme/dışa aktarma denemeleri) | 4 Edge Function |
+| Düşük | Hata durumunda iç ayrıntı sızıntısı (`String(err)`, `error.message`) | `delete-account`, `process-export`, `support-catalog` |
+| Düşük | `Access-Control-Allow-Origin: *` (Bearer token gerektirdiği için etkisi sınırlı) | `delete-account`, `payment-methods` |
+| Düşük | `support-catalog` POST'ta `category` doğrulanmıyor / uzunluk sınırı yok | `support-catalog` |
+| Bilgi | Git geçmişinde anon JWT var; rolü `anon` (publishable, istemcide zaten açık olması tasarım gereği) | Temmuz 2026 commit'i |
+| Bilgi | `notification_deliveries`, `notification_rules`, `exports` tablolarında RLS açık ama tek politika `ALL`; `service_catalog` herkese açık okuma | Bilinçli |
+
+## 4. Tehdit modeli özeti
+
+Korunacak varlıklar: kimlik ve e-posta; abonelik adları, tutarları ve notları; bildirim tercihleri; export dosyaları; service-role anahtarı. Temel tehditler: başka kullanıcının kaydına erişim (IDOR), çalınmış token, mobil binary'den secret çıkarma, loglarda hassas veri, kötü amaçlı deep link, hız sınırsız kötüye kullanım, eksik hesap silme.
+
+## 5. Kimlik ve yetkilendirme
+
+- Kimlik doğrulama Supabase Auth ile yapılır (e-posta + şifre; sosyal giriş kapalı).
+- Kullanıcı kimliği her zaman JWT'den çıkarılır; istemciden gelen `user_id`'ye güvenilmez.
+- Sahiplik sorguları `id + kimliği doğrulanmış user_id` ile yapılır; başkasına ait kayıt için bilgi sızdırmayan yanıt verilir.
+
+## 6. Mobil güvenlik
+
+- Token secure storage/keychain/keystore'da (Uygulandı).
+- API secret uygulamaya gömülmez (Uygulandı).
+- Clipboard'a hassas veri otomatik kopyalanmaz.
+- Debug logların üretimde kapalı olduğu **doğrulanmadı**.
+
+## 7. Veri güvenliği
+
+- Aktarım: TLS (Supabase). Beklemede: platform/DB şifrelemesi (Supabase).
+- Not alanı uzunluk/içerik doğrulaması: yerel form doğrulaması var; sunucu tarafı kısıtı sınırlı.
+- Loglarda token, kullanıcı notu ve export içeriği bulunmamalıdır; Edge Function'ların hata cevabındaki ham hata metni bilinen bulgudur.
+
+## 8. Secret yönetimi
+
+Secret'lar ortam/secret manager üzerinden gelir; repoya `.env` veya gerçek anahtar eklenmez. Edge Function secret'ları Supabase panelindedir. Anahtar rotasyonu prosedürü **yazılı değildir** (Planlı).
+
+## 9. Deep link ve dış bağlantı
+
+Yalnızca tanımlı route ve parametreler kabul edilir; deep link sahiplik kontrolünü atlamaz. İptal linkleri kullanıcıya açıkça gösterilir.
+
+## 10. Hesap silme ve veri dışa aktarma
+
+- Hesap silme uygulama içinden ulaşılır, etkisi anlatılır ve `delete-account` ile Auth kaydı silinir. Kalıntı veri kontrolü açık iştir.
+- Export yalnızca sahibi tarafından başlatılır; dosya özel bucket'ta durur, bağlantı 1 saat geçerlidir.
+
+## 11. Gizlilik ilkeleri
+
+- Banka/kart bağlantısı yoktur; ödeme yöntemi yalnızca kullanıcının yazdığı etikettir.
+- Analytics'e abonelik adı, not veya tam fiyat gönderilmez (analitik altyapısı zaten yoktur).
+- Kullanıcı verisi reklam için satılmaz; veri minimizasyonu uygulanır.
+- Mağaza gizlilik formları gerçek davranışla eşleşmelidir (yayın öncesi açık iş, [RELEASE.md](../operations/RELEASE.md)).
+
+## 12. Güvenlik olayı prosedürü (Planlı)
+
+1. Olayı doğrula 2. Etkilenen sistemi izole et 3. Anahtar/token revoke et 4. Etkiyi belirle 5. Yasal bildirim gereksinimini değerlendir 6. Kullanıcı iletişimi 7. Kök neden ve önleyici aksiyon.
