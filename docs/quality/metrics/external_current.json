@@ -5,11 +5,11 @@
  "advisor_proxy": {
   "errors": 0,
   "warns": 5,
-  "note": "canlÄ± advisor Ã¶lÃ§Ã¼lemedi; migration SQL statik taramasÄ± (proxy)"
+  "note": "canlı Supabase advisor (2026-09-30, dashboard): 0 hata, 5 uyarı (4 tasarım gereği RPC + Leaked Password Protection)"
  },
  "outdated_direct_major": 0,
- "apk_mb": 21.7,
- "apk_note": "Play'e ABI bölünmüş APK gider: arm64-v8a 21,7 MB (ölçülen değer; armeabi-v7a 19,4, x86_64 23,1 MB). Puan arm64-v8a ile hesaplanır. Evrensel (3 ABI) APK 60,2 MB'tır ve kullanıcıya inmez. Ölçüm: <code>flutter build apk --release --split-per-abi</code>.",
+ "apk_mb": 21.8,
+ "apk_note": "Play'e ABI bölünmüş APK gider: arm64-v8a 21,8 MB (2026-09-30 ölçümü; armeabi-v7a 19,5, x86_64 23,2 MB). Puan arm64-v8a ile hesaplanır. Evrensel (3 ABI) APK 60,2 MB'tır (önceki ölçüm) ve kullanıcıya inmez. Ölçüm: <code>flutter build apk --release --split-per-abi</code>. APK debug anahtarıyla imzalıdır (yalnızca test).",
  "tests_total": 738,
  "apk_universal_mb": 60.2,
  "tests_runs": [

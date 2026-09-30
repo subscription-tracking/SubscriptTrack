@@ -62,8 +62,8 @@ Görünürlük → yaklaşan risk → karar → tasarruf → tekrar kullanım
 ### 6.1 Kimlik doğrulama
 
 - E-posta ve şifreyle kayıt/giriş
-- Google ile giriş
-- iOS'ta Apple ile giriş
+- Google ile giriş _(Kısmi: kod yolu var, canlıda sağlayıcı kapalı)_
+- iOS'ta Apple ile giriş _(Kısmi: aynı; iOS build yok)_
 - Şifre sıfırlama
 - Oturum yenileme ve güvenli çıkış
 - Hesap ve verileri uygulama içinden silme
@@ -176,19 +176,20 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 
 ## 7. Sistem kategorileri
 
-| Kod | Kategori | Önerilen ikon |
-|---|---|---|
-| `ENTERTAINMENT` | Eğlence | `tv` |
-| `MUSIC` | Müzik | `music` |
-| `SOFTWARE` | Yazılım ve Araçlar | `code` |
-| `CLOUD` | Bulut ve Depolama | `cloud` |
-| `EDUCATION` | Eğitim | `book-open` |
-| `BUSINESS` | İş ve Finans | `briefcase` |
-| `HEALTH` | Sağlık | `heart` |
-| `GAMING` | Oyun | `gamepad-2` |
-| `OTHER` | Diğer | `tag` |
+**Durum: Uygulandı.** Kaynak: `SubscriptionCategory` enum'u (`mobile/lib/features/subscriptions/domain/subscription_enums.dart`); `subscriptions.category` metin alanında küçük harfli anahtar olarak saklanır, varsayılan `other`.
 
-Kategori rengi ve durum rengi aynı token olarak kullanılmamalıdır.
+| Anahtar | Kategori (arayüz etiketi) |
+|---|---|
+| `streaming` | Video & Dizi |
+| `music` | Müzik |
+| `gaming` | Oyun |
+| `software` | Yazılım |
+| `cloud` | Bulut Depolama |
+| `fitness` | Spor & Sağlık |
+| `news` | Haber & Dergi |
+| `food` | Yemek |
+| `education` | Eğitim |
+| `other` | Diğer |
 
 ## 8. MVP dışında
 

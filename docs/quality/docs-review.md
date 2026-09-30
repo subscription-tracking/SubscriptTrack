@@ -73,7 +73,7 @@ Yöntem: `SubscriptTrack-Documentation/` içeriği kod, dosya sistemi, GitHub CI
 2. **"latest-release" APK bayat:** 22 Eylül, 62,8 MB; sonraki tüm commit'lerden önce. Adı yanıltıcı.
 3. **Sürüm bilgisi 5 izlenen dosyada bayat** (Flutter 3.44.8): README, CURRENT_STATUS, DEPLOYMENT, iki rapor üretici betik. Gerçek: 3.47.2.
 4. **Aynı içerik 4 yerde kopya:** kök README, CURRENT_STATUS, `Teknik_Yapi_ve_Ozellik_Envanteri.md`, iki docx. Biri güncellenince diğerleri ayrışıyor (docx'ler commit `6e116b2`, Flutter 3.44.8).
-5. **Excel karmaşası:** 3 özellik envanteri (v1/v2/v3), 4 test senaryosu dosyası (60 ve 66 satırlı). `TEST_TRACEABILITY.md` var olmayan `Abonelik_Takip_Test_Senaryolari.xlsx` adına atıf yapıyor. Test dosyalarının Özet sayfasında "Tamamlanan 0 / bekleyen 0" (formül hesaplanmamış), tarih ham sayı (46287). Envanter özet tabloları tutarsız (71 vs 70).
+5. **Excel karmaşası:** 3 özellik envanteri (v1/v2/v3), 4 test senaryosu dosyası (60 ve 66 satırlı). `TEST_TRACEABILITY.md` var olmayan `Abonelik_Takip_Test_Senaryolari.xlsx` adına atıf yapıyor. **Düzeltme (4. tur):** Test dosyalarının Özet sayfasındaki `COUNTIF` formülleri geçerlidir; "0" görünmesi dosyanın Excel'de hiç açılıp hesaplanmamasından kaynaklanan boş önbellektir, hata değildir (yalnızca tarih hücresi ham sayı). Envanter özet tabloları tutarsız (71 vs 70).
 6. **Excel'deki "Doküman Uyumsuzlukları" sayfası** 6 bilinen sorunu 22 Eylül'de kaydetmiş (eski device token dokümanları, CSV şeması farkı, "destek" ifadesi, yerel modda şifre sıfırlama, "aktif senkronizasyon" kanıtı, hukuki onay); dokümanlar hâlâ düzeltilmedi.
 4. **28 Eylül denetim raporları (HTML+PDF) bayat ve öznel:** 86 dosya, 348 test, "God File 6 dosya / %32,7"; puanlar Clean Architecture 8,8, Test 9,4, Performans 6,8, God File 5,5. Şimdi 167 dosya, 738 test, God-file yok ve puanlar ölçüme dayalı. İki çelişen kalite raporu dolaşımda.
 7. **`graphify-out/GRAPH_REPORT.md` 14 Eylül,** `graph.json` 29 Eylül: rapor grafla uyumsuz.
@@ -104,3 +104,22 @@ Tek doküman kökü `docs/` kuruldu; belgeler amaca göre klasörlendi ve gerçe
 | Repo migration zinciri ile canlı şema sapması | **Açık:** baseline migration (Supabase CLI/DB erişimi gerekir), bkz. `operations/RELEASE.md` bölüm 9 |
 | Web önizleme Auth yönlendirme adresi izinli listede değil | **Açık:** Supabase ayarı (canlı hesap ayarı; bu turda değiştirilmedi) |
 | CI: Android release AAB derlemesi başarısız | **Açık, yeni bulgu:** `checkReleaseDuplicateClasses` / JetifyTransform; ayrıca araştırılmalı |
+
+---
+
+# 4. tur: eksik kalan her şey (2026-09-30)
+
+Kapsam daraltması geri alındı: git dışı dosyalar, kalite raporu ve kalan belgeler de ele alındı.
+
+| Konu | Sonuç |
+|---|---|
+| Kalite raporu | Yeniden ölçüldü ve üretildi (güncel APK, testler, kapsama, statik, karmaşıklık, güvenlik, benchmark, v2 puanlama) |
+| `outputs/` eski raporlar, denetimler, ekran görüntüleri, eski Excel sürümleri | **Silinmeden** `outputs/_arsiv-2026-09-30/` altına taşındı (README'li); yerinde yalnızca en güncel Excel'ler ve yeni APK kaldı |
+| Excel test senaryoları | 65 senaryo; referans verilen tüm test dosyaları mevcut (kontrol edildi) |
+| TEST_TRACEABILITY | Excel'deki 65 senaryodan yeniden üretildi (eskiden 59 satır) |
+| PRODUCT sistem kategorileri | Yanlıştı (`ENTERTAINMENT/BUSINESS/HEALTH…`); koddaki `SubscriptionCategory` enum'una göre düzeltildi |
+| DESIGN_SYSTEM | Hedef spesifikasyonu olduğu belirtildi; gerçek token/bileşen konumları ve uygulanmayanlar yazıldı |
+| USER_FLOWS geri bildirim | Yanlıştı ("destek kaydı oluşturmaz"); ekran Supabase'te `support-catalog` ile kayıt açıyor |
+| **Ürün kuralı ↔ kod çelişkileri (karar bekliyor)** | (1) Arayüz herhangi bir abonelik için **kalıcı silme** sunuyor; AGENTS.md/DOMAIN/ADR 0006 normal akışta silmeyi yasaklar. (2) Yükleme sırasında gecikmiş yenileme tarihi **otomatik ilerletiliyor**; DOMAIN "sessizce ilerletilmez" der. Belgelerde her iki çelişki açıkça işaretlendi, kod değiştirilmedi |
+| MOBILE.md'ye kopyalanan bayat paragraf (`mistakenRecord`) | Bulundu ve düzeltildi |
+| Graphify | **Yapılamadı:** LLM API anahtarı yok (84 dosya semantik çıkarım gerektiriyor) |

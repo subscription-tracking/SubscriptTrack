@@ -72,7 +72,7 @@
    "advisor_proxy": {
     "errors": 0,
     "warns": 5,
-    "note": "canlÄ± advisor Ã¶lÃ§Ã¼lemedi; migration SQL statik taramasÄ± (proxy)"
+    "note": "canlı Supabase advisor (2026-09-30, dashboard): 0 hata, 5 uyarı (4 tasarım gereği RPC + Leaked Password Protection)"
    },
    "outdated_direct_major": 0,
    "maintainability": {
@@ -85,30 +85,30 @@
    },
    "benchmark": {
     "subscriptions": 1000,
-    "controller_load_ms": 13.53,
-    "notify_selectors_ms": 0.43,
-    "projected_renewals_unused_by_ui_ms": 374.29,
-    "stats_view_model_ms": 1.39,
-    "list_filter_sort_ms": 0.23,
-    "reminder_planner_ms": 9.58,
-    "calendar_month_ms": 0.15,
-    "stats_screen_pump_200_ms": 18.13,
-    "list_screen_pump_1000_ms": 5.97,
+    "controller_load_ms": 15.56,
+    "notify_selectors_ms": 0.52,
+    "projected_renewals_unused_by_ui_ms": 508.4,
+    "stats_view_model_ms": 1.81,
+    "list_filter_sort_ms": 0.29,
+    "reminder_planner_ms": 10.76,
+    "calendar_month_ms": 0.17,
+    "stats_screen_pump_200_ms": 35.23,
+    "list_screen_pump_1000_ms": 12.73,
     "list_screen_built_tiles": 7,
     "note": "Host makine mikro-benchmarkı (cihaz/frame süresi değildir); 3 koşunun metrik başına medyanı (ms).",
     "runs": 3,
     "spread_load_ms": [
-     13.32,
-     13.53,
-     17.43
+     19.91,
+     14.49,
+     15.56
     ],
     "spread_notify_ms": [
-     0.39,
-     0.43,
-     0.51
+     0.52,
+     0.63,
+     0.42
     ]
    },
-   "apk_mb": 21.7
+   "apk_mb": 21.8
   },
   "category_scores": {
    "static_analysis": 10,

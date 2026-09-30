@@ -2,7 +2,7 @@
 
 ## Durum
 
-Accepted
+Accepted. **Uygulamada kısmen uyulmuyor (2026-09-30):** arayüz herhangi bir abonelik için "Kalıcı olarak sil" sunuyor ([MOBILE.md §6](../architecture/MOBILE.md)); ürün sahibinin kararı bekleniyor (kararı değiştirmek için yeni ADR açılır).
 
 ## Bağlam
 
