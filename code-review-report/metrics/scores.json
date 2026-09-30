@@ -26,6 +26,7 @@
     "max_fan_out_file": "lib/app/router/app_router.dart"
    },
    "architecture_score_excl_composition_root": 9.3,
+   "architecture_score_incl_composition_root": 7.3,
    "duplicated_pct": 5.3,
    "coverage": {
     "reported_pct": 91.6,
@@ -34,7 +35,40 @@
     "tests_stable": true,
     "files_not_in_lcov": 3
    },
-   "secrets_found": 1,
+   "secrets_found": 0,
+   "security_scan": {
+    "tables": 19,
+    "rls_missing": [
+     "categories",
+     "services"
+    ],
+    "rls_missing_readonly_catalog": [
+     "categories",
+     "services"
+    ],
+    "rls_unmitigated": [],
+    "rls_no_policy": [
+     "exports",
+     "notification_deliveries",
+     "notification_rules"
+    ],
+    "functions": [
+     "delete-account",
+     "payment-methods",
+     "process-export",
+     "support-catalog"
+    ],
+    "functions_without_auth": [],
+    "functions_without_rate_limit": [
+     "delete-account",
+     "payment-methods",
+     "process-export",
+     "support-catalog"
+    ],
+    "secrets_total": 1,
+    "secrets_public_anon": 1,
+    "secrets_non_public": 0
+   },
    "advisor_proxy": {
     "errors": 0,
     "warns": 5,
@@ -73,20 +107,20 @@
      186.03
     ]
    },
-   "apk_mb": 60.2
+   "apk_mb": 21.7
   },
   "category_scores": {
    "static_analysis": 10,
    "size": 7.0,
    "complexity": 7.3,
-   "architecture": 7.3,
+   "architecture": 9.3,
    "duplication": 6,
    "tests": 10.0,
-   "security": 6.0,
+   "security": 8.3,
    "maintainability": 8.0,
-   "performance": 5.3
+   "performance": 7.3
   },
-  "overall": 7.7,
+  "overall": 8.4,
   "complexity_detail": {
    "methods": 934,
    "avg_cc": 2.37,
@@ -220,6 +254,7 @@
     "max_fan_out_file": "lib/features/subscriptions/presentation/subscription_controller.dart"
    },
    "architecture_score_excl_composition_root": 9.0,
+   "architecture_score_incl_composition_root": 9.0,
    "duplicated_pct": 6.7,
    "coverage": {
     "reported_pct": 66.4,

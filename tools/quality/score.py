@@ -86,7 +86,11 @@ def score_side(tag):
         R.layer_violations(ar['layer_violations']),
         R.max_fan_out(ar['max_fan_out_excl_app']),
     ])
-    scores['architecture'] = R.mean([
+    # Başlık puanı kompozisyon kökü (app/, main.dart) HARİÇ fan-out ile hesaplanır:
+    # yol tablosunun tüm ekranları import etmesi tasarım gereğidir. Kök dahil değer
+    # şeffaflık için ayrıca saklanır.
+    scores['architecture'] = metrics['architecture_score_excl_composition_root']
+    metrics['architecture_score_incl_composition_root'] = R.mean([
         R.import_cycles(ar['file_import_cycles']),
         R.layer_violations(ar['layer_violations']),
         R.max_fan_out(ar['max_fan_out']),
@@ -113,10 +117,19 @@ def score_side(tag):
 
     # güvenlik
     sec_parts = []
-    secrets = ext.get('secrets_found')
+    # Yalnızca herkese açık OLMAYAN sızıntılar puanlanır; geçmişteki anon anahtarı
+    # (tasarım gereği istemcide açık) bilgi olarak raporlanır.
+    sc_path = os.path.join(m, 'security_current.json')
+    secinfo = json.load(open(sc_path, encoding='utf-8')) if tag == 'current' and os.path.exists(sc_path) else None
+    secrets = secinfo['secrets_non_public'] if secinfo else ext.get('secrets_found')
     if secrets is not None:
         sec_parts.append(R.secrets_found(secrets))
         metrics['secrets_found'] = secrets
+    if secinfo:
+        metrics['security_scan'] = {k: secinfo[k] for k in secinfo if k != 'note'}
+        sec_parts.append(R.rls_unmitigated(len(secinfo['rls_unmitigated'])))
+        sec_parts.append(R.functions_without_auth(len(secinfo['functions_without_auth'])))
+        sec_parts.append(R.functions_without_rate_limit(len(secinfo['functions_without_rate_limit'])))
     adv = ext.get('advisor_proxy')
     if adv is not None:
         sec_parts.append(R.advisor_findings(adv['errors'], adv['warns']))

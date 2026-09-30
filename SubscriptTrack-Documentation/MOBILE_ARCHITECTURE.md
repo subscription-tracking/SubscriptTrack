@@ -301,4 +301,4 @@ Controller yeni bağımlılıkları isteğe bağlı ctor parametresi olarak alı
 - Uzun `build` metotları özel alt widget'lara bölündü (trend/insights/hero kartları, giriş/kayıt/şifre ekranları, dashboard, abonelik listesi, detay bölümleri vb.). Davranış değişmedi.
 - `shared/widgets/app_offline_banner.dart` içine `AppStatusBanner` eklendi (çevrimdışı şeridi veya kapatılabilir hata bandı); dashboard ve abonelik listesi kullanır.
 - `AppTheme.dark` metin, buton ve girdi temalarını ayrı statik üyelere ayırır; `AppRouter.contentRoutes` abonelik/analiz/ayar gruplarına bölündü (sıra kuralı korunur).
-- Doğrulama: 723 test yeşil, `flutter analyze` temiz, `flutter build apk --release` başarılı (60,2 MB).
+- Doğrulama: 723 test yeşil, `flutter analyze` temiz, `flutter build apk --release` başarılı (evrensel 60,2 MB; Play için ABI bölünmüş arm64-v8a 21,7 MB).
