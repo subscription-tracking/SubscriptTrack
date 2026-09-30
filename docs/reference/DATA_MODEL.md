@@ -69,7 +69,7 @@ Realtime yayınında olan tek tablo.
 
 ## 3. Repo migration'ında olup canlıda bulunmayan yapılar
 
-`backend/migrations/001–005` şunları tanımlar; **canlıda yoktur**: `users`, `services`, `categories`, `billing_schedules`. Kanonik şema bu belgedir; repo ile canlıyı eşitleme işi [RELEASE.md](../operations/RELEASE.md#veritabanı-migration-ve-canlı-şema) içinde izlenir.
+`backend/migrations/001–005` şunları tanımlar; **canlıda yoktur**: `users`, `services`, `categories`, `billing_schedules`. Kanonik şema bu belgedir; repo ile canlıyı eşitleme işi [RELEASE.md](../operations/RELEASE.md#9-veritabanı-migration-ve-canlı-şema) içinde izlenir.
 
 ## 4. Silme ve saklama
 

@@ -58,7 +58,7 @@ Ayrıntılı, tarihli anlık görüntü: [SUPABASE_LIVE_STATUS.md](reference/SUP
 - Git dalı: `main` (güncel commit için `git log`).
 - GitHub Pages web önizleme: https://subscription-tracking.github.io/SubscriptTrack/ (workflow: Deploy web preview).
 - **CI "Mobile quality gate" (2026-09-30 son koşu):** `analyze-and-test` ve `backend-test` **başarılı**; `android-release-candidate` (Android App Bundle release derlemesi) **başarısız** — Gradle `checkReleaseDuplicateClasses` / `JetifyTransform` hatası (Flutter motor jar'ları). Çözülene kadar CI'da imzasız AAB üretilmiyor.
-- Release APK/AAB dosyaları git'te tutulmaz; yerel `outputs/` klasöründedir ve depoda yayınlanmış bir "son sürüm" yoktur.
+- Release APK/AAB dosyaları git'te tutulmaz; yerel, git dışı çıktı klasöründedir ve depoda yayınlanmış bir "son sürüm" yoktur.
 - Supabase proje ref: `tdbljrojcmyjwchawfif`.
 
 ## Doğrulama

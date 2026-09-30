@@ -53,5 +53,5 @@ Her belge veya bölüm, anlattığı şeyin durumunu belirtir:
 - Mobil katman değişirse MOBILE (ve gerekiyorsa USER_FLOWS) güncellenir.
 - Bildirim davranışı değişirse NOTIFICATIONS güncellenir.
 - Önemli teknik karar ADR ile kaydedilir.
-- Belgeler yalnızca git'te izlenen dosyalara bağlanır; `outputs/` yereldir ve bağlanmaz.
+- Belgeler yalnızca git'te izlenen dosyalara bağlanır; yerel, git dışı çıktı klasörü bağlanmaz.
 - `python tools/docs/check_docs.py` bağlantıları, sürüm ve sayı tutarlılığını denetler (CI'da çalışır).
