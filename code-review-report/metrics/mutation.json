@@ -1,0 +1,166 @@
+[
+ {
+  "file": "lib/core/services/reminder_planner.dart",
+  "line": 68,
+  "orig": "List<Subscription> trials = const [],",
+  "mut": "List<=Subscription> trials = const [],",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_selectors.dart",
+  "line": 54,
+  "orig": "List<Subscription> get archived =>",
+  "mut": "List<Subscription>= get archived =>",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/services/offline_mutation_queue.dart",
+  "line": 58,
+  "orig": "Future<List<OfflineMutation>> _load() async {",
+  "mut": "Future<List<=OfflineMutation>> _load() async {",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 212,
+  "orig": "return false;",
+  "mut": "return true;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/utils/date_time_utils.dart",
+  "line": 23,
+  "orig": "final month = totalMonths % 12 + 1;",
+  "mut": "final month = totalMonths % 12 - 1;",
+  "killed": false,
+  "compile_err": false,
+  "note": "tam pakette (738 test) de yakalanmadı: addMonthsClamped yalnızca preferredDay==null iken kullanılıyor, gerçek akışlar hep veriyor; bu yol test edilmiyor (gerçek boşluk)"
+ },
+ {
+  "file": "lib/core/utils/date_time_utils.dart",
+  "line": 122,
+  "orig": "if (diff < 0) return 'Geçti';",
+  "mut": "if (diff <= 0) return 'Geçti';",
+  "killed": false,
+  "compile_err": false,
+  "equivalent": true,
+  "note": "diff==0 daha önce döndüğü için diff<=0 davranışı değiştirmez (eşdeğer mutant)"
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 136,
+  "orig": "_enabled = false;",
+  "mut": "_enabled = true;",
+  "killed": false,
+  "compile_err": false,
+  "note": "disable() sonrası _enabled durumu doğrulanmıyor (gerçek boşluk)"
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_selectors.dart",
+  "line": 20,
+  "orig": "List<Subscription>? _trials;",
+  "mut": "List<Subscription>=? _trials;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/offline_mutation_queue.dart",
+  "line": 31,
+  "orig": "payload: (j['payload'] as Map<String, dynamic>),",
+  "mut": "payload: (j['payload'] as Map<=String, dynamic>),",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/data/subscription_operations.dart",
+  "line": 94,
+  "orig": "Future<bool> guarded(Future<void> Function() op) async {",
+  "mut": "Future<bool>= guarded(Future<void> Function() op) async {",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/utils/date_time_utils.dart",
+  "line": 52,
+  "orig": "final totalMonths = date.month - 1 + months;",
+  "mut": "final totalMonths = date.month + 1 + months;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "line": 89,
+  "orig": "_locked = false;",
+  "mut": "_locked = true;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_lifecycle.dart",
+  "line": 31,
+  "orig": "!s.isNotStarted &&",
+  "mut": "!s.isNotStarted ||",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/domain/currency.dart",
+  "line": 62,
+  "orig": "static List<(String symbol, String name, String code)>",
+  "mut": "static List<=(String symbol, String name, String code)>",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_selectors.dart",
+  "line": 18,
+  "orig": "List<Subscription>? _active;",
+  "mut": "List<Subscription>=? _active;",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/services/offline_mutation_queue.dart",
+  "line": 120,
+  "orig": "if (localId == serverId) return;",
+  "mut": "if (localId != serverId) return;",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/core/services/offline_mutation_queue.dart",
+  "line": 92,
+  "orig": "Future<void> enqueue(OfflineMutation mutation) => _synchronized(() async {",
+  "mut": "Future<=void> enqueue(OfflineMutation mutation) => _synchronized(() async {",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/core/utils/date_time_utils.dart",
+  "line": 120,
+  "orig": "if (diff == 0) return 'Bugün';",
+  "mut": "if (diff != 0) return 'Bugün';",
+  "killed": true,
+  "compile_err": false
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_models.dart",
+  "line": 81,
+  "orig": "List<DateTime> projectedRenewals({int count = 12}) {",
+  "mut": "List<DateTime>= projectedRenewals({int count = 12}) {",
+  "killed": true,
+  "compile_err": true
+ },
+ {
+  "file": "lib/features/subscriptions/domain/subscription_selectors.dart",
+  "line": 19,
+  "orig": "List<Subscription>? _notStarted;",
+  "mut": "List<Subscription>=? _notStarted;",
+  "killed": true,
+  "compile_err": true
+ }
+]

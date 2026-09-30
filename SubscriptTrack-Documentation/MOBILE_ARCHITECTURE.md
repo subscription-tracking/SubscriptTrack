@@ -358,3 +358,14 @@ Tarayıcıda gezilen ekranlardan çıkan bulgular giderildi (`code-review-report
 - Tasarruf başlığı (`_Top3Card._headline`) gerçek abonelik sayısını yazar; istatistik hero kartı önceki ay verisi yoksa değişim göstermez.
 - Ekleme ve düzenleme ekranları ortak `SubscriptionFormScaffold` (başlık, form gövdesi, sabit alt eylem çubuğu) ve `showFormSaveError` kullanır.
 - Testler: `test/features/screen_review_fixes_test.dart` ve mevcut ekran testlerine eklemeler (738 test).
+
+### 12.x Hakkaniyet denetimi (2026-09-30)
+
+Kalite puanları `tools/quality/audit_v2.py` ile yeniden değerlendirildi (kurallar mutasyon sonucu görülmeden yazıldı). Kod kalitesi 9,4 (v1) → **8,7** (v2); yayına hazırlık ayrı puan: **2,8**.
+
+- Test puanı 10 → 8,4: 20 mutantlık örnekte 8'i derlenemedi, kalan geçerlilerde %81,8 yakalama; gerçek boşluklar `DateTimeUtils.addMonthsClamped` (preferredDay yokken) ve `AppLockService.disable()` sonrası durum. Edge function'ların davranış testi yok, migration testleri SQL metni üzerinde regex.
+- Güvenlik 8,3 → 7,9: 3 açık düşük bulgu (hata metni sızıntısı, CORS `*`, doğrulanmayan `category`), doğrulanmamış kritik kontroller ve hız sınırı yok. Canlı Supabase advisor: 0 hata; 4 SECURITY DEFINER RPC uyarısı incelenmiş tasarım gereği; Leaked Password Protection kapalı. Migration 031 ile 15 RLS InitPlan uyarısı giderildi.
+- Performans 9,3 → 8: yalnızca host ölçümü olduğu için tavan 8.
+- Tekrar bağımsız araçla (jscpd) çapraz doğrulandı: %1,08 (bizim araç %2,9), yani şişirilmemiş.
+- Yayına hazırlık: debug keystore yedeği, cihazda doğrulama yok, iOS build yok, son uzak CI koşusu kırmızı ve 12 commit itilmedi.
+

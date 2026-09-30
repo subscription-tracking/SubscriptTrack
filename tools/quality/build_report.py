@@ -133,7 +133,7 @@ sec_rows = [
     ['Edge function kimlik doğrulaması olmayan', f"{len(secs.get('functions_without_auth', []))} / {len(secs.get('functions', []))}", 'Kaynak taraması: <code>getUser</code> çağrısı.'],
     ['Edge function uygulama düzeyinde hız sınırı olmayan', f"{len(secs.get('functions_without_rate_limit', []))} / {len(secs.get('functions', []))}",
      ', '.join(secs.get('functions_without_rate_limit', [])) + '. Supabase platform sınırları geçerli olabilir ama kodda istek başına/kullanıcı başına sınır yok.'],
-    ['Migration SQL taraması (advisor proxy)', f"{ext_c.get('advisor_proxy', {}).get('warns', '?')} uyarı", 'Canlı Supabase advisor ölçülemedi; statik tarama.'],
+    ['Canlı Supabase advisor (2026-09-30, salt okunur)', '0 hata, 5 uyarı', '4 uyarı SECURITY DEFINER RPC: auth.uid() ve sahiplik kontrolleri kaynaktan doğrulandı, tasarım gereği. 1 uyarı Leaked Password Protection kapalı (aksiyon gerekir). Performans advisor: 15 RLS InitPlan uyarısı migration 031 ile sıfıra indi.'],
     ['Doğrudan bağımlılık, ana sürüm geride', f"{outdated['major_behind']} / {outdated['direct']}", 'Danışma (advisory) bulgusu yok; ' + str(outdated['discontinued']) + ' geçişli paket "discontinued".'],
 ]
 dep_rows = [[r[0], r[1], r[2], 'evet' if r[3] else 'hayır'] for r in outdated['rows']]
@@ -170,6 +170,62 @@ dup_rows = [[short(p), n] for p, n in dup['top_files']]
 fo_rows = [[short(p), n] for p, n in static_c['architecture']['top_fan_out']]
 fi_rows = [[short(p), n] for p, n in static_c['architecture']['top_fan_in']]
 
+
+# ---- v2 hakkaniyet denetimi ------------------------------------------------
+A2 = load('scores_v2.json')
+audit_html = ''
+if A2:
+    w2, l2 = A2['weights_v2'], A2['labels_v2']
+    ev = {'static_analysis': 'A', 'size': 'A (kendi optimize ettiğimiz: Goodhart riski)', 'complexity': 'A (kendi aracımız + optimize edildi)',
+          'architecture': 'A (kendi kurallarımız; kök hariç tutma sonradan eklendi)', 'duplication': 'B (jscpd %' + str(A2['facts']['duplication_cross_check']['duplicated_pct']) + ', bizim araç %' + str(A2['facts']['duplication_cross_check']['own_tool_pct']) + ')',
+          'tests': 'A + mutasyon (C)', 'security': 'A + C (canlı dashboard, kaynak incelemesi) + U', 'maintainability': 'A (zayıf: yalnızca dartdoc ve artefakt)',
+          'performance': 'A (yalnızca host; cihaz ölçümü yok)'}
+    rows2 = []
+    for k in w2:
+        b, c = A2['v1_categories'].get(k), A2['v2_categories'].get(k)
+        d = '' if b is None or c is None else f'{c - b:+.1f}'
+        rows2.append([l2[k], f'{w2[k]}%', f'<span class="pill {cls(b)}">{sc(b)}</span>', f'<span class="pill {cls(c)}">{sc(c)}</span>', d, ev[k]])
+    cat2 = table(['Kategori', 'v2 ağırlık', 'v1 puan', 'v2 puan', 'Fark', 'Kanıt türü'], rows2, right=(1, 2, 3, 4))
+    mu = A2['mutation']
+    surv = [[short(x['file']), x['line'], x['orig'], x['mut']] for x in mu['survivors']]
+    mut_tbl = table(['Dosya', 'Satır', 'Özgün', 'Mutant (testlerce yakalanmadı)'], surv, right=(1,)) if surv else '<p>Hayatta kalan mutant yok.</p>'
+    sp = [[k, f'<span class="pill {cls(v)}">{sc(v)}</span>'] for k, v in A2['security_parts'].items()]
+    sec_tbl = table(['Güvenlik alt kalemi (v2)', 'Puan'], sp, right=(1,))
+    rp = [[k, f'<span class="pill {cls(v)}">{sc(v)}</span>'] for k, v in A2['release']['parts'].items()]
+    rel_tbl = table(['Yayına hazırlık kalemi', 'Puan'], rp, right=(1,))
+    tp = [[k, f'<span class="pill {cls(v)}">{sc(v)}</span>'] for k, v in A2['tests_parts'].items()]
+    t_tbl = table(['Test alt kalemi (v2)', 'Puan'], tp, right=(1,))
+    audit_html = f"""
+<h2 id="hakkaniyet">1b. Hakkaniyet denetimi (v2): puanlar şişirilmiş miydi?</h2>
+<div class="grid">
+<div class="card big"><b>{sc(A2['v1_overall'])}</b><span>v1 genel (yalnızca aracın ölçtüğü)</span></div>
+<div class="card big"><b>{sc(A2['v2_overall'])}</b><span>v2 genel — KOD KALİTESİ (ağırlıklar ve kanıt kuralları düzeltilmiş)</span></div>
+<div class="card big"><b>{sc(A2['release']['score'])}</b><span>YAYINA HAZIRLIK (ayrı puan)</span></div>
+<div class="card big"><b>%{mu['killed_pct']}</b><span>mutasyon skoru ({mu['killed']}/{mu['valid']} mutant yakalandı)</span></div>
+</div>
+<div class="note"><b>Neden yeniden puanladık:</b> v1 yalnızca aracın ölçebildiğini puanlıyordu. Doğrudan optimize ettiğimiz metrikler (dosya boyutu, karmaşıklık, tekrar) 10 alıyordu; test puanı yalnızca satır kapsamasına dayanıyordu; backend testi, cihaz doğrulaması, CI ve imzalama puana hiç girmiyordu. v2 kuralları mutasyon sonucu görülmeden yazıldı (<code>tools/quality/audit_v2.py</code>) ve sonuca göre değiştirilmedi; tek istisna: kanıtlanmış eşdeğer bir mutantı sonradan hesaptan çıkardım (ham hesap da aynı puanı verir, ikisi de aşağıda).</div>
+<h3>Kriterler</h3>
+<ol>
+<li><b>Kanıt türü:</b> A = araçla ölçüldü, B = bağımsız ikinci araçla çapraz doğrulandı, C = repo/canlı ortam incelemesi, U = doğrulanmadı.</li>
+<li><b>Doğrulanmamış kritik kontrol 5 alır</b> (bilinmiyor iyi demek değildir; kötü olduğu da kanıtlanmadı).</li>
+<li><b>Yalnızca host makinede ölçülen değer en fazla 8</b> alır (performans).</li>
+<li><b>Test puanı:</b> %20 satır kapsama, %15 domain kapsama, %5 kararlılık, %15 backend davranış testi, %35 mutasyon skoru (çekirdek mantığa kasıtlı hata sokulup testlerin yakalama oranı; kapsamayla aynı eşik tablosu 85/75/65/55/45).</li>
+<li><b>Yayına hazırlık ayrı puanlanır</b> ve kod puanına karışmaz.</li>
+<li>Puanlar eşiklerden mekanik türetilir; elle ayarlanmaz. Ağırlıklar gerekçeyle değişti: güvenlik 10→20 (kullanıcı verisi + kimlik doğrulama), test 20→25, dosya boyutu 15→8 (en kolay oyunlanan metrik).</li>
+</ol>
+{cat2}
+{t_tbl}
+<h3>Mutasyon testi ({mu['sample']} mutant örneklendi; {mu['compile_errors']} derlenemedi, {mu['equivalent']} eşdeğer çıktı, ikisi de sayılmadı)</h3>
+<p>Ham sonuç: {mu['raw_killed']}/{mu['raw_valid']} yakalandı (%{mu['raw_killed_pct']}); eşdeğer mutant çıkarılınca {mu['killed']}/{mu['valid']} (%{mu['killed_pct']}). İki hesap da aynı puanı verir (75–84 arası = 9).</p>
+{mut_tbl}
+<div class="note">Yöntem: çekirdek dosyalara (<code>money</code>, <code>currency</code>, <code>date_time_utils</code>, selector'lar, yaşam döngüsü, modeller, <code>reminder_planner</code>, çevrimdışı kuyruk, uygulama kilidi, abonelik operasyonları) sabit tohumla rastgele operatör mutasyonları (<code>&lt;</code>↔<code>&lt;=</code>, <code>==</code>↔<code>!=</code>, <code>&amp;&amp;</code>↔<code>||</code>, <code>+</code>↔<code>-</code>, <code>true</code>↔<code>false</code>) uygulandı; ilgili test paketi çalıştırıldı, zaman aşımı "yakalandı" sayıldı. Hayatta kalanlar tek tek incelendi: biri kanıtlanmış eşdeğer mutant (<code>diff &lt;= 0</code>, öndeki <code>diff == 0</code> koşulu yüzünden), ikisi gerçek test boşluğu: <code>DateTimeUtils.addMonthsClamped</code> (yalnızca <code>preferredDay</code> verilmeyince kullanılıyor, bu yol tam pakette de test edilmiyor) ve <code>AppLockService.disable()</code> sonrası <code>_enabled</code> durumu. Örnek çok küçüktür (11 geçerli mutant, güven aralığı geniş); ilk deneme 20 mutant içinde 8'i, jenerik tip <code>&lt;</code> işaretine denk geldiği için derlenemedi. Mutasyon aracı yalnızca test paketinin bir alt kümesini çalıştırdı; hayatta kalan mutantı tam pakette (738 test) de yeniden denedim, yine yakalanmadı. Tam mutasyon taraması değildir.</div>
+{sec_tbl}
+<div class="note">Güvenlikte v1 8.3 puanı, açık düşük bulguları (hata metni sızıntısı, CORS <code>*</code>, doğrulanmayan <code>category</code>) ve doğrulanmamış kritik kontrolleri (RLS politikalarının gerçek DB'ye karşı davranış testi, cihazda secure-storage geçişi/R8) hesaba katmıyordu. Canlı advisor artık gerçek: 0 hata, 5 uyarı; bunların 4'i incelenmiş tasarım gereği RPC uyarısı, 1'i aksiyon gerektiriyor (Leaked Password Protection).</div>
+{rel_tbl}
+<div class="note warn"><b>Yayına hazırlık düşük çünkü:</b> release derlemesi Play anahtarı yoksa debug keystore'a düşüyor; release APK gerçek cihazda (bildirim, biyometri, R8, secure-storage geçişi) doğrulanmadı; iOS build hiç alınmadı; GitHub'daki son "Mobile quality gate" koşusu (2026-09-28) kırmızıydı (o an izlenmeyen <code>app_offline_banner.dart</code>, sonradan eklendi) ve 12 yerel commit itilmediği için güncel HEAD CI'da hiç koşmadı.</div>
+<div class="note"><b>v2'nin sınırları:</b> tek geliştirici, tek kod tabanı; eşikler hâlâ öznel seçim. Bağımsız çapraz doğrulama yalnızca tekrarda (jscpd) yapıldı. Karmaşıklık, mimari ve boyut için ikinci bağımsız araç yok. Erişilebilirlik, çok dillilik, bağımlılık zafiyet taraması (osv) ölçülmedi ve puanlanmadı.</div>
+"""
+
 overall_b = base['overall'] if base else None
 overall_c = cur['overall']
 
@@ -199,17 +255,18 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 </style></head><body><div class="wrap">
 <h1>SubscriptTrack — Ölçülmüş Kalite Raporu</h1>
 <div class="sub">2026-09-29 · Her puan bir araç çıktısından, ölçümden ÖNCE yazılmış <code>tools/quality/rubric.py</code> eşikleriyle türetilmiştir. Önceki raporlardaki öznel puanlar bu raporla geçersizdir.</div>
-<nav><a href="#ozet">Özet</a><a href="#yontem">Yöntem</a><a href="#kat">Kategoriler</a><a href="#guv">Güvenlik</a><a href="#perf">Performans</a><a href="#duzeltilen">Düzeltilenler</a><a href="#bulgu">Bulgular</a><a href="#sinir">Sınırlar</a><a href="#tekrar">Yeniden üretme</a></nav>
+<nav><a href="#ozet">Özet</a><a href="#hakkaniyet">Hakkaniyet (v2)</a><a href="#yontem">Yöntem</a><a href="#kat">Kategoriler</a><a href="#guv">Güvenlik</a><a href="#perf">Performans</a><a href="#duzeltilen">Düzeltilenler</a><a href="#bulgu">Bulgular</a><a href="#sinir">Sınırlar</a><a href="#tekrar">Yeniden üretme</a></nav>
 
 <h2 id="ozet">1. Özet</h2>
 <div class="grid">
-<div class="card big"><b>{sc(overall_c)}</b><span>Genel puan — şimdi (0–10)</span></div>
+<div class="card big"><b>{sc(overall_c)}</b><span>Genel puan — şimdi, v1 rubrik (0–10)</span></div>
 <div class="card big"><b>{sc(overall_b)}</b><span>Genel puan — HEAD baseline (cf8b8bd)</span></div>
 <div class="card big"><b>{covm.get('corrected_pct')}%</b><span>düzeltilmiş satır kapsama</span></div>
 <div class="card big"><b>{ext_c.get('tests_total')} ✓</b><span>test, iki koşuda da yeşil</span></div>
 </div>
 {cat_html}
 <div class="note"><b>Önceki öznel puanlarla karşılaştırma:</b> daha önce "Test disiplini 8.5" demiştim; ilk ölçümde düzeltilmiş kapsama %60,5 çıktı ve bu puan geçersiz kaldı. Bu turda kapsama düşük alanlara test yazılarak %{covm.get('corrected_pct')} seviyesine çıkarıldı (aşağıdaki "Bu turda düzeltilenler"). Bu turda doğrudan bağımlılıklar güncellendi ({outdated['major_behind']}/{outdated['direct']} ana sürüm geride) ve uzun/karmaşık metotlar bölündü (60 satırı aşan metot %{cur['complexity_detail']['lines_over_60_pct']}). 1000 abonelikte selector yeniden hesabı {bench['notify_selectors_ms'] if bench else '?'} ms ölçüldü. Bu sayfadaki puanlar geçerlidir.</div>
+{audit_html}
 <div class="note warn"><b>Baseline uyarısı:</b> HEAD (son commit) kendi başına tutarlı değil: <code>flutter analyze</code> 2 hata veriyor (commit edilmemiş <code>app_offline_banner.dart</code> eksik) ve 3 test dosyası yüklenemiyor. Baseline, kullanıcının commit edilmemiş çalışmasını içermez; "önce" durumu tam olarak bu değildir, yalnızca aynı araçlarla ölçülebilen en yakın referanstır.</div>
 
 <h2 id="yontem">2. Yöntem ve rubrik</h2>
@@ -229,7 +286,7 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 ['RLS olmayan korumasız tablo','0','—','≤1','≤3','>3'],
 ['Kimliksiz edge function','0','—','—','—','≥1 (3)'],
 ['Hız sınırsız edge function','0','≤1','≤2','≤4','>4'],
-['RLS/advisor proxy uyarı','0','≤3','≤10','—','>10 (hata varsa 3)'],
+['RLS/advisor proxy uyarı (v1)','0','≤3','≤10','—','>10 (hata varsa 3)'],
 ['Ana sürüm geride bağımlılık','0','≤2','≤5','—','>5'],
 ['Dartdoc oranı %','≥50','≥35','≥20','≥10','<10'],
 ['load() ms (1000)','≤50','≤150','≤400','—','>400'],
@@ -260,7 +317,7 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 {table(['Katman','Çalıştırılabilir satır (tahmini)','Kapsama %'],layer_rows,right=(1,2))}
 {table(['Feature','Çalıştırılabilir satır (tahmini)','Kapsama %'],feat_rows,right=(1,2))}
 {table(['En düşük kapsamlı dosyalar (≥30 satır)','Kapsama %','Satır'],low_rows,right=(1,2))}
-<div class="note">Test sayısı 409 ve hepsi geçiyor, ama bu kapsama yüzdesini yükseltmez: <code>settings</code> ve <code>savings</code> feature'ları neredeyse hiç test edilmiyor, mimari testler kapsama üretmez. HEAD baseline kapsaması güvenilir değildir (3 test dosyası yüklenemiyor).</div>
+<div class="note">Test sayısı {ext_c.get('tests_total')} ve hepsi geçiyor. Kapsama yüzdesi tek başına test kalitesini göstermez; bu yüzden v2 denetiminde mutasyon testi ve backend davranış testi eksikliği ayrıca puanlandı (bkz. bölüm 1b).</div>
 <h3>Bakım / hijyen — <span class="pill {cls(cur['category_scores']['maintainability'])}">{sc(cur['category_scores']['maintainability'])}</span></h3>
 {table(['Metrik','HEAD','Şimdi',''],mt_rows,right=(1,2))}
 
@@ -275,7 +332,7 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 <li><b>Düşük:</b> <code>delete-account</code>, <code>process-export</code> ve <code>support-catalog</code> hata durumunda <code>String(err)</code>/<code>error.message</code> döndürüyor (iç ayrıntı sızıntısı); <code>payment-methods</code> bunu doğru yapıyor.</li>
 <li><b>Düşük:</b> <code>Access-Control-Allow-Origin: *</code> (Bearer token gerektirdiği için etkisi sınırlı).</li>
 </ul>
-<div class="note warn"><b>Ayrı bir bulgu (SubscriptTrack dışı):</b> Bu oturuma bağlı Supabase hesabındaki tek proje "Go4Talent" adlı başka bir uygulamaya ait (clients, candidates, positions…); SubscriptTrack tabloları (subscriptions, payment_events…) orada yok, bu yüzden canlı advisor puana girmedi. Yine de o projede 10 tabloda RLS kapalı görünüyor (<code>support_tickets</code>, <code>support_ticket_messages</code>, <code>support_access_grants</code>, <code>platform_staff_billing_grants</code>, <code>client_invoice_approvers</code> …); anon anahtarı olan herkes bu tabloları okuyup yazabilir. SubscriptTrack'in gerçek Supabase projesi bağlı değil, canlı RLS durumu doğrulanamadı.</div>
+<div class="note warn"><b>Ayrı bir bulgu (SubscriptTrack dışı):</b> Supabase MCP hesabına bağlı tek proje "Go4Talent" adlı başka bir uygulamaya aittir; SubscriptTrack'in canlı projesi (<code>tdbljrojcmyjwchawfif</code>) 2026-09-30'da dashboard üzerinden salt okunur incelendi (sonuçlar bölüm 4). Go4Talent'ta RLS'siz tablolar görülmüştü; o proje bu raporun kapsamı dışındadır, ayrıca ele alınmalıdır.</div>
 
 <h2 id="perf">5. Performans — <span class="pill {cls(cur['category_scores'].get('performance'))}">{sc(cur['category_scores'].get('performance'))}</span></h2>
 {perf_html}
@@ -307,14 +364,14 @@ nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-
 <li><b>Uzun <code>build</code> metotları:</b> %{cur['complexity_detail']['lines_over_60_pct']} metot 60 satırı aşıyor.</li>
 <li><b>Tekrar %{dup['duplicated_pct']}:</b> ayrıntı yukarıdaki tabloda.</li>
 <li>Git geçmişinde anon JWT (düşük risk, kalıcı).</li>
-<li>Kalan: 60 satırı aşan metotlar %{cur['complexity_detail']['lines_over_60_pct']} (sınırın hemen altında), kod tekrarı %{dup['duplicated_pct']}, mimari puanı başlangıcın altında (nedeni incelenmedi).</li>
+<li>Kalan (v2 denetimi): edge function hız sınırı ve 3 düşük bulgu, Leaked Password Protection kapalı, backend/edge function davranış testi yok, imzalama/cihaz/iOS/CI doğrulamaları (bölüm 1b).</li>
 </ol>
 
 <h2 id="sinir">7. Ölçülemeyenler ve sınırlar</h2>
 <ul>
 <li>Cihaz/emülatör performansı, açılış süresi, bellek, gerçek frame süresi: <b>ölçülemedi</b>.</li>
 <li>Erişilebilirlik: yalnızca <code>Semantics()</code> sayısı bilgi olarak verildi; puanlanmadı.</li>
-<li>Canlı Supabase RLS/advisor: SubscriptTrack projesi bağlı olmadığı için <b>ölçülemedi</b>; migration SQL taraması proxy olarak kullanıldı.</li>
+<li>Canlı Supabase: advisor ve tablolar 2026-09-30'da dashboard'dan salt okunur okundu; migration geçmişi canlıda boş olduğu için 001–030'un birebir uygulandığı <b>doğrulanamadı</b>. RLS politikalarının davranışı gerçek veritabanına karşı test edilmedi.</li>
 <li>Karmaşıklık ölçümü kendi AST betiğimizdir (dcm/dart_code_metrics değil); tanım <code>tools/quality/complexity/bin/complexity.dart</code> içindedir.</li>
 <li>Tekrar ölçümü 6 satırlık pencere hash'idir, semantik klon tespiti değildir.</li>
 <li>Rubrik eşikleri tek geliştirici için kabaca seçildi; başka eşiklerle puanlar değişir. Ham veri <code>metrics/*.json</code>'dadır.</li>

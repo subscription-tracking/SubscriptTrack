@@ -1,0 +1,139 @@
+{
+ "v1_overall": 9.4,
+ "v2_overall": 8.7,
+ "weights_v2": {
+  "static_analysis": 5,
+  "size": 8,
+  "complexity": 12,
+  "architecture": 15,
+  "duplication": 5,
+  "tests": 25,
+  "security": 20,
+  "maintainability": 5,
+  "performance": 5
+ },
+ "labels_v2": {
+  "static_analysis": "Statik analiz",
+  "size": "Dosya boyutu / God-file",
+  "complexity": "Metot karmaşıklığı",
+  "architecture": "Mimari / bağımlılık",
+  "duplication": "Kod tekrarı",
+  "tests": "Test ve kapsama",
+  "security": "Güvenlik",
+  "maintainability": "Bakım / hijyen",
+  "performance": "Performans (yalnızca host ölçümü, tavan 8)"
+ },
+ "v1_categories": {
+  "static_analysis": 10,
+  "size": 10.0,
+  "complexity": 8.7,
+  "architecture": 9.3,
+  "duplication": 10,
+  "tests": 10.0,
+  "security": 8.3,
+  "maintainability": 8.0,
+  "performance": 9.3
+ },
+ "v2_categories": {
+  "static_analysis": 10,
+  "size": 10.0,
+  "complexity": 8.7,
+  "architecture": 9.3,
+  "duplication": 10,
+  "tests": 8.4,
+  "security": 7.9,
+  "maintainability": 8.0,
+  "performance": 8
+ },
+ "mutation": {
+  "sample": 20,
+  "compile_errors": 8,
+  "equivalent": 1,
+  "raw_valid": 12,
+  "raw_killed": 9,
+  "raw_killed_pct": 75.0,
+  "valid": 11,
+  "killed": 9,
+  "killed_pct": 81.8,
+  "score": 9,
+  "survivors": [
+   {
+    "file": "lib/core/utils/date_time_utils.dart",
+    "line": 23,
+    "orig": "final month = totalMonths % 12 + 1;",
+    "mut": "final month = totalMonths % 12 - 1;",
+    "killed": false,
+    "compile_err": false,
+    "note": "tam pakette (738 test) de yakalanmadı: addMonthsClamped yalnızca preferredDay==null iken kullanılıyor, gerçek akışlar hep veriyor; bu yol test edilmiyor (gerçek boşluk)"
+   },
+   {
+    "file": "lib/core/services/app_lock_service.dart",
+    "line": 136,
+    "orig": "_enabled = false;",
+    "mut": "_enabled = true;",
+    "killed": false,
+    "compile_err": false,
+    "note": "disable() sonrası _enabled durumu doğrulanmıyor (gerçek boşluk)"
+   }
+  ]
+ },
+ "tests_parts": {
+  "kapsama": 10,
+  "domain": 10,
+  "kararlılık": 10,
+  "backend davranış testi": 3,
+  "mutasyon": 9
+ },
+ "security_parts": {
+  "gizli sızıntı (anon hariç)": 10,
+  "RLS korumasız tablo": 10,
+  "kimliksiz edge function": 10,
+  "hız sınırsız edge function": 4,
+  "canlı advisor (yalnızca aksiyon gerektiren uyarılar)": 8,
+  "bağımlılık ana sürüm": 10,
+  "açık düşük bulgu (edge function)": 6,
+  "doğrulanmamış kritik kontrol (RLS davranış testi, cihazda secure-storage/R8)": 5
+ },
+ "release": {
+  "score": 2.8,
+  "parts": {
+   "Üretim imzası (debug keystore yedeği var, gerçek anahtar yok)": 3,
+   "Gerçek cihazda release doğrulaması (bildirim, biyometri, R8, secure-storage geçişi)": 2,
+   "iOS build üretildi": 2,
+   "CI: hattı var; son uzak koşu kırmızı, 12 yerel commit itilmedi": 4
+  }
+ },
+ "facts": {
+  "collected": "2026-09-30",
+  "duplication_cross_check": {
+   "tool": "jscpd 4 (min-tokens 50, min-lines 6)",
+   "duplicated_pct": 1.08,
+   "own_tool_pct": 2.9,
+   "note": "bağımsız araç bizim aracımızdan daha düşük buluyor; tekrar puanı şişirilmemiş"
+  },
+  "backend": {
+   "edge_function_tests": 0,
+   "edge_functions": 4,
+   "migration_tests": "215 satır, SQL metni üzerinde regex; canlı DB davranış testi yok"
+  },
+  "security": {
+   "advisor_errors": 0,
+   "advisor_total_warns": 5,
+   "advisor_actionable_warns": 1,
+   "advisor_note": "5 uyarı: 4 SECURITY DEFINER RPC (auth.uid() null kontrolü, user_id sahiplik filtresi ve 026'daki abonelik sahipliği kaynaktan doğrulandı, anon EXECUTE 027'de kaldırıldı: tasarım gereği) + 1 Leaked Password Protection kapalı (aksiyon gerekir)",
+   "performance_advisor_warns_before": 15,
+   "performance_advisor_warns_after_031": 0,
+   "open_low_findings": [
+    "delete-account/process-export/support-catalog hata durumunda String(err)/error.message döndürüyor",
+    "Access-Control-Allow-Origin: * (delete-account, payment-methods)",
+    "support-catalog POST category doğrulanmıyor"
+   ]
+  },
+  "release": {
+   "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
+   "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
+   "ios_build": "hiç alınmadı",
+   "ci": "mobile-quality.yml var; son uzak koşu (2026-09-28) kırmızı: app_offline_banner.dart o sırada izlenmiyordu, sonra eklendi; 12 yerel commit itilmedi, güncel HEAD CI'da hiç koşmadı"
+  }
+ }
+}
