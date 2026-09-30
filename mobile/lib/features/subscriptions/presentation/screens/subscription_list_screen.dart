@@ -14,7 +14,7 @@ import '../subscription_list_view_model.dart';
 import '../widgets/list/list_header.dart';
 import '../widgets/list/pill_tab_bar.dart';
 import '../widgets/list/selection_bar.dart';
-import '../widgets/list/subscription_filter_chip.dart';
+import '../widgets/list/filter_sheet.dart';
 import '../widgets/list/tab_view.dart';
 
 class SubscriptionListScreen extends StatefulWidget {
@@ -126,29 +126,21 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Filtrele ve sırala',
-                  style: Theme.of(sheetContext).textTheme.titleLarge),
-              const SizedBox(height: 20),
-              Text('Kategori',
-                  style: Theme.of(sheetContext).textTheme.titleSmall),
-              const SizedBox(height: 10),
-              _categoryChips(sheetContext),
-              const SizedBox(height: 20),
-              Text('Sıralama',
-                  style: Theme.of(sheetContext).textTheme.titleSmall),
-              _sortOptions(sheetContext),
-              const SizedBox(height: 8),
-              _sheetLinks(sheetContext, controller),
-            ],
-          ),
-        ),
+      builder: (sheetContext) => SubscriptionFilterSheet(
+        category: _filterCategory,
+        sort: _sort,
+        hasArchived: controller.archived.isNotEmpty,
+        onCategory: (c) =>
+            _applyAndClose(sheetContext, () => _filterCategory = c),
+        onSort: (o) => _applyAndClose(sheetContext, () => _sort = o),
+        onOpenArchive: () {
+          Navigator.pop(sheetContext);
+          context.push(AppRoutes.archivedSubscriptions);
+        },
+        onImportCsv: () {
+          Navigator.pop(sheetContext);
+          context.push(AppRoutes.csvImport);
+        },
       ),
     );
   }
@@ -157,76 +149,6 @@ class _SubscriptionListScreenState extends State<SubscriptionListScreen>
   void _applyAndClose(BuildContext sheetContext, VoidCallback apply) {
     setState(apply);
     Navigator.pop(sheetContext);
-  }
-
-  Widget _categoryChips(BuildContext sheetContext) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        SubscriptionFilterChip(
-          label: 'Tümü',
-          selected: _filterCategory == null,
-          onTap: () =>
-              _applyAndClose(sheetContext, () => _filterCategory = null),
-        ),
-        for (final category in SubscriptionCategory.values)
-          SubscriptionFilterChip(
-            label: category.label,
-            selected: _filterCategory == category,
-            onTap: () =>
-                _applyAndClose(sheetContext, () => _filterCategory = category),
-          ),
-      ],
-    );
-  }
-
-  Widget _sortOptions(BuildContext sheetContext) {
-    return RadioGroup<SubscriptionSortOption>(
-      groupValue: _sort,
-      onChanged: (value) {
-        if (value == null) return;
-        _applyAndClose(sheetContext, () => _sort = value);
-      },
-      child: Column(
-        children: [
-          for (final option in SubscriptionSortOption.values)
-            RadioListTile<SubscriptionSortOption>(
-              contentPadding: EdgeInsets.zero,
-              value: option,
-              title: Text(option.label),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sheetLinks(
-    BuildContext sheetContext,
-    SubscriptionController controller,
-  ) {
-    return Row(
-      children: [
-        if (controller.archived.isNotEmpty)
-          TextButton.icon(
-            onPressed: () {
-              Navigator.pop(sheetContext);
-              context.push(AppRoutes.archivedSubscriptions);
-            },
-            icon: const Icon(Icons.archive_outlined),
-            label: const Text('Arşiv'),
-          ),
-        const Spacer(),
-        TextButton.icon(
-          onPressed: () {
-            Navigator.pop(sheetContext);
-            context.push(AppRoutes.csvImport);
-          },
-          icon: const Icon(Icons.upload_file_outlined),
-          label: const Text('CSV içe aktar'),
-        ),
-      ],
-    );
   }
 
   @override
