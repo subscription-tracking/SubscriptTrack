@@ -226,6 +226,20 @@ if A2:
 <div class="note"><b>v2'nin sınırları:</b> tek geliştirici, tek kod tabanı; eşikler hâlâ öznel seçim. Bağımsız çapraz doğrulama yalnızca tekrarda (jscpd) yapıldı. Karmaşıklık, mimari ve boyut için ikinci bağımsız araç yok. Erişilebilirlik, çok dillilik, bağımlılık zafiyet taraması (osv) ölçülmedi ve puanlanmadı.</div>
 """
 
+head_cards = None
+if A2:
+    rows_sum = []
+    for k in A2['weights_v2']:
+        bb = base['category_scores'].get(k) if base else None
+        v1c, v2c = A2['v1_categories'].get(k), A2['v2_categories'].get(k)
+        rows_sum.append([A2['labels_v2'][k], f"{A2['weights_v2'][k]}%", f'<span class="pill {cls(bb)}">{sc(bb)}</span>',
+                         f'<span class="pill {cls(v1c)}">{sc(v1c)}</span>', f'<span class="pill {cls(v2c)}">{sc(v2c)}</span>'])
+    cat_html = table(['Kategori', 'v2 ağırlık', 'HEAD baseline (v1)', 'Şimdi, v1 (eski rubrik)', 'Şimdi, v2 (GEÇERLİ)'], rows_sum, right=(1, 2, 3, 4))
+    head_cards = (f'<div class="card big"><b>{sc(A2["v2_overall"])}</b><span>KOD KALİTESİ — v2 (geçerli puan)</span></div>'
+                  f'<div class="card big"><b>{sc(A2["release"]["score"])}</b><span>YAYINA HAZIRLIK (ayrı puan)</span></div>'
+                  f'<div class="card big"><b>{sc(A2["v1_overall"])}</b><span>v1 eski rubrik (şişirilmiş; yalnızca karşılaştırma)</span></div>'
+                  f'<div class="card big"><b>{covm.get("corrected_pct")}%</b><span>düzeltilmiş satır kapsama</span></div>')
+
 overall_b = base['overall'] if base else None
 overall_c = cur['overall']
 
@@ -254,22 +268,19 @@ code{{background:var(--bg);border:1px solid var(--line);padding:1px 5px;border-r
 nav{{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap;font-size:13px}}nav a{{color:var(--acc);text-decoration:none}}
 </style></head><body><div class="wrap">
 <h1>SubscriptTrack — Ölçülmüş Kalite Raporu</h1>
-<div class="sub">2026-09-29 · Her puan bir araç çıktısından, ölçümden ÖNCE yazılmış <code>tools/quality/rubric.py</code> eşikleriyle türetilmiştir. Önceki raporlardaki öznel puanlar bu raporla geçersizdir.</div>
+<div class="sub">2026-09-29 · <b>Geçerli puan v2'dir</b> (<code>tools/quality/audit_v2.py</code>, bölüm 1b); v1 (<code>rubric.py</code>) yalnızca karşılaştırma içindir. Her puan bir araç çıktısından ve önceden yazılmış eşiklerden türetilmiştir. Önceki raporlardaki öznel puanlar bu raporla geçersizdir.</div>
 <nav><a href="#ozet">Özet</a><a href="#hakkaniyet">Hakkaniyet (v2)</a><a href="#yontem">Yöntem</a><a href="#kat">Kategoriler</a><a href="#guv">Güvenlik</a><a href="#perf">Performans</a><a href="#duzeltilen">Düzeltilenler</a><a href="#bulgu">Bulgular</a><a href="#sinir">Sınırlar</a><a href="#tekrar">Yeniden üretme</a></nav>
 
 <h2 id="ozet">1. Özet</h2>
 <div class="grid">
-<div class="card big"><b>{sc(overall_c)}</b><span>Genel puan — şimdi, v1 rubrik (0–10)</span></div>
-<div class="card big"><b>{sc(overall_b)}</b><span>Genel puan — HEAD baseline (cf8b8bd)</span></div>
-<div class="card big"><b>{covm.get('corrected_pct')}%</b><span>düzeltilmiş satır kapsama</span></div>
-<div class="card big"><b>{ext_c.get('tests_total')} ✓</b><span>test, iki koşuda da yeşil</span></div>
+{head_cards or ''}
 </div>
 {cat_html}
 <div class="note"><b>Önceki öznel puanlarla karşılaştırma:</b> daha önce "Test disiplini 8.5" demiştim; ilk ölçümde düzeltilmiş kapsama %60,5 çıktı ve bu puan geçersiz kaldı. Bu turda kapsama düşük alanlara test yazılarak %{covm.get('corrected_pct')} seviyesine çıkarıldı (aşağıdaki "Bu turda düzeltilenler"). Bu turda doğrudan bağımlılıklar güncellendi ({outdated['major_behind']}/{outdated['direct']} ana sürüm geride) ve uzun/karmaşık metotlar bölündü (60 satırı aşan metot %{cur['complexity_detail']['lines_over_60_pct']}). 1000 abonelikte selector yeniden hesabı {bench['notify_selectors_ms'] if bench else '?'} ms ölçüldü. Bu sayfadaki puanlar geçerlidir.</div>
 {audit_html}
 <div class="note warn"><b>Baseline uyarısı:</b> HEAD (son commit) kendi başına tutarlı değil: <code>flutter analyze</code> 2 hata veriyor (commit edilmemiş <code>app_offline_banner.dart</code> eksik) ve 3 test dosyası yüklenemiyor. Baseline, kullanıcının commit edilmemiş çalışmasını içermez; "önce" durumu tam olarak bu değildir, yalnızca aynı araçlarla ölçülebilen en yakın referanstır.</div>
 
-<h2 id="yontem">2. Yöntem ve rubrik</h2>
+<h2 id="yontem">2. Yöntem ve v1 rubriği (v2 farkları bölüm 1b'de)</h2>
 <p>Ölçüm araçları <code>tools/quality/</code> altındadır: <code>measure_static.py</code> (boyut, import grafiği, katman ihlali, tekrar, bakım), <code>complexity/</code> (Dart <code>analyzer</code> AST ile metot karmaşıklığı), <code>coverage.py</code> (lcov), gitleaks, <code>flutter pub outdated</code>, migration SQL taraması, <code>benchmark/controller_benchmark_test.dart</code>. Kategori puanı metrik puanlarının ortalaması, genel puan ağırlıklı ortalamadır; ölçülemeyen metrik ortalamaya katılmaz.</p>
 {table(['Metrik','10','8','6','4','2'],[
 ['Analyzer sorunu','0','≤5','≤20','≤50','>50'],
