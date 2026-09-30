@@ -49,12 +49,13 @@ Sahte veri fabrikaları/fixture'lar kullanılır; canlı kişisel veri test orta
 Excel kabul senaryoları ürün kuralını genişletemez. İzlenebilir kaynak
 `TEST_TRACEABILITY.md` dosyasıdır.
 
-- Normal abonelik yaşam döngüsünde fiziksel silme yapılmaz; kullanıcı kaydı
-  iptal eder veya arşivler. Fiziksel silme yalnız yanlış oluşturulmuş kayıt
-  akışında uygulanır ve ilişkili yerel bildirimler iptal edilir.
-- Yenileme tarihi zaman geçmesiyle sessizce ilerletilmez. Kayıt gecikmiş
-  görünür; kullanıcı **Yenilendi** eylemini açıkça onayladığında sonraki tarih
-  hesaplanır.
+- Ürün kuralı: normal abonelik yaşam döngüsünde fiziksel silme yapılmaz; kullanıcı
+  kaydı iptal eder veya arşivler. **Bugünkü uygulama bundan farklıdır:** detay ve
+  liste ekranlarında herhangi bir abonelik için "Kalıcı olarak sil" sunulur (S39).
+  Karar bekliyor ([MOBILE.md §6](../architecture/MOBILE.md)).
+- Ürün kuralı: yenileme tarihi zaman geçmesiyle sessizce ilerletilmez. **Bugünkü
+  uygulama bundan farklıdır:** yükleme sırasında gecikmiş aktif aboneliğin tarihi
+  otomatik ilerletilir (Test 45); **Yenilendi** eylemi ayrıca vardır. Karar bekliyor.
 - Mobil form tarihleri `DatePicker` ile seçilir. Serbest metin tarih girdisi
   kabul kriteri değildir; CSV içe aktarmadaki tarih metinleri parser tarafından
   doğrulanır.

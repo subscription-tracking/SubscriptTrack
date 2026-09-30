@@ -65,3 +65,12 @@ Ayrıntılı, tarihli anlık görüntü: [SUPABASE_LIVE_STATUS.md](reference/SUP
 
 Otomatik: `flutter analyze` ve `flutter test` (CI'da yeşil), backend testleri (CI'da yeşil). Güncel sayılar ve kalite puanı: [kalite raporu](quality/index.html).
 Açık doğrulamalar (gerçek hesap/cihaz gerektirir): e-posta teslimi ve yönlendirme, hesap silme sonrası veri kontrolü, export indirme, iki oturumlu Realtime, bildirim/biyometri/secure-storage taşıma, release imzalama, iOS ([DEVICE_ACCEPTANCE.md](operations/DEVICE_ACCEPTANCE.md), [RELEASE.md](operations/RELEASE.md)).
+
+## Ürün kuralı ile kod arasında karar bekleyen çelişkiler
+
+| Konu | Ürün kuralı | Bugünkü uygulama |
+|---|---|---|
+| Fiziksel silme | Normal akışta yok; iptal/arşiv (AGENTS.md, [DOMAIN](product/DOMAIN.md), [ADR 0006](decisions/0006-archive-over-delete.md)) | Detay ve liste ekranında herhangi bir abonelik için "Kalıcı olarak sil" |
+| Yenileme tarihi | Sessizce ilerletilmez (DOMAIN §7) | Yükleme sırasında gecikmiş aktif abonelik otomatik ilerletilir (Excel Test 45) |
+
+Ayrıntı: [MOBILE.md §6](architecture/MOBILE.md). Hangisinin geçerli olduğu ürün sahibinin kararıdır.

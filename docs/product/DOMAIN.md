@@ -80,6 +80,7 @@ Geçişlerin tamamı `subscription_events` ile kaydedilir.
 - `access_ends_at`: Servise erişimin sona ereceği zaman
 - `archived_at`: Kaydın ana listeden kaldırıldığı zaman
 - Fiziksel silme: Yanlış oluşturulmuş kayıt veya yasal veri silme dışında normal kullanıcı akışı değildir
+- **Uygulama durumu (2026-09-30, çelişki):** Uygulama, detay ekranı ve liste çoklu seçiminde herhangi bir abonelik için "Kalıcı olarak sil" seçeneği sunar; bu kural ile uyuşmaz ([MOBILE.md §6](../architecture/MOBILE.md)). Karar bekliyor.
 
 ## 5. Para kuralları
 
@@ -111,6 +112,7 @@ Yıllık tahmin, aylık tahmin × 12 olarak hesaplanabilir. Yuvarlama yalnızca 
 - Ay sonunda başlayan aylık üyelik için sonraki ayın son geçerli günü kullanılır.
 - Örnek: 31 Ocak → 28/29 Şubat → 31 Mart niyeti korunmalıdır.
 - Yenileme tarihi sessizce ilerletilmemelidir; occurrence oluşturma yaklaşımı kullanılmalıdır.
+- **Uygulama durumu (2026-09-30, çelişki):** Uygulama, yükleme sırasında gecikmiş aktif aboneliğin sonraki yenileme tarihini otomatik ilerletir (Excel Test 45, S39 kararı); bu kural ile uyuşmaz. Karar bekliyor.
 
 ## 8. Bildirim kuralları
 

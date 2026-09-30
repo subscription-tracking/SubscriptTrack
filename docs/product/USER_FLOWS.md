@@ -193,8 +193,10 @@ Veri ve gizlilik ile Destek bölümlerinden oluşur. Hesap bilgileri profil ve
 şifre işlemlerine gider; hassas export ve hesap silme aksiyonları yalnızca
 **Gizlilik ve veri merkezi** altında bulunur.
 
-Geri bildirim, uygulama içi destek kaydı oluşturmaz; kullanıcı kategori ve
-mesajı girdikten sonra cihazın paylaşım ekranını açar. Yasal belgeler, belge
+Geri bildirim ekranında kullanıcı kategori ve mesajı girer; Supabase
+yapılandırılmışsa **destek kaydı** oluşturulur (`support-catalog` POST →
+`support_tickets`), ayrıca cihazın paylaşım ekranı da açılabilir. Yerel modda
+(Supabase yok) yalnızca paylaşım vardır. Yasal belgeler, belge
 sürümü ile son güncelleme tarihini ve önce kısa özeti gösterir.
 
 ## 16. Veri dışa aktarma

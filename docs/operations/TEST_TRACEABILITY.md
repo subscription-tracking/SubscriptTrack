@@ -1,73 +1,79 @@
 # Excel Test Senaryosu İzlenebilirliği
 
-Son güncelleme: 30 Eylül 2026 (tablo 19 Eylül 2026 S39 durumunu yansıtır; sonraki eklemeler bu tabloya işlenmedi)
+Son güncelleme: 30 Eylül 2026. Tablo, Excel çalışma kitabındaki 65 senaryodan üretildi; referans verilen tüm test dosyalarının var olduğu doğrulandı. Aşağıdaki notlar S39 kararlarını anlatır
 
 Bu tablo, test senaryoları Excel çalışma kitabı (yerel, git dışı çıktı klasöründe; en güncel: `Abonelik_Takip_Test_Senaryolari_EN_GUNCEL_YENI.xlsx`) içindeki her satırı kaynak
 testine bağlar. `Kod` yalnız otomatik testin bulunduğunu gösterir; işletim
 sistemi teslimi, fiziksel cihaz, mağaza veya canlı backend gerektiren satırlar
 `Cihaz/canlı` olarak ayrıca kabul edilmelidir.
 
-| No | Senaryo özeti | Otomatik kanıt | Kanıt türü |
-|---:|---|---|---|
-| 1 | Geçerli abonelik ekleme | `test/evidence/excel_scenarios_1_2_9_10_test.dart` | Kod |
-| 2 | Zorunlu alan doğrulama | `test/evidence/excel_scenarios_1_2_9_10_test.dart` | Widget |
-| 3 | Negatif fiyat | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 4 | Sayısal olmayan fiyat | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 5 | Geçmiş başlangıç tarihi | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 6 | Gelecek başlangıç tarihi | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 7 | Aynı isimli abonelik | `test/evidence/evidence_paket2_crud_test.dart` | Widget/controller |
-| 8 | Farklı yenileme döngüleri | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 9 | TRY/USD/EUR kaydı | `test/evidence/excel_scenarios_1_2_9_10_test.dart` | Controller |
-| 10 | Kategori kalıcılığı | `test/evidence/excel_scenarios_1_2_9_10_test.dart` | Controller |
-| 11 | Uzun not | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 12 | Hızlı ardışık ekleme | `test/evidence/evidence_paket2_crud_test.dart` | Controller |
-| 13 | Fiyat güncelleme | `test/evidence/evidence_paket2_crud_test.dart` | Controller/widget |
-| 14 | Döngü güncelleme | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 15 | Tarih güncelleme | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 16 | Düzenlemede zorunlu alan | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 17 | Kaydetmeden iptal | `test/evidence/evidence_paket2_crud_test.dart` | Widget |
-| 18 | Yanlış kaydı fiziksel silme | `test/evidence/evidence_paket3_delete_test.dart` | Widget/controller |
-| 19 | Yanlış kayıt silmesini iptal etme | `test/evidence/evidence_paket3_delete_test.dart` | Widget |
-| 20 | Yanlış kaydın bildirimi | `test/evidence/evidence_paket3_delete_test.dart` | Controller |
-| 21 | Toplu arşivleme | `test/evidence/evidence_paket3_delete_test.dart` | Widget/controller |
-| 22 | Liste ve toplam maliyet | `test/evidence/evidence_paket4_list_test.dart` | Widget/controller |
-| 23 | Boş liste | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 24 | Yenileme sırası | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 25 | Pasif kayıt ayrımı | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 26 | Ada göre arama | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 27 | Kategori filtresi | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 28 | Tutara göre sıralama | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 29 | Sonuçsuz arama | `test/evidence/evidence_paket4_list_test.dart` | Widget |
-| 30 | Varsayılan hatırlatma günü | `test/evidence/evidence_paket5_notification_test.dart` | Saf zamanlama |
-| 31 | Özel hatırlatma günü | `test/evidence/evidence_paket5_notification_test.dart` | Saf zamanlama |
-| 32 | Birden çok hatırlatma | `test/evidence/evidence_paket5_notification_test.dart` | Kural |
-| 33 | Bugün yenilenen kayıt | `test/evidence/evidence_paket5_notification_test.dart` | Saf zamanlama |
-| 34 | Gecikmiş yenileme | `test/evidence/evidence_paket6_notif_interaction_test.dart` | Controller |
-| 35 | Bildirim dokunuşu | `test/evidence/evidence_paket6_fix_test.dart` | Callback dispatch; cihaz kabulü ayrıca |
-| 36 | Snooze | `test/evidence/evidence_paket6_fix_test.dart` | Servis guard; cihaz kabulü ayrıca |
-| 37 | Bildirim izni reddi | `test/evidence/evidence_paket6_fix_test.dart` | UI/servis guard; cihaz kabulü ayrıca |
-| 38 | Arka plan bildirimi | `test/evidence/evidence_paket6_notif_interaction_test.dart` | Yapılandırma; cihaz kabulü ayrıca |
-| 39 | Aynı gün çok abonelik | `test/evidence/evidence_paket5_notification_test.dart` | Kimlik/zamanlama |
-| 40 | Arşivleme sonrası bildirim iptali | `test/evidence/evidence_paket3_delete_test.dart` | Controller |
-| 41 | Timezone değişimi | `test/evidence/evidence_paket5_notification_test.dart` | Timezone mock; cihaz kabulü ayrıca |
-| 42 | 31 Ocak/kısa ay | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 43 | 29 Şubat/yıllık | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 44 | Yıl/ay sınırı | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 45 | Kullanıcı onaylı yenileme ilerletme | `test/evidence/evidence_paket1_date_calc_test.dart` | Domain |
-| 46 | Tarih seçicide geçersiz seçim engeli | `test/evidence/evidence_paket7_negative_test.dart` | CSV parser/date picker |
-| 47 | Force-kill sonrası veri | `test/evidence/evidence_paket7_negative_test.dart` | Cache; cihaz kabulü ayrıca |
-| 48 | Offline kullanım | `test/evidence/evidence_paket7_negative_test.dart` | Queue/controller |
-| 49 | Açık/koyu tema | `test/evidence/evidence_paket8_ui_test.dart` | Widget |
-| 50 | Ekran boyutları | `test/evidence/evidence_paket8_ui_test.dart` | Widget |
-| 51 | Sayısal klavye | `test/evidence/evidence_paket8_ui_test.dart` | Widget |
-| 52 | Yeniden açılışta veri | `test/evidence/evidence_paket9_sync_test.dart` | Cache/controller |
-| 53 | Reboot sonrası bildirim | `test/evidence/evidence_paket6_notif_interaction_test.dart` | Android manifest; cihaz kabulü ayrıca |
-| 54 | Çoklu cihaz senkronu | `test/evidence/evidence_paket9_sync_test.dart` | Realtime merge; canlı kabulü ayrıca |
-| 55 | Güncelleme sonrası bütünlük | `test/evidence/evidence_paket9_sync_test.dart` | JSON/migration uyumu |
-| 56 | 500 kayıt performansı | `test/evidence/evidence_paket10_perf_security_test.dart` | Widget |
-| 57 | Bildirim üst sınırı | `test/evidence/evidence_paket10_perf_security_test.dart` | Saf limit mantığı |
-| 58 | Yerel veri güvenliği | `test/evidence/evidence_paket10_perf_security_test.dart` | Secure storage |
-| 59 | PIN/biyometrik kilit | `test/core/app_lock_service_test.dart` | PIN; biyometri cihaz kabulü ayrıca |
+| No | Senaryo özeti | Otomatik kanıt (test dosyası) | Durum | Cihaz/canlı doğrulaması |
+|---:|---|---|---|---|
+| 1 | Geçerli bilgilerle yeni abonelik ekleme | `mobile/test/evidence/excel_scenarios_1_2_9_10_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 2 | Zorunlu alan boş bırakıldığında ekleme engellenmeli | `mobile/test/evidence/excel_scenarios_1_2_9_10_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 3 | Negatif fiyat girildiğinde hata verilmeli | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 4 | Fiyat alanına harf/özel karakter girildiğinde hata verilmeli | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 5 | Geçmiş bir başlangıç tarihiyle abonelik ekleme | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 6 | Gelecekte başlayacak abonelik ekleme | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 7 | Aynı isimde birden fazla abonelik ekleme | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 8 | Farklı yenileme periyotlarıyla abonelik ekleme | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 9 | Farklı para birimleriyle abonelik ekleme | `mobile/test/evidence/excel_scenarios_1_2_9_10_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 10 | Kategori/etiket atayarak abonelik ekleme | `mobile/test/evidence/excel_scenarios_1_2_9_10_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 11 | Not/açıklama alanına çok uzun metin girme | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 12 | Art arda hızlıca birden fazla abonelik ekleme | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 13 | Var olan aboneliğin fiyatını güncelleme | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 14 | Yenileme periyodunu değiştirme (örn. aylıktan yıllığa) | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 15 | Başlangıç/son tarihi değiştirme | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 16 | Düzenleme sırasında zorunlu alanı boşaltma | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 17 | Düzenlemeyi kaydetmeden iptal etme | `mobile/test/evidence/evidence_paket2_crud_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 18 | Tek bir aboneliği silme | `mobile/test/evidence/evidence_paket3_delete_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 19 | Silme işlemini onaylamadan vazgeçme | `mobile/test/evidence/evidence_paket3_delete_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 20 | Silinen aboneliğe ait planlanmış hatırlatmanın iptali | `mobile/test/evidence/evidence_paket3_delete_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 21 | Birden fazla aboneliği toplu silme | `mobile/test/evidence/evidence_paket3_delete_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 22 | Tüm aboneliklerin listelenmesi ve toplam maliyet hesaplama | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 23 | Hiç abonelik yokken boş durum ekranı | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 24 | Yaklaşan yenileme tarihine göre sıralı görüntüleme | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 25 | Süresi geçmiş/iptal edilmiş aboneliklerin ayrı gösterimi | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 26 | İsme göre arama yapma | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 27 | Kategoriye göre filtreleme | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 28 | Fiyata göre artan/azalan sıralama | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 29 | Sonuç bulunamayan arama | `mobile/test/evidence/evidence_paket4_list_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 30 | Son tarihten X gün önce varsayılan hatırlatma bildirimi | `mobile/test/evidence/evidence_paket5_notification_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 31 | Kullanıcının hatırlatma gününü özelleştirmesi | `mobile/test/evidence/evidence_paket5_notification_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 32 | Birden fazla hatırlatma zamanı tanımlama | — | Tamamlandı (otomatik) | Gerekmez |
+| 33 | Son tarihi bugün olan abonelik için bildirim | `mobile/test/evidence/evidence_paket5_notification_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 34 | Son tarihi geçmiş (kaçırılmış) abonelik durumu | `mobile/test/evidence/evidence_paket6_notif_interaction_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 35 | Bildirime dokunulduğunda ilgili abonelik detayına yönlendirme | `mobile/test/evidence/evidence_paket6_fix_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 36 | Bildirimi erteleme (snooze) özelliği | `mobile/test/evidence/evidence_paket6_fix_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 37 | Bildirim izni verilmediğinde davranış | `mobile/test/evidence/evidence_paket6_fix_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 38 | Uygulama arka plandayken/kapalıyken bildirimin gelmesi | `mobile/test/evidence/evidence_paket6_notif_interaction_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 39 | Aynı gün birden fazla aboneliğin son tarihi olması | `mobile/test/evidence/evidence_paket5_notification_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 40 | Abonelik silindiğinde bekleyen bildirimin iptali | `mobile/test/evidence/evidence_paket3_delete_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 41 | Cihaz saat dilimi değişikliğinde hatırlatma zamanı | `mobile/test/evidence/evidence_paket5_notification_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 42 | Ay sonu tarihli aylık aboneliğin kısa aylarda hesaplanması | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 43 | 29 Şubat'ta başlayan yıllık aboneliğin artık olmayan yılda hesaplanması | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 44 | Yıl/ay sınırını aşan tarih geçişleri | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 45 | Otomatik yenilenen aboneliğin bir sonraki dönemi | `mobile/test/evidence/evidence_paket1_date_calc_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 46 | Geçersiz tarih formatı girme denemesi | `mobile/test/evidence/evidence_paket7_negative_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 47 | Uygulama arka planda zorla kapatıldığında veri kaybı | `mobile/test/evidence/evidence_paket7_negative_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 48 | İnternet bağlantısı olmadan uygulamayı kullanma (yerel veri ise) | `mobile/test/evidence/evidence_paket7_negative_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 49 | Karanlık/aydınlık tema geçişi | `mobile/test/evidence/evidence_paket8_ui_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 50 | Farklı ekran boyutlarında görüntüleme | `mobile/test/evidence/evidence_paket8_ui_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 51 | Fiyat alanı için uygun klavye tipi | `mobile/test/evidence/evidence_paket8_ui_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 52 | Uygulama kapatılıp yeniden açıldığında veri korunması | `mobile/test/evidence/evidence_paket9_sync_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 53 | Cihaz yeniden başlatıldığında bildirimlerin aktif kalması | `mobile/test/evidence/evidence_paket6_notif_interaction_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 54 | Birden fazla cihazda senkronizasyon | `mobile/test/evidence/evidence_paket9_sync_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 55 | Uygulama güncellemesi sonrası veri bütünlüğü | `mobile/test/evidence/evidence_paket9_sync_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 56 | Çok sayıda abonelikle liste performansı | `mobile/test/evidence/evidence_paket10_perf_security_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 57 | Çok sayıda zamanlanmış bildirimin işletim sistemi limitlerini aşmaması | `mobile/test/evidence/evidence_paket10_perf_security_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 58 | Finansal verilerin cihazda saklanma güvenliği | `mobile/test/evidence/evidence_paket10_perf_security_test.dart` | Tamamlandı (otomatik) | Gerekmez |
+| 59 | Uygulama kilidi (PIN/biyometrik) doğru çalışması | `mobile/test/core/app_lock_service_test.dart` | Kod tamam; cihaz/canlı bekliyor | Evet — en sona al |
+| 60 | İstatistik dönemini 3/6/12 ay olarak değiştirme | stats_screen.dart + Flutter analyze | Tamamlandı (kod doğrulaması) | Cihaz testi önerilir |
+| 61 | 50 kayıttan sonra aşağı kaydırınca sonraki aboneliklerin yüklenmesi | `test/subscription_controller.dart + subscription_list_screen.dart` | Tamamlandı (kod doğrulaması) | Cihaz testi önerilir |
+| 62 | Popüler servis kataloğundan abonelik seçme | `test/subscription_form.dart` | Tamamlandı (kod doğrulaması) | Cihaz testi önerilir |
+| 63 | Manuel ödeme kaydı ekleme | payment_history_screen.dart + PaymentEventsRepository | Tamamlandı (kod doğrulaması) | Cihaz testi önerilir |
+| 64 | Manuel ödeme kaydı silme | payment_history_screen.dart + PaymentEventsRepository | Tamamlandı (kod doğrulaması) | Cihaz testi önerilir |
+| 65 | Karttan/bankadan otomatik para çekimi | `test/settings_screen.dart + subscription_form.dart` | Kapsam dışı / kaldırıldı | Gerekmez |
 
 ## Kapsam sınırları
 

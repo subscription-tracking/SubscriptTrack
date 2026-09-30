@@ -95,12 +95,12 @@
   "doğrulanmamış kritik kontrol (RLS davranış testi, cihazda secure-storage/R8)": 5
  },
  "release": {
-  "score": 2.8,
+  "score": 3.0,
   "parts": {
    "Üretim imzası (debug keystore yedeği var, gerçek anahtar yok)": 3,
    "Gerçek cihazda release doğrulaması (bildirim, biyometri, R8, secure-storage geçişi)": 2,
    "iOS build üretildi": 2,
-   "CI: hattı var; son uzak koşu kırmızı, 12 yerel commit itilmedi": 4
+   "CI: hat var; analyze+test+backend yeşil, Android release AAB derlemesi kırmızı": 5
   }
  },
  "facts": {
@@ -133,7 +133,7 @@
    "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
    "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
    "ios_build": "hiç alınmadı",
-   "ci": "mobile-quality.yml var; son uzak koşu (2026-09-28) kırmızı: app_offline_banner.dart o sırada izlenmiyordu, sonra eklendi; 12 yerel commit itilmedi, güncel HEAD CI'da hiç koşmadı"
+   "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30, e46c543); android-release-candidate (flutter build appbundle --release) kırmızı: Gradle checkReleaseDuplicateClasses / JetifyTransform (Flutter motor jar'ları)"
   }
  }
 }

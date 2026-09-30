@@ -114,7 +114,11 @@ load() başarılı
   Başarısız → head yerinde kalır; sonraki mutation çalıştırılmaz (FIFO korunur)
 ```
 
-Geçmiş `nextRenewalDate` değerleri yükleme sırasında değiştirilmez; aktif kayıt **Gecikmiş** görünür, kullanıcı **Yenilendi** dediğinde başlangıç gününü koruyan sonraki tarih hesaplanır. Fiziksel silme controller'da yalnızca `mistakenRecord: true` ile çağrılır; çoklu seçim kayıtları arşivler.
+**Yaşam döngüsü kuralları (yükleme sırasında):** `SubscriptionOperations.applyLifecycleRules()` bitmiş denemeleri `expired` yapar ve gecikmiş aktif aboneliklerin `nextRenewalDate` değerini bir sonraki döneme **otomatik ilerletir** (`SubscriptionLifecycle.advanceOverdue`, Excel Test 45). Kullanıcı **Yenilendi** derse `markRenewed` yarın veya sonrasına taşır. 
+
+**Silme:** Controller `delete` ve `deleteMany` sunar; detay ekranı menüsü ve liste çoklu seçimi herhangi bir abonelik için **"Kalıcı olarak sil"** onayı gösterir (arşivle/iptal ayrı seçeneklerdir).
+
+> **Ürün kuralıyla çelişki (karar bekliyor):** [DOMAIN.md §4/§7](../product/DOMAIN.md), [ADR 0006](../decisions/0006-archive-over-delete.md) ve `AGENTS.md` normal akışta fiziksel silme yapılmamasını ve yenileme tarihinin sessizce ilerletilmemesini ister; uygulama ikisini de farklı yapıyor. Hangisinin doğru olduğu ürün sahibinin kararıdır; kod bu belgede değiştirilmedi.
 
 ## 7. Bildirim mimarisi
 

@@ -86,7 +86,7 @@ rel_scores = {
     'Üretim imzası (debug keystore yedeği var, gerçek anahtar yok)': 3,
     'Gerçek cihazda release doğrulaması (bildirim, biyometri, R8, secure-storage geçişi)': 2,
     'iOS build üretildi': 2,
-    'CI: hattı var; son uzak koşu kırmızı, 12 yerel commit itilmedi': 4,
+    'CI: hat var; analyze+test+backend yeşil, Android release AAB derlemesi kırmızı': 5,
 }
 release = R.mean(rel_scores.values())
 

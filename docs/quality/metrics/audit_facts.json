@@ -1,7 +1,16 @@
 {
   "collected": "2026-09-30",
-  "duplication_cross_check": {"tool": "jscpd 4 (min-tokens 50, min-lines 6)", "duplicated_pct": 1.08, "own_tool_pct": 2.9, "note": "bağımsız araç bizim aracımızdan daha düşük buluyor; tekrar puanı şişirilmemiş"},
-  "backend": {"edge_function_tests": 0, "edge_functions": 4, "migration_tests": "215 satır, SQL metni üzerinde regex; canlı DB davranış testi yok"},
+  "duplication_cross_check": {
+    "tool": "jscpd 4 (min-tokens 50, min-lines 6)",
+    "duplicated_pct": 1.08,
+    "own_tool_pct": 2.9,
+    "note": "bağımsız araç bizim aracımızdan daha düşük buluyor; tekrar puanı şişirilmemiş"
+  },
+  "backend": {
+    "edge_function_tests": 0,
+    "edge_functions": 4,
+    "migration_tests": "215 satır, SQL metni üzerinde regex; canlı DB davranış testi yok"
+  },
   "security": {
     "advisor_errors": 0,
     "advisor_total_warns": 5,
@@ -19,6 +28,6 @@
     "signing": "android/app/build.gradle release, Play keystore yoksa debug keystore'a düşüyor",
     "device_verification": "gerçek cihazda release APK doğrulaması yapılmadı",
     "ios_build": "hiç alınmadı",
-    "ci": "mobile-quality.yml var; son uzak koşu (2026-09-28) kırmızı: app_offline_banner.dart o sırada izlenmiyordu, sonra eklendi; 12 yerel commit itilmedi, güncel HEAD CI'da hiç koşmadı"
+    "ci": "mobile-quality.yml: analyze-and-test ve backend-test yeşil (2026-09-30, e46c543); android-release-candidate (flutter build appbundle --release) kırmızı: Gradle checkReleaseDuplicateClasses / JetifyTransform (Flutter motor jar'ları)"
   }
 }
