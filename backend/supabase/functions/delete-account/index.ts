@@ -9,35 +9,28 @@
 //   SUPABASE_SERVICE_ROLE_KEY — manuel ekle (service_role key)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders, internalError, jsonResponse } from '../_shared/http.js'
+import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
 const requiredSecret = (name: string) => (Deno.env.get(name) ?? '').trim()
 
 Deno.serve(async (req: Request) => {
+  const cors = corsHeaders(req.headers.get('Origin'))
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: cors })
   }
 
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Sadece POST desteklenir' }), {
-      status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Allow': 'POST, OPTIONS' },
-    })
+    return jsonResponse({ error: 'Sadece POST desteklenir' }, 405, { ...cors, Allow: 'POST, OPTIONS' })
   }
 
   try {
     // 1. İsteği yapan kullanıcıyı JWT ile doğrula
     const authHeader = req.headers.get('Authorization')?.trim()
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Authorization header eksik' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return jsonResponse({ error: 'Authorization header eksik' }, 401, cors)
     }
 
     // Kullanıcı client — JWT'den user_id çıkarmak için
@@ -49,10 +42,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: { user }, error: userError } = await userClient.auth.getUser()
     if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Geçersiz token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return jsonResponse({ error: 'Geçersiz token' }, 401, cors)
     }
 
     // 2. Admin client — service_role key ile kullanıcı sil
@@ -60,9 +50,7 @@ Deno.serve(async (req: Request) => {
       requiredSecret('SERVICE_ROLE_KEY')
     if (!serviceRoleKey) {
       console.error('Service role secret yapılandırılmamış')
-      return new Response(JSON.stringify({ error: 'Sunucu yapılandırma hatası' }), {
-        status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      return jsonResponse({ error: 'Sunucu yapılandırma hatası' }, 503, cors)
     }
 
     const adminClient = createClient(
@@ -71,23 +59,18 @@ Deno.serve(async (req: Request) => {
       { auth: { autoRefreshToken: false, persistSession: false } },
     )
 
+    if (!(await checkRateLimit(adminClient, user.id, 'delete-account'))) {
+      return tooManyRequests('delete-account', cors)
+    }
+
     // Subscriptions cascade ile silinir (ON DELETE CASCADE)
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id)
     if (deleteError) {
-      return new Response(
-        JSON.stringify({ error: deleteError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return internalError(deleteError, 'delete-account', cors)
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return jsonResponse({ success: true }, 200, cors)
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return internalError(err, 'delete-account', cors)
   }
 })

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:subscript_track/core/services/app_lock_service.dart';
+import 'package:subscript_track/core/storage/secure_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -96,6 +97,52 @@ void main() {
       await lock.disable();
 
       expect(lock.lockTimeout, Duration.zero);
+    });
+  });
+  group('disable() — kilidi tamamen kapatır', () {
+    test('PIN, kilit ve biyometri kapanır, yeniden açılışta da kapalı kalır', () async {
+      final lock = AppLockService();
+      await lock.setPin('1234');
+      // Test ortamında biyometri donanımı yok; durumu depolama üzerinden kur.
+      await SecureStorage.instance.writeBiometricLock(true);
+      await lock.load();
+      lock.lock();
+      expect(lock.enabled, isTrue);
+      expect(lock.locked, isTrue);
+      expect(lock.biometricEnabled, isTrue);
+
+      await lock.disable();
+
+      expect(lock.enabled, isFalse, reason: 'devre dışı bırakılınca kilit etkin kalmamalı');
+      expect(lock.locked, isFalse);
+      expect(lock.biometricEnabled, isFalse);
+      expect(lock.loaded, isTrue);
+
+      final reopened = AppLockService();
+      await reopened.load();
+      expect(reopened.enabled, isFalse, reason: 'PIN diskten de silinmeli');
+      expect(reopened.locked, isFalse);
+      expect(reopened.biometricEnabled, isFalse);
+    });
+
+    test('devre dışı bırakıldıktan sonra lock() ve arka plan kilitlemesi etkisizdir', () async {
+      final lock = AppLockService();
+      await lock.setPin('1234');
+      await lock.disable();
+
+      lock.lock();
+      lock.handleBackground();
+      lock.handleResume();
+
+      expect(lock.locked, isFalse);
+    });
+
+    test('devre dışı bırakıldıktan sonra eski PIN doğrulanmaz', () async {
+      final lock = AppLockService();
+      await lock.setPin('1234');
+      await lock.disable();
+
+      expect(await lock.verifyPin('1234'), isFalse);
     });
   });
 }
