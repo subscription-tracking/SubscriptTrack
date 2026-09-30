@@ -1,3 +1,4 @@
+import '../../../../core/domain/money.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../notifications/domain/notification_rule.dart';
 import '../../domain/subscription_models.dart';
@@ -71,4 +72,27 @@ class SubscriptionFormData {
       originalAnchor: startDate,
     );
   }
+
+  /// Boş/boşluklu not `null` olarak kaydedilir.
+  String? get notesOrNull => notes.trim().isEmpty ? null : notes.trim();
+
+  /// Deneme bitiş tarihi ve deneme sonrası fiyat yalnızca deneme açıkken geçerlidir.
+  DateTime? get trialEndOrNull => isTrial ? trialEndDate : null;
+  Money? get trialPriceOrNull => isTrial ? Money.parse(trialPriceAfter) : null;
+
+  /// Form değerlerini [base] aboneliğine uygulayıp yeni kopyayı döndürür.
+  Subscription applyTo(Subscription base) => base.copyWith(
+        name: name,
+        amount: Money.parse(amount),
+        currency: currency,
+        billingCycle: billingCycle,
+        startDate: startDate,
+        nextRenewalDate: nextRenewalDate,
+        category: category,
+        notes: notesOrNull,
+        paymentMethod: paymentMethod,
+        trialEndDate: trialEndOrNull,
+        trialPriceAfter: trialPriceOrNull,
+        notificationRules: notificationRules,
+      );
 }

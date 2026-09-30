@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/domain/currency.dart';
 import '../../../../core/preferences/app_preferences.dart';
-import '../../../../core/domain/money.dart';
 import '../../../../shared/design/responsive.dart';
 import '../../domain/subscription_models.dart';
+import '../../../../shared/widgets/loading_filled_button.dart';
 import '../subscription_controller.dart';
 import '../widgets/subscription_form.dart';
 
@@ -52,23 +52,7 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amount = Money.parse(_data.amount);
-
-    final updated = widget.subscription.copyWith(
-      name: _data.name,
-      amount: amount,
-      currency: _data.currency,
-      billingCycle: _data.billingCycle,
-      startDate: _data.startDate,
-      nextRenewalDate: _data.nextRenewalDate,
-      category: _data.category,
-      notes: _data.notes.trim().isEmpty ? null : _data.notes.trim(),
-      paymentMethod: _data.paymentMethod,
-      trialEndDate: _data.isTrial ? _data.trialEndDate : null,
-      trialPriceAfter:
-          _data.isTrial ? Money.parse(_data.trialPriceAfter) : null,
-      notificationRules: _data.notificationRules,
-    );
+    final updated = _data.applyTo(widget.subscription);
 
     final ok = await widget.controller.edit(updated);
     if (!mounted) return;
@@ -103,16 +87,11 @@ class _EditSubscriptionScreenState extends State<EditSubscriptionScreen> {
                 settings: context.read<AppPreferences>(),
               ),
               const SizedBox(height: 28),
-              FilledButton(
-                onPressed: widget.controller.loading ? null : _save,
-                child: widget.controller.loading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Güncelle'),
+              LoadingFilledButton(
+                label: 'Güncelle',
+                loading: widget.controller.loading,
+                onPressed: _save,
+                tall: false,
               ),
             ],
           ),

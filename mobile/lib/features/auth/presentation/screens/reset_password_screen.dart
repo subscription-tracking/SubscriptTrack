@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/loading_filled_button.dart';
 import '../auth_controller.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -55,7 +56,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 _confirmField(),
                 ..._errorText(context),
                 const SizedBox(height: 24),
-                _submitButton(),
+                LoadingFilledButton(
+                  label: 'Şifremi güncelle',
+                  loading: widget.controller.loading,
+                  onPressed: _submit,
+                ),
               ],
             ),
           ),
@@ -143,21 +148,5 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         textAlign: TextAlign.center,
       ),
     ];
-  }
-
-  Widget _submitButton() {
-    final loading = widget.controller.loading;
-    return FilledButton(
-      onPressed: loading ? null : _submit,
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-      child: loading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: Colors.white),
-            )
-          : const Text('Şifremi güncelle'),
-    );
   }
 }

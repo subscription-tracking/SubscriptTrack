@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/navigation/app_routes.dart';
-import '../../../../shared/widgets/ambient_background.dart';
+import '../../../../shared/widgets/loading_filled_button.dart';
 import '../auth_controller.dart';
+import '../widgets/auth_form_parts.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({required this.controller, this.onLoginTap, super.key});
@@ -58,94 +59,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AmbientBackground(
-        child: SafeArea(
-          child: ListenableBuilder(
-            listenable: widget.controller,
-            builder: (context, _) {
-              return Form(
-                key: _formKey,
-                child: ListView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  children: [
-                    ..._header(context),
-                    const SizedBox(height: 32),
-                    ..._fields(),
-                    const SizedBox(height: 12),
-                    _termsCheckbox(context),
-                    const SizedBox(height: 16),
-                    _submitButton(),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: widget.onLoginTap,
-                      child: const Text('Zaten hesabın var mı? Giriş yap'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+    return AuthPageScaffold(
+      controller: widget.controller,
+      formKey: _formKey,
+      childrenBuilder: (context, loading) => [
+        ...authHeaderChildren(
+          context,
+          icon: Icons.person_add_alt_1_rounded,
+          title: 'Hesap oluştur',
+          subtitle: 'Aboneliklerini takip etmeye başla.',
         ),
-      ),
+        const SizedBox(height: 32),
+        ..._fields(),
+        const SizedBox(height: 12),
+        _termsCheckbox(context),
+        const SizedBox(height: 16),
+        LoadingFilledButton(
+          label: 'Kayıt ol',
+          loading: loading,
+          onPressed: _agreedToTerms ? _submit : null,
+          tall: false,
+        ),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: widget.onLoginTap,
+          child: const Text('Zaten hesabın var mı? Giriş yap'),
+        ),
+      ],
     );
-  }
-
-  List<Widget> _header(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    return [
-      const BrandMark(),
-      const SizedBox(height: 28),
-      EntranceFade(
-        child: GlowOrb(
-            icon: Icons.person_add_alt_1_rounded, color: colors.primary),
-      ),
-      const SizedBox(height: 24),
-      EntranceFade(
-        child: Text('Hesap oluştur',
-            style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
-      ),
-      const SizedBox(height: 6),
-      EntranceFade(
-        delay: const Duration(milliseconds: 60),
-        child: Text('Aboneliklerini takip etmeye başla.',
-            style: text.bodyLarge?.copyWith(color: colors.onSurfaceVariant)),
-      ),
-    ];
   }
 
   List<Widget> _fields() {
     return [
-      TextFormField(
-        controller: _email,
-        keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.next,
-        decoration: const InputDecoration(
-          labelText: 'E-posta',
-          prefixIcon: Icon(Icons.email_outlined),
-        ),
-        validator: (v) =>
-            v == null || !v.contains('@') ? 'Geçerli bir e-posta gir' : null,
-      ),
+      AuthEmailField(controller: _email),
       const SizedBox(height: 16),
-      TextFormField(
+      AuthPasswordField(
         controller: _password,
-        obscureText: _obscure,
-        textInputAction: TextInputAction.next,
-        decoration: InputDecoration(
-          labelText: 'Şifre',
-          prefixIcon: const Icon(Icons.lock_outline),
-          suffixIcon: IconButton(
-            icon: Icon(_obscure
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined),
-            onPressed: () => setState(() => _obscure = !_obscure),
-          ),
-        ),
-        validator: (v) =>
-            v == null || v.length < 6 ? 'En az 6 karakter gir' : null,
+        obscure: _obscure,
+        onToggleObscure: () => setState(() => _obscure = !_obscure),
       ),
       const SizedBox(height: 16),
       TextFormField(
@@ -182,21 +133,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const Text(' okudum, kabul ediyorum.'),
         ],
       ),
-    );
-  }
-
-  Widget _submitButton() {
-    final loading = widget.controller.loading;
-    return FilledButton(
-      onPressed: (loading || !_agreedToTerms) ? null : _submit,
-      child: loading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: Colors.white),
-            )
-          : const Text('Kayıt ol'),
     );
   }
 }

@@ -5,14 +5,14 @@
    "max_file_lines": 300,
    "files_over_300_pct": 0.0,
    "complexity": {
-    "methods": 976,
-    "avg_cc": 2.29,
+    "methods": 979,
+    "avg_cc": 2.27,
     "max_cc": 14,
     "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
     "cc_over_10": 1,
     "cc_over_10_pct": 0.1,
-    "lines_over_60": 0,
-    "lines_over_60_pct": 0.0,
+    "lines_over_60": 1,
+    "lines_over_60_pct": 0.1,
     "max_depth": 5
    },
    "architecture": {
@@ -27,10 +27,10 @@
    },
    "architecture_score_excl_composition_root": 9.3,
    "architecture_score_incl_composition_root": 7.3,
-   "duplicated_pct": 5.1,
+   "duplicated_pct": 3.0,
    "coverage": {
     "reported_pct": 91.7,
-    "corrected_pct": 91.0,
+    "corrected_pct": 90.9,
     "domain_pct": 88.6,
     "tests_stable": true,
     "files_not_in_lcov": 3
@@ -76,12 +76,12 @@
    },
    "outdated_direct_major": 0,
    "maintainability": {
-    "doc_ratio_pct": 31.6,
+    "doc_ratio_pct": 33.5,
     "tracked_artifacts": 0,
     "todo": 0,
     "color_literals": 116,
-    "turkish_string_literals": 580,
-    "semantics_calls": 9
+    "turkish_string_literals": 576,
+    "semantics_calls": 8
    },
    "benchmark": {
     "subscriptions": 1000,
@@ -112,24 +112,24 @@
   "category_scores": {
    "static_analysis": 10,
    "size": 10.0,
-   "complexity": 8.7,
+   "complexity": 8.0,
    "architecture": 9.3,
-   "duplication": 6,
+   "duplication": 10,
    "tests": 10.0,
    "security": 8.3,
    "maintainability": 8.0,
    "performance": 7.3
   },
-  "overall": 9.1,
+  "overall": 9.2,
   "complexity_detail": {
-   "methods": 976,
-   "avg_cc": 2.29,
+   "methods": 979,
+   "avg_cc": 2.27,
    "max_cc": 14,
    "max_cc_method": "lib/features/subscriptions/domain/subscription_models.dart::Subscription.copyWith",
    "cc_over_10": 1,
    "cc_over_10_pct": 0.1,
-   "lines_over_60": 0,
-   "lines_over_60_pct": 0.0,
+   "lines_over_60": 1,
+   "lines_over_60_pct": 0.1,
    "max_depth": 5,
    "top10": [
     [
@@ -195,16 +195,16 @@
    ],
    "longest": [
     [
+     "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+     "_OnboardingScreenState.build",
+     1,
+     61
+    ],
+    [
      "lib/features/subscriptions/presentation/widgets/detail/detail_reminders_section.dart",
      "DetailPaymentMethodSection.build",
      3,
      60
-    ],
-    [
-     "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
-     "_OnboardingScreenState.build",
-     1,
-     59
     ],
     [
      "lib/features/subscriptions/presentation/widgets/detail/detail_payment_history.dart",

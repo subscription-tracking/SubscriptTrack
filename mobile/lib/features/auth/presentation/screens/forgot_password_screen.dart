@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/config/app_environment.dart';
+import '../../../../shared/widgets/loading_filled_button.dart';
 import '../auth_controller.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -143,18 +144,10 @@ class _FormView extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: controller.loading ? null : onSubmit,
-            style:
-                FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-            child: controller.loading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
-                  )
-                : const Text('Bağlantı gönder'),
+          LoadingFilledButton(
+            label: 'Bağlantı gönder',
+            loading: controller.loading,
+            onPressed: onSubmit,
           ),
         ],
       ),
