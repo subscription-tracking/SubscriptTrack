@@ -46,14 +46,17 @@ class Subscription {
   bool get isExpired => status == SubscriptionStatus.expired;
 
   /// Derived presentation state; the persisted lifecycle status stays intact.
-  bool isNotStartedAt(DateTime now) {
+  bool isNotStartedAt(DateTime now) =>
+      isNotStartedOnDay(DateTimeUtils.dayNumber(now));
+
+  /// [isNotStartedAt] ile aynıdır; bugünün [DateTimeUtils.dayNumber] değeri
+  /// önceden hesaplanmış olduğundan listelerde tekrar hesaplanmaz.
+  bool isNotStartedOnDay(int today) {
     if (status != SubscriptionStatus.active &&
         status != SubscriptionStatus.trial) {
       return false;
     }
-    final today = DateTime(now.year, now.month, now.day);
-    final start = DateTime(startDate.year, startDate.month, startDate.day);
-    return start.isAfter(today);
+    return DateTimeUtils.dayNumber(startDate) > today;
   }
 
   bool get isNotStarted => isNotStartedAt(DateTime.now());
@@ -67,13 +70,12 @@ class Subscription {
         BillingCycle.yearly => amount / 12,
       };
 
-  int get daysUntilRenewal {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final renewal = DateTime(
-        nextRenewalDate.year, nextRenewalDate.month, nextRenewalDate.day);
-    return renewal.difference(today).inDays;
-  }
+  int get daysUntilRenewal =>
+      daysUntilRenewalFrom(DateTimeUtils.dayNumber(DateTime.now()));
+
+  /// Bugünün [DateTimeUtils.dayNumber] değerinden itibaren kalan gün sayısı.
+  int daysUntilRenewalFrom(int today) =>
+      DateTimeUtils.dayNumber(nextRenewalDate) - today;
 
   /// Future renewal projections for planning only. These are not payments.
   List<DateTime> projectedRenewals({int count = 12}) {

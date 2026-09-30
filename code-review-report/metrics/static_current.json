@@ -1,7 +1,7 @@
 {
  "size": {
   "files": 166,
-  "total_lines": 20140,
+  "total_lines": 20159,
   "max_lines": 300,
   "max_file": "lib/features/auth/presentation/auth_controller.dart",
   "median_lines": 102.0,
@@ -39,16 +39,16 @@
     272
    ],
    [
+    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
+    266
+   ],
+   [
     "lib/features/subscriptions/data/subscription_operations.dart",
     266
    ],
    [
     "lib/features/settings/presentation/screens/payment_methods_screen.dart",
     263
-   ],
-   [
-    "lib/features/onboarding/presentation/screens/onboarding_screen.dart",
-    262
    ]
   ]
  },
@@ -103,7 +103,7 @@
    ],
    [
     "lib/core/utils/date_time_utils.dart",
-    20
+    22
    ],
    [
     "lib/core/navigation/app_routes.dart",
@@ -113,7 +113,7 @@
  },
  "duplication": {
   "window": 6,
-  "significant_lines": 11732,
+  "significant_lines": 11731,
   "duplicated_lines": 349,
   "duplicated_pct": 3.0,
   "top_files": [

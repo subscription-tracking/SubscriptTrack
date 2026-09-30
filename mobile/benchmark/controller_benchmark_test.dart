@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subscript_track/core/datasources/subscription_data_source.dart';
 import 'package:subscript_track/core/domain/money.dart';
 import 'package:subscript_track/core/services/reminder_planner.dart';
+import 'package:subscript_track/features/calendar/presentation/calendar_controller.dart';
 import 'package:subscript_track/features/stats/domain/payment_event.dart';
 import 'package:subscript_track/features/stats/domain/stats_view_model.dart';
 import 'package:subscript_track/features/stats/presentation/screens/stats_screen.dart';
@@ -190,6 +191,18 @@ void main() {
         now: tzNow,
       ),
     );
+  });
+
+  test('takvim: gün ve ay hesabı (1000 abonelik, medyan ms)', () async {
+    final c = SubscriptionController(userId: 'u', repository: _Repo(_subs(n)));
+    await c.load();
+    final cal = CalendarController(subscriptions: c);
+    final today = DateTime.now();
+    results['calendar_month_ms'] = await _time(15, () async {
+      cal.renewalDaysInMonth(today.year, today.month);
+      cal.renewalsForDay(today);
+      cal.totalsByCurrencyForMonth(today.year, today.month);
+    });
   });
 
   testWidgets(

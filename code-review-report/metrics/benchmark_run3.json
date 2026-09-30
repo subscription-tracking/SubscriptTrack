@@ -1,30 +1,31 @@
 {
  "subscriptions": 1000,
- "controller_load_ms": 182.29,
- "notify_selectors_ms": 186.03,
- "projected_renewals_unused_by_ui_ms": 1586.42,
+ "controller_load_ms": 17.43,
+ "notify_selectors_ms": 0.51,
+ "projected_renewals_unused_by_ui_ms": 385.07,
  "scaling": {
   "50": {
-   "load_ms": 20.61,
-   "notify_selectors_ms": 13.71,
-   "projected_renewals_unused_by_ui_ms": 153.42
+   "load_ms": 2.92,
+   "notify_selectors_ms": 0.13,
+   "projected_renewals_unused_by_ui_ms": 23.28
   },
   "200": {
-   "load_ms": 42.27,
-   "notify_selectors_ms": 34.33,
-   "projected_renewals_unused_by_ui_ms": 473.94
+   "load_ms": 5.29,
+   "notify_selectors_ms": 0.18,
+   "projected_renewals_unused_by_ui_ms": 82.66
   },
   "1000": {
-   "load_ms": 182.29,
-   "notify_selectors_ms": 186.03,
-   "projected_renewals_unused_by_ui_ms": 1586.42
+   "load_ms": 17.43,
+   "notify_selectors_ms": 0.51,
+   "projected_renewals_unused_by_ui_ms": 385.07
   }
  },
- "stats_view_model_ms": 2.69,
- "list_filter_sort_ms": 0.31,
- "reminder_planner_ms": 12.29,
- "stats_screen_pump_200_ms": 24.35,
- "list_screen_pump_1000_ms": 9.86,
+ "stats_view_model_ms": 1.51,
+ "list_filter_sort_ms": 0.23,
+ "reminder_planner_ms": 10.07,
+ "calendar_month_ms": 0.2,
+ "stats_screen_pump_200_ms": 23.85,
+ "list_screen_pump_1000_ms": 6.09,
  "list_screen_built_tiles": 7,
  "note": "Host makine mikro-benchmarkı; cihaz/frame süresi değildir. Medyan, milisaniye."
 }

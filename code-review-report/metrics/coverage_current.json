@@ -1,12 +1,12 @@
 {
  "reported": {
-  "hit": 7205,
-  "found": 7860,
+  "hit": 7203,
+  "found": 7858,
   "pct": 91.7
  },
  "corrected": {
-  "hit": 7205,
-  "found": 7923,
+  "hit": 7203,
+  "found": 7921,
   "pct": 90.9
  },
  "files_total": 166,
@@ -23,8 +23,8 @@
    "pct": 91.3
   },
   "layer:core-services": {
-   "hit": 514,
-   "found": 625,
+   "hit": 511,
+   "found": 622,
    "pct": 82.2
   },
   "layer:data": {
@@ -43,8 +43,8 @@
    "pct": 0.0
   },
   "layer:presentation": {
-   "hit": 5043,
-   "found": 5465,
+   "hit": 5044,
+   "found": 5466,
    "pct": 92.3
   }
  },
@@ -55,9 +55,9 @@
    "pct": 91.3
   },
   "core": {
-   "hit": 576,
-   "found": 694,
-   "pct": 83.0
+   "hit": 573,
+   "found": 691,
+   "pct": 82.9
   },
   "feature:auth": {
    "hit": 628,
@@ -80,8 +80,8 @@
    "pct": 90.3
   },
   "feature:onboarding": {
-   "hit": 357,
-   "found": 360,
+   "hit": 358,
+   "found": 361,
    "pct": 99.2
   },
   "feature:savings": {
@@ -174,8 +174,8 @@
   ],
   [
    "lib/features/subscriptions/domain/subscription_selectors.dart",
-   77.8,
-   45
+   78.7,
+   47
   ]
  ]
 }
