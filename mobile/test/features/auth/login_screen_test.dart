@@ -83,8 +83,9 @@ void main() {
     expect(source.signInCalls, 0);
   });
 
-  testWidgets('"Test hesabıyla gir" test hesabı bilgileriyle signIn çağırır',
-      (tester) async {
+  testWidgets(
+      'güvenlik (F-06): TEST_ACCOUNT_PASSWORD tanımsızken "Test hesabıyla gir" '
+      'butonu yoktur ve kaynakta varsayılan parola bulunmaz', (tester) async {
     final source = _FakeAuthDataSource();
     final controller = AuthController(repository: source);
 
@@ -92,11 +93,9 @@ void main() {
         tester, MaterialApp(home: LoginScreen(controller: controller)));
     await tester.pump();
 
-    await tester.tap(find.text('Test hesabıyla gir'));
-    await tester.pumpAndSettle();
-
-    expect(source.signInCalls, 1);
-    expect(source.user?.email, 'testkullanici@subscripttrack.app');
+    // Parola `--dart-define` ile verilmediği için (debug modda bile) buton çıkmaz.
+    expect(find.text('Test hesabıyla gir'), findsNothing);
+    expect(source.signInCalls, 0);
   });
 
   testWidgets('"Hesabın yok mu? Kayıt ol" onRegisterTap çağırır',
