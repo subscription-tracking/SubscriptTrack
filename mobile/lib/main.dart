@@ -18,6 +18,7 @@ void main() async {
           ? const FlutterAuthClientOptions()
           : const FlutterAuthClientOptions(
               localStorage: SecureSupabaseStorage(),
+              pkceAsyncStorage: SecurePkceStorage(),
             ),
     );
   }
