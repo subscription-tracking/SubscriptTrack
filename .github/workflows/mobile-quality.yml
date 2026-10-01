@@ -78,6 +78,9 @@ jobs:
           channel: 'stable'
       - run: flutter pub get
       - name: Build unsigned Android App Bundle
+        env:
+          # CI yalnızca doğrulama derlemesi üretir; gerçek imza anahtarı yok (F-12).
+          ALLOW_DEBUG_SIGNING: "true"
         run: flutter build appbundle --release --dart-define=APP_VERSION=${{ github.sha }}
       - uses: actions/upload-artifact@v4
         with:
