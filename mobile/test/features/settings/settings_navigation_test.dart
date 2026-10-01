@@ -282,6 +282,10 @@ void main() {
       await pump(tester);
       await tester.tap(find.text('Panoya kopyala'));
       await tester.pumpAndSettle();
+      expect(find.text('Panoya kopyalansın mı?'), findsOneWidget);
+      expect(clipboard, isEmpty, reason: 'onaydan önce kopyalanmaz');
+      await tester.tap(find.text('Kopyala'));
+      await tester.pumpAndSettle();
 
       expect(find.text('CSV panoya kopyalandı.'), findsOneWidget);
       final csv = clipboard.single;
@@ -291,6 +295,17 @@ void main() {
       expect(csv, contains('"\'+cmd"'));
       expect(csv, contains('"\'@kart"'));
       expect(csv, isNot(contains('"Eski"')), reason: 'arşiv dışa aktarılmaz');
+    });
+
+    testWidgets('pano onayı reddedilirse kopyalanmaz', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Panoya kopyala'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Vazgeç'));
+      await tester.pumpAndSettle();
+
+      expect(clipboard, isEmpty);
+      expect(find.text('CSV panoya kopyalandı.'), findsNothing);
     });
 
     testWidgets('bulut dışa aktarma kullanılamazsa kullanıcıya bildirilir',
