@@ -1,6 +1,6 @@
 // Supabase Edge Function — support-catalog
 // GET: aktif servis kataloğu. POST: kullanıcı adına destek kaydı oluşturur.
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.2'
 import { corsHeaders, internalError, jsonResponse, normalizeCategory } from '../_shared/http.js'
 import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 

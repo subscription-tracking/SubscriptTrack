@@ -1,5 +1,6 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.2'
 import { csvField } from '../_shared/csv.js'
+import { EXPORT_BUCKET, exportPath } from '../_shared/exports.js'
 import { internalError } from '../_shared/http.js'
 import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
@@ -42,10 +43,10 @@ Deno.serve(async (req: Request) => {
       csvField(r.category), csvField(r.status), csvField(r.notes), csvField(r.payment_method),
       csvField(r.trial_end_date, numeric), csvField(moneyValue(r.trial_price_after), numeric),
     ].join(','))].join('\r\n') + '\r\n'
-    const path = `${user.id}/${exportId}.csv`
-    const upload = await admin.storage.from('exports').upload(path, new Blob([csv], { type: 'text/csv; charset=utf-8' }), { upsert: true, contentType: 'text/csv; charset=utf-8' })
+    const path = exportPath(user.id)
+    const upload = await admin.storage.from(EXPORT_BUCKET).upload(path, new Blob([csv], { type: 'text/csv; charset=utf-8' }), { upsert: true, contentType: 'text/csv; charset=utf-8' })
     if (upload.error) throw upload.error
-    const signed = await admin.storage.from('exports').createSignedUrl(path, 60 * 60)
+    const signed = await admin.storage.from(EXPORT_BUCKET).createSignedUrl(path, 60 * 60)
     if (signed.error) throw signed.error
     const { data: updated, error: updateError } = await admin.from('exports').update({ status: 'READY', storage_path: path, download_url: signed.data.signedUrl, expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), error_message: null }).eq('id', exportId).eq('user_id', user.id).select().single()
     if (updateError) throw updateError

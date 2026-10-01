@@ -1,6 +1,6 @@
 // Kullanıcıya ait ödeme yöntemi etiketleri için authenticated API sınırı.
 // Deploy: supabase functions deploy payment-methods --no-verify-jwt=false
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.2'
 import { corsHeaders, jsonResponse } from '../_shared/http.js'
 import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
