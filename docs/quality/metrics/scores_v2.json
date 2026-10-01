@@ -1,6 +1,6 @@
 {
  "v1_overall": 9.5,
- "v2_overall": 8.4,
+ "v2_overall": 8.5,
  "weights_v2": {
   "static_analysis": 5,
   "size": 8,
@@ -31,7 +31,7 @@
   "duplication": 10,
   "tests": 10.0,
   "security": 9.3,
-  "maintainability": 8.0,
+  "maintainability": 9.0,
   "performance": 9.3
  },
  "v2_categories": {
@@ -42,7 +42,7 @@
   "duplication": 10,
   "tests": 7.3,
   "security": 7.9,
-  "maintainability": 8.0,
+  "maintainability": 9.0,
   "performance": 8
  },
  "mutation_run1": {

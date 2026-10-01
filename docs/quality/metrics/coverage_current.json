@@ -1,15 +1,15 @@
 {
  "reported": {
-  "hit": 7248,
-  "found": 7898,
-  "pct": 91.8
+  "hit": 7424,
+  "found": 8100,
+  "pct": 91.7
  },
  "corrected": {
-  "hit": 7248,
-  "found": 7961,
-  "pct": 91.0
+  "hit": 7424,
+  "found": 8164,
+  "pct": 90.9
  },
- "files_total": 167,
+ "files_total": 170,
  "files_not_in_lcov": 3,
  "files_not_in_lcov_sample": [
   "lib/main.dart",
@@ -23,29 +23,29 @@
    "pct": 91.4
   },
   "layer:core-services": {
-   "hit": 520,
-   "found": 624,
-   "pct": 83.3
+   "hit": 685,
+   "found": 803,
+   "pct": 85.3
   },
   "layer:data": {
-   "hit": 852,
-   "found": 935,
-   "pct": 91.1
+   "hit": 859,
+   "found": 942,
+   "pct": 91.2
   },
   "layer:domain": {
-   "hit": 365,
-   "found": 412,
-   "pct": 88.6
+   "hit": 374,
+   "found": 421,
+   "pct": 88.8
   },
   "layer:other": {
    "hit": 0,
-   "found": 14,
+   "found": 15,
    "pct": 0.0
   },
   "layer:presentation": {
-   "hit": 5075,
-   "found": 5499,
-   "pct": 92.3
+   "hit": 5070,
+   "found": 5506,
+   "pct": 92.1
   }
  },
  "by_feature": {
@@ -55,14 +55,14 @@
    "pct": 91.4
   },
   "core": {
-   "hit": 582,
-   "found": 693,
-   "pct": 84.0
+   "hit": 751,
+   "found": 876,
+   "pct": 85.7
   },
   "feature:auth": {
-   "hit": 614,
-   "found": 695,
-   "pct": 88.3
+   "hit": 610,
+   "found": 703,
+   "pct": 86.8
   },
   "feature:calendar": {
    "hit": 179,
@@ -90,8 +90,8 @@
    "pct": 98.7
   },
   "feature:settings": {
-   "hit": 927,
-   "found": 972,
+   "hit": 938,
+   "found": 983,
    "pct": 95.4
   },
   "feature:stats": {
@@ -106,7 +106,7 @@
   },
   "other": {
    "hit": 0,
-   "found": 14,
+   "found": 15,
    "pct": 0.0
   },
   "shared": {
@@ -115,7 +115,7 @@
    "pct": 92.7
   }
  },
- "domain_pct": 88.6,
+ "domain_pct": 88.8,
  "lowest_files": [
   [
    "lib/core/services/notification_platform.dart",
@@ -124,7 +124,7 @@
   ],
   [
    "lib/features/auth/presentation/screens/login_screen.dart",
-   51.6,
+   38.9,
    95
   ],
   [
