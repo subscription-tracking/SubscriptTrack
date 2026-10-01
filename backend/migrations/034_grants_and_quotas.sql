@@ -73,3 +73,10 @@ CREATE TRIGGER trg_quota_savings_events BEFORE INSERT ON public.savings_events
 
 -- ─── 3) Kullanılmayan tablo ───────────────────────────────────────
 DROP TABLE IF EXISTS public.device_tokens;
+
+-- ─── 4) Dışa aktarma kovası sınırları (F-02) ──────────────────────
+-- Kova özeldir; yalnızca CSV ve en çok 5 MB kabul eder.
+UPDATE storage.buckets
+   SET file_size_limit = 5242880,
+       allowed_mime_types = ARRAY['text/csv']
+ WHERE id = 'exports';

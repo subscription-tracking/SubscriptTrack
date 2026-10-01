@@ -8,7 +8,8 @@
 //   SUPABASE_URL       — otomatik inject
 //   SUPABASE_SERVICE_ROLE_KEY — manuel ekle (service_role key)
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.2'
+import { removeUserExports } from '../_shared/exports.js'
 import { corsHeaders, internalError, jsonResponse } from '../_shared/http.js'
 import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
@@ -62,6 +63,10 @@ Deno.serve(async (req: Request) => {
     if (!(await checkRateLimit(adminClient, user.id, 'delete-account'))) {
       return tooManyRequests('delete-account', cors)
     }
+
+    // Storage'daki dışa aktarma dosyaları tablo cascade'ine dahil değildir;
+    // kullanıcı silinmeden önce kaldırılır (hata olursa hesap silinmez, tekrar denenir).
+    await removeUserExports(adminClient, user.id)
 
     // Subscriptions cascade ile silinir (ON DELETE CASCADE)
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id)
