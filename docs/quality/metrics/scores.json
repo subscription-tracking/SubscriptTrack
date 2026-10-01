@@ -27,11 +27,11 @@
    },
    "architecture_score_excl_composition_root": 9.3,
    "architecture_score_incl_composition_root": 7.3,
-   "duplicated_pct": 2.9,
+   "duplicated_pct": 2.8,
    "coverage": {
-    "reported_pct": 91.8,
-    "corrected_pct": 91.0,
-    "domain_pct": 88.6,
+    "reported_pct": 91.7,
+    "corrected_pct": 90.9,
+    "domain_pct": 88.8,
     "tests_stable": true,
     "files_not_in_lcov": 3
    },
@@ -72,11 +72,11 @@
    },
    "outdated_direct_major": 0,
    "maintainability": {
-    "doc_ratio_pct": 33.8,
+    "doc_ratio_pct": 35.4,
     "tracked_artifacts": 0,
     "todo": 0,
     "color_literals": 116,
-    "turkish_string_literals": 586,
+    "turkish_string_literals": 604,
     "semantics_calls": 8
    },
    "benchmark": {
@@ -114,7 +114,7 @@
    "duplication": 10,
    "tests": 10.0,
    "security": 9.3,
-   "maintainability": 8.0,
+   "maintainability": 9.0,
    "performance": 9.3
   },
   "overall": 9.5,
