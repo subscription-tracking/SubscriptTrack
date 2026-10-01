@@ -109,31 +109,42 @@ void main() {
   });
   group('DateTimeUtils.addMonthsClamped', () {
     test('ay sonu günü hedef ayın son gününe sıkıştırılır (taşma yok)', () {
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 1, 31), 1), DateTime(2026, 2, 28));
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2028, 1, 31), 1), DateTime(2028, 2, 29),
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 1, 31), 1),
+          DateTime(2026, 2, 28));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2028, 1, 31), 1),
+          DateTime(2028, 2, 29),
           reason: 'artık yılda Şubat 29');
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 3, 31), 1), DateTime(2026, 4, 30));
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 1, 30), 1), DateTime(2026, 2, 28));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 3, 31), 1),
+          DateTime(2026, 4, 30));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 1, 30), 1),
+          DateTime(2026, 2, 28));
     });
 
     test('ay numarası doğru hesaplanır (Ocak..Aralık sınırları dahil)', () {
       for (var month = 1; month <= 12; month++) {
         final expectedMonth = month == 12 ? 1 : month + 1;
         final expectedYear = month == 12 ? 2027 : 2026;
-        final result = DateTimeUtils.addMonthsClamped(DateTime(2026, month, 15), 1);
-        expect(result, DateTime(expectedYear, expectedMonth, 15), reason: '$month. ay + 1');
+        final result =
+            DateTimeUtils.addMonthsClamped(DateTime(2026, month, 15), 1);
+        expect(result, DateTime(expectedYear, expectedMonth, 15),
+            reason: '$month. ay + 1');
       }
     });
 
     test('yıl geçişi ve çok aylı adımlar (3, 6, 12, 13)', () {
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 11, 10), 3), DateTime(2027, 2, 10));
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 8, 31), 6), DateTime(2027, 2, 28));
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 5, 20), 12), DateTime(2027, 5, 20));
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 12, 31), 13), DateTime(2028, 1, 31));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 11, 10), 3),
+          DateTime(2027, 2, 10));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 8, 31), 6),
+          DateTime(2027, 2, 28));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 5, 20), 12),
+          DateTime(2027, 5, 20));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 12, 31), 13),
+          DateTime(2028, 1, 31));
     });
 
     test('sıfır ay tarihi değiştirmez', () {
-      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 7, 9), 0), DateTime(2026, 7, 9));
+      expect(DateTimeUtils.addMonthsClamped(DateTime(2026, 7, 9), 0),
+          DateTime(2026, 7, 9));
     });
   });
 }

@@ -113,11 +113,11 @@ void main() {
     expect(controller.cancelled.single.id, 'sub-1');
 
     await controller.load();
-    expect(await OfflineMutationQueue().length, 2);
+    expect(await OfflineMutationQueue(userId: 'user-1').length, 2);
 
     await controller.load();
     expect(repo.calls, ['pause', 'cancel', 'pause', 'pause', 'cancel']);
     expect(controller.cancelled.single.id, 'sub-1');
-    expect(await OfflineMutationQueue().isEmpty, isTrue);
+    expect(await OfflineMutationQueue(userId: 'user-1').isEmpty, isTrue);
   });
 }

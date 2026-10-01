@@ -229,7 +229,7 @@ void main() {
       // pendingMutationCount getter'ı sadece bir sonraki load() sırasında
       // yenileniyor (controller state'inde canlı takip edilmiyor); asıl
       // kanıt kuyruğun kendisinde — doğrudan OfflineMutationQueue'yu okuyoruz:
-      final queued = await OfflineMutationQueue().drain();
+      final queued = await OfflineMutationQueue(userId: 'u1').drain();
       expect(queued.map((m) => m.type), contains('delete'),
           reason:
               'Silme işlemi gerçekten kuyruğa yazıldı, bağlantı gelince tekrar denenecek.');
@@ -295,7 +295,7 @@ void main() {
       expect(ctrl.allItems.single.id, 'new-1',
           reason:
               'Geçici "local-..." id, sunucunun atadığı GERÇEK id ile değiştirildi.');
-      final remaining = await OfflineMutationQueue().drain();
+      final remaining = await OfflineMutationQueue(userId: 'u1').drain();
       expect(remaining, isEmpty,
           reason: 'Kuyruk boşaldı, tekrar tekrar denenmiyor.');
     });
@@ -370,7 +370,7 @@ void main() {
       expect(repo._data.single.id, 'new-1');
       expect(repo._data.single.name, 'Son Ad');
       expect(ctrl.allItems.single.id, 'new-1');
-      expect(await OfflineMutationQueue().isEmpty, isTrue);
+      expect(await OfflineMutationQueue(userId: 'u1').isEmpty, isTrue);
     });
   });
 }

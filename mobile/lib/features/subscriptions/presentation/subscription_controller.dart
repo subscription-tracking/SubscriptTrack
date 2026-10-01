@@ -44,7 +44,7 @@ class SubscriptionController extends ChangeNotifier {
         _history = paymentHistory ?? PaymentHistoryStore(userId: userId) {
     _sync = OfflineSyncCoordinator(
       repository: _repo,
-      queue: mutationQueue ?? OfflineMutationQueue(),
+      queue: mutationQueue ?? OfflineMutationQueue(userId: userId),
       userId: userId,
       items: () => _items,
     );

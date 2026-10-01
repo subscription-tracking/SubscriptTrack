@@ -100,7 +100,8 @@ void main() {
     });
   });
   group('disable() — kilidi tamamen kapatır', () {
-    test('PIN, kilit ve biyometri kapanır, yeniden açılışta da kapalı kalır', () async {
+    test('PIN, kilit ve biyometri kapanır, yeniden açılışta da kapalı kalır',
+        () async {
       final lock = AppLockService();
       await lock.setPin('1234');
       // Test ortamında biyometri donanımı yok; durumu depolama üzerinden kur.
@@ -113,7 +114,8 @@ void main() {
 
       await lock.disable();
 
-      expect(lock.enabled, isFalse, reason: 'devre dışı bırakılınca kilit etkin kalmamalı');
+      expect(lock.enabled, isFalse,
+          reason: 'devre dışı bırakılınca kilit etkin kalmamalı');
       expect(lock.locked, isFalse);
       expect(lock.biometricEnabled, isFalse);
       expect(lock.loaded, isTrue);
@@ -125,7 +127,9 @@ void main() {
       expect(reopened.biometricEnabled, isFalse);
     });
 
-    test('devre dışı bırakıldıktan sonra lock() ve arka plan kilitlemesi etkisizdir', () async {
+    test(
+        'devre dışı bırakıldıktan sonra lock() ve arka plan kilitlemesi etkisizdir',
+        () async {
       final lock = AppLockService();
       await lock.setPin('1234');
       await lock.disable();
