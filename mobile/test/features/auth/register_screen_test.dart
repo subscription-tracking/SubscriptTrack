@@ -55,8 +55,8 @@ void main() {
   Future<void> fillValidForm(WidgetTester tester) async {
     await tester.enterText(
         find.byType(TextFormField).at(0), 'test@example.com');
-    await tester.enterText(find.byType(TextFormField).at(1), 'password1');
-    await tester.enterText(find.byType(TextFormField).at(2), 'password1');
+    await tester.enterText(find.byType(TextFormField).at(1), 'password12345');
+    await tester.enterText(find.byType(TextFormField).at(2), 'password12345');
   }
 
   testWidgets('onay kutusu işaretlenmeden Kayıt ol butonu pasif kalır',

@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/auth_models.dart';
+import '../domain/password_policy.dart';
 
 /// Supabase Auth tabanlı repository.
 /// EnvironmentConfig.isSupabaseConfigured == true olduğunda AuthController
@@ -219,7 +220,7 @@ class SupabaseAuthRepository
       ['already registered', 'already been registered', 'already exists'],
       'Bu e-posta zaten kayıtlı.'
     ),
-    (['password should be at least'], 'Şifre en az 6 karakter olmalı.'),
+    (['password should be at least'], PasswordPolicy.tooShortMessage),
     (['rate limit'], 'Çok fazla deneme. Lütfen biraz bekle.'),
     (['network'], 'Bağlantı hatası. İnternet bağlantını kontrol et.'),
   ];

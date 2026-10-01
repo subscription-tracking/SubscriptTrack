@@ -85,7 +85,7 @@ void main() {
         'Invalid login credentials': 'E-posta veya şifre hatalı.',
         'User already registered': 'Bu e-posta zaten kayıtlı.',
         'Password should be at least 6 characters':
-            'Şifre en az 6 karakter olmalı.',
+            'Şifre en az 10 karakter olmalı.',
         'Email rate limit exceeded': 'Çok fazla deneme. Lütfen biraz bekle.',
         'network down': 'Bağlantı hatası. İnternet bağlantını kontrol et.',
         'Something else': 'Something else',
@@ -164,7 +164,7 @@ void main() {
       await expectLater(
         repo.updatePassword('123'),
         throwsA(isA<AuthException>().having(
-            (e) => e.message, 'message', 'Şifre en az 6 karakter olmalı.')),
+            (e) => e.message, 'message', 'Şifre en az 10 karakter olmalı.')),
       );
     });
 

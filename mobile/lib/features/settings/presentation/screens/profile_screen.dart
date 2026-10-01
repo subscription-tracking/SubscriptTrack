@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../widgets/profile_parts.dart';
+import '../../../auth/domain/password_policy.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({required this.auth, super.key});
@@ -58,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool get _canChangePassword =>
       _currentPassword.text.isNotEmpty &&
-      _newPassword.text.length >= 6 &&
+      PasswordPolicy.isValid(_newPassword.text) &&
       _newPassword.text == _confirmPassword.text;
 
   Future<void> _saveName() async {
@@ -223,7 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           obscureText: _obscureNew,
           onChanged: (_) => _refresh(),
           decoration: InputDecoration(
-            labelText: 'Yeni şifre (en az 6 karakter)',
+            labelText:
+                'Yeni şifre (${PasswordPolicy.requirement.toLowerCase()})',
             prefixIcon: const Icon(Icons.lock_reset_outlined),
             suffixIcon: ProfileVisibilityToggle(
               obscured: _obscureNew,

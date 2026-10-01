@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../shared/widgets/loading_filled_button.dart';
+import '../../domain/password_policy.dart';
 import '../auth_controller.dart';
 import '../widgets/auth_form_parts.dart';
 
@@ -97,6 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         controller: _password,
         obscure: _obscure,
         onToggleObscure: () => setState(() => _obscure = !_obscure),
+        validator: PasswordPolicy.validateNew,
       ),
       const SizedBox(height: 16),
       TextFormField(

@@ -128,8 +128,8 @@ class AuthPasswordField extends StatelessWidget {
                 onPressed: onToggleObscure,
               ),
       ),
-      validator: validator ??
-          (v) => v == null || v.length < 6 ? 'En az 6 karakter gir' : null,
+      validator:
+          validator ?? (v) => v == null || v.isEmpty ? 'Şifre gerekli.' : null,
     );
   }
 }

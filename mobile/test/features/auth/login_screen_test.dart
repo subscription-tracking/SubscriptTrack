@@ -66,6 +66,25 @@ void main() {
     expect(source.signInCalls, 1);
   });
 
+  testWidgets(
+      'giriş: eski/kısa parolalı mevcut kullanıcı engellenmez (uzunluk '
+      'yalnızca yeni parolada dayatılır)', (tester) async {
+    final source = _FakeAuthDataSource();
+    final controller = AuthController(repository: source);
+
+    await pumpTall(
+        tester, MaterialApp(home: LoginScreen(controller: controller)));
+    await tester.pump();
+
+    await tester.enterText(
+        find.byType(TextFormField).at(0), 'test@example.com');
+    await tester.enterText(find.byType(TextFormField).at(1), 'abc123');
+    await tester.tap(find.widgetWithText(FilledButton, 'Giriş yap'));
+    await tester.pumpAndSettle();
+
+    expect(source.signInCalls, 1);
+  });
+
   testWidgets('geçersiz e-posta ile signIn çağrılmaz', (tester) async {
     final source = _FakeAuthDataSource();
     final controller = AuthController(repository: source);

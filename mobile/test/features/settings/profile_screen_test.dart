@@ -114,14 +114,14 @@ void main() {
       await tester.enterText(_field(3), 'kisa');
       await tester.enterText(_field(4), 'kisa');
       await tester.pump();
-      expect(button().onPressed, isNull, reason: '6 karakterden kısa');
+      expect(button().onPressed, isNull, reason: '10 karakterden kısa');
 
-      await tester.enterText(_field(3), 'yenisifre');
-      await tester.enterText(_field(4), 'baskasifre');
+      await tester.enterText(_field(3), 'yenisifre123');
+      await tester.enterText(_field(4), 'baskasifre123');
       await tester.pump();
       expect(button().onPressed, isNull, reason: 'tekrar eşleşmiyor');
 
-      await tester.enterText(_field(4), 'yenisifre');
+      await tester.enterText(_field(4), 'yenisifre123');
       await tester.pump();
       expect(button().onPressed, isNotNull);
     });
@@ -132,14 +132,14 @@ void main() {
       await _pump(tester, ProfileScreen(auth: s.auth));
 
       await tester.enterText(_field(2), 'sifre123');
-      await tester.enterText(_field(3), 'yenisifre');
-      await tester.enterText(_field(4), 'yenisifre');
+      await tester.enterText(_field(3), 'yenisifre123');
+      await tester.enterText(_field(4), 'yenisifre123');
       await tester.pump();
       await tester.tap(find.widgetWithText(FilledButton, 'Şifreyi güncelle'));
       await tester.pumpAndSettle();
 
       expect(find.text('Şifren başarıyla güncellendi.'), findsOneWidget);
-      expect(s.source.lastUpdatedPassword, 'yenisifre');
+      expect(s.source.lastUpdatedPassword, 'yenisifre123');
       expect(tester.widget<TextField>(_field(2)).controller?.text, isEmpty);
     });
 
@@ -148,8 +148,8 @@ void main() {
       await _pump(tester, ProfileScreen(auth: s.auth));
 
       await tester.enterText(_field(2), 'yanlis-sifre');
-      await tester.enterText(_field(3), 'yenisifre');
-      await tester.enterText(_field(4), 'yenisifre');
+      await tester.enterText(_field(3), 'yenisifre123');
+      await tester.enterText(_field(4), 'yenisifre123');
       await tester.pump();
       await tester.tap(find.widgetWithText(FilledButton, 'Şifreyi güncelle'));
       await tester.pumpAndSettle();
