@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.2'
 import { csvField } from '../_shared/csv.js'
-import { EXPORT_BUCKET, exportPath } from '../_shared/exports.js'
+import { EXPORT_BUCKET, exportPath, pruneOtherExports } from '../_shared/exports.js'
 import { internalError } from '../_shared/http.js'
 import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
 
@@ -50,6 +50,8 @@ Deno.serve(async (req: Request) => {
     if (signed.error) throw signed.error
     const { data: updated, error: updateError } = await admin.from('exports').update({ status: 'READY', storage_path: path, download_url: signed.data.signedUrl, expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), error_message: null }).eq('id', exportId).eq('user_id', user.id).select().single()
     if (updateError) throw updateError
+    // Satır birikmesini önle (034 kotası): kullanıcının yalnızca en güncel dışa aktarma kaydı kalır.
+    await pruneOtherExports(admin, user.id, exportId)
     return new Response(JSON.stringify(updated), { status: 200, headers })
   } catch (error) {
     return internalError(error, 'process-export')

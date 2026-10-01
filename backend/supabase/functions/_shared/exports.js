@@ -25,3 +25,14 @@ export async function removeUserExports(admin, userId) {
   if (removed.error) throw removed.error
   return paths.length
 }
+
+/**
+ * Başarılı dışa aktarmadan sonra kullanıcının diğer `exports` satırlarını siler
+ * (migration 034 kullanıcı başına satır kotası uygular; kayıtlar birikmemeli).
+ * En iyi çaba: hata olursa dışa aktarma sonucu etkilenmez, günlüğe yazılır.
+ */
+export async function pruneOtherExports(admin, userId, keepId) {
+  const { error } = await admin.from('exports').delete().eq('user_id', userId).neq('id', keepId)
+  if (error) console.error('[exports] eski kayıtlar silinemedi:', error.message ?? error)
+  return !error
+}
