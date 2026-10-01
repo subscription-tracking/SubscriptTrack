@@ -74,5 +74,17 @@ void main() {
           reason: 'service_role referansı şu dosyalarda bulundu: $hits\n'
               'Bu key hiçbir zaman client\'a gömülmemeli.');
     });
+
+    test('varsayılan test hesabı parolası kaynak kodda yok (F-06)', () {
+      // Depo herkese açıktır; test hesabı parolası yalnızca --dart-define ile verilir.
+      final pattern = RegExp(r'Test1234');
+      final hits = <String>[];
+      for (final f in dartFiles) {
+        final content = f.readAsStringSync();
+        if (pattern.hasMatch(content)) hits.add(f.path);
+      }
+      expect(hits, isEmpty,
+          reason: 'Sabit/varsayılan parola şu dosyalarda bulundu: $hits');
+    });
   });
 }
