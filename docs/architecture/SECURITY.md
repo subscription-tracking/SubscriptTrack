@@ -18,7 +18,7 @@
 | Edge Function'lar JWT doğrular, service-role sorguları `user.id` ile kısıtlı | Uygulandı | 4/4 fonksiyon `auth.getUser()` kullanır |
 | Service-role anahtarı istemcide yok | Uygulandı | İstemcide yalnızca `SUPABASE_ANON_KEY` (publishable); çalışma ağacında gizli değer yok (gitleaks) |
 | Oturum belirteçleri güvenli depoda | Uygulandı | `flutter_secure_storage`; eski depodan taşıma cihazda **doğrulanmadı** |
-| Uygulama kilidi (PIN, arka plan süresi, biyometri) | Kısmi | Kod ve testler var; web'de kilit katmanı ve "PIN hatalı" davranışı görüldü; gerçek cihaz/biyometri doğrulaması yok; **deneme sınırı yok** (bkz. bilinen açık bulgular) |
+| Uygulama kilidi (PIN, arka plan süresi, biyometri) | Kısmi | Salt'lı PBKDF2 özet, üstel bekleme ve saat geri alma koruması repoda uygulandı ve testli; kilit açıkken ekran görüntüsü/son uygulamalar önizlemesi engellenir; gerçek cihaz/biyometri doğrulaması yok |
 | CSV formül enjeksiyonu (dışa aktarma) etkisizleştirme | Uygulandı | `process-export` ve uygulama içi export |
 | Export dosyası özel bucket'ta, 1 saatlik imzalı bağlantı | Uygulandı | Bucket `exports` özel |
 | Hesap silme uygulama içinden | Uygulandı | `delete-account`; silme sonrası kalıntı veri kontrolü **doğrulanmadı** |
@@ -30,17 +30,14 @@
 | RLS politikalarının gerçek veritabanına karşı davranış testi | Planlı | Yalnızca SQL metni üzerinde testler var |
 | Sızma testi | Planlı | Yok |
 
-## 3. Bilinen açık bulgular
+## 3. Açık güvenlik işleri
 
-| Önem | Bulgu | Konum |
-|---|---|---|
-| Orta | Uygulama düzeyinde hız sınırı **canlıda etkin değil** (destek kaydı spam'i, hesap silme/dışa aktarma denemeleri). Repoda çözüm hazır; canlıya alınması bekliyor | 4 Edge Function |
-| Düşük | Hata durumunda iç ayrıntı sızıntısı (`String(err)`, `error.message`): **repoda düzeltildi** (genel mesaj, ayrıntı yalnızca sunucu günlüğünde), canlıda yeniden deploy bekliyor | `delete-account`, `process-export`, `support-catalog` |
-| Düşük | `Access-Control-Allow-Origin: *`: **repoda düzeltildi** (yalnızca GitHub Pages ve localhost kaynakları yansıtılır), canlıda yeniden deploy bekliyor | `delete-account`, `payment-methods` |
-| Düşük | `support-catalog` POST'ta `category` doğrulanmıyor: **repoda düzeltildi** (metin, en çok 60 karakter), canlıda yeniden deploy bekliyor | `support-catalog` |
-| Düşük | **Uygulama kilidi PIN'inde deneme sınırı yok** ve PIN salt'sız SHA-256 olarak saklanıyor (4–8 hane, ~10⁴ kombinasyon); cihaza fiziksel erişimi olan bir saldırgan sınırsız deneyebilir | `core/services/app_lock_service.dart` (2026-09-30 incelemesi; düzeltilmedi, tasarım kararı gerekir) |
-| Bilgi | Git geçmişinde anon JWT var; rolü `anon` (publishable, istemcide zaten açık olması tasarım gereği) | Temmuz 2026 commit'i |
-| Bilgi | `notification_deliveries`, `notification_rules`, `exports` tablolarında RLS açık ama tek politika `ALL`; `service_catalog` herkese açık okuma | Bilinçli |
+Ayrıntılı bulgu listesi ve puanlama **gizli** tutulur (açık zafiyet ayrıntısı kamuya açık depoda yayımlanmaz); bildirim kanalı için kök `SECURITY.md` dosyası. Genel durum:
+
+- Güvenlik denetimi bulgularının büyük bölümü **repoda düzeltildi ve testlidir**; veritabanı migration'ları (032–034) ve Edge Function güncellemeleri **canlıya alınana kadar canlı sistem düzeltilmiş sayılmaz** (bkz. [SUPABASE_LIVE_STATUS.md](../reference/SUPABASE_LIVE_STATUS.md)).
+- Hesap/hizmet yapılandırması işleri (parola kuralı, özel SMTP, depo koruma ayarları) panel üzerinden yapılır ve canlıda doğrulanana kadar açık sayılır.
+- Bilinçli olarak ertelenenler: CAPTCHA, sızdırılmış parola koruması (Pro plan gerektirir), bağımsız sızma testi, gerçek cihaz/iOS doğrulaması.
+- Git geçmişindeki anon JWT'nin rolü `anon`'dur (publishable; istemcide açık olması tasarım gereğidir).
 
 ## 4. Tehdit modeli özeti
 
@@ -56,8 +53,8 @@ Korunacak varlıklar: kimlik ve e-posta; abonelik adları, tutarları ve notlar�
 
 - Token secure storage/keychain/keystore'da (Uygulandı).
 - API secret uygulamaya gömülmez (Uygulandı).
-- Clipboard'a hassas veri otomatik kopyalanmaz.
-- Debug logların üretimde kapalı olduğu **doğrulanmadı**.
+- Clipboard'a hassas veri otomatik kopyalanmaz; dışa aktarmada panoya kopyalama kullanıcı onayı ister.
+- Ham hata ayrıntısı yalnızca debug derlemede günlüğe yazılır; release derlemede Android yedekleme kapalıdır.
 
 ## 7. Veri güvenliği
 

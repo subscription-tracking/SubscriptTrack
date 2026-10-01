@@ -67,7 +67,7 @@ Kök neden: AAB üç ABI'nin Flutter motor jar'larını aynı anda Jetify'a sokt
 
 ## 7. Android imzalama (Planlı)
 
-`mobile/android/app/build.gradle` release imzası için `key.properties` arar; dosya yoksa **debug keystore'a düşer** (yalnızca geliştirme içindir, mağazaya yüklenemez).
+`mobile/android/app/build.gradle` release imzası için `key.properties` arar; dosya yoksa release derlemesi **hata verir**; debug keystore ile derleme yalnızca `ALLOW_DEBUG_SIGNING=true` ortam değişkeni (CI doğrulama derlemesi) veya `-PallowDebugSigning` ile bilinçli yapılır ve mağazaya yüklenemez.
 
 1. Bir **upload keystore** üretin (`keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`); dosyayı ve şifreleri güvenli yerde yedekleyin.
 2. `mobile/android/key.properties` oluşturun (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`); **repoya eklemeyin**.
