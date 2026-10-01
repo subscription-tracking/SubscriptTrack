@@ -50,13 +50,13 @@ class _LoginScreenState extends State<LoginScreen> {
   // Yalnızca debug build'lerde erişilir; release'te buton ve bu sabitler
   // derleme sırasında ayıklanır (bkz. `kDebugMode` kontrolü).
   static const _testEmail = 'testkullanici@subscripttrack.app';
-  static const _testPassword = String.fromEnvironment(
-    'TEST_ACCOUNT_PASSWORD',
-    defaultValue: 'Test1234!',
-  );
+  // Parola ASLA kaynakta tutulmaz (depo herkese açık): yalnızca geliştirici
+  // `--dart-define=TEST_ACCOUNT_PASSWORD=...` verirse buton görünür.
+  static const _testPassword = String.fromEnvironment('TEST_ACCOUNT_PASSWORD');
+  static const _testAccountEnabled = kDebugMode && _testPassword != '';
 
   Future<void> _quickTestLogin() async {
-    if (!kDebugMode) return;
+    if (!_testAccountEnabled) return;
     _email.text = _testEmail;
     _password.text = _testPassword;
     var ok = await widget.controller.signIn(_testEmail, _testPassword);
@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _OrDivider(color: Theme.of(context).colorScheme),
           const SizedBox(height: 16),
         ],
-        if (kDebugMode) _testAccountButton(context, loading),
+        if (_testAccountEnabled) _testAccountButton(context, loading),
         const SizedBox(height: 12),
         TextButton(
           onPressed: widget.onRegisterTap,
