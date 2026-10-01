@@ -33,7 +33,15 @@ void logIgnoredError(String where, Object error) {
 /// 23514 (`check_violation`): sunucudaki veri bütünlüğü kısıtları (migration 033)
 /// uygulama doğrulamasını aşan bir değeri reddetti; teknik kısıt adı yerine
 /// anlaşılır bir mesaj gösterilir.
-AppException dbException(String? code, String message) => code == '23514'
-    ? const ValidationException(
-        'Girilen değerler izin verilen sınırların dışında. Alanları kontrol et.')
-    : NetworkException(message);
+AppException dbException(String? code, String message) {
+  if (code == '23514') {
+    // Migration 034 kotası: `quota_exceeded: ...` iletisiyle aynı koddan gelir.
+    if (message.contains('quota_exceeded')) {
+      return const ValidationException(
+          'Bu hesap için kayıt sınırına ulaşıldı. Eski kayıtları arşivleyip tekrar dene.');
+    }
+    return const ValidationException(
+        'Girilen değerler izin verilen sınırların dışında. Alanları kontrol et.');
+  }
+  return NetworkException(message);
+}

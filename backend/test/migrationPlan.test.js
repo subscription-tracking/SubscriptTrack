@@ -233,3 +233,19 @@ test('033 subscriptions constraints match app/RPC value sets and validate', asyn
   assert.equal(validated, added, 'her kısıt VALIDATE edilmeli');
   assert.equal((code.match(/NOT VALID/g) || []).length, added);
 });
+
+test('034 revokes anon writes, keeps authenticated DML, adds quotas, drops device_tokens', async () => {
+  const sql = await readFile(
+    new URL('../migrations/034_grants_and_quotas.sql', import.meta.url),
+    'utf8',
+  );
+  const code = sql.replace(/^--.*$/gm, '');
+  assert.match(code, /REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER\s+ON ALL TABLES IN SCHEMA public FROM anon/);
+  assert.match(code, /REVOKE TRUNCATE, REFERENCES, TRIGGER\s+ON ALL TABLES IN SCHEMA public FROM authenticated/);
+  assert.doesNotMatch(code, /REVOKE[^;]*(INSERT|UPDATE|DELETE)[^;]*FROM authenticated/);
+  for (const t of ['subscriptions', 'support_tickets', 'exports', 'payment_events', 'savings_events']) {
+    assert.match(code, new RegExp(`trg_quota_${t} BEFORE INSERT ON public\.${t}`));
+  }
+  assert.doesNotMatch(code, /BEFORE INSERT ON public\.notifications/, 'cron üretici kotasız kalmalı');
+  assert.match(code, /DROP TABLE IF EXISTS public\.device_tokens/);
+});
