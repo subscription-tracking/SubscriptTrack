@@ -14,4 +14,12 @@ void main() {
     expect(dbException('500', 'boom'), isA<NetworkException>());
     expect(dbException(null, 'boom').message, 'boom');
   });
+
+  test('kota aşımı ayrı bir mesajla bildirilir', () {
+    final e = dbException(
+        '23514', 'quota_exceeded: subscriptions kayıt sınırına ulaşıldı (500)');
+    expect(e, isA<ValidationException>());
+    expect(e.message, contains('kayıt sınırına'));
+    expect(e.message, isNot(contains('quota_exceeded')));
+  });
 }
