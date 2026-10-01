@@ -15,6 +15,7 @@ class SecureStorage {
   static const keyAppPinHash = 'app_pin_hash';
   static const keyBiometricLock = 'app_biometric_lock';
   static const keyLockTimeoutMinutes = 'app_lock_timeout_minutes';
+  static const keyPinAttempts = 'app_pin_attempts';
 
   Future<void> writeAppPinHash(String hash) =>
       _storage.write(key: keyAppPinHash, value: hash);
@@ -25,7 +26,30 @@ class SecureStorage {
     await _storage.delete(key: keyAppPinHash);
     await _storage.delete(key: keyBiometricLock);
     await _storage.delete(key: keyLockTimeoutMinutes);
+    await clearPinAttempts();
   }
+
+  /// PIN deneme sayacı: `<başarısız>|<kilit bitişi (UTC epoch ms)>`.
+  Future<void> writePinAttempts(int failed, DateTime? lockedUntil) =>
+      _storage.write(
+        key: keyPinAttempts,
+        value: '$failed|${lockedUntil?.toUtc().millisecondsSinceEpoch ?? 0}',
+      );
+
+  Future<({int failed, DateTime? lockedUntil})> readPinAttempts() async {
+    final raw = await _storage.read(key: keyPinAttempts);
+    final parts = (raw ?? '').split('|');
+    if (parts.length != 2) return (failed: 0, lockedUntil: null);
+    final failed = int.tryParse(parts[0]) ?? 0;
+    final ms = int.tryParse(parts[1]) ?? 0;
+    return (
+      failed: failed < 0 ? 0 : failed,
+      lockedUntil:
+          ms > 0 ? DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true) : null,
+    );
+  }
+
+  Future<void> clearPinAttempts() => _storage.delete(key: keyPinAttempts);
 
   Future<void> writeLockTimeoutMinutes(int minutes) =>
       _storage.write(key: keyLockTimeoutMinutes, value: minutes.toString());
