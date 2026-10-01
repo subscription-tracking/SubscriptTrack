@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/errors/error_messages.dart';
 import '../../../core/preferences/app_preferences.dart';
+import '../../../core/services/offline_mutation_queue.dart';
 import '../../../core/storage/local_storage.dart';
 
 /// Kimlik doğrulama akışının yerel (SharedPreferences) yan durumu.
@@ -33,6 +34,7 @@ class AuthLocalState {
       Future.wait([
         storage.deleteSubscriptions(userId),
         storage.deleteFinancialEvents(userId),
+        OfflineMutationQueue(userId: userId).clear(),
         preferences?.clearAccountPaymentMethods() ?? Future<void>.value(),
         clearNotificationReadState(),
       ]);

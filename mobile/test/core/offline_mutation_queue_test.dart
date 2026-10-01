@@ -14,19 +14,19 @@ void main() {
 
   group('OfflineMutationQueue (S11)', () {
     test('başlangıçta boş olur', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       expect(await q.isEmpty, isTrue);
       expect(await q.length, 0);
     });
 
     test('enqueue → length artar', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 'sub1'));
       expect(await q.length, 1);
     });
 
     test('birden fazla mutation eklenebilir', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 'sub1'));
       await q.enqueue(_m('archive', 'sub2'));
       await q.enqueue(_m('delete', 'sub3'));
@@ -34,7 +34,7 @@ void main() {
     });
 
     test('drain → tüm mutasyonları döner ve kuyruğu siler', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 'sub1'));
       await q.enqueue(_m('cancel', 'sub2'));
 
@@ -47,13 +47,13 @@ void main() {
     });
 
     test('drain boş kuyruk → boş liste döner', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       final drained = await q.drain();
       expect(drained, isEmpty);
     });
 
     test('clear → kuyruk boşalır', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 's1'));
       await q.enqueue(_m('resume', 's2'));
       await q.clear();
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('payload ve enqueuedAt korunur (JSON round-trip)', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       final before = DateTime.utc(2026, 8, 1, 12, 0);
       await q.enqueue(OfflineMutation(
         type: 'archive',
@@ -70,7 +70,7 @@ void main() {
       ));
 
       // Yeni instance — aynı SharedPreferences'tan okur
-      final q2 = OfflineMutationQueue();
+      final q2 = OfflineMutationQueue(userId: 'u1');
       final drained = await q2.drain();
       expect(drained.first.type, 'archive');
       expect(drained.first.payload['id'], 'abc-123');
@@ -79,7 +79,7 @@ void main() {
 
     test('payload SharedPreferences içinde düz metin olarak saklanmaz',
         () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(OfflineMutation(
         type: 'create',
         payload: {'name': 'Gizli Abonelik', 'amount': '99.99'},
@@ -90,20 +90,23 @@ void main() {
       expect(prefs.getString('offline_mutation_queue'), isNull);
     });
 
-    test('legacy SharedPreferences kuyruğu güvenli depoya taşınır', () async {
+    test('legacy SharedPreferences kuyruğu artık TAŞINMAZ, atılır (F-01)',
+        () async {
+      // Sahibi bilinmeyen eski kuyruk başka kullanıcının hesabına yazılabilirdi.
       final legacy = jsonEncode([_m('pause', 'legacy-sub').toJson()]);
       SharedPreferences.setMockInitialValues(
           {'offline_mutation_queue': legacy});
+      OfflineMutationQueue.debugResetLegacyDiscard();
 
-      final q = OfflineMutationQueue();
-      expect((await q.peek())!.payload['id'], 'legacy-sub');
+      final q = OfflineMutationQueue(userId: 'u1');
+      expect(await q.peek(), isNull);
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('offline_mutation_queue'), isNull);
     });
 
     test('sıra FIFO korunur', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 's1'));
       await q.enqueue(_m('resume', 's1'));
       await q.enqueue(_m('cancel', 's1'));
@@ -113,7 +116,7 @@ void main() {
     });
 
     test('drain sonrası tekrar enqueue çalışır', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 's1'));
       await q.drain();
       await q.enqueue(_m('archive', 's2'));
@@ -122,7 +125,7 @@ void main() {
 
     test('concurrent enqueue operations do not lose queued mutations',
         () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await Future.wait([
         q.enqueue(_m('pause', 's1')),
         q.enqueue(_m('resume', 's1')),
@@ -132,7 +135,7 @@ void main() {
     });
 
     test('peek and removeFirst preserve the replay FIFO head', () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('pause', 's1'));
       await q.enqueue(_m('cancel', 's1'));
 
@@ -147,7 +150,7 @@ void main() {
     test(
         'create sonraki işlemlerde geçici kimliği sunucu kimliğiyle değiştirir',
         () async {
-      final q = OfflineMutationQueue();
+      final q = OfflineMutationQueue(userId: 'u1');
       await q.enqueue(_m('create', 'local-123'));
       await q.enqueue(_m('update', 'local-123'));
       await q.enqueue(_m('delete', 'local-123'));

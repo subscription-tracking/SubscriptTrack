@@ -57,7 +57,7 @@ void main() {
   });
   test('S58: offline financial payload must not be plaintext preferences',
       () async {
-    await OfflineMutationQueue().enqueue(OfflineMutation(
+    await OfflineMutationQueue(userId: 'audit-user').enqueue(OfflineMutation(
       type: 'create',
       payload: sub(BillingCycle.monthly).toJson(),
       enqueuedAt: DateTime.utc(2026, 9, 18),

@@ -88,12 +88,12 @@ void main() {
 
     await controller.load();
     expect(controller.expired.single.id, 'trial-1');
-    expect(await OfflineMutationQueue().length, 1);
-    expect((await OfflineMutationQueue().peek())!.type, 'update');
+    expect(await OfflineMutationQueue(userId: 'u').length, 1);
+    expect((await OfflineMutationQueue(userId: 'u').peek())!.type, 'update');
 
     repo.offline = false;
     await controller.load();
-    expect(await OfflineMutationQueue().isEmpty, isTrue);
+    expect(await OfflineMutationQueue(userId: 'u').isEmpty, isTrue);
     expect(repo.items.single.status, SubscriptionStatus.expired);
   });
 }
