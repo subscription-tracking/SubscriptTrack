@@ -27,7 +27,28 @@ class ExportDataScreen extends StatelessWidget {
     ));
   }
 
+  /// Pano diğer uygulamalarca okunabilir (güvenlik denetimi F-18): kopyalamadan
+  /// önce kullanıcı bilgilendirilir ve onay verir.
   Future<void> _copyToClipboard(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Panoya kopyalansın mı?'),
+        content: const Text(
+            'Abonelik verilerin açık metin olarak panoya kopyalanır; cihazdaki '
+            'diğer uygulamalar panoyu okuyabilir. Yapıştırdıktan sonra panoyu '
+            'temizlemen önerilir.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Vazgeç')),
+          FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Kopyala')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
     await Clipboard.setData(ClipboardData(text: _buildCsv()));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,6 +143,13 @@ class ExportDataScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '$total abonelik; dışa aktarılan dosya tekrar içe aktarılabilir.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Güvenli dışa aktarma bağlantısı 1 saat geçerlidir ve bağlantıya '
+              'sahip herkes dosyayı indirebilir; yalnızca güvendiğin kişi veya '
+              'uygulamayla paylaş.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
