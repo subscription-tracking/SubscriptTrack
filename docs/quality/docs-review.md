@@ -138,7 +138,7 @@ Kapsam daraltması geri alındı: git dışı dosyalar, kalite raporu ve kalan b
 | Ölü smoke betiği | `staging-smoke.mjs` ve `smoke:staging` kaldırıldı |
 | `.gitignore` | `.codex-remote-attachments/` ve `.mcp.json` eklendi |
 | 4 ekran (web) | PIN kilit katmanı çalışıyor; "bulunamadı" çıkmaz sokaktı, düzeltildi; splash ve yeni şifre ekranları görsel olarak incelenemedi |
-| **Yeni bulgu** | Uygulama kilidi PIN'inde **deneme sınırı yok**, PIN salt'sız SHA-256 (düzeltilmedi, tasarım kararı) |
+| **Yeni bulgu** | Uygulama kilidi PIN korumasında iyileştirme gerekiyordu (sonradan repoda giderildi; ayrıntı gizli rapordadır) |
 | Canlı FK/silme kuralları kontrolü, canlıdan baseline taslağı | **Yapılamadı:** canlı veritabanına erişim ("Production Deploy") engellendi; kullanıcının çalıştıracağı sorgular `SUPABASE_LIVE_STATUS.md`'de |
 | Gizli bulgu | `DateTimeUtils.addMonthsClamped` negatif ay için hatalı (`~/` sıfıra yuvarlar); üretimde yalnızca pozitif ay kullanıldığı için etkisiz, düzeltilmedi |
 

@@ -42,7 +42,7 @@ Hepsi `SECURITY DEFINER`; `auth.uid()` boşsa `42501 not authenticated` ile redd
 
 ## 5. Edge Function'lar
 
-Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; veriye service-role ile erişirken her zaman `user.id` ile kısıtlar. Hız sınırı uygulanmaz ([SECURITY.md](../architecture/SECURITY.md#3-bilinen-açık-bulgular)).
+Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; veriye service-role ile erişirken her zaman `user.id` ile kısıtlar. Hız sınırı uygulanmaz ([SECURITY.md](../architecture/SECURITY.md#3-açık-güvenlik-işleri)).
 
 ### Hız sınırı ve hata yanıtları (repoda hazır, canlıda etkin değil)
 
@@ -70,12 +70,13 @@ Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; ve
 |---|---|
 | `POST` | Gövde `{ "export_id": uuid }` (önce `request_export_idempotent` ile oluşturulur) → CSV üretir, özel `exports` bucket'ına yükler, 1 saatlik imzalı bağlantı döner: `200 { id, status: "READY", download_url, expires_at, … }` |
 | CSV | 11 alanlı kanonik şema: `name, amount, currency, billing_cycle, next_renewal_date, category, status, notes, payment_method, trial_end_date, trial_price_after`; kullanıcı metni CSV enjeksiyonuna karşı etkisizleştirilir |
+| Depolama | Kullanıcı başına **tek sabit dosya** (`<uid>/latest.csv`, üzerine yazılır); eski dosyalar birikmez (repoda; Edge Function güncellemesi canlıya alınana kadar eski davranış sürer) |
 | Hatalar | `400` (`export_id` yok), `404`, `405`, `503`, `500` |
 
 ### `delete-account`
 | | |
 |---|---|
-| `POST` | `200 { "success": true }`; çağıran kullanıcının Auth kaydını service-role ile siler |
+| `POST` | `200 { "success": true }`; önce kullanıcının Storage `exports/<uid>/` nesnelerini, sonra Auth kaydını service-role ile siler (Storage hatasında hesap silinmez, tekrar denenir) |
 | Hatalar | `401`, `405`, `503`, `500` |
 
 ## 6. Realtime

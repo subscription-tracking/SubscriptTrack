@@ -84,7 +84,7 @@ Tetikleyiciler (`subscriptions`): `trg_subscriptions_updated_at` (BEFORE UPDATE)
 | `process-export` | POST | `auth.getUser()` | [API.md](API.md#process-export) |
 | `support-catalog` | GET, POST | `auth.getUser()` | [API.md](API.md#support-catalog) |
 
-Bilinen açık bulgular ve hız sınırı eksikliği: [SECURITY.md](../architecture/SECURITY.md#3-bilinen-açık-bulgular).
+Açık güvenlik işleri ve canlıya alınmayı bekleyen düzeltmeler: [SECURITY.md](../architecture/SECURITY.md#3-açık-güvenlik-işleri).
 
 ## Repo ile canlı arasındaki sapma
 

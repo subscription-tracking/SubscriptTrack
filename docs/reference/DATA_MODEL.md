@@ -67,6 +67,11 @@ Realtime yayınında olan tek tablo.
 - `support_tickets`: `id`, `user_id`, `category` (`'general'`), `message`, `status` (`'open'`), `created_at`, `updated_at`. Yalnızca oku/ekle.
 - `device_tokens`: `id`, `user_id`, `token`, `platform`, `created_at`. **Planlı/kullanılmıyor:** uzak push yok, istemci yazmaz (bkz. [NOTIFICATIONS.md](../architecture/NOTIFICATIONS.md)).
 
+### 2.9.1 Kısıtlar ve kotalar (migration 033/034, repoda; **canlıda uygulanmadı**)
+- `subscriptions` CHECK kısıtları: ad 1–160, tutar 0–1e9, para birimi `^[A-Z]{3}$`, döngü `weekly/monthly/quarterly/yearly`, 10 kategori anahtarı, durum `trial/active/paused/cancelled/expired/archived`, not ≤ 2000, ödeme yöntemi ≤ 80, `notification_rules` ≤ 4 KB. İhlal SQLSTATE `23514`; istemci anlaşılır doğrulama hatasına çevirir.
+- Kullanıcı başına satır kotası (INSERT tetikleyicisi, aşımda `23514`): `subscriptions` 500, `support_tickets` 100, `exports` 200, `payment_events` 50000, `savings_events` 10000. Bildirim üreticisi kotasızdır.
+- `anon` tüm yazma yetkilerinden, `authenticated` TRUNCATE/REFERENCES/TRIGGER'dan yoksun bırakılır; `device_tokens` tablosu kaldırılır; `exports` kovası 5 MB ve `text/csv` ile sınırlanır.
+
 ### 2.10 `rate_limits` (repoda var, **canlıda yok**)
 `user_id` (auth.users, cascade), `bucket`, `window_start`, `count`; PK `(user_id, bucket)`. RLS açık, politika yok, yalnızca `service_role` (migration 032, `check_rate_limit` fonksiyonu). Canlıya uygulanana kadar canlı şemada bulunmaz.
 

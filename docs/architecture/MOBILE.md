@@ -137,7 +137,11 @@ Yalnızca cihaz üzerinde `flutter_local_notifications`; uzak push/token altyap�
 - Credential'lar `--dart-define` ile verilir; kaynak kodda yoktur. `service_role` anahtarı istemciye hiç girmez.
 - RLS: her tabloda `auth.uid()` sahiplik politikası ([SUPABASE_LIVE_STATUS.md](../reference/SUPABASE_LIVE_STATUS.md)).
 - `OfflineMutationQueue` ve abonelik cache'i `flutter_secure_storage` ile şifreli depolanır; eski düz metin kayıt ilk okumada taşınır ve silinir (**taşımanın cihazda doğrulanması açık**).
-- Ayrıntı ve açık bulgular: [SECURITY.md](SECURITY.md).
+- Uygulama kilidi: PIN salt'lı PBKDF2-HMAC-SHA256 (`v2:<tur>:<salt>:<özet>`, `core/services/pin_hasher.dart`); eski SHA-256 özet doğrulamada yükseltilir. 5 hatadan sonra üstel bekleme (30 sn → en çok 15 dk), sayaç güvenli depoda; saat geri alınırsa uygulama kilitlenir.
+- Ekran gizliliği yalnızca kilit açıkken: Android `FLAG_SECURE` (`com.subscripttrack.app/privacy` kanalı) ve arka planda Flutter örtüsü; bildirim görünürlüğü `private`.
+- Android yedekleme kapalı (`allowBackup=false`, `data_extraction_rules.xml`); release derlemesi imza anahtarı yoksa durur (`ALLOW_DEBUG_SIGNING=true` ile bilinçli geçilir).
+- Çevrimdışı kuyruk kullanıcıya özeldir (`offline_mutation_queue_v3:<userId>`); parola kuralı `PasswordPolicy` (en az 10 karakter).
+- Ayrıntı ve açık işler: [SECURITY.md](SECURITY.md).
 
 ## 9. Test yaklaşımı
 
