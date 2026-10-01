@@ -52,7 +52,14 @@ for name in ('gitleaks_history.json', 'gitleaks_lib.json', 'gitleaks_backend.jso
     p = os.path.join(metrics, name)
     if not os.path.exists(p):
         continue
-    for f in json.load(open(p, encoding='utf-8')):
+    findings = json.load(open(p, encoding='utf-8'))
+    # Kişisel veri (yazar adı/e-posta) depoya girmesin (güvenlik denetimi F-21).
+    if any('Author' in f or 'Email' in f for f in findings):
+        for f in findings:
+            f.pop('Author', None)
+            f.pop('Email', None)
+        json.dump(findings, open(p, 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+    for f in findings:
         secrets_total += 1
         role = jwt_role(f['Commit'], f['File']) if f.get('RuleID') == 'jwt' and f.get('Commit') else None
         if role == 'anon':
