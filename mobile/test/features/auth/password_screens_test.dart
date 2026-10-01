@@ -140,10 +140,10 @@ void main() {
       await tester.enterText(field(0), '123');
       await tester.tap(find.byType(FilledButton));
       await tester.pump();
-      expect(find.text('Şifre en az 6 karakter olmalı.'), findsOneWidget);
+      expect(find.text('Şifre en az 10 karakter olmalı.'), findsOneWidget);
 
-      await tester.enterText(field(0), 'yenisifre');
-      await tester.enterText(field(1), 'baskasifre');
+      await tester.enterText(field(0), 'yenisifre123');
+      await tester.enterText(field(1), 'baskasifre123');
       await tester.tap(find.byType(FilledButton));
       await tester.pump();
       expect(find.text('Şifreler eşleşmiyor.'), findsOneWidget);
@@ -152,12 +152,12 @@ void main() {
 
     testWidgets('geçerli şifre güncellenir ve bilgi verilir', (tester) async {
       final a = await pump(tester);
-      await tester.enterText(field(0), 'yenisifre');
-      await tester.enterText(field(1), 'yenisifre');
+      await tester.enterText(field(0), 'yenisifre123');
+      await tester.enterText(field(1), 'yenisifre123');
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(a.source.lastUpdatedPassword, 'yenisifre');
+      expect(a.source.lastUpdatedPassword, 'yenisifre123');
       expect(find.text('Şifren başarıyla güncellendi!'), findsOneWidget);
       expect(a.auth.passwordRecoveryMode, isFalse);
     });
@@ -165,8 +165,8 @@ void main() {
     testWidgets('sunucu hatası ekranda gösterilir', (tester) async {
       final a = await pump(tester);
       a.source.failWith = 'Bağlantı süresi doldu.';
-      await tester.enterText(field(0), 'yenisifre');
-      await tester.enterText(field(1), 'yenisifre');
+      await tester.enterText(field(0), 'yenisifre123');
+      await tester.enterText(field(1), 'yenisifre123');
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 

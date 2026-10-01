@@ -20,7 +20,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   String? _error;
 
   bool get _canDelete =>
-      _confirm.text.trim().toLowerCase() == 'sil' && _password.text.length >= 6;
+      _confirm.text.trim().toLowerCase() == 'sil' && _password.text.isNotEmpty;
 
   @override
   void dispose() {

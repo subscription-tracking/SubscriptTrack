@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/loading_filled_button.dart';
+import '../../domain/password_policy.dart';
 import '../auth_controller.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -83,7 +84,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       ),
       const SizedBox(height: 8),
       Text(
-        'En az 6 karakter uzunluğunda güçlü bir şifre seç.',
+        '${PasswordPolicy.requirement} uzunluğunda güçlü bir şifre seç.',
         style: theme.textTheme.bodyMedium,
         textAlign: TextAlign.center,
       ),
@@ -103,11 +104,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           () => setState(() => _obscure1 = !_obscure1),
         ),
       ),
-      validator: (v) {
-        if (v == null || v.isEmpty) return 'Şifre gerekli.';
-        if (v.length < 6) return 'Şifre en az 6 karakter olmalı.';
-        return null;
-      },
+      validator: PasswordPolicy.validateNew,
     );
   }
 

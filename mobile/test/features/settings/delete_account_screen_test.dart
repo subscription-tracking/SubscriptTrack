@@ -36,10 +36,11 @@ void main() {
     expect(_deleteButton(tester).onPressed, isNotNull);
   });
 
-  testWidgets('kısa şifre butonu pasif bırakır', (tester) async {
+  testWidgets('boş şifre butonu pasif bırakır (uzunluk dayatılmaz, F-03)',
+      (tester) async {
     final s = await signedInAuth();
     await _pump(tester, s.auth);
-    await tester.enterText(find.byType(TextFormField), '123');
+    await tester.enterText(find.byType(TextFormField), '');
     await tester.enterText(find.byType(TextField).last, 'sil');
     await tester.pump();
     expect(_deleteButton(tester).onPressed, isNull);
