@@ -90,30 +90,24 @@ Bilinen açık bulgular ve hız sınırı eksikliği: [SECURITY.md](../architect
 
 Repodaki `backend/migrations/001–005` zinciri `users`, `services`, `categories`, `billing_schedules` tablolarını oluşturur; **canlıda bu tablolar yoktur**. Canlıda ayrıca repodaki tek tek migration'lardan üretilmemiş bir geçmiş vardır (migration geçmişi boş). Kalıcı çözüm: canlıdan bir baseline migration üretmek ve "canlıya elle DDL yok" kuralı (bkz. [RELEASE.md](../operations/RELEASE.md#9-veritabanı-migration-ve-canlı-şema)).
 
-## Açık doğrulama: hesap silme sonrası kalıntı veri (silme kuralları)
+## Hesap silme ve silme kuralları (2026-10-01'de canlıdan doğrulandı)
 
-**Durum: doğrulanmadı.** `delete-account` yalnızca Auth kullanıcısını siler; diğer tabloların temizlenmesi yabancı anahtarların `ON DELETE CASCADE` olmasına bağlıdır. Repodaki migration'lar (`001`, `007`, `010–012`, `015`) `CASCADE` tanımlar, ancak canlı şema repodan farklı olduğu için bu yalnızca **niyet**tir. Canlıda aşağıdaki **salt okunur** sorguları SQL Editor'de çalıştırıp sonucu bu bölüme işleyin:
+`delete-account` yalnızca Auth kullanıcısını siler; tablo satırlarının temizlenmesi yabancı anahtarlara bağlıdır. Canlıda salt okunur sorguyla doğrulandı:
+
+- Tüm `user_id` yabancı anahtarları `auth.users`'a **`ON DELETE CASCADE`** ile bağlıdır (abonelikler, ödeme olayları, bildirimler, profil, dışa aktarma kayıtları, destek kayıtları vb.). Aboneliğe bağlı olay tablolarında abonelik silinince `SET NULL` veya `CASCADE` uygulanır.
+- **İstisna:** `device_tokens.user_id` anahtarında `CASCADE` yoktur (varsayılan `NO ACTION`). Tablo şu an boştur ve uygulama yazmaz; satır olsaydı hesap silme yabancı anahtar hatasıyla başarısız olurdu. Tablo kaldırılmalı veya anahtar `CASCADE` yapılmalıdır.
+- Storage `exports` kovası özeldir, boyut/MIME sınırı tanımlı değildir ve şu an hiç dosya içermez. Hesap silme Storage nesnelerini **silmez** (bu yüzden dışa aktarma kullanıldığında temizlik gerekir; Planlı).
+
+Tekrar doğrulamak için (salt okunur):
 
 ```sql
--- 1) Tüm yabancı anahtarlar ve silme kuralları
 SELECT c.conrelid::regclass AS tablo, c.conname, c.confrelid::regclass AS hedef,
        CASE c.confdeltype WHEN 'a' THEN 'NO ACTION' WHEN 'r' THEN 'RESTRICT'
             WHEN 'c' THEN 'CASCADE' WHEN 'n' THEN 'SET NULL' WHEN 'd' THEN 'SET DEFAULT' END AS silme_kurali
 FROM pg_constraint c
 WHERE c.contype = 'f' AND c.connamespace = 'public'::regnamespace
 ORDER BY 1, 2;
-
--- 2) user_id kolonu olup auth.users'a yabancı anahtarı OLMAYAN tablolar (silmede kalıntı bırakır)
-SELECT t.table_name
-FROM information_schema.columns t
-WHERE t.table_schema = 'public' AND t.column_name = 'user_id'
-  AND NOT EXISTS (
-    SELECT 1 FROM pg_constraint c
-    WHERE c.contype = 'f' AND c.conrelid = ('public.' || t.table_name)::regclass
-      AND c.confrelid = 'auth.users'::regclass);
 ```
-
-Beklenen: 2. sorgu boş döner; 1. sorguda `auth.users`'a giden tüm `user_id` anahtarları `CASCADE`. Aksi halde hesap silme kalıntı veri bırakır ve bir migration ile düzeltilmelidir.
 
 ## Nasıl yeniden alınır
 
