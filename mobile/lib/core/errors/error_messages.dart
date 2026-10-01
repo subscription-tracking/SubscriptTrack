@@ -12,13 +12,18 @@ const _fallbackMessage = 'Beklenmeyen bir hata oluştu. Lütfen tekrar dene.';
 /// günlüğüne yazılır.
 String userMessageFor(Object error, {StackTrace? stackTrace}) {
   if (error is AppException) return error.message;
-  debugPrint('Beklenmeyen hata: $error');
-  if (stackTrace != null) debugPrintStack(stackTrace: stackTrace);
+  // debugPrint release derlemede de logcat'e yazar; ham hata (SDK/sunucu
+  // ayrıntısı) yalnızca debug'da günlüğe gider (güvenlik denetimi F-14).
+  if (kDebugMode) {
+    debugPrint('Beklenmeyen hata: $error');
+    if (stackTrace != null) debugPrintStack(stackTrace: stackTrace);
+  }
   return _fallbackMessage;
 }
 
 /// Bilinçli olarak yutulan (best-effort) hataları en azından debug
 /// günlüğüne yazar; kullanıcıya gösterilmez.
 void logIgnoredError(String where, Object error) {
+  if (!kDebugMode) return;
   debugPrint('[$where] yok sayıldı: $error');
 }

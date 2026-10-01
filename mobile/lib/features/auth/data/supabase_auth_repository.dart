@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import '../../../core/datasources/auth_data_source.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/errors/error_messages.dart';
 import '../domain/auth_models.dart';
 import '../domain/password_policy.dart';
 
@@ -68,7 +69,7 @@ class SupabaseAuthRepository
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AuthException(userMessageFor(e));
     }
   }
 
@@ -88,7 +89,7 @@ class SupabaseAuthRepository
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AuthException(userMessageFor(e));
     }
   }
 
@@ -121,10 +122,10 @@ class SupabaseAuthRepository
   Future<void> deleteAccount(String email) async {
     try {
       await _client.functions.invoke('delete-account');
-    } on sb.FunctionException catch (e) {
-      throw AuthException('Hesap silinemedi: ${e.details}');
+    } on sb.FunctionException {
+      throw const AuthException('Hesap silinemedi. Lütfen tekrar dene.');
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AuthException(userMessageFor(e));
     }
     await _client.auth.signOut();
   }
@@ -153,7 +154,7 @@ class SupabaseAuthRepository
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AuthException(userMessageFor(e));
     }
   }
 
@@ -169,7 +170,7 @@ class SupabaseAuthRepository
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AuthException(userMessageFor(e));
     }
   }
 
@@ -189,7 +190,7 @@ class SupabaseAuthRepository
     } on sb.AuthException catch (e) {
       throw AuthException(_localizeError(e.message));
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AuthException(userMessageFor(e));
     }
   }
 

@@ -45,6 +45,7 @@ http.Response _authError(String message,
         status: status);
 
 void main() {
+  group('hata sızıntısı (F-14)', errorLeakTests);
   late MockSupabase supabase;
   late _Handler handler;
   late SupabaseAuthRepository repo;
@@ -258,5 +259,27 @@ void main() {
     final signedIn =
         events.firstWhere((e) => e.event == AuthStateEvent.signedIn);
     expect(signedIn.user?.email, 'kisi@example.com');
+  });
+}
+
+/// Denetim F-14: sunucu/SDK ayrıntısı kullanıcıya sızmaz.
+void errorLeakTests() {
+  late MockSupabase supabase;
+  late SupabaseAuthRepository repo;
+
+  setUp(() {
+    supabase = MockSupabase((r) => MockSupabase.ok(
+        {'error': 'duplicate key value violates constraint pk_secret'},
+        status: 500));
+    repo = SupabaseAuthRepository(client: supabase.client);
+  });
+  tearDown(() => supabase.dispose());
+
+  test('hesap silme hatası sunucu ayrıntısını göstermez', () async {
+    await expectLater(
+      repo.deleteAccount('a@b.co'),
+      throwsA(isA<AuthException>().having((e) => e.message, 'message',
+          'Hesap silinemedi. Lütfen tekrar dene.')),
+    );
   });
 }
