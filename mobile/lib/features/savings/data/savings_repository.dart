@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide LocalStorage;
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/domain/money.dart';
-import '../../../core/errors/app_exception.dart';
+import '../../../core/errors/error_messages.dart';
 import '../../../core/storage/local_storage.dart';
 import '../domain/savings_event.dart';
 
@@ -55,7 +55,7 @@ class SavingsRepository {
         'currency': currency,
       });
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -81,7 +81,7 @@ class SavingsRepository {
               ))
           .toList();
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 

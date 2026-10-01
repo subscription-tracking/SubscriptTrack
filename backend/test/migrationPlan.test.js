@@ -213,3 +213,23 @@ test('031 wraps auth.uid() in RLS policies as an InitPlan and is idempotent', as
   assert.ok(migration.includes(String.raw`!~* 'select\s+auth\.uid\(\)'`), 'must skip already-wrapped policies');
   assert.doesNotMatch(migration, /DROP POLICY/i, 'must not drop policies');
 });
+
+test('033 subscriptions constraints match app/RPC value sets and validate', async () => {
+  const sql = await readFile(
+    new URL('../migrations/033_subscriptions_constraints.sql', import.meta.url),
+    'utf8',
+  );
+  for (const v of ['weekly', 'monthly', 'quarterly', 'yearly']) assert.match(sql, new RegExp(`'${v}'`));
+  for (const v of ['streaming', 'music', 'gaming', 'software', 'cloud', 'fitness', 'news', 'food', 'education', 'other']) {
+    assert.match(sql, new RegExp(`'${v}'`));
+  }
+  for (const v of ['trial', 'active', 'paused', 'cancelled', 'expired', 'archived']) {
+    assert.match(sql, new RegExp(`'${v}'`));
+  }
+  const code = sql.replace(/^--.*$/gm, '');
+  const added = (code.match(/ADD CONSTRAINT/g) || []).length;
+  const validated = (code.match(/VALIDATE CONSTRAINT/g) || []).length;
+  assert.equal(added, 9);
+  assert.equal(validated, added, 'her kısıt VALIDATE edilmeli');
+  assert.equal((code.match(/NOT VALID/g) || []).length, added);
+});

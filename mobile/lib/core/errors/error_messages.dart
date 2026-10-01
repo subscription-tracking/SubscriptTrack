@@ -27,3 +27,13 @@ void logIgnoredError(String where, Object error) {
   if (!kDebugMode) return;
   debugPrint('[$where] yok sayıldı: $error');
 }
+
+/// PostgREST/Postgres hatasını uygulama istisnasına çevirir.
+///
+/// 23514 (`check_violation`): sunucudaki veri bütünlüğü kısıtları (migration 033)
+/// uygulama doğrulamasını aşan bir değeri reddetti; teknik kısıt adı yerine
+/// anlaşılır bir mesaj gösterilir.
+AppException dbException(String? code, String message) => code == '23514'
+    ? const ValidationException(
+        'Girilen değerler izin verilen sınırların dışında. Alanları kontrol et.')
+    : NetworkException(message);

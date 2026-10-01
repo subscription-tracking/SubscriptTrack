@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/config/app_environment.dart';
 import '../../../core/domain/money.dart';
-import '../../../core/errors/app_exception.dart';
+import '../../../core/errors/error_messages.dart';
 import '../../../core/storage/local_storage.dart';
 import '../domain/payment_event.dart';
 
@@ -45,7 +45,7 @@ class PaymentEventsRepository {
               ))
           .toList();
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -77,7 +77,7 @@ class PaymentEventsRepository {
         paidAt: DateTime.parse(row['paid_at'] as String),
       );
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -101,7 +101,7 @@ class PaymentEventsRepository {
           .eq('id', id)
           .eq('user_id', userId);
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -134,7 +134,7 @@ class PaymentEventsRepository {
           currency: row['currency'] as String,
           paidAt: DateTime.parse(row['paid_at'] as String));
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 

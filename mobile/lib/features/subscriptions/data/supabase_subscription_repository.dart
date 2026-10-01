@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/datasources/subscription_data_source.dart';
 import '../../../core/domain/money.dart';
-import '../../../core/errors/app_exception.dart';
+import '../../../core/errors/error_messages.dart';
 import '../domain/subscription_models.dart';
 
 class SupabaseSubscriptionRepository implements SubscriptionDataSource {
@@ -27,7 +27,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .order('next_renewal_date', ascending: true);
       return rows.map(_fromRow).toList();
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -77,7 +77,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       final row = Map<String, dynamic>.from(result as Map);
       return _fromRow(row);
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -107,7 +107,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       });
       return _fromRow(Map<String, dynamic>.from(result as Map));
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -120,7 +120,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
           .eq('id', subscriptionId)
           .eq('user_id', userId);
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
@@ -158,7 +158,7 @@ class SupabaseSubscriptionRepository implements SubscriptionDataSource {
       await update(_fromRow(
           {...Map<String, dynamic>.from(current), 'status': status.key}));
     } on PostgrestException catch (e) {
-      throw NetworkException(e.message);
+      throw dbException(e.code, e.message);
     }
   }
 
