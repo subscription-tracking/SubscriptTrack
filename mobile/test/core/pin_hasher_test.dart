@@ -72,4 +72,13 @@ void main() {
       expect(await hasher.verify('2468', stored), isTrue);
     });
   });
+
+  test(
+      'constantTimeEquals farklı uzunlukları (ortak önek olsa bile) eşit saymaz',
+      () {
+    expect(PinHasher.constantTimeEquals([1, 2], [1, 2, 3]), isFalse);
+    expect(PinHasher.constantTimeEquals([1, 2, 3], [1, 2]), isFalse);
+    expect(PinHasher.constantTimeEquals([1, 2, 3], [1, 2, 3]), isTrue);
+    expect(PinHasher.constantTimeEquals([1, 2, 3], [1, 2, 4]), isFalse);
+  });
 }

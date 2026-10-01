@@ -42,9 +42,9 @@ Etiketler: **Uygulandı** · **Kısmi** (kod var, doğrulama eksik) · **Planlı
 | Offline cache ve kuyruk | Uygulandı | Son veri, FIFO mutation kuyruğu |
 | Realtime çoklu cihaz | Kısmi | Kod ve yayın var; iki oturumlu canlı test yok |
 | CSV dışa/içe aktarma | Uygulandı | 11 alanlı kanonik şema; CSV enjeksiyonu etkisizleştirilir |
-| Hesap silme | Uygulandı | `delete-account`; silme sonrası kalıntı veri kontrolü yok |
+| Hesap silme | Uygulandı | `delete-account` (yakın giriş şartı ve Storage temizliği repoda, canlıya alınmadı); silme sonrası kalıntı veri kontrolü yok |
 | Destek bileti | Uygulandı | `support_tickets` + ekran + `support-catalog` POST |
-| Uygulama kilidi (PIN, biyometri) | Kısmi | Kod ve testler var; cihaz testi yok |
+| Uygulama kilidi (PIN, biyometri) | Kısmi | Salt'lı PBKDF2, üstel bekleme, saat geri alma koruması, kilit açıkken ekran gizliliği (kod ve testler); cihaz testi yok |
 | Açık tema | Planlı | Yalnızca koyu tema |
 | Analitik / crash raporlama | Planlı | Altyapı yok ([ANALYTICS.md](product/ANALYTICS.md)) |
 | iOS build ve dağıtım | Planlı | Hiç derlenmedi |
@@ -52,6 +52,10 @@ Etiketler: **Uygulandı** · **Kısmi** (kod var, doğrulama eksik) · **Planlı
 ## Canlı backend
 
 Ayrıntılı, tarihli anlık görüntü: [SUPABASE_LIVE_STATUS.md](reference/SUPABASE_LIVE_STATUS.md). Özet: 15 tablo (hepsinde RLS), 4 Edge Function, `subscriptions` Realtime'da, advisor 0 hata; Leaked Password Protection kapalı; canlıda migration geçmişi boş.
+
+## Güvenlik düzeltmeleri (repoda; canlıya alınmayı bekliyor)
+
+Güvenlik denetimi bulgularının büyük bölümü kodda, testlerde ve migration dosyalarında (032–035) giderildi; **canlı sistem henüz güncellenmedi**: migration'lar uygulanmadı, Edge Function'lar yeniden deploy edilmedi, hesap/depo ayarları (parola kuralı, özel SMTP, GitHub koruma) yapılmadı. Canlıda doğrulanana kadar bu işler açık sayılır. Ayrıntı: [SECURITY.md](architecture/SECURITY.md#3-açık-güvenlik-işleri).
 
 ## Dağıtım ve CI
 
