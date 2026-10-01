@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:material_ui/material_ui.dart' as mui;
 
 import 'app_colors.dart';
 
@@ -191,42 +189,10 @@ abstract final class AppTheme {
   }
 }
 
-/// google_fonts 9, Material'in `material_ui` paketindeki `TextTheme` tipini
-/// kullanır; uygulama `flutter/material.dart` tipini kullandığı için stiller
-/// alan alan aktarılır (`TextStyle` iki tarafta da aynı tiptir).
-TextTheme _withHankenGrotesk(TextTheme t) {
-  final styled = GoogleFonts.hankenGroteskTextTheme(mui.TextTheme(
-    displayLarge: t.displayLarge,
-    displayMedium: t.displayMedium,
-    displaySmall: t.displaySmall,
-    headlineLarge: t.headlineLarge,
-    headlineMedium: t.headlineMedium,
-    headlineSmall: t.headlineSmall,
-    titleLarge: t.titleLarge,
-    titleMedium: t.titleMedium,
-    titleSmall: t.titleSmall,
-    bodyLarge: t.bodyLarge,
-    bodyMedium: t.bodyMedium,
-    bodySmall: t.bodySmall,
-    labelLarge: t.labelLarge,
-    labelMedium: t.labelMedium,
-    labelSmall: t.labelSmall,
-  ));
-  return TextTheme(
-    displayLarge: styled.displayLarge,
-    displayMedium: styled.displayMedium,
-    displaySmall: styled.displaySmall,
-    headlineLarge: styled.headlineLarge,
-    headlineMedium: styled.headlineMedium,
-    headlineSmall: styled.headlineSmall,
-    titleLarge: styled.titleLarge,
-    titleMedium: styled.titleMedium,
-    titleSmall: styled.titleSmall,
-    bodyLarge: styled.bodyLarge,
-    bodyMedium: styled.bodyMedium,
-    bodySmall: styled.bodySmall,
-    labelLarge: styled.labelLarge,
-    labelMedium: styled.labelMedium,
-    labelSmall: styled.labelSmall,
-  );
-}
+/// Hanken Grotesk (SIL OFL 1.1, `assets/fonts/OFL.txt`) pakete gömülüdür;
+/// çalışma zamanında Google'dan indirilmez (güvenlik denetimi F-19: IP/gizlilik
+/// sızıntısı ve çevrimdışı ilk açılışta yazı tipi eksikliği).
+const kAppFontFamily = 'HankenGrotesk';
+
+TextTheme _withHankenGrotesk(TextTheme t) =>
+    t.apply(fontFamily: kAppFontFamily);
