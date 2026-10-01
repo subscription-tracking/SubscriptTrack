@@ -1,0 +1,73 @@
+[
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "mutation": "if (failed < freeAttempts) return Duration.zero;",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "mutation": "if (isLockedOut) return false;",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "mutation": "now.isBefore(backgroundedAt) ||",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "mutation": "static const maxLockout = Duration(minutes: 15);",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "mutation": "if (_hasher.needsUpgrade(expected)) {",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/app_lock_service.dart",
+  "mutation": "await _storage.writePinAttempts(_failedAttempts, _lockedUntil);",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/pin_hasher.dart",
+  "mutation": "diff |= a[i] ^ b[i];",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/pin_hasher.dart",
+  "mutation": "if (a.length != b.length) return false;",
+  "status": "killed",
+  "note": "ilk koşuda hayatta kaldı; constantTimeEquals uzunluk testi eklendikten sonra öldürüldü (doğrulandı)"
+ },
+ {
+  "file": "lib/core/services/pin_hasher.dart",
+  "mutation": "return rounds < iterations;",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/pin_hasher.dart",
+  "mutation": "t[j] ^= u[j];",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/offline_mutation_queue.dart",
+  "mutation": "(m) => m.userId == null || m.userId == _userId",
+  "status": "killed"
+ },
+ {
+  "file": "lib/features/auth/domain/password_policy.dart",
+  "mutation": "value.length >= minLength",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/errors/error_messages.dart",
+  "mutation": "code == '23514'",
+  "status": "killed"
+ },
+ {
+  "file": "lib/core/services/privacy_screen.dart",
+  "mutation": "{'secure': secure}",
+  "status": "killed"
+ }
+]
