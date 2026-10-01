@@ -190,7 +190,7 @@ void main() {
       await tester.enterText(find.byType(TextField), '0000');
       await tester.tap(find.text('Kilidi aç'));
       await tester.pumpAndSettle();
-      expect(find.text('PIN hatalı'), findsOneWidget);
+      expect(find.textContaining('PIN hatalı'), findsOneWidget);
       expect(service.locked, isTrue);
 
       await tester.enterText(find.byType(TextField), '1234');

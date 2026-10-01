@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'app_lock_service.dart';
@@ -65,55 +67,103 @@ class _LockOverlay extends StatefulWidget {
 class _LockOverlayState extends State<_LockOverlay> {
   final _pin = TextEditingController();
   String? _error;
+  Timer? _ticker;
 
   @override
   void dispose() {
+    _ticker?.cancel();
     _pin.dispose();
     super.dispose();
   }
 
   Future<void> _unlock() async {
-    final ok = await widget.service.verifyPin(_pin.text);
+    final service = widget.service;
+    if (service.isLockedOut) return;
+    final ok = await service.verifyPin(_pin.text);
     if (!mounted) return;
     setState(() => _error = ok ? null : 'PIN hatalı');
-    if (ok) _pin.clear();
+    if (ok) {
+      _pin.clear();
+    } else {
+      _pin.clear();
+      _startTicker();
+    }
+  }
+
+  /// Bekleme süresince kalan süreyi saniyede bir yeniler.
+  void _startTicker() {
+    _ticker?.cancel();
+    if (!widget.service.isLockedOut) return;
+    _ticker = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted || !widget.service.isLockedOut) {
+        t.cancel();
+      }
+      if (mounted) setState(() {});
+    });
+  }
+
+  String _hint() {
+    final service = widget.service;
+    if (service.isLockedOut) {
+      final left = service.lockoutRemaining;
+      final m = left.inMinutes;
+      final sec = left.inSeconds % 60;
+      final text = m > 0 ? '$m dk $sec sn' : '${left.inSeconds} sn';
+      return 'Çok fazla hatalı deneme. $text sonra tekrar dene.';
+    }
+    if (service.failedAttempts > 0) {
+      return 'PIN hatalı. Bekleme başlamadan ${service.attemptsLeft} deneme hakkın kaldı.';
+    }
+    return '';
   }
 
   @override
-  Widget build(BuildContext context) => Material(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 340),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.lock_outline, size: 56),
-                const SizedBox(height: 16),
-                Text('Uygulama kilitli',
-                    style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _pin,
-                  autofocus: true,
-                  obscureText: true,
-                  keyboardType: TextInputType.number,
-                  maxLength: 8,
-                  onSubmitted: (_) => _unlock(),
-                  decoration:
-                      InputDecoration(labelText: 'PIN', errorText: _error),
+  Widget build(BuildContext context) {
+    if (widget.service.isLockedOut && (_ticker?.isActive ?? false) == false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _startTicker();
+      });
+    }
+    final lockedOut = widget.service.isLockedOut;
+    final hint = _hint();
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Icon(Icons.lock_outline, size: 56),
+              const SizedBox(height: 16),
+              Text('Uygulama kilitli',
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _pin,
+                autofocus: true,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: 8,
+                onSubmitted: (_) => _unlock(),
+                enabled: !lockedOut,
+                decoration: InputDecoration(
+                    labelText: 'PIN',
+                    errorText: hint.isNotEmpty ? hint : _error),
+              ),
+              FilledButton(
+                  onPressed: lockedOut ? null : _unlock,
+                  child: const Text('Kilidi aç')),
+              if (widget.service.biometricEnabled)
+                TextButton.icon(
+                  onPressed: widget.service.unlockWithBiometric,
+                  icon: const Icon(Icons.fingerprint),
+                  label: const Text('Biyometri ile aç'),
                 ),
-                FilledButton(
-                    onPressed: _unlock, child: const Text('Kilidi aç')),
-                if (widget.service.biometricEnabled)
-                  TextButton.icon(
-                    onPressed: widget.service.unlockWithBiometric,
-                    icon: const Icon(Icons.fingerprint),
-                    label: const Text('Biyometri ile aç'),
-                  ),
-              ]),
-            ),
+            ]),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
