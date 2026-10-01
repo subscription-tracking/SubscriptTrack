@@ -249,3 +249,11 @@ test('034 revokes anon writes, keeps authenticated DML, adds quotas, drops devic
   assert.doesNotMatch(code, /BEFORE INSERT ON public\.notifications/, 'cron üretici kotasız kalmalı');
   assert.match(code, /DROP TABLE IF EXISTS public\.device_tokens/);
 });
+
+test('035 owner trigger is invoker-security and covers the three event tables', async () => {
+  const sql = await readFile(new URL('../migrations/035_event_subscription_ownership.sql', import.meta.url), 'utf8')
+  const code = sql.replace(/^--.*$/gm, '')
+  assert.doesNotMatch(code, /SECURITY DEFINER/)
+  for (const t of ['payment_events', 'subscription_events', 'notifications']) assert.match(code, new RegExp(`'${t}'`))
+  assert.match(code, /s\.user_id = NEW\.user_id/)
+})

@@ -74,6 +74,10 @@ Kök neden: AAB üç ABI'nin Flutter motor jar'larını aynı anda Jetify'a sokt
 3. CI için keystore'u base64 olarak ve şifreleri repository secret olarak saklayın; yalnızca imzalı release iş akışında kullanın.
 4. `flutter build appbundle --release` ile AAB üretin ve Play Internal Testing'e yükleyin.
 
+### 7.1 Play Console: tam zamanlı alarm beyanı (F-24)
+
+Uygulama içeriği > "Exact alarm" (Tam zamanlı alarm) beyanında: izin `SCHEDULE_EXACT_ALARM`; amaç **takvim/hatırlatıcı** — kullanıcının belirlediği abonelik yenileme hatırlatmalarını seçtiği saatte göstermek; yaklaşık zamanlama işlevi bozar. Alarm yalnızca kullanıcı bir abonelik oluşturup hatırlatma açtığında kurulur; arka planda başka amaçla kullanılmaz.
+
 ## 8. Release kontrol listesi
 
 **Otomatik kapı**

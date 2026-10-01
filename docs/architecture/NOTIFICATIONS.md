@@ -139,6 +139,10 @@ Metinler lokalizasyon anahtarı ve parametrelerle oluşturulmalıdır; veritaban
 4. Reddedilirse sessiz ve saygılı fallback
 5. Ayarlarda sistem ayarına gitme bağlantısı
 
+### 12.1 Tam zamanlı alarm izni (`SCHEDULE_EXACT_ALARM`)
+
+Hatırlatmalar kullanıcının seçtiği saatte (örn. yenileme günü 09:00) gösterilmelidir; takvim/hatırlatıcı niteliği taşıyan çekirdek özelliktir ve yaklaşık zamanlama (saat farkı) ürün vaadini bozar. Bu yüzden `SCHEDULE_EXACT_ALARM` izni tutulur (güvenlik denetimi F-24). İzin reddedilirse/Android 14+'da verilmezse uygulama yaklaşık zamanlamaya düşer ve kullanıcıya ayarlardan izin verme bağlantısı sunulur (bkz. §12). Play Console beyan metni: [RELEASE.md](../operations/RELEASE.md#8-release-kontrol-listesi).
+
 ## 13. E-posta
 
 **Durum: Kapsam dışı.** Bugün yalnızca Supabase Auth e-postaları (doğrulama, şifre sıfırlama) gönderilir; yenileme e-postası yoktur.

@@ -72,6 +72,8 @@ Realtime yayınında olan tek tablo.
 - Kullanıcı başına satır kotası (INSERT tetikleyicisi, aşımda `23514`): `subscriptions` 500, `support_tickets` 100, `exports` 200, `payment_events` 50000, `savings_events` 10000. Bildirim üreticisi kotasızdır.
 - `anon` tüm yazma yetkilerinden, `authenticated` TRUNCATE/REFERENCES/TRIGGER'dan yoksun bırakılır; `device_tokens` tablosu kaldırılır; `exports` kovası 5 MB ve `text/csv` ile sınırlanır.
 
+- Migration 035 (isteğe bağlı, canlıda uygulanmadı): `payment_events`, `subscription_events`, `notifications` satırlarının `subscription_id` değeri aynı `user_id`'nin aboneliği olmak zorundadır (INVOKER tetikleyici, SQLSTATE `23514`).
+
 ### 2.10 `rate_limits` (repoda var, **canlıda yok**)
 `user_id` (auth.users, cascade), `bucket`, `window_start`, `count`; PK `(user_id, bucket)`. RLS açık, politika yok, yalnızca `service_role` (migration 032, `check_rate_limit` fonksiyonu). Canlıya uygulanana kadar canlı şemada bulunmaz.
 
