@@ -59,3 +59,17 @@ test('Edge Function içe aktarmaları tam sürüme sabitlenmiştir (F-10)', asyn
     }
   }
 })
+
+test('eski export satırları budanır, hata sonucu bozmaz (034 kotası)', async () => {
+  const { pruneOtherExports } = await import('../supabase/functions/_shared/exports.js')
+  const calls = []
+  const chain = (result) => {
+    const q = { delete: () => q, eq: (k, v) => { calls.push(['eq', k, v]); return q }, neq: (k, v) => { calls.push(['neq', k, v]); return Promise.resolve(result) } }
+    return q
+  }
+  assert.equal(await pruneOtherExports({ from: () => chain({ error: null }) }, 'u1', 'e9'), true)
+  assert.deepEqual(calls, [['eq', 'user_id', 'u1'], ['neq', 'id', 'e9']])
+  assert.equal(await pruneOtherExports({ from: () => chain({ error: { message: 'x' } }) }, 'u1', 'e9'), false)
+  const src = await readFile(new URL('../supabase/functions/process-export/index.ts', import.meta.url), 'utf8')
+  assert.match(src, /await pruneOtherExports\(admin, user\.id, exportId\)/)
+})

@@ -70,14 +70,15 @@ Hepsi `Authorization` başlığındaki JWT'yi `auth.getUser()` ile doğrular; ve
 |---|---|
 | `POST` | Gövde `{ "export_id": uuid }` (önce `request_export_idempotent` ile oluşturulur) → CSV üretir, özel `exports` bucket'ına yükler, 1 saatlik imzalı bağlantı döner: `200 { id, status: "READY", download_url, expires_at, … }` |
 | CSV | 11 alanlı kanonik şema: `name, amount, currency, billing_cycle, next_renewal_date, category, status, notes, payment_method, trial_end_date, trial_price_after`; kullanıcı metni CSV enjeksiyonuna karşı etkisizleştirilir |
-| Depolama | Kullanıcı başına **tek sabit dosya** (`<uid>/latest.csv`, üzerine yazılır); eski dosyalar birikmez (repoda; Edge Function güncellemesi canlıya alınana kadar eski davranış sürer) |
+| Depolama | Kullanıcı başına **tek sabit dosya** (`<uid>/latest.csv`, üzerine yazılır); eski dosyalar birikmez; başarılı dışa aktarmadan sonra kullanıcının eski `exports` satırları da silinir (repoda; Edge Function güncellemesi canlıya alınana kadar eski davranış sürer) |
 | Hatalar | `400` (`export_id` yok), `404`, `405`, `503`, `500` |
 
 ### `delete-account`
 | | |
 |---|---|
 | `POST` | `200 { "success": true }`; önce kullanıcının Storage `exports/<uid>/` nesnelerini, sonra Auth kaydını service-role ile siler (Storage hatasında hesap silinmez, tekrar denenir) |
-| Hatalar | `401`, `405`, `503`, `500` |
+| Yakın giriş | JWT `amr` zaman damgası 5 dakikadan eskiyse `403` (token yenilemek süreyi sıfırlamaz); istemci silmeden önce parolayla yeniden giriş yapar |
+| Hatalar | `401`, `403`, `405`, `503`, `500` |
 
 ## 6. Realtime
 

@@ -206,11 +206,22 @@ void main() {
 
     test('hesap silme hatası AuthException olur ve oturum kapanmaz', () async {
       await signedIn();
-      handler = (r) => MockSupabase.ok({'error': 'yetki yok'}, status: 403);
+      handler = (r) => MockSupabase.ok({'error': 'sunucu hatası'}, status: 500);
       await expectLater(
         repo.deleteAccount('kisi@example.com'),
         throwsA(isA<AuthException>()
             .having((e) => e.message, 'message', contains('Hesap silinemedi'))),
+      );
+      expect((await repo.currentUser())?.id, 'user-1');
+    });
+
+    test('403 (yakın giriş gerekli) ayrı mesajla bildirilir', () async {
+      await signedIn();
+      handler = (r) => MockSupabase.ok({'error': 'x'}, status: 403);
+      await expectLater(
+        repo.deleteAccount('kisi@example.com'),
+        throwsA(isA<AuthException>()
+            .having((e) => e.message, 'message', contains('tekrar giriş'))),
       );
       expect((await repo.currentUser())?.id, 'user-1');
     });

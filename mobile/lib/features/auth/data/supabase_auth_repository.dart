@@ -122,8 +122,11 @@ class SupabaseAuthRepository
   Future<void> deleteAccount(String email) async {
     try {
       await _client.functions.invoke('delete-account');
-    } on sb.FunctionException {
-      throw const AuthException('Hesap silinemedi. Lütfen tekrar dene.');
+    } on sb.FunctionException catch (e) {
+      // 403: sunucu yakın zamanda giriş istedi (denetim F-13).
+      throw AuthException(e.status == 403
+          ? 'Güvenlik için tekrar giriş yapman gerekiyor. Parolanı girip yeniden dene.'
+          : 'Hesap silinemedi. Lütfen tekrar dene.');
     } catch (e) {
       throw AuthException(userMessageFor(e));
     }

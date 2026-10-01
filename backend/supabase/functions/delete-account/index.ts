@@ -9,6 +9,7 @@
 //   SUPABASE_SERVICE_ROLE_KEY — manuel ekle (service_role key)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.2'
+import { recentlyAuthenticated } from '../_shared/auth.js'
 import { removeUserExports } from '../_shared/exports.js'
 import { corsHeaders, internalError, jsonResponse } from '../_shared/http.js'
 import { checkRateLimit, tooManyRequests } from '../_shared/ratelimit.js'
@@ -44,6 +45,11 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: userError } = await userClient.auth.getUser()
     if (userError || !user) {
       return jsonResponse({ error: 'Geçersiz token' }, 401, cors)
+    }
+
+    // Hesap silme geri alınamaz: eski/çalınmış oturum yetmez, yakın zamanda giriş şart (F-13).
+    if (!recentlyAuthenticated(authHeader)) {
+      return jsonResponse({ error: 'Güvenlik için yeniden giriş yapman gerekiyor.' }, 403, cors)
     }
 
     // 2. Admin client — service_role key ile kullanıcı sil
