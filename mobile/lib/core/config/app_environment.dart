@@ -21,8 +21,12 @@ abstract final class EnvironmentConfig {
   /// or Apple is enabled before Supabase can handle the request.
   static bool get isSocialSignInAvailable => isSupabaseConfigured;
 
-  /// Local auth fallback — active whenever Supabase is not configured.
-  /// Pass --dart-define=ENABLE_LOCAL_AUTH=false to explicitly disable.
+  /// Local auth fallback — yalnızca geliştirme/debug derlemelerinde varsayılan
+  /// olarak açıktır. Release derlemesi Supabase yapılandırması olmadan sessizce
+  /// yerel moda DÜŞMEZ (güvenlik denetimi F-15); bilinçli olarak
+  /// `--dart-define=ENABLE_LOCAL_AUTH=true` verilmedikçe kimlik doğrulama
+  /// kullanılamaz durumda kalır.
+  static const _isRelease = bool.fromEnvironment('dart.vm.product');
   static const enableLocalAuth =
-      bool.fromEnvironment('ENABLE_LOCAL_AUTH', defaultValue: true);
+      bool.fromEnvironment('ENABLE_LOCAL_AUTH', defaultValue: !_isRelease);
 }

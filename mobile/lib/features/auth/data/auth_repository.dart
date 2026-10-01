@@ -74,7 +74,8 @@ class AuthRepository implements AuthDataSource {
     final entry = credentials[normalizedEmail];
 
     if (entry == null ||
-        entry['hash'] != _hash(password, salt: normalizedEmail)) {
+        !_constantTimeEquals(
+            entry['hash'], _hash(password, salt: normalizedEmail))) {
       throw const AuthException('E-posta veya şifre hatalı.');
     }
 
@@ -149,10 +150,19 @@ class AuthRepository implements AuthDataSource {
 
   // SHA-256 with a fixed per-installation salt derived from the user's email.
   // This is the local-only fallback auth path (ENABLE_LOCAL_AUTH=true).
-  // Production builds use SupabaseAuthRepository — this code path is never
-  // reached unless explicitly enabled with --dart-define=ENABLE_LOCAL_AUTH=true.
+  // Release builds use SupabaseAuthRepository; this path is only reachable in
+  // debug builds or when explicitly enabled with --dart-define=ENABLE_LOCAL_AUTH=true.
   String _hash(String password, {required String salt}) =>
       sha256.convert(utf8.encode('$salt:$password')).toString();
+
+  static bool _constantTimeEquals(String? a, String b) {
+    if (a == null || a.length != b.length) return false;
+    var diff = 0;
+    for (var i = 0; i < a.length; i++) {
+      diff |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return diff == 0;
+  }
 
   Future<Map<String, Map<String, String>>> _loadCredentials() async {
     final raw = await _storage.readCredentials();
