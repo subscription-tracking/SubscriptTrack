@@ -124,6 +124,7 @@ class FlutterNotificationPlatform implements NotificationPlatform {
             channelDescription: n.channelDescription,
             importance: Importance.high,
             priority: Priority.high,
+            visibility: NotificationVisibility.private,
             icon: '@mipmap/ic_launcher',
             actions: n.withSnoozeAction
                 ? const [AndroidNotificationAction(snoozeActionId, 'Ertele')]
@@ -159,6 +160,7 @@ class FlutterNotificationPlatform implements NotificationPlatform {
             _channelName,
             importance: Importance.high,
             priority: Priority.high,
+            visibility: NotificationVisibility.private,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'app_lock_service.dart';
+import 'privacy_screen.dart';
 
 class AppLockGate extends StatefulWidget {
   const AppLockGate({required this.service, required this.child, super.key});
@@ -14,25 +15,45 @@ class AppLockGate extends StatefulWidget {
 }
 
 class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
+  /// Uygulama arka plana/inaktif duruma geçerken (son uygulamalar görünümü)
+  /// içerik örtülür; yalnızca uygulama kilidi açıkken.
+  bool _obscured = false;
+  bool? _secure;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    widget.service.addListener(_syncSecure);
     widget.service.load();
+  }
+
+  /// Ekran görüntüsü engeli (Android FLAG_SECURE) kilit etkinken açık olur.
+  void _syncSecure() {
+    final secure = widget.service.enabled;
+    if (_secure == secure) return;
+    _secure = secure;
+    PrivacyScreen.setSecure(secure);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
-      widget.service.handleBackground();
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      if (widget.service.enabled && !_obscured) {
+        setState(() => _obscured = true);
+      }
+      if (state != AppLifecycleState.hidden) widget.service.handleBackground();
     } else if (state == AppLifecycleState.resumed) {
+      if (_obscured) setState(() => _obscured = false);
       widget.service.handleResume();
     }
   }
 
   @override
   void dispose() {
+    widget.service.removeListener(_syncSecure);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -49,10 +70,20 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
             children: [
               widget.child,
               if (widget.service.locked)
-                Positioned.fill(child: _LockOverlay(service: widget.service)),
+                Positioned.fill(child: _LockOverlay(service: widget.service))
+              else if (_obscured)
+                Positioned.fill(child: _PrivacyCover()),
             ],
           );
         },
+      );
+}
+
+class _PrivacyCover extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: const Center(child: Icon(Icons.lock_outline, size: 56)),
       );
 }
 
