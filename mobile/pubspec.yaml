@@ -22,7 +22,7 @@ dependencies:
   path_provider: ^2.1.4
   flutter_local_notifications: ^22.3.1
   timezone: ^0.11.1
-  flutter_timezone: ^5.1.0
+  flutter_timezone: ^5.1.1
   http: ^1.2.0
   font_awesome_flutter: ^11.0.0
   file_picker: ^13.1.0
