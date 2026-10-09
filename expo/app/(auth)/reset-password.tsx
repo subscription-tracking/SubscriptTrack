@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { spacing, screenGutter } from '../../src/shared/design/tokens';
+import { spacing } from '../../src/shared/design/tokens';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View } from 'react-native';
@@ -55,7 +55,7 @@ export default function ResetPasswordScreen() {
         <MaterialIcons name="lock-reset" size={64} color={colors.primary} />
       </View>
       <Spacer size={spacing.xl} />
-      <Text style={[textStyle('title'), styles.text]}>Yeni şifreni belirle</Text>
+      <Text style={[textStyle('headlineSmall'), styles.text]}>Yeni şifreni belirle</Text>
       <Spacer size={spacing.xs} />
       <Text style={[textStyle('bodySmall'), styles.text]}>
         {`${PASSWORD_REQUIREMENT} uzunluğunda güçlü bir şifre seç.`}
@@ -93,7 +93,8 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingHorizontal: screenGutter,
+    // Flutter ResetPasswordScreen: tüm kenarlar 24 (AuthPageScaffold ile aynı).
+    paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
   },
   iconWrap: {

@@ -82,6 +82,20 @@ export async function updatePassword(newPassword: string): Promise<void> {
   if (error) throw toFailure(error);
 }
 
+/** Görünen adı kullanıcı verisine yazar (Flutter `updateDisplayName`). */
+export async function updateDisplayName(name: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ data: { display_name: name } });
+  if (error) throw toFailure(error);
+}
+
+/** E-posta adresini günceller; Supabase gerekirse doğrulama bağlantısı gönderir (Flutter `updateEmail`). */
+export async function updateEmail(email: string): Promise<void> {
+  const normalized = normalizeEmail(email);
+  if (!normalized.includes('@')) throw new AuthFailure('Geçerli bir e-posta adresi gir.');
+  const { error } = await supabase.auth.updateUser({ email: normalized });
+  if (error) throw toFailure(error);
+}
+
 /**
  * E-posta bağlantısından gelen PKCE kodunu oturuma çevirir (doğrulama ve
  * şifre sıfırlama). Hata metni bağlantının süresinin dolduğunu da kapsar.

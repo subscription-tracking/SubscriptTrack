@@ -1,75 +1,100 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { sizes, spacing } from '../../../shared/design/tokens';
 
 import { formatCurrency } from '../../../core/format/money';
-import { borderWidth, colors, radius, statusColors } from '../../../shared/design/tokens';
-import { textStyle } from '../../../shared/design/typography';
-import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, STATUS_LABELS, type Subscription, daysUntilRenewal } from '../domain/subscription';
-import { renewalLabel } from '../domain/renewalLabel';
-import { OVERDUE_LABEL, isOverdueRenewal } from '../domain/renewalOverdue';
-import { isRenewingSoon } from '../domain/subscriptionList';
 import { type CivilDate } from '../../../core/time/calendar';
+import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors, withAlpha } from '../../../shared/design/tokens';
+import { textStyle } from '../../../shared/design/typography';
+import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscription, daysUntilRenewal } from '../domain/subscription';
+import { renewalLabel } from '../domain/renewalLabel';
+import { isNotStarted } from '../domain/activeSelectors';
+import { ServiceIdentity } from './ServiceIdentity';
+import { SubscriptionStatusChip } from './SubscriptionStatusChip';
 
-/** Liste kartı (Flutter `SubscriptionListTile`). Yenileme yaklaşan aktif kayıtlar vurgulanır. */
+/**
+ * Liste kartı (Flutter `SubscriptionListTile`): hizmet kimliği, ad, kategori · dönem, sağda tutar ve
+ * yenileme etiketi. Duraklatılmış ve iptal edilmiş kayıtlar soluk; uyarı durumunda etiket kalındır.
+ */
 export function SubscriptionTile({
   subscription,
   today,
   onPress,
+  showStatus = true,
 }: {
   subscription: Subscription;
   today: CivilDate;
   onPress: () => void;
+  showStatus?: boolean;
 }) {
-  const dimmed = subscription.status === 'paused' || subscription.status === 'cancelled';
-  const cancelled = subscription.status === 'cancelled';
-  const soon = isRenewingSoon(subscription, today);
+  const status = subscription.status;
+  const dimmed = status === 'paused' || status === 'cancelled';
   const days = daysUntilRenewal(subscription, today);
-  const showStatus = dimmed;
-  const overdue = isOverdueRenewal(subscription, today);
+  const chipVisible = showStatus && dimmed;
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${subscription.name}, ${formatCurrency(subscription.amount, subscription.currency)}`}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, soon && styles.cardSoon, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={[styles.avatar, dimmed && styles.dimmed]}>
-        <Text style={textStyle('titleSmall', { color: colors.primary })}>{subscription.name.charAt(0).toLocaleUpperCase('tr-TR')}</Text>
+      <View style={{ opacity: dimmed ? 0.55 : 1 }}>
+        <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.listAvatar} />
       </View>
 
       <View style={styles.middle}>
         <Text
           numberOfLines={1}
-          style={textStyle('titleSmall', {
-            textDecorationLine: cancelled ? 'line-through' : 'none',
+          style={textStyle('bodySmallStrong', {
+            textDecorationLine: status === 'cancelled' ? 'line-through' : 'none',
           })}
         >
           {subscription.name}
         </Text>
         <View style={styles.subtitleRow}>
-          <Text numberOfLines={1} style={textStyle('caption', { flexShrink: 1 })}>
-            {CATEGORY_LABELS[subscription.category]} · {BILLING_CYCLE_LABELS[subscription.billingCycle]}
+          <Text numberOfLines={1} style={textStyle('caption12', { flexShrink: 1, color: withAlpha(colors.onSurfaceVariant, 0.9) })}>
+            {`${CATEGORY_LABELS[subscription.category]} · ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
           </Text>
-          {showStatus ? (
-            <Text style={textStyle('caption', { color: statusColors.muted, marginLeft: spacing.xs })}>
-              {STATUS_LABELS[subscription.status]}
-            </Text>
+          {chipVisible ? (
+            <View style={styles.chipGap}>
+              <SubscriptionStatusChip
+                status={status}
+                isNotStarted={isNotStarted(subscription, today)}
+                daysUntilRenewal={days}
+              />
+            </View>
           ) : null}
         </View>
       </View>
 
-      <View style={styles.trailing}>
-        <Text style={textStyle('titleSmall')}>
-          {formatCurrency(subscription.amount, subscription.currency)}
-        </Text>
-        {days !== null && subscription.status !== 'cancelled' && subscription.status !== 'expired' ? (
-          <Text style={textStyle('caption', { color: overdue ? statusColors.warning : soon ? colors.primary : colors.onSurfaceVariant })}>
-            {overdue ? OVERDUE_LABEL : renewalLabel(days)}
-          </Text>
-        ) : null}
-      </View>
+      <Trailing subscription={subscription} days={days} />
     </Pressable>
+  );
+}
+
+function Trailing({ subscription, days }: { subscription: Subscription; days: number | null }) {
+  const status = subscription.status;
+  const isPaused = status === 'paused';
+  const isCancelled = status === 'cancelled';
+  const urgent = days !== null && days <= 3;
+  const labelColor = isPaused
+    ? colors.onSurfaceVariant
+    : isCancelled
+      ? statusColors.success
+      : urgent
+        ? colors.error
+        : withAlpha(colors.onSurfaceVariant, 0.85);
+  const label = isPaused ? 'Duraklatıldı' : isCancelled ? 'İptal edildi' : days === null ? '—' : renewalLabel(days);
+  return (
+    <View style={styles.trailing}>
+      <Text style={textStyle('topBarTitle', { color: isCancelled || isPaused ? colors.onSurfaceVariant : colors.onSurface })}>
+        {formatCurrency(subscription.amount, subscription.currency)}
+      </Text>
+      <Text
+        style={textStyle(urgent ? 'labelSmallStrong' : 'labelSmall', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
+      >
+        {label}
+      </Text>
+    </View>
   );
 }
 
@@ -77,42 +102,30 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.md - 1,
     borderRadius: radius.medium,
-    backgroundColor: colors.surface,
     borderWidth: borderWidth.hairline,
-    borderColor: colors.outline,
-  },
-  cardSoon: {
-    borderColor: colors.primary,
-    borderWidth: borderWidth.focused,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   pressed: {
     opacity: 0.85,
   },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: sizes.avatar / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceHigh,
-  },
-  dimmed: {
-    opacity: 0.55,
-  },
   middle: {
     flex: 1,
-    gap: spacing.xxs,
+    marginLeft: gaps.rowLoose - 2,
+    marginRight: gaps.rowLoose - 2,
   },
   subtitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: spacing.xxs / 2,
+  },
+  chipGap: {
+    marginLeft: gaps.heroLabel,
   },
   trailing: {
     alignItems: 'flex-end',
-    gap: spacing.xxs,
   },
 });

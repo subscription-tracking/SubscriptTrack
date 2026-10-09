@@ -1,99 +1,81 @@
-import type { ReactNode } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { type Href, useRouter } from 'expo-router';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import type { ComponentProps } from 'react';
 
-import { colors, radius, screenGutter, spacing, withAlpha } from '../../../shared/design/tokens';
-import { textStyle } from '../../../shared/design/typography';
-import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
-import { ChoiceChips, type ChoiceOption } from '../../../shared/widgets/ChoiceChips';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
-import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
-import { Spacer } from '../../../shared/widgets/Spacer';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { textButtonText, textStyle } from '../../../shared/design/typography';
 import { CATEGORY_LABELS, SUBSCRIPTION_CATEGORIES, type SubscriptionCategory } from '../domain/subscription';
-import {
-  DEFAULT_FILTER,
-  SORT_LABELS,
-  SORT_OPTIONS,
-  type SortOption,
-  type SubscriptionFilter,
-} from '../domain/subscriptionFilter';
+import { SORT_LABELS, SORT_OPTIONS, type SortOption } from '../domain/subscriptionFilter';
 
-/** "Filtrele ve sırala" sayfası (Flutter `SubscriptionFilterSheet`). Seçimler anında uygulanır. */
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+/**
+ * "Filtrele ve sırala" alt sayfası (Flutter `SubscriptionFilterSheet`). Tutamaç, kategori çipleri,
+ * sıralama radyo listesi ve Arşiv / CSV bağlantıları. Seçimler anında üst ekrana iletilir.
+ */
 export function SubscriptionFilterSheet({
   visible,
-  filter,
-  currencies,
-  onChange,
+  category,
+  sort,
+  hasArchived,
+  onCategory,
+  onSort,
+  onOpenArchive,
+  onImportCsv,
   onClose,
 }: {
   visible: boolean;
-  filter: SubscriptionFilter;
-  currencies: readonly string[];
-  onChange: (next: SubscriptionFilter) => void;
+  category: SubscriptionCategory | null;
+  sort: SortOption;
+  hasArchived: boolean;
+  onCategory: (next: SubscriptionCategory | null) => void;
+  onSort: (next: SortOption) => void;
+  onOpenArchive: () => void;
+  onImportCsv: () => void;
   onClose: () => void;
 }) {
-  const router = useRouter();
-  const categoryOptions: ChoiceOption<string>[] = [
-    { value: 'all', label: 'Tümü' },
-    ...SUBSCRIPTION_CATEGORIES.map((value) => ({ value, label: CATEGORY_LABELS[value] })),
-  ];
-  const currencyOptions: ChoiceOption<string>[] = [
-    { value: 'all', label: 'Tümü' },
-    ...currencies.map((value) => ({ value, label: value })),
-  ];
-  const sortOptions: ChoiceOption<SortOption>[] = SORT_OPTIONS.map((value) => ({ value, label: SORT_LABELS[value] }));
-
+  const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.sheet}>
+      <View style={styles.barrier}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
+          <View style={styles.handleArea}>
+            <View style={styles.handle} />
+          </View>
           <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             <Text style={textStyle('title')}>Filtrele ve sırala</Text>
-            <Spacer size={spacing.lg} />
+            <View style={styles.gapTitle} />
 
-            <Section title="Kategori">
-              <ChoiceChips
-                options={categoryOptions}
-                value={filter.category ?? 'all'}
-                onChange={(value) => onChange({ ...filter, category: value === 'all' ? null : (value as SubscriptionCategory) })}
-              />
-            </Section>
-            <Spacer size={spacing.md} />
+            <Text style={textStyle('titleSmall')}>Kategori</Text>
+            <View style={styles.gapSection} />
+            <View style={styles.chips}>
+              <FilterChip label="Tümü" selected={category === null} onPress={() => onCategory(null)} />
+              {SUBSCRIPTION_CATEGORIES.map((value) => (
+                <FilterChip
+                  key={value}
+                  label={CATEGORY_LABELS[value]}
+                  selected={category === value}
+                  onPress={() => onCategory(value)}
+                />
+              ))}
+            </View>
+            <View style={styles.gapBlock} />
 
-            {currencies.length > 1 ? (
-              <>
-                <Section title="Para birimi">
-                  <ChoiceChips
-                    options={currencyOptions}
-                    value={filter.currency ?? 'all'}
-                    onChange={(value) => onChange({ ...filter, currency: value === 'all' ? null : value })}
-                  />
-                </Section>
-                <Spacer size={spacing.md} />
-              </>
-            ) : null}
+            <Text style={textStyle('titleSmall')}>Sıralama</Text>
+            {SORT_OPTIONS.map((option) => (
+              <RadioRow key={option} label={SORT_LABELS[option]} selected={sort === option} onPress={() => onSort(option)} />
+            ))}
+            <View style={styles.gapLinks} />
 
-            <Section title="Sıralama">
-              <ChoiceChips options={sortOptions} value={filter.sort} onChange={(sort) => onChange({ ...filter, sort })} />
-            </Section>
-            <Spacer size={spacing.md} />
-
-            <CheckboxRow checked={filter.dueSoon} onChange={(dueSoon) => onChange({ ...filter, dueSoon })}>
-              <Text style={textStyle('bodySmall')}>Önümüzdeki 7 günde yenilenecekler</Text>
-            </CheckboxRow>
-            <Spacer size={spacing.xl} />
-
-            <OutlinedButton
-              label="CSV içe aktar"
-              onPress={() => {
-                onClose();
-                router.push('/subscriptions/import' as Href);
-              }}
-            />
-            <Spacer size={spacing.sm} />
-            <OutlinedButton label="Filtreleri temizle" onPress={() => onChange(DEFAULT_FILTER)} />
-            <Spacer size={spacing.sm} />
-            <PrimaryButton label="Tamam" onPress={onClose} />
+            <View style={styles.links}>
+              {hasArchived ? (
+                <LinkButton icon="archive" label="Arşiv" onPress={onOpenArchive} />
+              ) : null}
+              <View style={styles.linksSpacer} />
+              <LinkButton icon="upload-file" label="CSV içe aktar" onPress={onImportCsv} />
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -101,33 +83,130 @@ export function SubscriptionFilterSheet({
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function FilterChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
-    <View style={styles.section}>
-      <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{title}</Text>
-      <Spacer size={spacing.xs} />
-      {children}
-    </View>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={[
+        styles.chip,
+        {
+          backgroundColor: selected ? withAlpha(colors.primary, 0.15) : colors.surfaceHigh,
+          borderColor: selected ? withAlpha(colors.primary, 0.4) : colors.border,
+        },
+      ]}
+    >
+      <Text style={selected ? textStyle('filterChipStrong') : textStyle('filterChip')}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function RadioRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={onPress} style={styles.radioRow}>
+      <View style={[styles.radioOuter, { borderColor: selected ? colors.primary : colors.onSurfaceVariant }]}>
+        {selected ? <View style={styles.radioInner} /> : null}
+      </View>
+      <Text style={[textStyle('body'), styles.radioLabel]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function LinkButton({ icon, label, onPress }: { icon: MaterialIconName; label: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.link}>
+      <MaterialIcons name={icon} size={sizes.linkIcon} color={colors.primary} />
+      <Text style={[textButtonText, styles.linkLabel]}>{label}</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  barrier: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: withAlpha(colors.background, 0.7),
+    backgroundColor: withAlpha(colors.scrim, 0.54),
   },
   sheet: {
-    maxHeight: '85%',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.large,
-    borderTopRightRadius: radius.large,
+    maxHeight: '90%',
+    backgroundColor: colors.surfaceLow,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
+  },
+  handleArea: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  handle: {
+    width: sizes.sheetHandleWidth,
+    height: sizes.sheetHandleHeight,
+    borderRadius: sizes.sheetHandleHeight / 2,
+    backgroundColor: withAlpha(colors.onSurfaceVariant, 0.4),
   },
   content: {
-    padding: screenGutter,
-    paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  section: {
-    gap: spacing.xxs,
+  gapTitle: {
+    height: gaps.cardInset + spacing.xxs,
+  },
+  gapSection: {
+    height: spacing.sm - spacing.xxs / 2,
+  },
+  gapBlock: {
+    height: gaps.cardInset + spacing.xxs,
+  },
+  gapLinks: {
+    height: spacing.xs,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+  },
+  chip: {
+    paddingHorizontal: gaps.pillX,
+    paddingVertical: spacing.xs - 1,
+    borderRadius: radius.pill,
+    borderWidth: borderWidth.regular,
+  },
+  radioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: sizes.minTouchTarget + spacing.xs,
+  },
+  radioOuter: {
+    width: sizes.radioOuter,
+    height: sizes.radioOuter,
+    borderRadius: sizes.radioOuter / 2,
+    borderWidth: borderWidth.focused + 0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioInner: {
+    width: sizes.radioInner,
+    height: sizes.radioInner,
+    borderRadius: sizes.radioInner / 2,
+    backgroundColor: colors.primary,
+  },
+  radioLabel: {
+    marginLeft: gaps.rowLoose - 2,
+  },
+  links: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  linksSpacer: {
+    flex: 1,
+  },
+  link: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: sizes.pillHeight,
+    paddingHorizontal: gaps.sectionInner,
+  },
+  linkLabel: {
+    marginLeft: spacing.xs,
   },
 });

@@ -12,10 +12,13 @@ export interface NotifyPrefs {
   enabled: boolean;
   /** Kayıtta kural yoksa kullanılan gün sayısı (0–30). Veritabanı varsayılanı 3. */
   defaultDays: number;
+  /** Hatırlatmanın gönderileceği yerel saat (0–23). Flutter `reminderHour` ile aynı; varsayılan 9. */
+  reminderHour: number;
 }
 
-export const DEFAULT_PREFS: NotifyPrefs = { enabled: true, defaultDays: 3 };
-export const DEFAULT_DAYS_OPTIONS = [0, 1, 3, 7] as const;
+export const DEFAULT_PREFS: NotifyPrefs = { enabled: true, defaultDays: 3, reminderHour: 9 };
+/** Flutter bildirim tercihi ekranındaki seçenekler. */
+export const DEFAULT_DAYS_OPTIONS = [1, 3, 7] as const;
 
 const KEY = 'notifications.prefs';
 
@@ -28,6 +31,7 @@ export function sanitizePrefs(value: unknown): NotifyPrefs {
   return {
     enabled: typeof record.enabled === 'boolean' ? record.enabled : DEFAULT_PREFS.enabled,
     defaultDays: Math.min(30, Math.max(0, days)),
+    reminderHour: typeof record.reminderHour === 'number' && Number.isInteger(record.reminderHour) ? Math.min(23, Math.max(0, record.reminderHour)) : DEFAULT_PREFS.reminderHour,
   };
 }
 

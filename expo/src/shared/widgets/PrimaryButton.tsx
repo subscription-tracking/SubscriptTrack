@@ -1,8 +1,11 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { spacing } from '../design/tokens';
+import type { ComponentProps } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { colors, opacity, radius, sizes, withAlpha } from '../design/tokens';
+import { colors, gaps, opacity, radius, sizes, spacing, withAlpha } from '../design/tokens';
 import { buttonText } from '../design/typography';
+
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 interface PrimaryButtonProps {
   label: string;
@@ -11,14 +14,17 @@ interface PrimaryButtonProps {
   disabled?: boolean;
   /** Flutter `LoadingFilledButton.tall`: 52 px (varsayılan) ya da tema minimumu 50 px. */
   tall?: boolean;
+  /** Flutter `FilledButton.icon`: etiketin solundaki 18 px ikon. */
+  icon?: MaterialIconName;
 }
 
 /**
  * Flutter `LoadingFilledButton` karşılığı: FilledButton, 14 köşe, yükleme sırasında
  * 20 px beyaz gösterge ve devre dışıyken basılmaz.
  */
-export function PrimaryButton({ label, onPress, loading = false, disabled = false, tall = true }: PrimaryButtonProps) {
+export function PrimaryButton({ label, onPress, loading = false, disabled = false, tall = true, icon }: PrimaryButtonProps) {
   const inactive = loading || disabled;
+  const foreground = inactive ? withAlpha(colors.onBackground, opacity.disabled) : colors.onPrimary;
   return (
     <Pressable
       accessibilityRole="button"
@@ -35,7 +41,10 @@ export function PrimaryButton({ label, onPress, loading = false, disabled = fals
       {loading ? (
         <ActivityIndicator size="small" color={colors.white} />
       ) : (
-        <Text style={[buttonText, styles.label, inactive && styles.labelInactive]}>{label}</Text>
+        <View style={styles.content}>
+          {icon ? <MaterialIcons name={icon} size={sizes.buttonIcon} color={foreground} /> : null}
+          <Text style={[buttonText, { color: foreground }, icon ? styles.labelWithIcon : null]}>{label}</Text>
+        </View>
       )}
     </Pressable>
   );
@@ -56,10 +65,12 @@ const styles = StyleSheet.create({
   buttonPressed: {
     opacity: 0.88,
   },
-  labelInactive: {
-    color: withAlpha(colors.onBackground, opacity.disabled),
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  label: {
-    color: colors.onPrimary,
+  labelWithIcon: {
+    marginLeft: gaps.hint,
   },
 });

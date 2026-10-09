@@ -1,10 +1,13 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { colors, radius, sizes, spacing } from '../../../shared/design/tokens';
+import { colors, gaps, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { LIST_TABS, type ListTab } from '../domain/subscriptionList';
 
-/** Liste sekmeleri: yatay kaydırılabilir hap (pill) düğmeler, her birinde sayı rozeti. */
+/**
+ * Flutter `PillTabBar`: yatay kaydırılabilir 40 px haplar, her birinde "Etiket sayı" yazısı.
+ * Seçili hap primary dolgulu ve kalın yazılıdır.
+ */
 export function ListTabBar({
   active,
   counts,
@@ -15,21 +18,24 @@ export function ListTabBar({
   onChange: (tab: ListTab) => void;
 }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.bar}
+      contentContainerStyle={styles.row}
+    >
       {LIST_TABS.map((tab) => {
         const selected = tab.key === active;
         return (
           <Pressable
-            hitSlop={spacing.xs}
             key={tab.key}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
+            accessibilityLabel={`${tab.label} ${counts[tab.key]}`}
             onPress={() => onChange(tab.key)}
-            style={[styles.pill, selected && styles.pillSelected]}
+            style={[styles.pill, { backgroundColor: selected ? colors.primary : colors.surfaceHigh }]}
           >
-            <Text style={textStyle('label', { color: selected ? colors.onPrimary : colors.onSurfaceVariant })}>
-              {`${tab.label} ${counts[tab.key]}`}
-            </Text>
+            <Text style={selected ? textStyle('pillStrong') : textStyle('pill')}>{`${tab.label} ${counts[tab.key]}`}</Text>
           </Pressable>
         );
       })}
@@ -38,19 +44,19 @@ export function ListTabBar({
 }
 
 const styles = StyleSheet.create({
+  bar: {
+    flexGrow: 0,
+    height: sizes.pillHeight,
+  },
   row: {
+    paddingHorizontal: spacing.lg,
     gap: spacing.xs,
-    paddingHorizontal: spacing.xs,
   },
   pill: {
-    minHeight: sizes.minTouchTarget - 12,
-    paddingHorizontal: spacing.md,
+    height: sizes.pillHeight,
+    paddingHorizontal: gaps.pillX,
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surfaceHigh,
-  },
-  pillSelected: {
-    backgroundColor: colors.primary,
   },
 });

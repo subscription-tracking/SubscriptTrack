@@ -31,6 +31,8 @@ const queueKey = (userId: string) => `subscriptions.queue.${userId}`;
 export interface SubmitResult {
   status: 'sent' | 'queued';
   eventSaved: boolean;
+  /** Ekleme çevrimiçi hemen gönderildiyse yeni kaydın kimliği; kuyrukta ya da güncellemede yoktur. */
+  createdId?: string | null;
 }
 
 export interface SyncReport {
@@ -120,15 +122,15 @@ function enqueueOperation(userId: string, op: SubscriptionOperation): Promise<vo
 }
 
 /** Çevrimiçi tek yazım. Yazım hatası fırlar; olay hatası sonucu `false` yapar. */
-async function executeOnline(userId: string, op: SubscriptionOperation): Promise<boolean> {
+async function executeOnline(userId: string, op: SubscriptionOperation): Promise<{ eventSaved: boolean; createdId: string | null }> {
   if (op.kind === 'create') {
-    await createSubscription(op.payload);
-    return true;
+    const createdId = await createSubscription(op.payload);
+    return { eventSaved: true, createdId };
   }
   await updateSubscription(op.payload);
   const event = await secondaryStep(userId, 'event', op);
   const savings = await secondaryStep(userId, 'savings', op);
-  return event === 'ok' && savings === 'ok';
+  return { eventSaved: event === 'ok' && savings === 'ok', createdId: null };
 }
 
 /**
@@ -142,8 +144,8 @@ export async function submitOperation(userId: string, op: SubscriptionOperation)
 
   if (online && !queued) {
     try {
-      const eventSaved = await executeOnline(userId, op);
-      return { status: 'sent', eventSaved };
+      const { eventSaved, createdId } = await executeOnline(userId, op);
+      return { status: 'sent', eventSaved, createdId };
     } catch (error) {
       if (!(error instanceof DataWriteError && error.retryable)) throw error;
     }

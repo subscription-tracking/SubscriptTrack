@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
-import { spacing, screenGutter } from '../../../shared/design/tokens';
+import { spacing } from '../../../shared/design/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -8,7 +8,7 @@ import { AmbientBackground } from '../../../shared/widgets/AmbientBackground';
 import { BrandMark } from '../../../shared/widgets/BrandMark';
 import { EntranceFade } from '../../../shared/widgets/EntranceFade';
 import { GlowOrb } from '../../../shared/widgets/GlowOrb';
-import { colors } from '../../../shared/design/tokens';
+import { colors, extraSpacing as authSpacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { Spacer } from '../../../shared/widgets/Spacer';
 
@@ -44,15 +44,15 @@ export function AuthHeader({ icon, title, subtitle }: { icon: MaterialIconName; 
   return (
     <>
       <BrandMark />
-      <Spacer size={spacing.xxl} />
+      <Spacer size={authSpacing.brandToOrb} />
       <EntranceFade>
         <GlowOrb icon={icon} color={colors.primary} />
       </EntranceFade>
       <Spacer size={spacing.xl} />
       <EntranceFade>
-        <Text style={textStyle('headline')}>{title}</Text>
+        <Text style={textStyle('headlineStrong')}>{title}</Text>
       </EntranceFade>
-      <Spacer size={spacing.xs} />
+      <Spacer size={authSpacing.titleToSubtitle} />
       <EntranceFade delay={60}>
         <Text style={textStyle('body', { color: colors.onSurfaceVariant })}>{subtitle}</Text>
       </EntranceFade>
@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingHorizontal: screenGutter,
+    // Flutter AuthPageScaffold: yatay ve dikey 24 (uygulama ekranlarındaki 20 değil).
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
 });

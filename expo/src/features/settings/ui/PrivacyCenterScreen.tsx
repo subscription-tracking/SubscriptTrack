@@ -1,48 +1,44 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { type Href, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
-import { Spacer } from '../../../shared/widgets/Spacer';
+import { ListRow } from './SettingsControls';
 
 /**
- * Gizlilik merkezi: verinin nerede tutulduğunu anlatır, yasal sayfalara ve uygulama kilidine bağlar.
- * Veri dışa aktarma ve hesap silme bu ekrana Aşama 6 / S8'de eklenecek.
+ * Gizlilik ve veri merkezi (Flutter `PrivacyCenterScreen`): "Verilerin kontrolü sende" açıklaması ve yasal
+ * sayfalar, dışa aktarma ve hesap silme satırları. Hesap silme kırmızı tonla gösterilir.
  */
 export function PrivacyCenterScreen() {
   const router = useRouter();
   return (
     <View style={styles.screen}>
-      <ScreenTopBar title="Gizlilik merkezi" />
+      <ScreenTopBar title="Gizlilik ve veri merkezi" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
-          <Text style={textStyle('titleSmall')}>Verilerin</Text>
-          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-            Abonelik kayıtların ve ödemelerin hesabına bağlı olarak sunucuda saklanır ve yalnızca sen erişebilirsin. Bildirimler cihazında zamanlanır; uzak bildirim gönderimi yoktur.
-          </Text>
-          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-            Oturum bilgilerin ve uygulama kilidi PIN özetin cihazın güvenli deposunda tutulur.
+          <Text style={textStyle('cardTitle')}>Verilerin kontrolü sende</Text>
+          <Text style={textStyle('bodySmall', { marginTop: spacing.sm })}>
+            Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Bu bilgilere yalnızca sen erişebilirsin.
           </Text>
         </View>
-
-        <Spacer size={spacing.md} />
-        <View style={styles.card}>
-          <Text style={textStyle('titleSmall')}>Bağlantılar</Text>
-          <OutlinedButton label="Uygulama kilidi" onPress={() => router.push('/settings/app-lock' as Href)} />
-          <OutlinedButton label="Verileri dışa aktar" onPress={() => router.push('/settings/export' as Href)} />
-          <OutlinedButton label="Gizlilik politikası" onPress={() => router.push('/legal/privacy' as Href)} />
-          <OutlinedButton label="Kullanım koşulları" onPress={() => router.push('/legal/terms' as Href)} />
-        </View>
-
-        <Spacer size={spacing.md} />
-        <View style={styles.card}>
-          <Text style={textStyle('titleSmall', { color: colors.error })}>Hesap</Text>
-          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Hesabını ve tüm verilerini kalıcı olarak silebilirsin.</Text>
-          <OutlinedButton label="Hesabı sil" onPress={() => router.push('/settings/delete-account' as Href)} />
-        </View>
-        <Spacer size={sizes.bottomNavHeight} />
+        <View style={styles.gap} />
+        <ListRow icon="policy" label="Gizlilik Politikası" onPress={() => router.push('/legal/privacy')} />
+        <ListRow icon="gavel" label="Kullanım Şartları" onPress={() => router.push('/legal/terms')} />
+        <ListRow
+          icon="download"
+          label="Verilerimi dışa aktar"
+          subtitle="CSV olarak paylaş veya panoya kopyala"
+          onPress={() => router.push('/settings/export')}
+        />
+        <ListRow
+          icon="delete-forever"
+          label="Hesabımı ve verilerimi sil"
+          subtitle="Bu işlem geri alınamaz"
+          tone={colors.error}
+          onPress={() => router.push('/settings/delete-account')}
+        />
+        <View style={styles.bottom} />
       </ScrollView>
     </View>
   );
@@ -52,17 +48,22 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
   content: {
-    paddingHorizontal: screenGutter,
+    padding: spacing.lg,
+    paddingBottom: sizes.bottomNavHeight,
   },
   card: {
     padding: spacing.md,
     borderRadius: radius.medium,
+    borderWidth: borderWidth.statsEdge,
+    borderColor: withAlpha(colors.outline, 0.5),
     backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-    gap: spacing.sm,
+  },
+  gap: {
+    height: spacing.xs,
+  },
+  bottom: {
+    height: spacing.lg,
   },
 });

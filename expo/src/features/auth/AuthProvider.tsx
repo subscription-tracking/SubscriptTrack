@@ -15,6 +15,8 @@ interface AuthContextValue extends SessionState {
   signOut: () => Promise<void>;
   sendPasswordResetEmail: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  updateDisplayName: (name: string) => Promise<void>;
+  updateEmail: (email: string) => Promise<void>;
   exchangeCodeForSession: (code: string) => Promise<void>;
 }
 
@@ -42,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut: () => authRepository.signOut(),
       sendPasswordResetEmail: (email) => authRepository.sendPasswordResetEmail(email),
       updatePassword: (newPassword) => authRepository.updatePassword(newPassword),
+      updateDisplayName: (name) => authRepository.updateDisplayName(name),
+      updateEmail: (email) => authRepository.updateEmail(email),
       exchangeCodeForSession: async (code) => {
         await authRepository.exchangeCodeForSession(code);
       },

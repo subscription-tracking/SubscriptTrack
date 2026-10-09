@@ -63,6 +63,7 @@ export function NotificationSync() {
   const data = subscriptions.data;
   const enabled = prefs.data?.enabled ?? true;
   const defaultDays = prefs.data?.defaultDays ?? 3;
+  const reminderHour = prefs.data?.reminderHour ?? 9;
   const granted = permission.data === 'granted';
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export function NotificationSync() {
     }
     if (!granted) return;
     const planned = planReminders({
+      hour: reminderHour,
       active: activeForTotals(data, today),
       trials: trialsByEnd(data),
       defaultDays,

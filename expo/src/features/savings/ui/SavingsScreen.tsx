@@ -1,27 +1,28 @@
 import { useMemo } from 'react';
-import { type Href, useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useAuth } from '../../auth/AuthProvider';
+import { Money } from '../../../core/domain/money';
 import { formatCurrency } from '../../../core/format/money';
-import { formatLongDate } from '../../../core/format/date';
+import { formatRelativeDate } from '../../../core/format/date';
 import { type CivilDate, civilDate, deviceTimeZone, zoneToday } from '../../../core/time/calendar';
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { Spacer } from '../../../shared/widgets/Spacer';
+import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
-import { activeForTotals } from '../../dashboard/domain/dashboardSummary';
-import { type Subscription } from '../../subscriptions/domain/subscription';
+import { activeForTotals } from '../../subscriptions/domain/activeSelectors';
+import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
 import { useSavingsQuery } from '../data/queries';
-import { savingsTotalsByCurrency, potentialSavings, type SavingsEvent } from '../domain/savingsSummary';
+import { type SavingsEvent } from '../domain/savingsSummary';
+import { SavingsRow } from './SavingsRow';
 
-const OPPORTUNITY_PREVIEW = 5;
-
-/** Tasarruf analizi: toplam yıllık tasarruf, olası fırsatlar ve iptal/duraklatma geçmişi. */
+/**
+ * Tasarruf analizi (Flutter `SavingsScreen`): her para birimi için en yüksek tutarlı üç aboneliğin iptal
+ * senaryosu kartı, tüm aktif aboneliklerin olası yıllık tasarrufu ve duraklatma/iptal geçmişi.
+ */
 export function SavingsScreen() {
-  const router = useRouter();
   const { user } = useAuth();
   const subscriptions = useSubscriptionsQuery(user?.id);
   const savings = useSavingsQuery(user?.id);
@@ -46,110 +47,88 @@ export function SavingsScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
-        </Pressable>
-        <Text style={textStyle('title')}>Tasarruf analizi</Text>
-      </View>
-      <Spacer size={spacing.md} />
+      <ScreenTopBar title="Tasarruf analizi" />
       <AsyncStateView state={state}>
-        {(data) => (
-          <SavingsBody
-            subscriptions={data.subscriptions}
-            events={data.savings}
-            today={today}
-            onOpenSubscription={(id) => router.push(`/subscriptions/${id}` as Href)}
-          />
-        )}
+        {(data) => <SavingsBody subscriptions={data.subscriptions} events={data.savings} today={today} />}
       </AsyncStateView>
     </View>
   );
 }
 
-function SavingsBody({
-  subscriptions,
-  events,
-  today,
-  onOpenSubscription,
-}: {
-  subscriptions: Subscription[];
-  events: SavingsEvent[];
-  today: CivilDate;
-  onOpenSubscription: (id: string) => void;
-}) {
-  const names = useMemo(() => new Map(subscriptions.map((item) => [item.id, item.name])), [subscriptions]);
-  const totals = useMemo(() => savingsTotalsByCurrency(events), [events]);
-  const opportunities = useMemo(() => potentialSavings(activeForTotals(subscriptions, today)), [subscriptions, today]);
+/** Bir para biriminde en yüksek aylık tutarlı en çok üç abonelik (Flutter `_Top3Card` girdisi). */
+function topThree(active: readonly Subscription[]): Map<string, Subscription[]> {
+  const byCurrency = new Map<string, Subscription[]>();
+  for (const subscription of active) {
+    byCurrency.set(subscription.currency, [...(byCurrency.get(subscription.currency) ?? []), subscription]);
+  }
+  for (const [currency, items] of byCurrency) {
+    byCurrency.set(
+      currency,
+      [...items].sort((a, b) => monthlyEquivalent(b).minorUnits - monthlyEquivalent(a).minorUnits).slice(0, 3),
+    );
+  }
+  return byCurrency;
+}
 
-  if (events.length === 0 && opportunities.length === 0) {
+/** Başlık: kayıt sayısına ve birden çok para birimi olup olmamasına göre (Flutter `_headline`). */
+function headline(count: number, currency: string, showCurrency: boolean): string {
+  if (count === 1) {
+    return showCurrency ? `${currency} aboneliğini iptal edersen` : 'Aboneliğini iptal edersen';
+  }
+  const unit = showCurrency ? `${currency} ` : '';
+  return `En yüksek tutarlı ${count} ${unit}aboneliğini iptal edersen`;
+}
+
+function SavingsBody({ subscriptions, events, today }: { subscriptions: Subscription[]; events: SavingsEvent[]; today: CivilDate }) {
+  const active = activeForTotals(subscriptions, today);
+  const groups = useMemo(() => topThree(active), [active]);
+  const showCurrency = groups.size > 1;
+
+  if (active.length === 0) {
     return (
-      <View style={styles.emptyWrap}>
-        <Text style={textStyle('title')}>Henüz tasarruf görünmüyor</Text>
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-          Duraklattığın ya da iptal ettiğin abonelikler burada tasarruf olarak görünür.
-        </Text>
+      <View style={styles.empty}>
+        <Text style={textStyle('body', { color: colors.onSurfaceVariant, textAlign: 'center' })}>Henüz abonelik yok.</Text>
       </View>
     );
   }
 
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.card}>
-        <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Kaydedilen yıllık tasarruf</Text>
-        {totals.size === 0 ? (
-          <Text style={textStyle('titleSmall', { color: colors.onSurfaceVariant })}>Henüz yok</Text>
-        ) : (
-          [...totals.entries()].map(([currency, money]) => (
-            <Text key={currency} style={textStyle('title')}>
-              {formatCurrency(money, currency)}
+      {[...groups.entries()].map(([currency, items]) => {
+        const monthly = items.reduce((sum: Money, item) => sum.add(monthlyEquivalent(item)), Money.zero);
+        const yearly = monthly.multiply(12);
+        return (
+          <View key={currency} style={styles.topCard}>
+            <Text style={textStyle('titleSmall', { color: colors.onPrimaryContainer })}>{headline(items.length, currency, showCurrency)}</Text>
+            <Text style={textStyle('headlineSmall', { color: colors.onPrimaryContainer, marginTop: spacing.sm })}>
+              {`${formatCurrency(yearly, currency)}/yıl tasarruf`}
             </Text>
-          ))
-        )}
-        <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-          Duraklatma ve iptal anındaki aylık tutar × 12 olarak hesaplanır.
-        </Text>
-      </View>
+            <Text style={textStyle('bodySmall', { color: colors.onPrimaryContainer })}>{`${formatCurrency(monthly, currency)}/ay`}</Text>
+          </View>
+        );
+      })}
 
-      {opportunities.length > 0 ? (
-        <View style={styles.section}>
-          <Text style={textStyle('titleSmall')}>Tasarruf fırsatları</Text>
-          {opportunities.slice(0, OPPORTUNITY_PREVIEW).map(({ subscription, annual }) => (
-            <Pressable
-              key={subscription.id}
-              accessibilityRole="button"
-              onPress={() => onOpenSubscription(subscription.id)}
-              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-            >
-              <View style={styles.rowText}>
-                <Text style={textStyle('titleSmall')}>{subscription.name}</Text>
-                <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Olası yıllık maliyet</Text>
-              </View>
-              <Text style={textStyle('titleSmall', { color: colors.primary })}>{formatCurrency(annual, subscription.currency)}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
+      <Text style={textStyle('titleSmall', { marginTop: gaps.sectionInner - 2 })}>Tasarruf fırsatları</Text>
+      {active.map((subscription) => (
+        <SavingsRow key={subscription.id} subscription={subscription} />
+      ))}
 
       {events.length > 0 ? (
-        <View style={styles.section}>
-          <Text style={textStyle('titleSmall')}>Duraklatma ve iptal geçmişi</Text>
+        <>
+          <Text style={textStyle('titleSmall', { marginTop: gaps.rowLoose + spacing.xs - 2 })}>İptal ve duraklatma geçmişi</Text>
           {events.map((event, index) => (
-            <View key={`${event.effectiveAt}-${index}`} style={styles.row}>
-              <View style={styles.rowText}>
-                <Text style={textStyle('titleSmall')}>
-                  {event.subscriptionId ? (names.get(event.subscriptionId) ?? 'Silinmiş abonelik') : 'Abonelik'}
-                </Text>
-                <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-                  {event.eventType === 'PAUSED' ? 'Duraklatıldı' : 'İptal edildi'} · {formatLongDate(localCivil(event.effectiveAt))}
-                </Text>
+            <View key={`${event.effectiveAt}-${index}`} style={styles.historyRow}>
+              <MaterialIcons name="trending-down" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
+              <View style={styles.historyText}>
+                <Text style={textStyle('body')}>{event.eventType === 'PAUSED' ? 'Abonelik duraklatıldı' : 'Abonelik iptal edildi'}</Text>
+                <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{formatRelativeDate(localCivil(event.effectiveAt), today)}</Text>
               </View>
-              <Text style={textStyle('titleSmall', { color: colors.primary })}>{formatCurrency(event.annual, event.currency)}</Text>
+              <Text style={textStyle('bodySmallStrong')}>{`${formatCurrency(event.annual, event.currency)}/yıl`}</Text>
             </View>
           ))}
-        </View>
+        </>
       ) : null}
-      <Spacer size={sizes.bottomNavHeight} />
+      <View style={styles.bottom} />
     </ScrollView>
   );
 }
@@ -163,55 +142,40 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: screenGutter - 8,
-    height: sizes.minTouchTarget,
-  },
-  backButton: {
-    width: sizes.minTouchTarget,
-    height: sizes.minTouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   content: {
-    paddingHorizontal: screenGutter,
-    gap: spacing.md,
+    padding: spacing.lg,
   },
-  emptyWrap: {
-    paddingHorizontal: screenGutter,
-    gap: spacing.sm,
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
   },
-  card: {
-    padding: spacing.md,
+  topCard: {
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-    gap: spacing.xs,
+    borderWidth: borderWidth.hairline,
+    borderColor: colors.outlineHalf,
+    backgroundColor: colors.primaryContainer,
   },
-  section: {
-    gap: spacing.xs,
-  },
-  row: {
+  historyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.md,
+    marginTop: spacing.xs,
+    paddingHorizontal: gaps.cardInset,
+    paddingVertical: spacing.sm,
     borderRadius: radius.medium,
+    borderWidth: borderWidth.hairline,
+    borderColor: colors.outlineHalf,
     backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
   },
-  rowText: {
+  historyText: {
     flex: 1,
-    gap: spacing.xxs,
+    marginLeft: spacing.md,
   },
-  pressed: {
-    opacity: 0.85,
+  bottom: {
+    height: sizes.bottomNavHeight,
   },
 });

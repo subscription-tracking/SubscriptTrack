@@ -1,37 +1,43 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useQueryClient } from '@tanstack/react-query';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { deviceTimeZone, zoneToday, type CivilDate } from '../../../core/time/calendar';
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
-import { textStyle } from '../../../shared/design/typography';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { codeText, textButtonText, textStyle } from '../../../shared/design/typography';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
-import { Spacer } from '../../../shared/widgets/Spacer';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
-import { importSubscriptionRows, type ImportOutcome } from '../data/csvImport';
+import { importSubscriptionRows } from '../data/csvImport';
 import { subscriptionKeys } from '../data/queries';
-import { CSV_TEMPLATE, parseSubscriptionCsv, type ParseResult, MAX_IMPORT_ROWS } from '../domain/csvImportParser';
+import { parseSubscriptionCsv, type ParseResult } from '../domain/csvImportParser';
+import { BILLING_CYCLE_LABELS } from '../domain/subscription';
 
-const SHOW_ERRORS = 8;
+/** Flutter `_csvTemplate`: parser'ın gerçekte beklediği başlıklar. Dışa aktarma dosyasının başlıkları değildir. */
+const CSV_EXAMPLE =
+  'name,amount,currency,billing_cycle,next_renewal_date,category,status,notes,payment_method,trial_end_date,trial_price_after\n' +
+  'Netflix,149.99,TRY,monthly,2026-10-16,streaming,active,,,,';
 
-/** CSV içe aktarma: dosyayı seç, önizle, geçerli satırları oluştur. İçe aktarma çevrimiçi yapılır. */
+/**
+ * CSV içe aktarma (Flutter `CsvImportScreen`): dosya seç, örnek formatı gör, geçerli satırları listele,
+ * içe aktar. İçe aktarma çevrimiçi yapılır; bitince bir önceki ekrana dönülür.
+ */
 export function CsvImportScreen() {
+  const router = useRouter();
   const { user } = useAuth();
   const online = useOnlineStatus();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
   const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
-  const [fileName, setFileName] = useState<string | null>(null);
   const [parsed, setParsed] = useState<ParseResult | null>(null);
   const [busy, setBusy] = useState(false);
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [outcome, setOutcome] = useState<ImportOutcome | null>(null);
+  const [exampleOpen, setExampleOpen] = useState(false);
 
   async function pick() {
     try {
@@ -40,10 +46,7 @@ export function CsvImportScreen() {
         copyToCacheDirectory: true,
       });
       if (result.canceled || result.assets.length === 0) return;
-      const asset = result.assets[0];
-      const text = await new File(asset.uri).text();
-      setFileName(asset.name);
-      setOutcome(null);
+      const text = await new File(result.assets[0].uri).text();
       setParsed(parseSubscriptionCsv(text));
     } catch {
       snackbar.show('Dosya okunamadı. Farklı bir dosya dene.', 'error');
@@ -58,90 +61,90 @@ export function CsvImportScreen() {
     }
     setBusy(true);
     try {
-      const result = await importSubscriptionRows(user.id, parsed.rows, today, (done, total) => setProgress({ done, total }));
-      setOutcome(result);
+      const outcome = await importSubscriptionRows(user.id, parsed.rows, today, () => undefined);
       await queryClient.invalidateQueries({ queryKey: subscriptionKeys.all(user.id) });
-      snackbar.show(`${result.created} abonelik eklendi.`, result.failures.length ? 'default' : 'primary');
+      snackbar.show(`${outcome.created} abonelik içe aktarıldı.`, 'primary');
+      router.back();
     } catch (error) {
       snackbar.show(error instanceof Error ? error.message : 'İçe aktarılamadı.', 'error');
     } finally {
       setBusy(false);
-      setProgress(null);
     }
   }
 
   return (
     <View style={styles.screen}>
       <ScreenTopBar title="CSV içe aktar" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.card}>
-          <Text style={textStyle('titleSmall')}>Dosya biçimi</Text>
-          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-            Zorunlu sütunlar: name, amount, currency, billing_cycle, next_renewal_date, category. En fazla {MAX_IMPORT_ROWS} satır.
-            Tarih YYYY-AA-GG biçiminde olmalı.
-          </Text>
-          <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{CSV_TEMPLATE}</Text>
-        </View>
-
-        <Spacer size={spacing.md} />
-        <OutlinedButton label={fileName ? 'Başka dosya seç' : 'Dosya seç'} onPress={() => void pick()} />
-
-        {parsed ? (
-          <>
-            <Spacer size={spacing.md} />
-            <View style={styles.card}>
-              <Text style={textStyle('titleSmall')}>{fileName}</Text>
-              <Text style={textStyle('bodySmall')}>
-                {parsed.rows.length} satır içe aktarılabilir · {parsed.errors.length} satır atlanacak
-              </Text>
-              {parsed.errors.slice(0, SHOW_ERRORS).map((line) => (
-                <Text key={line} style={textStyle('caption', { color: colors.error })}>
-                  {line}
+      <View style={styles.body}>
+        {parsed === null ? (
+          <View style={styles.start}>
+            <PrimaryButton label="CSV dosyası seç" icon="upload-file" tall={false} onPress={() => void pick()} />
+            <View style={styles.gapSmall} />
+            <Pressable accessibilityRole="button" onPress={() => setExampleOpen(true)} style={styles.textButton}>
+              <MaterialIcons name="description" size={sizes.linkIcon} color={colors.primary} />
+              <Text style={[textButtonText, styles.textButtonLabel]}>Örnek format nasıl olmalı?</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+            <Text style={textStyle('titleSmall')}>{`${parsed.rows.length} geçerli kayıt`}</Text>
+            {parsed.errors.length > 0 ? (
+              <View style={styles.errors}>
+                <Text style={textStyle('bodySmall', { color: colors.error })}>{`${parsed.errors.length} satır aktarılmadı`}</Text>
+                {parsed.errors.map((line) => (
+                  <Text key={line} style={textStyle('caption')}>
+                    {line}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
+            <View style={styles.gapRows} />
+            {parsed.rows.map((row, index) => (
+              <View key={`${index}-${row.name}`} style={styles.row}>
+                <Text style={textStyle('body')}>{row.name}</Text>
+                <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
+                  {`${row.amount.amount} ${row.currency} · ${BILLING_CYCLE_LABELS[row.billingCycle]}`}
                 </Text>
-              ))}
-              {parsed.errors.length > SHOW_ERRORS ? (
-                <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-                  ve {parsed.errors.length - SHOW_ERRORS} hata daha
-                </Text>
-              ) : null}
-            </View>
-          </>
-        ) : null}
-
-        {parsed && parsed.rows.length > 0 ? (
-          <>
-            <Spacer size={spacing.md} />
-            {!online ? <Text style={textStyle('caption', { color: colors.error })}>İçe aktarma için internet bağlantısı gerekir.</Text> : null}
+              </View>
+            ))}
+            <View style={styles.gapRows} />
             <PrimaryButton
-              label={busy && progress ? `Ekleniyor ${progress.done}/${progress.total}` : `${parsed.rows.length} aboneliği içe aktar`}
-              onPress={() => void runImport()}
+              label={busy ? 'İçe aktarılıyor...' : 'Geçerli kayıtları içe aktar'}
+              tall={false}
               loading={busy}
-              disabled={!online || busy}
+              disabled={!online || busy || parsed.rows.length === 0}
+              onPress={() => void runImport()}
             />
-          </>
-        ) : null}
+            {!online ? (
+              <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>İçe aktarma için internet bağlantısı gerekir.</Text>
+            ) : null}
+            <Pressable accessibilityRole="button" disabled={busy} onPress={() => void pick()} style={styles.textButton}>
+              <Text style={[textButtonText, styles.textButtonLabel]}>Başka dosya seç</Text>
+            </Pressable>
+          </ScrollView>
+        )}
+      </View>
 
-        {outcome ? (
-          <>
-            <Spacer size={spacing.md} />
-            <View style={styles.card}>
-              <Text style={textStyle('titleSmall')}>Sonuç</Text>
-              <Text style={textStyle('bodySmall')}>{outcome.created} abonelik eklendi.</Text>
-              {outcome.failures.map((failure) => (
-                <Text key={`${failure.line}-${failure.name}`} style={textStyle('caption', { color: colors.error })}>
-                  Satır {failure.line} ({failure.name}): {failure.message}
-                </Text>
-              ))}
-              {outcome.warnings.map((warning) => (
-                <Text key={warning} style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-                  {warning}
-                </Text>
-              ))}
+      <Modal visible={exampleOpen} transparent animationType="fade" onRequestClose={() => setExampleOpen(false)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={styles.backdrop} onPress={() => setExampleOpen(false)}>
+          <View style={styles.dialog}>
+            <Text style={textStyle('title')}>Örnek CSV formatı</Text>
+            <Text style={textStyle('bodySmall', { marginTop: gaps.rowLoose - 2 })}>
+              Gerekli sütunlar: name, amount, currency, billing_cycle, next_renewal_date (YYYY-AA-GG), category. Diğer sütunlar dışa aktarılan dosyadaki isteğe bağlı alanlardır.
+            </Text>
+            <View style={styles.codeBox}>
+              <Text selectable style={codeText}>
+                {CSV_EXAMPLE}
+              </Text>
             </View>
-          </>
-        ) : null}
-        <Spacer size={sizes.bottomNavHeight} />
-      </ScrollView>
+            <View style={styles.dialogActions}>
+              <Pressable accessibilityRole="button" onPress={() => setExampleOpen(false)} style={styles.dialogButton}>
+                <Text style={textStyle('button', { color: colors.onPrimary })}>Kapat</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -150,17 +153,72 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
-  content: {
-    paddingHorizontal: screenGutter,
+  body: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
-  card: {
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
+  start: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gapSmall: {
+    height: gaps.rowLoose - 2,
+  },
+  textButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: sizes.minTouchTarget,
+    paddingHorizontal: spacing.sm,
+  },
+  textButtonLabel: {
+    marginLeft: spacing.xs,
+  },
+  list: {
+    paddingBottom: sizes.bottomNavHeight + spacing.xl,
+  },
+  errors: {
+    marginTop: gaps.rowLoose - 2,
+    gap: spacing.xxs,
+  },
+  gapRows: {
+    height: gaps.cardInset,
+  },
+  row: {
+    paddingVertical: spacing.xs,
+    borderBottomWidth: borderWidth.hairline,
+    borderBottomColor: colors.border,
+  },
+  backdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: spacing.xl,
+    backgroundColor: withAlpha(colors.scrim, 0.54),
+  },
+  dialog: {
+    padding: spacing.lg,
+    borderRadius: radius.sheet,
+    backgroundColor: colors.surfaceHigh,
     gap: spacing.xs,
+  },
+  codeBox: {
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radius.field - 4,
+    backgroundColor: colors.surfaceContainerHighest,
+  },
+  dialogActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: spacing.md,
+  },
+  dialogButton: {
+    minHeight: sizes.minTouchTarget,
+    paddingHorizontal: spacing.md,
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
   },
 });

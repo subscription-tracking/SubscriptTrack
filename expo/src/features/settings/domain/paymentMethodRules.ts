@@ -23,3 +23,11 @@ export function addPaymentMethod(methods: readonly string[], raw: string): AddMe
 export function removePaymentMethod(methods: readonly string[], name: string): string[] {
   return methods.filter((method) => method !== name);
 }
+
+/** Flutter `renamePaymentMethod`: adın kendisi hariç aynı kurallarla (boş, uzunluk, benzersizlik) doğrular. */
+export function renamePaymentMethod(methods: readonly string[], oldName: string, raw: string): AddMethodResult {
+  const result = addPaymentMethod(removePaymentMethod(methods, oldName), raw);
+  if (!result.ok) return result;
+  const name = result.methods[result.methods.length - 1];
+  return { ok: true, methods: methods.map((method) => (method === oldName ? name : method)) };
+}

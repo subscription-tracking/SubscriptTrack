@@ -81,6 +81,7 @@ Geçişlerin tamamı `subscription_events` ile kaydedilir.
 - `archived_at`: Kaydın ana listeden kaldırıldığı zaman
 - Fiziksel silme: Yanlış oluşturulmuş kayıt veya yasal veri silme dışında normal kullanıcı akışı değildir
 - **Uygulama durumu (2026-09-30, çelişki):** Uygulama, detay ekranı ve liste çoklu seçiminde herhangi bir abonelik için "Kalıcı olarak sil" seçeneği sunar; bu kural ile uyuşmaz ([MOBILE.md §6](../architecture/MOBILE.md)). Karar bekliyor.
+- **Expo güncellemesi (2026-10-10):** Kalıcı silme yalnızca Expo'da Abonelikler → Arşiv ekranından yapılır; arşivlenmemiş bir kayıt silinemez. Silme onay diyaloğu ister ve çevrimdışıyken yapılmaz. ADR 0006 hâlâ "arşiv, silme değil" diyor; karar kaydının bu istisnayı yansıtacak şekilde güncellenmesi gerekiyor.
 
 ## 5. Para kuralları
 

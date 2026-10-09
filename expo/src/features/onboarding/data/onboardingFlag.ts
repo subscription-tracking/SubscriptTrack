@@ -45,3 +45,13 @@ export function useOnboardingFlag(): { ready: boolean; done: boolean; markDone: 
 
   return { ready: state.ready, done: state.done, markDone: markOnboardingDone };
 }
+
+/**
+ * Tanıtımı yeniden başlatır (Flutter `restartOnboarding`). Bayrak sıfırlanır ve dinleyiciler haberdar edilir;
+ * tanıtım bir sonraki açılışta yeniden gösterilir.
+ */
+export async function resetOnboardingDone(): Promise<void> {
+  await writeJson(KEY, false);
+  cached = false;
+  listeners.forEach((listener) => listener(false));
+}

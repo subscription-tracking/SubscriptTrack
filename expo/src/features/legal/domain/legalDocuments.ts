@@ -45,11 +45,11 @@ export const PRIVACY_POLICY: LegalDocument = {
     },
     {
       title: 'Hakların (KVKK)',
-      body: '6698 sayılı KVKK kapsamında verilerine erişme, düzeltme ve silme hakkına sahipsin. Verilerini istediğin an Ayarlar → Gizlilik merkezi → "Verileri dışa aktar" ile indirebilir, "Hesabı sil" ile hesabınla birlikte kalıcı olarak silebilirsin.',
+      body: '6698 sayılı KVKK kapsamında verilerine erişme, düzeltme ve silme hakkına sahipsin. Verilerini istediğin an Ayarlar → Gizlilik ve veri merkezi → "Verilerimi dışa aktar" ile indirebilir, "Hesabımı ve verilerimi sil" ile hesabınla birlikte kalıcı olarak silebilirsin.',
     },
     {
       title: 'İletişim',
-      body: 'Gizlilikle ilgili sorular için uygulama içindeki "Geri bildirim" ekranını kullanabilirsin.',
+      body: 'Gizlilikle ilgili sorular için uygulama içindeki "Geri bildirim gönder" ekranını kullanabilirsin.',
     },
   ],
 };
@@ -82,7 +82,7 @@ export const TERMS_OF_SERVICE: LegalDocument = {
     },
     {
       title: 'Hesap silme',
-      body: 'Ayarlar → Gizlilik merkezi → "Hesabı sil" üzerinden hesabını ve tüm verilerini kalıcı olarak silebilirsin. Bu işlem geri alınamaz.',
+      body: 'Ayarlar → Gizlilik ve veri merkezi → "Hesabımı ve verilerimi sil" üzerinden hesabını ve tüm verilerini kalıcı olarak silebilirsin. Bu işlem geri alınamaz.',
     },
     {
       title: 'Değişiklikler',

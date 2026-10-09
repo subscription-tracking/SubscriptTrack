@@ -27,8 +27,6 @@ const styles = StyleSheet.create({
   },
   label: {
     marginLeft: spacing.xs,
-    color: withAlpha(colors.onBackground, opacity.muted),
-    ...textStyle('label'),
-    letterSpacing: -0.2,
+    ...textStyle('brand', { color: withAlpha(colors.onBackground, opacity.muted), letterSpacing: -0.2 }),
   },
 });
