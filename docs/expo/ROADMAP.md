@@ -9,13 +9,14 @@
 - Her aşamanın testleri Flutter'daki karşılık gelen testlerden türetilir ([PARITY.md](PARITY.md)).
 - Ürün kararı gerektiren her madde, uygulamadan önce kullanıcıya sorulur ([AGENTS.md](../../AGENTS.md)).
 - Her aşama kapanırken ilgili belgeler (ARCHITECTURE, LIBRARIES, PARITY) aynı değişiklikte güncellenir.
+- Sayfa bazlı sprint planı [SPRINTS.md](SPRINTS.md) dosyasındadır; aşamalar ve kapılar burada, sprint sırası orada tutulur.
 
 ## Aşama özeti
 
 | # | Aşama | Kapsam | Durum |
 |---|---|---|---|
 | 0 | Temel | Tema, ortak bileşenler, Supabase client, env, Money ve tarih modülleri, test altyapısı | Kod tamam (cihaz doğrulaması yok; lint kurulmadı) |
-| 1 | Kimlik doğrulama | Giriş, kayıt, şifre sıfırlama, e-posta doğrulama, oturum, route guard | Planlı |
+| 1 | Kimlik doğrulama | Giriş, kayıt, şifre sıfırlama, e-posta doğrulama, oturum, route guard | Kod tamam (cihaz ve canlı Supabase doğrulaması yok) |
 | 2 | Abonelik çekirdeği | Liste, detay, form, durum yaşam döngüsü, arşiv, realtime, servis kataloğu | Planlı |
 | 3 | Offline | Cache, mutation kuyruğu, senkron koordinatörü, offline davranışı | Planlı |
 | 4 | Analitik | Dashboard, takvim, istatistik, ödeme geçmişi, tasarruf | Planlı |
@@ -182,6 +183,18 @@
 | 2026-10-09 | 0 | `expo/` iskeleti, Expo Router kurulumu ve boş iki ekran |
 | 2026-10-09 | 0 | Supabase istemcisi (aynı backend), `Money` ve takvim modülleri (Flutter kurallarından port), tema tokenları, `AsyncStateView` ve `OfflineBanner`; 38 test geçiyor, typecheck ve Android bundle hatasız |
 | 2026-10-09 | 0 | Karar verildi: fiziksel silme ve yenileme tarihi için ürün kuralı, bildirim için `expo-notifications` ([PARITY §4](PARITY.md), [ADR 0010](../decisions/0010-expo-parallel-app.md)) |
+| 2026-10-09 | 1 | Düzeltmeler: auth domain Supabase SDK tiplerinden ayrıldı, abonelik repository'ye taşındı, mimari testi eklendi (6 kural), disabled düğme yazı rengi Flutter ile eşlendi, route konumu `app/` olarak AGENTS.md'ye işlendi; 85 test, typecheck ve Android bundle hatasız |
+| 2026-10-09 | 10 | S10 kısmen: parite satırları güncellendi, ertele aksiyonu ve saat dilimi kontrolü eklendi, Android ve iOS paketleri derlendi (expo-doctor 21/21); cihaz kabulü ve bulut dışa aktarma bekliyor |
+| 2026-10-09 | 9 | S9 kod tamam: onboarding (3 sayfa, oturum öncesi kapı), yasal sayfalar (Flutter metni, taslak), CSV içe aktarma (Flutter kuralları, satır bazlı hata, çevrimiçi); 307 test, typecheck temiz. Yasal metin onayı ve cihaz doğrulaması bekliyor |
+| 2026-10-09 | 8 | S8 kod tamam: cihaz içi CSV dışa aktarma (11 alan, formül koruması), hesap silme (parola ve "sil" onayı, yakın giriş), geri bildirim ve destek kaydı, ödeme yöntemleri; 292 test, typecheck temiz. Bulut dışa aktarma canlıda RPC eksik; canlı hesap silme denenmedi |
+| 2026-10-09 | 7 | S7 kod tamam: ayarlar ana ekranı, profil (ad, soyad, para birimi, şifre değişimi), görünüm, uygulama kilidi (PIN, biyometri, kilit süresi, hatalı deneme beklemesi; arka plandan dönüşte kilit), gizlilik merkezi; 275 test, typecheck temiz. Cihaz doğrulaması ve PIN tur sayısı ölçümü bekliyor |
+| 2026-10-09 | 6 | S6 kod tamam: expo-notifications ile yerel hatırlatmalar (kural ve varsayılan gün, deneme 7/3/1, 09:00, farka dayalı eşitleme, 60 sınır), izin akışı, dokunmada deep link, bildirim merkezi (okunur), tercihler (yerel), ana sayfa rozeti; 263 test, typecheck temiz. Cihaz doğrulaması ve ertele/okundu eksik |
+| 2026-10-09 | 5 | S5 kod tamam: istatistik, ödeme geçmişi (ekleme/silme, çevrimiçi), tasarruf (toplam, fırsatlar, geçmiş), duraklatma ve iptalde tasarruf kaydı (kuyrukta üçüncü aşama), ana sayfada tasarruf kartı; 234 test, typecheck temiz. Üç seçenekli iptal ekranı ve ödeme düzenleme (tutar ve tarih) eklendi; 248 test |
+| 2026-10-09 | 4 | S4 kod tamam: ana sayfa (aylık/yıllık toplam para birimi bazlı, aktif/7 gün/deneme çipleri, deneme listesi, sıradaki ödeme, hızlı eylemler) ve takvim (pazartesi başlangıçlı ay ızgarası, yenileme ve deneme noktaları, gün detayı, ay toplamları); 219 test, typecheck temiz. Eşik kararı ve S5 öğeleri bekliyor |
+| 2026-10-09 | 3 | S3 kod tamam: şifreli cache (sunucu verisi, okuma yedeği), FIFO yazma kuyruğu (yazım ve olay aşamaları, geçici/kalıcı hata ayrımı), çevrimiçi olunca senkron, çevrimdışı şerit ve bekleyen yazım sayısı; 203 test, typecheck temiz. Cihazda uçak modu senaryosu bekliyor |
+| 2026-10-09 | 2 | S2 kod tamam: filtre sayfası (kategori, para birimi, sıralama, 7 gün), gecikmiş yenileme onayı (RENEWAL_ADVANCED), realtime senkron, servis önerileri (support-catalog + yedek liste); 183 test, typecheck temiz |
+| 2026-10-09 | 2 | S1 (abonelik yaşam döngüsü) kod tamam: düzenleme, durdur/devam/iptal/arşivle/arşivden çıkar, arşiv listesi, fiyat ve durum olay kaydı; bildirim kuralı koruma; 154 test, typecheck temiz |
+| 2026-10-09 | 1 | Auth kodu: PKCE + güvenli oturum deposu, AuthProvider, oturum yönlendirme kuralları (saf fonksiyon), giriş/kayıt/şifre sıfırlama/yeni şifre ekranları, `auth-callback` rotası; 74 test, typecheck ve Android bundle hatasız |
 
 Aşama 0 çıkış kriterlerinden durum:
 

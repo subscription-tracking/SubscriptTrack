@@ -64,9 +64,23 @@ npm run typecheck    # tsc --noEmit (strict)
 npx expo-doctor      # Expo bağımlılık ve yapılandırma denetimi
 ```
 
-Bu makinede doğrulanan durum: `npm test` 38 test geçiyor, `npm run typecheck` hatasız, `npx expo-doctor` 21/21 kontrol geçiyor, Android bundle `npx expo export --platform android` ile üretiliyor.
+Bu makinede doğrulanan durum: `npm test` 74 test geçiyor, `npm run typecheck` hatasız, `npx expo-doctor` 21/21 kontrol geçiyor, Android bundle `npx expo export --platform android` ile üretiliyor.
 
 Lint için Expo'nun ESLint yapılandırması henüz eklenmedi (Aşama 0 kapsamı dışında bırakıldı; ARCHITECTURE.md'de not edildi).
+
+## E-posta bağlantıları ve Expo Go
+
+Doğrulama ve şifre sıfırlama e-postalarındaki bağlantılar, uygulamanın çalıştığı ortama göre döner (`AUTH_REDIRECT_URL`, [authRepository.ts](../../expo/src/features/auth/data/authRepository.ts)):
+
+- Expo Go: `exp://<bilgisayar-ip>:8081/--/auth-callback`
+- Development build / release: `subscripttrack://auth-callback`
+
+Supabase bu adreslere yalnızca **Authentication → URL Configuration → Redirect URLs** listesindeki adreslere dönüş yapar. Adres listede yoksa bağlantı Site URL'ye (GitHub Pages ya da localhost) düşer ve uygulama açılmaz. Gerekli girişler:
+
+- `subscripttrack://auth-callback`
+- `exp://**` (Expo Go; IP değiştiği için joker kullanılır)
+
+Site URL alanı da bu uygulamaya ait bir adres olmalıdır. Bu ayarlar canlı projede panelden değiştirilir; kod tarafında ek değişiklik gerektirmez.
 
 ## Bilinen sınırlar
 

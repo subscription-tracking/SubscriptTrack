@@ -38,6 +38,20 @@ Hepsi `SECURITY DEFINER`; `auth.uid()` boşsa `42501 not authenticated` ile redd
 | `record_payment_idempotent` | Ödeme kaydı ekle (abonelik sahipliği doğrulanır) | `p_idempotency_key, p_subscription_id, p_amount, p_currency, p_paid_at` |
 | `request_export_idempotent` | Dışa aktarma işi oluştur | `p_idempotency_key` |
 
+**Expo istemcisi notları (S1, 2026-10-09):**
+
+- `update_subscription_idempotent` tüm alanları yazar; `p_notification_rules` null ise `[]` yazar. İstemci her güncellemede mevcut kuralları okuyup geri gönderir, aksi halde bildirim kuralları sıfırlanır.
+- RPC `subscription_events` satırı yazmaz. İstemci, güncellemeden sonra olay satırını kendi RLS yetkisiyle ekler (`own_subscription_events`). İki çağrı atomik değildir: olay yazımı başarısız olursa güncelleme geri alınmaz ve arayüz "geçmiş kaydı yazılamadı" uyarısı gösterir.
+- Olay tipleri: `PRICE_CHANGED` (tutar veya para birimi değişti; payload `from_amount, from_currency, to_amount, to_currency`) ve `STATUS_CHANGED` (payload `from_status, to_status`). `STATUS_CHANGED` Flutter'da henüz yazılmaz; Expo'da yeni kuraldır.
+- Tasarruf (S5): duraklatma (`PAUSED`) ve iptalde (`CANCELLED`) `savings_events` satırı yazılır: `monthly_amount` aylık eşdeğer, `annual_amount` × 12. Yazım kuyrukta üçüncü aşamadır; olay ve tasarruf birbirinden bağımsız yeniden denenir.
+- Dışa aktarma (S8): canlı veritabanında `request_export_idempotent` RPC'si yoktur (yalnızca repodaki migration 019'da); bu yüzden Expo sürümü bulut dışa aktarmayı kullanmaz, CSV'yi cihazda üretir ve paylaşır. Bulut yolu canlıya alınana kadar Expo'da kapalıdır.
+- İptal akışı (S5+): iptal tarihi ve varsa erişim bitişi `STATUS_CHANGED` olayının payload'ında (`cancelled_on`, `access_ends_on`) saklanır; `subscriptions` tablosunda bu kolonlar yoktur ([DOMAIN §4](../product/DOMAIN.md)).
+- Ödeme kaydı `record_payment_idempotent` ile yazılır; çevrimdışıyken kuyruğa alınmaz (kullanıcı girdisi olan tarih ve tutar sonradan yanlış dönemi yazabilir). Düzenleme (tutar ve tarih) ve silme doğrudan `payment_events` üzerinden RLS ile yapılır; para birimi değişmez.
+- Arşiv `status = 'archived'` ile yazılır. Liste `is_archived = true` olan kayıtları da arşiv sayar (Flutter modeliyle aynı).
+- Gecikmiş yenileme onayı (S2): `update_subscription_idempotent` ile `p_next_renewal_date` ilerletilir ve `RENEWAL_ADVANCED` olayı (`from_date, to_date`) yazılır. Yeni tarih bugün veya sonrasındaki ilk döngü tarihidir; faturalama günü ay sonu kırpmasından korunur.
+- Realtime: `subscriptions` tablosu `supabase_realtime` yayınındadır; istemci `user_id=eq.<id>` filtresiyle dinler ve olay gelince önbelleği geçersiz kılar.
+- Servis kataloğu: `support-catalog` GET (`services[]`) form önerilerinde kullanılır; hata veya boş yanıtta mobil yedek liste (`servicePresets.ts`) kullanılır.
+
 `replace_payment_methods(p_user_id, p_names)` yalnızca `service_role` içindir (Edge Function çağırır).
 
 ## 5. Edge Function'lar

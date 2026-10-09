@@ -24,11 +24,11 @@ Flutter dosyaları `mobile/lib/` altındadır. Rotalar [app_routes.dart](../../m
 
 | Ekran | Flutter dosyası | Flutter rotası | Önerilen Expo rotası | Aşama | Durum |
 |---|---|---|---|---|---|
-| Splash / oturum kontrolü | `app/splash_screen.dart` | `/splash` | `app/index.tsx` (oturum yönlendirmesi) | 1 | Planlı |
-| Giriş | `features/auth/presentation/screens/login_screen.dart` | `/login` | `app/(auth)/login.tsx` | 1 | Planlı |
-| Kayıt | `features/auth/presentation/screens/register_screen.dart` | `/register` | `app/(auth)/register.tsx` | 1 | Planlı |
-| Şifremi unuttum | `features/auth/presentation/screens/forgot_password_screen.dart` | `/forgot-password` | `app/(auth)/forgot-password.tsx` | 1 | Planlı |
-| Şifre sıfırlama | `features/auth/presentation/screens/reset_password_screen.dart` | `/reset-password` | `app/(auth)/reset-password.tsx` | 1 | Planlı |
+| Splash / oturum kontrolü | `app/splash_screen.dart` | `/splash` | `app/index.tsx` (oturum yönlendirmesi) | 1 | Kod tamam |
+| Giriş | `features/auth/presentation/screens/login_screen.dart` | `/login` | `app/(auth)/login.tsx` | 1 | Kod tamam |
+| Kayıt | `features/auth/presentation/screens/register_screen.dart` | `/register` | `app/(auth)/register.tsx` | 1 | Kod tamam |
+| Şifremi unuttum | `features/auth/presentation/screens/forgot_password_screen.dart` | `/forgot-password` | `app/(auth)/forgot-password.tsx` | 1 | Kod tamam |
+| Şifre sıfırlama | `features/auth/presentation/screens/reset_password_screen.dart` | `/reset-password` | `app/(auth)/reset-password.tsx` | 1 | Kod tamam |
 
 Not: E-posta doğrulama, Google ve Apple girişi Flutter'da **Kısmi**dir ([CURRENT_STATUS.md](../CURRENT_STATUS.md)). Expo'da da aynı kapsamla başlanır.
 
@@ -36,9 +36,9 @@ Not: E-posta doğrulama, Google ve Apple girişi Flutter'da **Kısmi**dir ([CURR
 
 | Ekran | Flutter dosyası | Flutter rotası | Önerilen Expo rotası | Aşama | Durum |
 |---|---|---|---|---|---|
-| Onboarding (4 sayfa) | `features/onboarding/presentation/screens/onboarding_screen.dart` | `/onboarding` | `app/(auth)/onboarding.tsx` | 6 | Planlı |
-| Gizlilik politikası | `features/settings/presentation/screens/privacy_policy_screen.dart` | `/legal/privacy` | `app/legal/privacy.tsx` | 6 | Planlı |
-| Kullanım koşulları | `features/settings/presentation/screens/terms_of_service_screen.dart` | `/legal/terms` | `app/legal/terms.tsx` | 6 | Planlı |
+| Onboarding (3 sayfa, Flutter ile aynı) | `features/onboarding/presentation/screens/onboarding_screen.dart` | `/onboarding` | `app/(auth)/onboarding.tsx` | 6 | Kod tamam (tamamlama bayrağı cihaz başına; oturum öncesi kapı) |
+| Gizlilik politikası | `features/settings/presentation/screens/privacy_policy_screen.dart` | `/legal/privacy` | `app/legal/privacy.tsx` | 6 | Kod tamam (Flutter metni taslak; yayın öncesi onay gerekir) |
+| Kullanım koşulları | `features/settings/presentation/screens/terms_of_service_screen.dart` | `/legal/terms` | `app/legal/terms.tsx` | 6 | Kod tamam (Flutter metni taslak; yayın öncesi onay gerekir) |
 
 Onboarding'de bildirim izni ilk saniyede istenmez; önce açıklayıcı ekran gösterilir ([USER_FLOWS.md §2, §13](../product/USER_FLOWS.md)).
 
@@ -46,43 +46,43 @@ Onboarding'de bildirim izni ilk saniyede istenmez; önce açıklayıcı ekran g�
 
 | Ekran | Flutter dosyası | Flutter rotası | Önerilen Expo rotası | Aşama | Durum |
 |---|---|---|---|---|---|
-| Ana sayfa (dashboard) | `features/dashboard/presentation/screens/dashboard_screen.dart` | `/home` | `app/(tabs)/index.tsx` | 4 | Planlı |
-| Abonelik listesi | `features/subscriptions/presentation/screens/subscription_list_screen.dart` | sekme | `app/(tabs)/subscriptions/index.tsx` | 2 | Planlı |
-| Takvim | `features/calendar/presentation/screens/calendar_screen.dart` | `/calendar` | `app/(tabs)/calendar.tsx` | 4 | Planlı |
-| İstatistikler | `features/stats/presentation/screens/stats_screen.dart` | `/stats` | `app/(tabs)/stats.tsx` | 4 | Planlı |
-| Ayarlar | `features/settings/presentation/screens/settings_screen.dart` | sekme | `app/(tabs)/settings/index.tsx` | 6 | Planlı |
+| Ana sayfa (dashboard) | `features/dashboard/presentation/screens/dashboard_screen.dart` | `/home` | `app/(tabs)/index.tsx` | 4 | Kod tamam (kategori donut ve aylık değişim ana sayfada yok; bildirim rozeti S6'da eklendi) |
+| Abonelik listesi | `features/subscriptions/presentation/screens/subscription_list_screen.dart` | sekme | `app/(tabs)/subscriptions/index.tsx` | 2 | Kod tamam |
+| Takvim | `features/calendar/presentation/screens/calendar_screen.dart` | `/calendar` | `app/(tabs)/calendar.tsx` | 4 | Kod tamam (yüksek tutarlı yıllık ayrımı eşik kararına bağlı) |
+| İstatistikler | `features/stats/presentation/screens/stats_screen.dart` | `/stats` | `app/(tabs)/stats.tsx` | 4 | Kod tamam |
+| Ayarlar | `features/settings/presentation/screens/settings_screen.dart` | sekme | `app/(tabs)/settings/index.tsx` | 6 | Kod tamam |
 
 ### 1.4 Abonelik ekranları
 
 | Ekran | Flutter dosyası | Flutter rotası | Önerilen Expo rotası | Aşama | Durum |
 |---|---|---|---|---|---|
-| Abonelik ekleme | `features/subscriptions/presentation/screens/add_subscription_screen.dart` | `/subscriptions/add` | `app/subscriptions/add.tsx` | 2 | Planlı |
-| Abonelik detayı | `features/subscriptions/presentation/screens/subscription_detail_screen.dart` | `/subscriptions/:id` | `app/subscriptions/[id]/index.tsx` | 2 | Planlı |
-| Abonelik düzenleme | `features/subscriptions/presentation/screens/edit_subscription_screen.dart` | `/subscriptions/:id/edit` | `app/subscriptions/[id]/edit.tsx` | 2 | Planlı |
-| Arşivlenmiş abonelikler | `features/subscriptions/presentation/screens/archived_subscriptions_screen.dart` | `/subscriptions/archived` | `app/subscriptions/archived.tsx` | 2 | Planlı |
-| CSV içe aktarma | `features/subscriptions/presentation/screens/csv_import_screen.dart` | `/subscriptions/import` | `app/subscriptions/import.tsx` | 6 | Planlı |
+| Abonelik ekleme | `features/subscriptions/presentation/screens/add_subscription_screen.dart` | `/subscriptions/add` | `app/subscriptions/add.tsx` | 2 | Kod tamam |
+| Abonelik detayı | `features/subscriptions/presentation/screens/subscription_detail_screen.dart` | `/subscriptions/:id` | `app/subscriptions/[id]/index.tsx` | 2 | Kod tamam |
+| Abonelik düzenleme | `features/subscriptions/presentation/screens/edit_subscription_screen.dart` | `/subscriptions/:id/edit` | `app/subscriptions/[id]/edit.tsx` | 2 | Kod tamam |
+| Arşivlenmiş abonelikler | `features/subscriptions/presentation/screens/archived_subscriptions_screen.dart` | `/subscriptions/archived` | `app/subscriptions/archived.tsx` | 2 | Kod tamam |
+| CSV içe aktarma | `features/subscriptions/presentation/screens/csv_import_screen.dart` | `/subscriptions/import` | `app/(app)/subscriptions/import.tsx` | 6 | Kod tamam (çevrimiçi; satır bazlı hata) |
 
 ### 1.5 Bildirimler, istatistik ve tasarruf
 
 | Ekran | Flutter dosyası | Flutter rotası | Önerilen Expo rotası | Aşama | Durum |
 |---|---|---|---|---|---|
-| Bildirim merkezi | `features/notifications/presentation/screens/notification_center_screen.dart` | `/notifications` | `app/notifications.tsx` | 5 | Planlı |
-| Ödeme geçmişi | `features/stats/presentation/screens/payment_history_screen.dart` | `/stats/payments` | `app/stats/payments.tsx` | 4 | Planlı |
-| Tasarruf | `features/savings/presentation/screens/savings_screen.dart` | `/savings` | `app/savings.tsx` | 4 | Planlı |
+| Bildirim merkezi | `features/notifications/presentation/screens/notification_center_screen.dart` | `/notifications` | `app/(app)/notifications.tsx` | 5 | Kod tamam (okundu yazımı yok: yalnız okunur) |
+| Ödeme geçmişi | `features/stats/presentation/screens/payment_history_screen.dart` | `/stats/payments` | `app/stats/payments.tsx` | 4 | Kod tamam |
+| Tasarruf | `features/savings/presentation/screens/savings_screen.dart` | `/savings` | `app/savings.tsx` | 4 | Kod tamam |
 
 ### 1.6 Ayarlar alt ekranları
 
 | Ekran | Flutter dosyası | Flutter rotası | Önerilen Expo rotası | Aşama | Durum |
 |---|---|---|---|---|---|
-| Profil | `features/settings/presentation/screens/profile_screen.dart` | `/settings/profile` | `app/settings/profile.tsx` | 6 | Planlı |
-| Bildirim tercihleri | `features/settings/presentation/screens/notification_preferences_screen.dart` | `/settings/notifications` | `app/settings/notifications.tsx` | 5 | Planlı |
-| Ödeme yöntemleri | `features/settings/presentation/screens/payment_methods_screen.dart` | `/settings/payment-methods` | `app/settings/payment-methods.tsx` | 6 | Planlı |
-| Görünüm | `features/settings/presentation/screens/appearance_screen.dart` | `/settings/appearance` | `app/settings/appearance.tsx` | 6 | Planlı |
-| Uygulama kilidi | `features/settings/presentation/screens/app_lock_settings_screen.dart` | `/settings/app-lock` | `app/settings/app-lock.tsx` | 6 | Planlı |
-| Gizlilik merkezi | `features/settings/presentation/screens/privacy_center_screen.dart` | `/settings/privacy` | `app/settings/privacy.tsx` | 6 | Planlı |
-| Geri bildirim / destek | `features/settings/presentation/screens/feedback_screen.dart` | `/settings/feedback` | `app/settings/feedback.tsx` | 6 | Planlı |
-| Veri dışa aktarma | `features/settings/presentation/screens/export_data_screen.dart` | `/settings/export` | `app/settings/export.tsx` | 6 | Planlı |
-| Hesap silme | `features/settings/presentation/screens/delete_account_screen.dart` | `/settings/delete-account` | `app/settings/delete-account.tsx` | 6 | Planlı |
+| Profil | `features/settings/presentation/screens/profile_screen.dart` | `/settings/profile` | `app/(app)/settings/profile.tsx` | 6 | Kod tamam (profil ve şifre; canlı `profiles` yazımı yalnız kullanıcı kaydettiğinde) |
+| Bildirim tercihleri | `features/settings/presentation/screens/notification_preferences_screen.dart` | `/settings/notifications` | `app/(app)/settings/notifications.tsx` | 5 | Kod tamam (tercihler yerel; sunucu `profiles` eşitlemesi yok) |
+| Ödeme yöntemleri | `features/settings/presentation/screens/payment_methods_screen.dart` | `/settings/payment-methods` | `app/(app)/settings/payment-methods.tsx` | 6 | Kod tamam (yöntem adları; kart numarası alınmaz) |
+| Görünüm | `features/settings/presentation/screens/appearance_screen.dart` | `/settings/appearance` | `app/(app)/settings/appearance.tsx` | 6 | Kod tamam (yalnız koyu tema, Flutter'daki açık/sistem seçenekleri yok) |
+| Uygulama kilidi | `features/settings/presentation/screens/app_lock_settings_screen.dart` | `/settings/app-lock` | `app/(app)/settings/app-lock.tsx` | 6 | Kod tamam (PIN, biyometri, kilit süresi; cihazda doğrulanmadı) |
+| Gizlilik merkezi | `features/settings/presentation/screens/privacy_center_screen.dart` | `/settings/privacy` | `app/(app)/settings/privacy.tsx` | 6 | Kısmi (dışa aktarma ve hesap silme S8'de eklenecek) |
+| Geri bildirim / destek | `features/settings/presentation/screens/feedback_screen.dart` | `/settings/feedback` | `app/(app)/settings/feedback.tsx` | 6 | Kod tamam (paylaş ve destek kaydı) |
+| Veri dışa aktarma | `features/settings/presentation/screens/export_data_screen.dart` | `/settings/export` | `app/(app)/settings/export.tsx` | 6 | Kısmi (cihazda CSV; bulut dışa aktarma canlıda RPC eksik olduğu için yok) |
+| Hesap silme | `features/settings/presentation/screens/delete_account_screen.dart` | `/settings/delete-account` | `app/(app)/settings/delete-account.tsx` | 6 | Kod tamam (yakın giriş, onay; canlı silme denenmedi) |
 
 Not: Hesap silme ve dışa aktarma, Gizlilik merkezi altında bulunur ([USER_FLOWS.md §15](../product/USER_FLOWS.md)). Ayarlar ekranı bu bilgi mimarisini birebir taşır.
 
@@ -90,49 +90,51 @@ Not: Hesap silme ve dışa aktarma, Gizlilik merkezi altında bulunur ([USER_FLO
 
 | Davranış | Kaynak | Aşama | Durum |
 |---|---|---|---|
-| Oturum kontrolü ve yönlendirme | [USER_FLOWS §1](../product/USER_FLOWS.md) | 1 | Planlı |
-| Oturum süresi dolunca auth ekranına yönlendirme | USER_FLOWS §1 | 1 | Planlı |
-| Abonelik ekleme (zorunlu ve opsiyonel alanlar) | [DOMAIN](../product/DOMAIN.md), USER_FLOWS §3 | 2 | Planlı |
-| Ücretsiz deneme ekleme ve ayrı kart görünümü | USER_FLOWS §4 | 2 | Planlı |
-| Liste: arama, filtre (durum, kategori, para birimi, yaklaşan tarih) | USER_FLOWS §5 | 2 | Planlı |
-| Düzenleme ve fiyat değişikliği event kaydı | USER_FLOWS §6 | 2 | Planlı |
-| Durdurma (`PAUSED`) | USER_FLOWS §8 | 2 | Planlı |
-| İptal (`CANCELLED`), iptal sağlayıcı bağlantısı, tasarruf özeti | USER_FLOWS §9 | 4 | Planlı |
-| Arşivleme (`ARCHIVED`) ve arşiv filtresi | USER_FLOWS §10 | 2 | Planlı |
-| Gerçek silme yalnızca yanlış kayıt ve hesap silmede | [ADR 0006](../decisions/0006-archive-over-delete.md) | 2 | Planlı |
-| Realtime: çoklu cihazda abonelik güncellemesi | [API.md](../reference/API.md), [CURRENT_STATUS](../CURRENT_STATUS.md) | 2 | Planlı |
-| Offline: son cache'i gösterme | USER_FLOWS §14 | 3 | Planlı |
-| Offline: FIFO mutation kuyruğu ve senkron koordinatörü | CURRENT_STATUS "Offline cache ve kuyruk" | 3 | Planlı |
-| Offline banner ve yazma girişiminde form koruma | USER_FLOWS §14 | 3 | Planlı |
-| Yerel bildirim planlama, tekrar zamanlamayı engelleme | [NOTIFICATIONS.md](../architecture/NOTIFICATIONS.md) | 5 | Planlı |
-| Bildirim izni reddi ve ayar yönergesi | USER_FLOWS §13 | 5 | Planlı |
-| Bildirime dokununca abonelik detayına deep link | USER_FLOWS §7 | 5 | Planlı |
-| Kaynak yoksa "artık mevcut değil" mesajı | USER_FLOWS §7 | 5 | Planlı |
-| Uygulama içi bildirim merkezi ve okundu senkronu | CURRENT_STATUS "Uygulama içi bildirim merkezi" | 5 | Planlı |
-| Trial bitişi için ayrı bildirim kuralı | PRODUCT §6.6 | 5 | Planlı |
-| Uygulama kilidi: PIN ve biyometri | CURRENT_STATUS "Uygulama kilidi" | 6 | Planlı |
-| CSV dışa aktarma (11 alanlı şema, CSV enjeksiyonu önlemi) | CURRENT_STATUS "CSV dışa/içe aktarma" | 6 | Planlı |
-| CSV içe aktarma ve doğrulama | CURRENT_STATUS | 6 | Planlı |
-| Servis kataloğu (`support-catalog`, yedek liste) | CURRENT_STATUS "Servis kataloğu" | 2 | Planlı |
-| Destek bileti oluşturma | CURRENT_STATUS "Destek bileti" | 6 | Planlı |
-| Ödeme geçmişi ekleme, düzenleme, silme | CURRENT_STATUS "Ödeme geçmişi" | 4 | Planlı |
-| Dashboard, takvim, istatistik toplamları (para birimi bazlı) | PRODUCT §6.3, §6.4 | 4 | Planlı |
-| Hesap silme (yakın giriş şartı, Storage temizliği) | CURRENT_STATUS "Hesap silme" | 6 | Planlı |
-| Veri dışa aktarma hazırlama ve güvenli paylaşım | USER_FLOWS §16 | 6 | Planlı |
+| Oturum kontrolü ve yönlendirme | [USER_FLOWS §1](../product/USER_FLOWS.md) | 1 | Kod tamam |
+| Oturum süresi dolunca auth ekranına yönlendirme | USER_FLOWS §1 | 1 | Kod tamam |
+| Abonelik ekleme (zorunlu ve opsiyonel alanlar) | [DOMAIN](../product/DOMAIN.md), USER_FLOWS §3 | 2 | Kod tamam |
+| Ücretsiz deneme ekleme ve ayrı kart görünümü | USER_FLOWS §4 | 2 | Kod tamam |
+| Liste: arama, filtre (durum, kategori, para birimi, yaklaşan tarih) | USER_FLOWS §5 | 2 | Kod tamam |
+| Düzenleme ve fiyat değişikliği event kaydı | USER_FLOWS §6 | 2 | Kod tamam |
+| Durdurma (`PAUSED`) | USER_FLOWS §8 | 2 | Kod tamam |
+| İptal (`CANCELLED`): sağlayıcı sayfası, "İptal ettim" (iptal ve erişim bitiş tarihi), "Durdurdum", "Kullanmaya devam et"; tasarruf özeti | USER_FLOWS §9 | 4 | Kod tamam (iptal sebebi alınmıyor: saklanacak yer yok ve kişisel not analitiğe gitmemeli) |
+| Arşivleme (`ARCHIVED`) ve arşiv filtresi | USER_FLOWS §10 | 2 | Kod tamam |
+| Gerçek silme yalnızca yanlış kayıt ve hesap silmede | [ADR 0006](../decisions/0006-archive-over-delete.md) | 2 | Kod tamam (abonelik için silme yolu yok; hesap silme S8'de) |
+| Realtime: çoklu cihazda abonelik güncellemesi | [API.md](../reference/API.md), [CURRENT_STATUS](../CURRENT_STATUS.md) | 2 | Kod tamam |
+| Offline: son cache'i gösterme | USER_FLOWS §14 | 3 | Kod tamam |
+| Offline: FIFO mutation kuyruğu ve senkron koordinatörü | CURRENT_STATUS "Offline cache ve kuyruk" | 3 | Kod tamam |
+| Offline banner ve yazma girişiminde form koruma | USER_FLOWS §14 | 3 | Kod tamam |
+| Yerel bildirim planlama, tekrar zamanlamayı engelleme | [NOTIFICATIONS.md](../architecture/NOTIFICATIONS.md) | 5 | Kod tamam (farka dayalı eşitleme; cihazda doğrulanmadı) |
+| Bildirim izni reddi ve ayar yönergesi | USER_FLOWS §13 | 5 | Kod tamam (açıklama ekranı, sistem izni, ayarlara yönlendirme) |
+| Bildirime dokununca abonelik detayına deep link | USER_FLOWS §7 | 5 | Kod tamam (soğuk başlangıç dahil; cihazda doğrulanmadı) |
+| Kaynak yoksa "artık mevcut değil" mesajı | USER_FLOWS §7 | 5 | Kod tamam (detay ekranı) |
+| Uygulama içi bildirim merkezi ve okundu senkronu | CURRENT_STATUS "Uygulama içi bildirim merkezi" | 5 | Kısmi (merkez var; okundu yazımı yok) |
+| Trial bitişi için ayrı bildirim kuralı | PRODUCT §6.6 | 5 | Kod tamam (7, 3, 1 gün önce) |
+| Uygulama kilidi: PIN ve biyometri | CURRENT_STATUS "Uygulama kilidi" | 6 | Kod tamam (PIN özeti yinelemeli SHA-256, Flutter'daki PBKDF2 yerine; cihazda doğrulanmadı) |
+| CSV dışa aktarma (11 alanlı şema, CSV enjeksiyonu önlemi) | CURRENT_STATUS "CSV dışa/içe aktarma" | 6 | Kod tamam (cihaz içi) |
+| CSV içe aktarma ve doğrulama | CURRENT_STATUS | 6 | Kod tamam (dışa aktarma biçimi geri okunur) |
+| Servis kataloğu (`support-catalog`, yedek liste) | CURRENT_STATUS "Servis kataloğu" | 2 | Kod tamam |
+| Destek bileti oluşturma | CURRENT_STATUS "Destek bileti" | 6 | Kod tamam |
+| Ödeme geçmişi ekleme, düzenleme, silme | CURRENT_STATUS "Ödeme geçmişi" | 4 | Kod tamam (ekleme, düzenleme ve silme çevrimiçi; kuyruğa alınmaz) |
+| Dashboard ve takvim toplamları (para birimi bazlı) | PRODUCT §6.3, §6.4 | 4 | Kod tamam |
+| Dashboard: kategori donut, aylık değişim, "tamamlandı" sayısı (ödeme kaydına bağlı) | Flutter `dashboard_screen.dart` | 4 | Kısmi (S5: ödeme ve tasarruf bağlandı; kategori donut ve aylık değişim ana sayfada yok) |
+| Takvim: yüksek tutarlı yıllık ödeme ayrımı | PRODUCT §6.4, [NOTIFICATIONS](../architecture/NOTIFICATIONS.md) `ANNUAL_HIGH_VALUE` | 4 | Karar bekliyor (eşik yok) |
+| Hesap silme (yakın giriş şartı, Storage temizliği) | CURRENT_STATUS "Hesap silme" | 6 | Kod tamam (sunucu işlemi canlıda denenmedi) |
+| Veri dışa aktarma hazırlama ve güvenli paylaşım | USER_FLOWS §16 | 6 | Kısmi (bulut bağlantısı yok; cihaz paylaşımı var) |
 
 ## 3. Kurallar ve altyapı
 
 | Kural | Kaynak | Expo'da nasıl uygulanacak | Aşama | Durum |
 |---|---|---|---|---|
-| Para: floating point yok | [ADR 0004](../decisions/0004-money-as-decimal.md), AGENTS.md | Minör birim veya decimal; `Money` modülü | 0 | Planlı |
-| Para birimleri çevrilmez, ayrı toplam | PRODUCT §5, §6.3 | Toplamlar para birimi bazında | 4 | Planlı |
-| Tarih: UTC + kullanıcının IANA zaman dilimi | [ADR 0005](../decisions/0005-utc-and-user-timezone.md) | Zaman dilimi modülü | 0 | Planlı |
-| Yenilemeye 7 gün kala vurgu | PRODUCT §6.2 | Liste ve dashboard | 2 | Planlı |
-| Kullanıcı verisi izolasyonu (RLS) | PRODUCT §5, §6.1 | Sunucu tarafı; istemci yalnızca API kullanır | 1 | Planlı |
-| İstemci: doğrudan veritabanı bağlantısı yok | ADR 0009 | Yalnızca Supabase API sözleşmesi | 0 | Planlı |
-| Her ekranda loading, error, empty, offline | AGENTS.md | Ortak bileşenlerde standart durumlar | 0 | Planlı |
-| Ortak UI bileşenleri `expo/src/shared/` altında | AGENTS.md | Klasör yapısı | 0 | Planlı |
-| Credential'lar env ile verilir, repoda yok | [MOBILE.md](../architecture/MOBILE.md) | `EXPO_PUBLIC_*` değişkenleri | 0 | Planlı |
+| Para: floating point yok | [ADR 0004](../decisions/0004-money-as-decimal.md), AGENTS.md | Minör birim veya decimal; `Money` modülü | 0 | Kod tamam |
+| Para birimleri çevrilmez, ayrı toplam | PRODUCT §5, §6.3 | Toplamlar para birimi bazında | 4 | Kod tamam |
+| Tarih: UTC + kullanıcının IANA zaman dilimi | [ADR 0005](../decisions/0005-utc-and-user-timezone.md) | Zaman dilimi modülü (cihaz saat dilimi; profil saat dilimi henüz eşitlenmiyor) | 0 | Kod tamam |
+| Yenilemeye 7 gün kala vurgu | PRODUCT §6.2 | Liste ve dashboard | 2 | Kod tamam (dashboard S4) |
+| Kullanıcı verisi izolasyonu (RLS) | PRODUCT §5, §6.1 | Sunucu tarafı; istemci yalnızca API kullanır | 1 | Kod tamam |
+| İstemci: doğrudan veritabanı bağlantısı yok | ADR 0009 | Yalnızca Supabase API sözleşmesi | 0 | Kod tamam |
+| Her ekranda loading, error, empty, offline | AGENTS.md | Ortak bileşenlerde standart durumlar | 0 | Kod tamam (çoğu ekran; offline şeridi listede ve ana sayfada) |
+| Ortak UI bileşenleri `expo/src/shared/` altında | AGENTS.md | Klasör yapısı | 0 | Kod tamam |
+| Credential'lar env ile verilir, repoda yok | [MOBILE.md](../architecture/MOBILE.md) | `EXPO_PUBLIC_*` değişkenleri | 0 | Kod tamam |
 
 ## 4. Karar bekleyen çelişkiler
 
@@ -140,8 +142,9 @@ Flutter kodu ile ürün kuralı arasında [CURRENT_STATUS.md](../CURRENT_STATUS.
 
 | Konu | Ürün kuralı | Flutter'daki durum | Expo kararı | Durum |
 |---|---|---|---|---|
-| Fiziksel silme | Normal akışta yok; iptal/arşiv ([DOMAIN](../product/DOMAIN.md), ADR 0006) | Detay ve listede "Kalıcı olarak sil" var | Normal akışta kalıcı silme yok; fiziksel silme yalnızca hesap silme akışında kullanılır (AGENTS.md "Fiziksel silme" kuralı) | Karar verildi (Aşama 2'de uygulanır) |
-| Yenileme tarihi | Sessizce ilerletilmez ([DOMAIN §7](../product/DOMAIN.md)) | Yükleme sırasında gecikmiş aktif abonelik otomatik ilerletilir | Otomatik ilerletme yok; gecikmiş yenileme kullanıcıya "yenileme tarihi geçti" olarak gösterilir ve kullanıcı onaylar | Karar verildi (Aşama 2'de uygulanır) |
+| Fiziksel silme | Normal akışta yok; iptal/arşiv ([DOMAIN](../product/DOMAIN.md), ADR 0006) | Detay ve listede "Kalıcı olarak sil" var | Normal akışta kalıcı silme yok; fiziksel silme yalnızca hesap silme akışında kullanılır (AGENTS.md "Fiziksel silme" kuralı) | Uygulandı (S1) |
+| Yüksek tutarlı yıllık ödeme | PRODUCT §6.4 (tanım var, eşik yok) | Flutter'da eşik ve ayrım yok; yalnızca hedef bildirim türü `ANNUAL_HIGH_VALUE` tanımlı | Expo takvimde yıllık yenilemeleri "Yıllık yenileme" etiketiyle ayırıyor; "yüksek tutar" eşiği sahibinden bekleniyor (tutar mı, para birimi bazlı eşik mi?) | Karar bekliyor |
+| Yenileme tarihi | Sessizce ilerletilmez ([DOMAIN §7](../product/DOMAIN.md)) | Yükleme sırasında gecikmiş aktif abonelik otomatik ilerletilir | Otomatik ilerletme yok; gecikmiş yenileme kullanıcıya "yenileme tarihi geçti" olarak gösterilir ve kullanıcı onaylar | Uygulandı (S2) |
 | Bildirim paketi | AGENTS.md `flutter_local_notifications` der | Flutter paketi kullanılıyor | `expo-notifications`; AGENTS.md bildirim satırı bu sürüme göre güncellendi | Karar verildi (Aşama 5'te uygulanır) |
 
 Not: Bu üç karar kullanıcı tarafından Expo sürümü için yetki verilerek alındı. Ürün kuralı sahibi farklı bir karar verirse ADR 0010 ve bu tablo güncellenir.
