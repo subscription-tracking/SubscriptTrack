@@ -56,7 +56,8 @@ Graphify çıktıları `graphify-out/` altında tutulur. `graphify-out/graph.jso
 
 ## Çalışma alanı
 
-- Mobil uygulama kökü: `mobile/`
+- Mobil uygulama kökü (Flutter): `mobile/`
+- Expo (React Native / TypeScript) uygulama kökü, Flutter sürümüne paralel geliştirme: `expo/`. Expo sürümü iOS ve Android'de doğrulanana kadar `mobile/` silinmez veya değiştirilmez. Expo tarafında API sözleşmesi, para ve tarih kuralları bu dosyadaki kurallarla aynıdır; `expo/AGENTS.md` Expo SDK davranışları için ek kural içerir.
 - Mobil Dart kodu: `mobile/lib/`
 - Ortak bileşenler: `mobile/lib/shared/` ve `mobile/lib/app/shell/`
 - Ürün ve mimari belgeleri: `docs/` (tek doküman kökü; üretilen kalite raporu `docs/quality/`)
