@@ -14,7 +14,7 @@
 
 | # | Aşama | Kapsam | Durum |
 |---|---|---|---|
-| 0 | Temel | Tema, ortak bileşenler, Supabase client, env, Money ve tarih modülleri, lint ve test altyapısı | Planlı |
+| 0 | Temel | Tema, ortak bileşenler, Supabase client, env, Money ve tarih modülleri, test altyapısı | Kod tamam (cihaz doğrulaması yok; lint kurulmadı) |
 | 1 | Kimlik doğrulama | Giriş, kayıt, şifre sıfırlama, e-posta doğrulama, oturum, route guard | Planlı |
 | 2 | Abonelik çekirdeği | Liste, detay, form, durum yaşam döngüsü, arşiv, realtime, servis kataloğu | Planlı |
 | 3 | Offline | Cache, mutation kuyruğu, senkron koordinatörü, offline davranışı | Planlı |
@@ -179,4 +179,14 @@
 
 | Tarih | Aşama | Olay |
 |---|---|---|
-| — | 0 | `expo/` iskeleti, Expo Router kurulumu ve boş iki ekran |
+| 2026-10-09 | 0 | `expo/` iskeleti, Expo Router kurulumu ve boş iki ekran |
+| 2026-10-09 | 0 | Supabase istemcisi (aynı backend), `Money` ve takvim modülleri (Flutter kurallarından port), tema tokenları, `AsyncStateView` ve `OfflineBanner`; 38 test geçiyor, typecheck ve Android bundle hatasız |
+| 2026-10-09 | 0 | Karar verildi: fiziksel silme ve yenileme tarihi için ürün kuralı, bildirim için `expo-notifications` ([PARITY §4](PARITY.md), [ADR 0010](../decisions/0010-expo-parallel-app.md)) |
+
+Aşama 0 çıkış kriterlerinden durum:
+
+- [x] `tsc --noEmit` hatasız
+- [x] Money ve tarih testleri Flutter `core/` kurallarını kapsıyor
+- [x] Android bundle üretiliyor
+- [ ] iOS ve Android'de açılış (iOS için Mac veya EAS Build gerekli; Android cihaz/emulator doğrulaması yapılmadı)
+- [ ] Lint yapılandırması (ESLint kurulumu bekliyor)

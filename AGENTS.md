@@ -9,7 +9,7 @@ SubscriptTrack, iOS ve Android için geliştirilen mobil abonelik takip uygulama
 - Önce ilgili Markdown dokümanlarını oku; özellikle `docs/README.md`, `docs/CURRENT_STATUS.md`, `docs/product/PRODUCT.md`, `docs/architecture/ARCHITECTURE.md`, `docs/product/DOMAIN.md`, `docs/reference/API.md` ve `docs/architecture/MOBILE.md`.
 - Ürün kararları ile mevcut kod çelişirse, kullanıcıdan onay almadan kapsamı genişletme. Çelişkiyi raporla ve ilgili dokümanı işaret et.
 - Mobil istemci ile backend arasında doğrudan veritabanı bağlantısı kurma; API sözleşmesini kullan.
-- iOS ve Android davranışlarını birlikte düşün. Push için `flutter_local_notifications` (uzak push/FCM kullanılmaz), tarih hesapları için UTC + kullanıcının IANA timezone'ı kullanılmalıdır.
+- iOS ve Android davranışlarını birlikte düşün. Yerel bildirim için Flutter sürümünde `flutter_local_notifications`, Expo sürümünde `expo-notifications` kullanılır (uzak push/FCM kullanılmaz). Tarih hesapları için UTC + kullanıcının IANA timezone'ı kullanılmalıdır.
 - Para değerlerini floating point ile hesaplama; `Money`/decimal yaklaşımını koru.
 - Normal abonelik yaşam döngüsünde silme yerine cancel, expire ve archive kullan. Fiziksel silme yalnızca yanlış kayıt veya hesap silme akışında kullanılabilir.
 - Her yeni ekran için loading, error, empty ve offline durumlarını planla.
