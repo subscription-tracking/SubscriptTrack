@@ -48,6 +48,7 @@ Etiketler: **Uygulandı** · **Kısmi** (kod var, doğrulama eksik) · **Planlı
 | Açık tema | Planlı | Yalnızca koyu tema |
 | Analitik / crash raporlama | Planlı | Altyapı yok ([ANALYTICS.md](product/ANALYTICS.md)) |
 | iOS build ve dağıtım | Planlı | Hiç derlenmedi |
+| Expo sürümü (paralel, [ADR 0010](decisions/0010-expo-parallel-app.md)) | Kısmi | Aşama 0 kod tamam: Supabase istemcisi, Money/takvim modülleri, tokenlar, 38 test; Android bundle üretiliyor; cihaz ve iOS doğrulaması yok ([docs/expo](expo/README.md)) |
 
 ## Canlı backend
 

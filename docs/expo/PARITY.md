@@ -136,13 +136,15 @@ Not: Hesap silme ve dışa aktarma, Gizlilik merkezi altında bulunur ([USER_FLO
 
 ## 4. Karar bekleyen çelişkiler
 
-Flutter kodu ile ürün kuralı arasında [CURRENT_STATUS.md](../CURRENT_STATUS.md) ("Ürün kuralı ile kod arasında karar bekleyen çelişkiler" bölümünde) belirtilen iki çelişki var. Expo sürümü bunları ürün kuralına göre yazacak; ancak kullanıcı onayı alınmadan davranış değiştirilmez.
+Flutter kodu ile ürün kuralı arasında [CURRENT_STATUS.md](../CURRENT_STATUS.md) ("Ürün kuralı ile kod arasında karar bekleyen çelişkiler" bölümünde) belirtilen iki çelişki var. Expo sürümü için aşağıdaki kararlar alınmıştır. Flutter sürümü bu süreçte değiştirilmez, dolayısıyla iki sürüm arasında bu konularda bilinçli bir fark oluşur ve Aşama 8 karşılaştırmasında izlenir.
 
-| Konu | Ürün kuralı | Flutter'daki durum | Expo'da varsayılan | Durum |
+| Konu | Ürün kuralı | Flutter'daki durum | Expo kararı | Durum |
 |---|---|---|---|---|
-| Fiziksel silme | Normal akışta yok; iptal/arşiv ([DOMAIN](../product/DOMAIN.md), ADR 0006) | Detay ve listede "Kalıcı olarak sil" var | Normal akışta sil yok; kalıcı silme yalnızca hesap silmede | Karar bekliyor |
-| Yenileme tarihi | Sessizce ilerletilmez ([DOMAIN §7](../product/DOMAIN.md)) | Yükleme sırasında gecikmiş aktif abonelik otomatik ilerletilir | Otomatik ilerletme yok; kullanıcıya gösterilir | Karar bekliyor |
-| Bildirim paketi | AGENTS.md `flutter_local_notifications` der | Flutter paketi kullanılıyor | `expo-notifications` | Karar bekliyor (AGENTS.md güncellemesi gerekir) |
+| Fiziksel silme | Normal akışta yok; iptal/arşiv ([DOMAIN](../product/DOMAIN.md), ADR 0006) | Detay ve listede "Kalıcı olarak sil" var | Normal akışta kalıcı silme yok; fiziksel silme yalnızca hesap silme akışında kullanılır (AGENTS.md "Fiziksel silme" kuralı) | Karar verildi (Aşama 2'de uygulanır) |
+| Yenileme tarihi | Sessizce ilerletilmez ([DOMAIN §7](../product/DOMAIN.md)) | Yükleme sırasında gecikmiş aktif abonelik otomatik ilerletilir | Otomatik ilerletme yok; gecikmiş yenileme kullanıcıya "yenileme tarihi geçti" olarak gösterilir ve kullanıcı onaylar | Karar verildi (Aşama 2'de uygulanır) |
+| Bildirim paketi | AGENTS.md `flutter_local_notifications` der | Flutter paketi kullanılıyor | `expo-notifications`; AGENTS.md bildirim satırı bu sürüme göre güncellendi | Karar verildi (Aşama 5'te uygulanır) |
+
+Not: Bu üç karar kullanıcı tarafından Expo sürümü için yetki verilerek alındı. Ürün kuralı sahibi farklı bir karar verirse ADR 0010 ve bu tablo güncellenir.
 
 ## 5. Güncelleme kuralı
 

@@ -1,11 +1,19 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { colors } from '../src/shared/design/tokens';
+
 export default function RootLayout() {
   return (
     <>
-      <StatusBar style="auto" />
-      <Stack />
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.onBackground,
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      />
     </>
   );
 }

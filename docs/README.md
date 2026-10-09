@@ -19,7 +19,8 @@ Bu klasör, SubscriptTrack'in ürün kararlarını, mimarisini, veri ve API refe
 | architecture | [ARCHITECTURE](architecture/ARCHITECTURE.md) · [MOBILE](architecture/MOBILE.md) · [NOTIFICATIONS](architecture/NOTIFICATIONS.md) · [SECURITY](architecture/SECURITY.md) | Sistem, mobil yapı, bildirim, güvenlik |
 | reference | [DATA_MODEL](reference/DATA_MODEL.md) · [API](reference/API.md) · [SUPABASE_LIVE_STATUS](reference/SUPABASE_LIVE_STATUS.md) | Şema, arayüz sözleşmesi, canlı ortam |
 | operations | [TESTING](operations/TESTING.md) · [TEST_TRACEABILITY](operations/TEST_TRACEABILITY.md) · [RELEASE](operations/RELEASE.md) · [DEVICE_ACCEPTANCE](operations/DEVICE_ACCEPTANCE.md) · [CONTRIBUTING](operations/CONTRIBUTING.md) | Test, yayın, cihaz kabulü, katkı |
-| decisions | [ADR 0001–0009](decisions/) | Mimari kararlar |
+| expo | [Expo paralel uygulama](expo/README.md) · [PARITY](expo/PARITY.md) · [ROADMAP](expo/ROADMAP.md) · [SETUP](expo/SETUP.md) · [ARCHITECTURE](expo/ARCHITECTURE.md) · [LIBRARIES](expo/LIBRARIES.md) | Expo (React Native) sürümü; Flutter ile paralel |
+| decisions | [ADR 0001–0010](decisions/) | Mimari kararlar |
 | quality | [Kalite raporu](quality/index.html) · [Ekran incelemesi](quality/screen-review.md) · [Doküman incelemesi](quality/docs-review.md) | **Üretilen** ölçümler; elle düzenlenmez |
 | archive | [archive/](archive/) | Tarihsel kanıt; değiştirilmez |
 

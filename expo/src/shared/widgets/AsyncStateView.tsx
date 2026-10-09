@@ -1,0 +1,105 @@
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { ReactNode } from 'react';
+
+import { colors, radius, sizes, spacing } from '../design/tokens';
+
+/**
+ * Her ekranın veri durumunu tek yerden gösterir: yükleniyor, hata, boş, içerik.
+ * AGENTS.md gereği her yeni ekran bu dört durumu planlamak zorundadır.
+ * Offline durumu için [OfflineBanner] ile birlikte kullanılır.
+ */
+export type AsyncState<T> =
+  | { status: 'loading' }
+  | { status: 'error'; message: string; onRetry?: () => void }
+  | { status: 'empty'; title: string; description?: string; action?: ReactNode }
+  | { status: 'ready'; data: T };
+
+interface AsyncStateViewProps<T> {
+  state: AsyncState<T>;
+  /** `ready` durumunda çağrılır. */
+  children: (data: T) => ReactNode;
+  loadingLabel?: string;
+}
+
+export function AsyncStateView<T>({
+  state,
+  children,
+  loadingLabel = 'Yükleniyor',
+}: AsyncStateViewProps<T>) {
+  switch (state.status) {
+    case 'loading':
+      return (
+        <View style={styles.centered} accessibilityRole="progressbar" accessibilityLabel={loadingLabel}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      );
+
+    case 'error':
+      return (
+        <View style={styles.centered} accessibilityRole="alert">
+          <Text style={styles.title}>Bir sorun oluştu</Text>
+          <Text style={styles.description}>{state.message}</Text>
+          {state.onRetry ? (
+            <Pressable
+              onPress={state.onRetry}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+            >
+              <Text style={styles.buttonLabel}>Tekrar dene</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      );
+
+    case 'empty':
+      return (
+        <View style={styles.centered}>
+          <Text style={styles.title}>{state.title}</Text>
+          {state.description ? <Text style={styles.description}>{state.description}</Text> : null}
+          {state.action}
+        </View>
+      );
+
+    case 'ready':
+      return <>{children(state.data)}</>;
+  }
+}
+
+const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    gap: spacing.sm,
+    backgroundColor: colors.background,
+  },
+  title: {
+    color: colors.onBackground,
+    fontSize: 17,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  description: {
+    color: colors.onSurfaceVariant,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  button: {
+    marginTop: spacing.sm,
+    minHeight: sizes.minTouchTarget,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+  },
+  buttonPressed: {
+    opacity: 0.8,
+  },
+  buttonLabel: {
+    color: colors.onPrimary,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+});
