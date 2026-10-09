@@ -4,7 +4,19 @@
 
 ## Durum
 
-**Uygulandı (Aşama 0):** klasör yapısı, Supabase istemcisi, para ve takvim modülleri, tema tokenları, durum görünümü ve offline şeridi. Feature katmanları (auth, subscriptions vb.) henüz yoktur.
+**Uygulandı:** Aşama 0 (klasör yapısı, Supabase istemcisi, para ve takvim modülleri, tema tokenları, durum görünümü, offline şeridi) ve Aşama 1'in kodu (kimlik doğrulama, oturum yönlendirmesi, auth ekranları). Auth ekranları cihazda henüz doğrulanmadı. Abonelik ve diğer feature katmanları henüz yoktur.
+
+### Oturum yönlendirmesi
+
+[AuthGate](../../expo/app/_layout.tsx) oturum durumu belirlenene kadar yükleniyor gösterir, sonra [resolveRedirect](../../expo/src/features/auth/domain/sessionState.ts) kurallarını uygular:
+
+| Durum | Hedef |
+|---|---|
+| Oturum yok, uygulama ekranı | `/login` |
+| Oturum açık, auth ekranı veya callback | `/` (ana sayfa) |
+| Şifre sıfırlama kurtarma modu | `/reset-password` |
+
+E-posta bağlantıları (doğrulama, şifre sıfırlama) `subscripttrack://auth-callback?code=…` adresine gelir; [auth-callback](../../expo/app/auth-callback.tsx) rotası PKCE kodunu `exchangeCodeForSession` ile oturuma çevirir.
 
 ## Değişmeyen backend
 
@@ -23,12 +35,15 @@ expo/
 ├── src/
 │   ├── core/                 # Uygulama genelinde, UI'dan bağımsız kod
 │   │   ├── config/           # env okuma (EXPO_PUBLIC_*)
+│   │   ├── storage/          # güvenli oturum deposu (SecureStore, parçalı)
 │   │   ├── supabase/         # tek Supabase istemcisi
 │   │   ├── domain/           # Money ve diğer değer nesneleri
 │   │   └── time/             # takvim günü, fatura döngüsü, saat dilimi
+│   ├── features/
+│   │   └── auth/             # AuthProvider, data/ (Supabase çağrıları), domain/ (saf kurallar), ui/
 │   └── shared/
 │       ├── design/           # tasarım tokenları (renk, boşluk, köşe, boyut)
-│       └── widgets/          # yeniden kullanılabilir UI (AsyncStateView, OfflineBanner)
+│       └── widgets/          # yeniden kullanılabilir UI (AsyncStateView, OfflineBanner, TextField, PrimaryButton)
 ├── jest.config.js
 ├── app.json
 └── tsconfig.json
@@ -51,7 +66,7 @@ Kurallar:
 | `core/domain`, `core/time` | Yalnızca kendi içleri | React Native, Supabase, UI |
 | `shared/design` | Yalnızca sabitler | Her şey |
 
-Bu kurallar Flutter'daki `architecture_test.dart` benzeri bir test ile zorlanacaktır (Aşama 1'de eklenecek).
+Bu kurallar `expo/src/architecture.test.ts` ile otomatik korunur (Flutter `architecture_test.dart` karşılığı): sunum katmanı SDK import etmez, domain SDK/veri/UI import etmez, veri katmanı UI import etmez, core/shared feature veri ve UI katmanlarını import etmez, feature grafiği döngüsüzdür, hiçbir kaynak dosyası 320 satırı aşmaz.
 
 ## Para ve tarih
 
@@ -67,7 +82,13 @@ Bu kurallar Flutter'daki `architecture_test.dart` benzeri bir test ile zorlanaca
 - **Sunucu verisi:** TanStack Query ile yönetilir (önbellek, yeniden deneme, geçersiz kılma). Sorgu anahtarları kullanıcı kimliğini içerir; oturum değişince önbellek ayrılır.
 - **Yerel UI durumu:** Küçük bir store (Zustand) ile tutulur. Sunucu verisini bu store'a kopyalanmaz.
 - **Realtime:** `subscriptions` tablosu Realtime yayınındadır. Olaylar sorgu önbelleğini geçersiz kılar; gelen satır yerel listeyle birleştirilir ([API.md §6](../reference/API.md)).
-- **Offline (Aşama 3):** Son veri cache'i ve yazma kuyruğu eklenecektir. Finansal cache güvenli depolamada tutulur ([LIBRARIES.md](LIBRARIES.md)).
+- **Offline (Aşama 3):**
+  - Okuma: önce sunucu; başarılıysa satırlar şifreli cache'e yazılır, başarısızsa cache okunur. Bekleyen yazımlar her iki durumda da üstüne bindirilir ([subscriptionSync.ts](../../expo/src/features/subscriptions/data/subscriptionSync.ts)).
+  - Yazma: çevrimiçi ve kuyruk boşsa doğrudan gönderilir. Çevrimdışıysa, ya da geçici hata varsa FIFO kuyruğa girer. Kuyruk her adımda şifreli depoya yazılır; yazım ve olay kaydı iki aşamalıdır ([mutationQueue.ts](../../expo/src/features/subscriptions/domain/mutationQueue.ts)).
+  - Senkron: ağ geri gelince ve oturum açılınca çalışır. Geçici hatada durur ve sırayı korur; kalıcı red (ör. kota, kayıt yok) atlanır ve kullanıcıya bildirilir.
+  - Çakışma: son yazan kazanır (RPC alanları tümden yazılır). Kuyruktaki ekleme ve güncellemeler yalnızca sunucu tarafında onaylanınca düşer; RPC idempotency anahtarı yeniden göndermeyi güvenli kılar.
+  - Düzenleme sınırı: Gönderilmemiş (geçici kimlikli) bir ekleme, bağlantı gelmeden düzenlenemez.
+  - Cache ve kuyruk oturum açan kullanıcı kimliğiyle ayrılır; çıkıştan sonra kuyruk silinmez, aynı kullanıcı girince devam eder.
 
 ## Hata modeli
 

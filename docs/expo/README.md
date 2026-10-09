@@ -4,7 +4,7 @@
 
 ## Durum
 
-**Aşama 0 kod tamam.** `expo/` klasöründe Expo Router, Supabase istemcisi (aynı backend), para ve takvim modülleri, tema tokenları ve iki ortak UI bileşeni var. 38 birim ve bileşen testi geçiyor; typecheck ve Android bundle hatasız. Abonelik, auth, offline ve bildirim özellikleri henüz yazılmadı. Flutter sürümü ([mobile/](../../mobile/)) çalışan referanstır ve bu süreçte değiştirilmez.
+**Aşama 0 kod tamam.** `expo/` klasöründe Expo Router, Supabase istemcisi (aynı backend), para ve takvim modülleri, tema tokenları ve iki ortak UI bileşeni var. 74 birim ve bileşen testi geçiyor; typecheck ve Android bundle hatasız. Abonelik, auth, offline ve bildirim özellikleri henüz yazılmadı. Flutter sürümü ([mobile/](../../mobile/)) çalışan referanstır ve bu süreçte değiştirilmez.
 
 Özellik durumunun tek kaynağı [CURRENT_STATUS.md](../CURRENT_STATUS.md)'dir. Burada yalnızca Expo tarafının durumu tutulur.
 
@@ -33,6 +33,7 @@ Flutter kod tabanı iOS build'i hiç derlenmemiş bir durumda, Mac erişimi olma
 | [SETUP.md](SETUP.md) | Geliştirme ortamı, env değişkenleri, komutlar | Yazıldı |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Klasör yapısı, katman kuralları, para/tarih, veri akışı | Yazıldı |
 | [LIBRARIES.md](LIBRARIES.md) | Kurulu ve planlanan paketler, seçim gerekçeleri | Yazıldı |
+| [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Boşluk, yazı, köşe, renk, dokunma ve ikon kuralları | Kural taslağı; 4 karar onay bekliyor |
 
 Mimari karar: [ADR 0010](../decisions/0010-expo-parallel-app.md).
 

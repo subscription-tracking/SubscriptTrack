@@ -13,7 +13,11 @@
 | `expo-constants` | Uygulama bilgisi | Expo Router bağımlılığı | — |
 | `react-native-safe-area-context`, `react-native-screens` | Güvenli alan ve native ekran | Expo Router bağımlılığı | `SafeArea` |
 | `@supabase/supabase-js` | Supabase istemcisi (Auth, PostgREST, RPC, Realtime) | Backend'in resmi istemcisi; Flutter SDK'nın karşılığı | `supabase_flutter` |
-| `@react-native-async-storage/async-storage` | Supabase oturum saklama | Supabase'in RN için önerdiği depolama | `flutter_secure_storage` (oturum) |
+| `expo-font`, `expo-asset` | Hanken Grotesk yazı tipinin pakete gömülü yüklenmesi (F-19) | Flutter `assets/fonts` ve `pubspec` fontları | `google_fonts` yerine yerel font |
+| `@expo/vector-icons` | Material ikon seti (`MaterialIcons`) | Flutter `Icons.*` karşılığı; "rounded" varyantları yoktur, düz Material simgeleri kullanılır | `Icons` |
+| `react-native-svg` | Ambient arka plan radyal gradyanları | Flutter `RadialGradient` ve blur lekeleri için | `CustomPaint` / `ImageFiltered` |
+| `expo-local-authentication` | 6 | Biyometri ile uygulama kilidi | `local_auth` | Cihazda doğrulanır; iOS için Face ID açıklaması `app.json` plugin ayarında |
+| `expo-secure-store` | Supabase oturumu ve PKCE verifier deposu | Android Keystore / iOS Keychain; Flutter'daki `SecureSupabaseStorage` ve `SecurePkceStorage` (F-16) ile aynı seviye | `flutter_secure_storage` |
 | `jest`, `jest-expo`, `@react-native/jest-preset` | Birim testleri | Expo'nun resmi test preset'i | `flutter_test` |
 | `@testing-library/react-native` (13.x) | Bileşen testleri | Kullanıcı odaklı sorgular | `flutter_test` widget testleri |
 | `react-test-renderer` (19.2.x) | RNTL'nin renderer'ı | React 19 ile uyumlu sürüm | — |
@@ -21,7 +25,7 @@
 
 ### Notlar
 
-- **Oturum saklama:** Supabase oturumu AsyncStorage'da tutulur. Bu, Supabase'in önerdiği varsayılandır. Finansal veri cache'i ise (Aşama 3) güvenli depolamaya taşınır; oturum belirteci ile veri aynı katmanda tutulmaz.
+- **Oturum saklama:** Supabase oturumu ve PKCE verifier'ı `expo-secure-store` üzerinden tutulur. SecureStore değer başına ~2 KB sınırı koyduğu için uzun değerler parçalanır ([secureSessionStorage.ts](../../expo/src/core/storage/secureSessionStorage.ts)). Finansal veri cache'i (Aşama 3) aynı katmanda ama ayrı anahtarlarla tutulur.
 - **RNTL 13:** RNTL 14 ek bir `test-renderer` peer'i ister ve bu kurulumda `screen` nesnesi doldurulmadığı için testler çalışmadı. 13.x sürümü React 19 ile test edildi.
 - **`--legacy-peer-deps`:** Expo Router'ın isteğe bağlı `react-dom` peer'i yüzünden gereklidir ([SETUP.md](SETUP.md)).
 
@@ -31,8 +35,8 @@
 |---|---|---|---|---|
 | `@tanstack/react-query` | 2 | Sunucu verisi, önbellek, yeniden deneme | Provider + ChangeNotifier | Sorgu anahtarları kullanıcı kimliğini içerir |
 | `zustand` | 1 | Küçük yerel UI durumu | Provider | Sunucu verisi buraya kopyalanmaz |
-| `expo-secure-store` | 3 | Finansal cache ve kuyruk verisi | `flutter_secure_storage` | Değer başına boyut sınırı var; büyük veri parçalanarak yazılır |
-| `@react-native-community/netinfo` | 3 | Ağ durumu (offline şeridi) | `connectivity` | Offline şeridinin kaynağı |
+| Finansal cache ve kuyruk (`expo-secure-store` üzerinde) | 3 | Son abonelik verisi ve offline yazma kuyruğu | `flutter_secure_storage` | Oturum deposundaki parçalama mantığı yeniden kullanılır |
+| `expo-network` | 3 | Ağ durumu (offline şeridi, senkron tetikleyici) | `connectivity` | Expo modülü; `@react-native-community/netinfo` yerine seçildi (Expo'nun önerisi). Bilinmeyen durum çevrimiçi sayılır ([networkState.ts](../../expo/src/core/network/networkState.ts)) |
 | `expo-notifications` | 5 | Yerel bildirim planlama ve deep link | `flutter_local_notifications` + `timezone` | Uzak push kullanılmaz; AGENTS.md bildirim satırı bu karara göre güncellenir |
 | `expo-local-authentication` | 6 | Biyometri (uygulama kilidi) | `local_auth` | Cihazda doğrulanır |
 | `expo-document-picker`, `expo-file-system`, `expo-sharing` | 6 | CSV içe aktarma, dışa aktarma ve paylaşım | `file_picker`, `share_plus` | CSV enjeksiyonu önlemi sunucu/istemci kuralıyla aynı |

@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import type { ReactNode } from 'react';
 
 import { colors, radius, sizes, spacing } from '../design/tokens';
+import { buttonText, textStyle } from '../design/typography';
 
 /**
  * Her ekranın veri durumunu tek yerden gösterir: yükleniyor, hata, boş, içerik.
@@ -76,8 +77,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.onBackground,
-    fontSize: 17,
-    fontWeight: '600',
+    ...textStyle('titleSmall'),
     textAlign: 'center',
   },
   description: {
@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
   },
   buttonLabel: {
     color: colors.onPrimary,
-    fontSize: 15,
-    fontWeight: '600',
+    ...buttonText,
   },
 });

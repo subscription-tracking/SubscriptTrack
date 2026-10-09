@@ -147,3 +147,8 @@ export function zoneToday(timeZone: string, instant: Date = new Date()): CivilDa
     Number(parts.find((part) => part.type === type)?.value);
   return civilDate(read('year'), read('month'), read('day'));
 }
+
+/** Cihazın IANA saat dilimi. Belirlenemezse UTC. */
+export function deviceTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+}
