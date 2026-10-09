@@ -38,6 +38,8 @@ export function formValuesFromSubscription(subscription: Subscription, today: Ci
     isTrial: trialEnd !== null,
     trialEndDate: trialEnd,
     trialPrice: subscription.trialPriceAfter?.decimalString ?? '',
+    initialPaid: false,
+    initialPaymentDate: today,
   };
 }
 

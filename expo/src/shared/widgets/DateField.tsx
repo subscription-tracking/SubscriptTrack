@@ -1,27 +1,33 @@
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import { civilDate, type CivilDate } from '../../core/time/calendar';
 import { formatLongDate } from '../../core/format/date';
 import { borderWidth, colors, radius, sizes, spacing } from '../design/tokens';
-import { fontFamily } from '../design/typography';
-import { Spacer } from './Spacer';
 import { textStyle } from '../design/typography';
 
-/** Etiketli tarih alanı. Dokununca yerel tarih seçici açılır. Değer takvim günü olarak tutulur. */
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+/**
+ * Flutter `FormDateTile` karşılığı: ikonlu, 12 köşeli, 0.5 kenarlıklı satır; başlık ve değer. Dokununca yerel
+ * tarih seçici açılır. Değer takvim günü olarak tutulur.
+ */
 export function DateField({
   label,
   value,
   onChange,
   error,
   fallback,
+  icon,
 }: {
   label: string;
   value: CivilDate | null;
   onChange: (next: CivilDate) => void;
   error?: string | null;
   fallback: CivilDate;
+  icon?: MaterialIconName;
 }) {
   const [open, setOpen] = useState(false);
   const shown = value ?? fallback;
@@ -34,17 +40,22 @@ export function DateField({
 
   return (
     <View>
-      <Text style={styles.label}>{label}</Text>
-      <Spacer size={spacing.xxs} />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${label}: ${value ? formatLongDate(value) : 'seçilmedi'}`}
         onPress={() => setOpen(true)}
-        style={[styles.field, error ? styles.fieldError : null]}
+        style={[styles.tile, error ? styles.tileError : null]}
       >
-        <Text style={[styles.value, !value && styles.placeholder]}>{value ? formatLongDate(value) : 'Tarih seç'}</Text>
+        {icon ? <MaterialIcons name={icon} size={sizes.iconButtonSize} color={colors.onSurfaceVariant} /> : null}
+        <View style={[styles.texts, icon ? styles.textsWithIcon : null]}>
+          <Text style={textStyle('body')}>{label}</Text>
+          <Text style={textStyle('bodySmall', { color: value ? colors.onSurface : colors.onSurfaceVariant })}>
+            {value ? formatLongDate(value) : 'Tarih seç'}
+          </Text>
+        </View>
+        <MaterialIcons name="chevron-right" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
       </Pressable>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xxs, marginLeft: spacing.md })}>{error}</Text> : null}
       {open ? (
         <DateTimePicker
           value={new Date(shown.year, shown.month - 1, shown.day)}
@@ -58,36 +69,23 @@ export function DateField({
 }
 
 const styles = StyleSheet.create({
-  label: {
-    fontFamily,
-    ...textStyle('caption'),
-    color: colors.onSurfaceVariant,
-  },
-  field: {
-    minHeight: sizes.minTouchTarget + 8,
-    justifyContent: 'center',
+  tile: {
+    minHeight: sizes.tileMinHeight,
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing.md,
-    borderRadius: radius.small,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.field,
     borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.outlineHalf,
   },
-  fieldError: {
+  tileError: {
     borderColor: colors.error,
   },
-  value: {
-    fontFamily,
-    fontSize: 16,
-    color: colors.onSurface,
+  texts: {
+    flex: 1,
   },
-  placeholder: {
-    color: colors.onSurfaceVariant,
-  },
-  error: {
-    fontFamily,
-    fontSize: 12,
-    color: colors.error,
-    paddingLeft: spacing.md,
-    marginTop: spacing.xxs,
+  textsWithIcon: {
+    marginLeft: spacing.md,
   },
 });

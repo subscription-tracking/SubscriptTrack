@@ -1,6 +1,6 @@
 import { Money } from '../../../core/domain/money';
 import { type CivilDate } from '../../../core/time/calendar';
-import { activeForTotals, renewingWithin } from '../../dashboard/domain/dashboardSummary';
+import { activeForTotals, renewingWithin } from '../../subscriptions/domain/activeSelectors';
 import { monthlyEquivalent, type Subscription, type SubscriptionCategory } from '../../subscriptions/domain/subscription';
 import { monthlyTotals, type PaymentEvent } from './paymentEvents';
 
@@ -20,7 +20,7 @@ export interface StatsSummary {
   monthly: Money;
   yearly: Money;
   activeCount: number;
-  /** Son 6 ayın ödeme toplamları (minör birim), eskiden yeniye. */
+  /** Seçilen pencerenin ödeme toplamları (minör birim), eskiden yeniye. */
   trend: number[];
   hasPaymentHistory: boolean;
   categories: CategoryShare[];
@@ -35,6 +35,8 @@ export function buildStatsSummary(input: {
   today: CivilDate;
   now: Date;
   selectedCurrency?: string | null;
+  /** Trend penceresi: 3, 6 veya 12 ay (Flutter `_months`). */
+  months?: number;
 }): StatsSummary | null {
   const active = activeForTotals(input.subscriptions, input.today);
   const currencies = [...new Set(active.map((subscription) => subscription.currency))].sort();
@@ -62,7 +64,7 @@ export function buildStatsSummary(input: {
     monthly,
     yearly: monthly.multiply(12),
     activeCount: inCurrency.length,
-    trend: monthlyTotals(input.payments, currency, input.now),
+    trend: monthlyTotals(input.payments, currency, input.now, input.months ?? 6),
     hasPaymentHistory: input.payments.some((payment) => payment.currency === currency),
     categories,
     dueSoon: renewingWithin(input.subscriptions, input.today, 7).slice(0, 3),

@@ -1,29 +1,26 @@
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
-import { ChoiceChips, type ChoiceOption } from '../../../shared/widgets/ChoiceChips';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
-import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
-import { Spacer } from '../../../shared/widgets/Spacer';
+import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
-import { cancelAllReminders } from '../data/notificationScheduler';
+import { SectionLabel, SettingsTile } from '../../settings/ui/SettingsParts';
+import { cancelAllReminders, sendTestReminder } from '../data/notificationScheduler';
 import { DEFAULT_DAYS_OPTIONS, type NotifyPrefs, useNotifyPrefs, useSetNotifyPrefs } from '../data/notificationPrefs';
 import { useRequestPermission, usePermissionQuery } from '../data/notificationPermission';
 
-const DAY_LABELS: Record<number, string> = { 0: 'Aynı gün', 1: '1 gün önce', 3: '3 gün önce', 7: '7 gün önce' };
-const DAY_OPTIONS: ChoiceOption<string>[] = DEFAULT_DAYS_OPTIONS.map((days) => ({ value: String(days), label: DAY_LABELS[days] }));
+const DAY_LABELS: Record<number, string> = { 1: '1 gün önce', 3: '3 gün önce', 7: '7 gün önce' };
 
-/** Bildirim tercihleri (Flutter `NotificationPreferencesScreen` karşılığı). İzin açıklaması sistem penceresinden önce gösterilir. */
+/**
+ * Bildirim ayarları (Flutter `NotificationPreferencesScreen`): yenileme bildirimleri anahtarı (izin istenir), gün
+ * seçimi, hatırlatma saati ve test bildirimi. Açık değilken gün, saat ve test satırları gizlenir.
+ */
 export function NotificationPreferencesScreen() {
-  const router = useRouter();
   const prefs = useNotifyPrefs();
-  const permission = usePermissionQuery();
-
   const state: AsyncState<NotifyPrefs> = prefs.isPending
     ? { status: 'loading' }
     : prefs.isError
@@ -32,66 +29,8 @@ export function NotificationPreferencesScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
-        </Pressable>
-        <Text style={textStyle('title')}>Bildirim tercihleri</Text>
-      </View>
-      <Spacer size={spacing.md} />
-      <AsyncStateView state={state}>
-        {(value) => (
-          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-            <PermissionCard status={permission.data ?? 'undetermined'} />
-            <Spacer size={spacing.md} />
-            <Preferences value={value} />
-            <Spacer size={sizes.bottomNavHeight} />
-          </ScrollView>
-        )}
-      </AsyncStateView>
-    </View>
-  );
-}
-
-function PermissionCard({ status }: { status: 'granted' | 'denied' | 'undetermined' }) {
-  const request = useRequestPermission();
-  const snackbar = useSnackbar();
-
-  if (status === 'granted') {
-    return (
-      <View style={styles.card}>
-        <Text style={textStyle('titleSmall')}>Bildirimler açık</Text>
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-          Hatırlatmalar yalnızca bu cihazda zamanlanır; sunucuya gönderilmez.
-        </Text>
-      </View>
-    );
-  }
-
-  if (status === 'denied') {
-    return (
-      <View style={styles.card}>
-        <Text style={textStyle('titleSmall')}>Bildirimler kapalı</Text>
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-          Hatırlatmaları almak için bildirimleri cihaz ayarlarından aç.
-        </Text>
-        <OutlinedButton label="Ayarları aç" onPress={() => void Linking.openSettings()} />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.card}>
-      <Text style={textStyle('titleSmall')}>Hatırlatmalar için izin</Text>
-      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-        Abonelik yenilemelerini ve deneme bitişlerini zamanında hatırlatmak için bildirim izni gerekir. Hatırlatmalar yalnızca bu cihazda zamanlanır.
-      </Text>
-      <PrimaryButton
-        label="İzin ver"
-        onPress={() => {
-          void request().catch(() => snackbar.show('İzin isteği başarısız oldu.', 'error'));
-        }}
-      />
+      <ScreenTopBar title="Bildirimler" />
+      <AsyncStateView state={state}>{(value) => <Preferences value={value} />}</AsyncStateView>
     </View>
   );
 }
@@ -99,30 +38,100 @@ function PermissionCard({ status }: { status: 'granted' | 'denied' | 'undetermin
 function Preferences({ value }: { value: NotifyPrefs }) {
   const save = useSetNotifyPrefs();
   const snackbar = useSnackbar();
+  const permission = usePermissionQuery();
+  const requestPermission = useRequestPermission();
+  const [requesting, setRequesting] = useState(false);
+  const [pickingHour, setPickingHour] = useState(false);
+  const unsupported = permission.data === 'unsupported';
 
-  async function update(next: NotifyPrefs) {
-    try {
-      await save(next);
-      if (!next.enabled) await cancelAllReminders();
-    } catch {
-      snackbar.show('Tercih kaydedilemedi.', 'error');
+  async function toggleEnabled(next: boolean) {
+    if (next) {
+      setRequesting(true);
+      const status = await requestPermission();
+      setRequesting(false);
+      if (status !== 'granted') {
+        snackbar.show('Bildirim izni verilmedi. Ayarlardan açabilirsin.', 'error');
+        return;
+      }
+    } else {
+      await cancelAllReminders();
     }
+    await save({ ...value, enabled: next });
   }
 
+  async function pickHour(event: DateTimePickerEvent, picked?: Date) {
+    if (Platform.OS === 'android') setPickingHour(false);
+    if (event.type === 'dismissed' || !picked) return;
+    await save({ ...value, reminderHour: picked.getHours() });
+  }
+
+  async function sendTest() {
+    const sent = await sendTestReminder();
+    snackbar.show(sent ? 'Test bildirimi gönderildi.' : 'Bildirim izni kapalı. Önce cihaz ayarlarından izin ver.', sent ? 'primary' : 'error');
+  }
+
+  const selectedDays = value.defaultDays;
+  const hourLabel = `${String(value.reminderHour).padStart(2, '0')}:00`;
+
   return (
-    <View style={styles.card}>
-      <CheckboxRow checked={value.enabled} onChange={(enabled) => void update({ ...value, enabled })}>
-        <Text style={textStyle('bodySmall')}>Yenileme ve deneme hatırlatmaları</Text>
-      </CheckboxRow>
-      <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>Kayıtta kural yoksa varsayılan</Text>
-      <ChoiceChips
-        options={DAY_OPTIONS}
-        value={String(value.defaultDays)}
-        onChange={(days) => void update({ ...value, defaultDays: Number(days) })}
-      />
-      <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-        Hatırlatmalar yerel saatle 09:00'da gelir. Deneme bitişlerinden 7, 3 ve 1 gün önce hatırlatılır.
-      </Text>
+    <View style={styles.body}>
+      <View style={styles.switchRow}>
+        <MaterialIcons name="notifications-none" size={sizes.tileIcon} color={colors.onSurface} />
+        <View style={styles.switchText}>
+          <Text style={textStyle('tileLabel')}>Yenileme bildirimleri</Text>
+          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Abonelik yenilenmeden önce bildirim al</Text>
+        </View>
+        <Switch
+          value={value.enabled}
+          disabled={requesting || unsupported}
+          onValueChange={(next) => void toggleEnabled(next)}
+          trackColor={{ false: colors.outline, true: withAlpha(colors.primary, 0.5) }}
+          thumbColor={value.enabled ? colors.primary : colors.onSurfaceVariant}
+        />
+      </View>
+      {unsupported ? (
+        <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+          Bu derlemede yerel bildirim kullanılamıyor (Expo Go). Geliştirme derlemesinde çalışır.
+        </Text>
+      ) : null}
+
+      {value.enabled ? (
+        <>
+          <View style={styles.divider} />
+          <SectionLabel label="Kaç gün önce hatırlatılsın?" />
+          {DEFAULT_DAYS_OPTIONS.map((days) => {
+            const selected = selectedDays === days;
+            return (
+              <Pressable
+                key={days}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                onPress={() => void save({ ...value, defaultDays: days })}
+                style={styles.radioRow}
+              >
+                <View style={[styles.radioOuter, { borderColor: selected ? colors.primary : colors.onSurfaceVariant }]}>
+                  {selected ? <View style={styles.radioInner} /> : null}
+                </View>
+                <Text style={textStyle('body', { marginLeft: gaps.rowLoose - 2 })}>{DAY_LABELS[days]}</Text>
+              </Pressable>
+            );
+          })}
+          <View style={styles.divider} />
+          <SettingsTile icon="schedule" label="Hatırlatma saati" value={hourLabel} onPress={() => setPickingHour(true)} />
+          <View style={styles.divider} />
+          <SettingsTile icon="send" label="Test bildirimi gönder" value="Bildirimlerin çalıştığını doğrula" onPress={() => void sendTest()} />
+        </>
+      ) : null}
+
+      {pickingHour ? (
+        <DateTimePicker
+          value={new Date(2000, 0, 1, value.reminderHour, 0)}
+          mode="time"
+          is24Hour
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, picked) => void pickHour(event, picked)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -131,30 +140,45 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
-  topBar: {
+  body: {
+    paddingBottom: sizes.bottomNavHeight,
+  },
+  switchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: screenGutter - 8,
-    height: sizes.minTouchTarget,
+    minHeight: sizes.minTouchTarget,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: gaps.rowLoose - 2 + spacing.xxs / 2,
   },
-  backButton: {
-    width: sizes.minTouchTarget,
-    height: sizes.minTouchTarget,
+  switchText: {
+    flex: 1,
+    marginLeft: gaps.rowLoose - 2,
+    marginRight: spacing.xs,
+  },
+  divider: {
+    height: borderWidth.hairline,
+    marginVertical: spacing.xs,
+    backgroundColor: colors.border,
+  },
+  radioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: sizes.minTouchTarget,
+    paddingHorizontal: spacing.lg,
+  },
+  radioOuter: {
+    width: sizes.radioOuter,
+    height: sizes.radioOuter,
+    borderRadius: sizes.radioOuter / 2,
+    borderWidth: borderWidth.focused + 0.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {
-    paddingHorizontal: screenGutter,
-  },
-  card: {
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-    gap: spacing.sm,
+  radioInner: {
+    width: sizes.radioInner,
+    height: sizes.radioInner,
+    borderRadius: sizes.radioInner / 2,
+    backgroundColor: colors.primary,
   },
 });

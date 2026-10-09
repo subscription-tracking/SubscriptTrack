@@ -1,296 +1,246 @@
 import { useMemo, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
-import { Money } from '../../../core/domain/money';
 import { formatCurrency } from '../../../core/format/money';
-import { formatLongDate, formatMonthYear } from '../../../core/format/date';
+import { formatRelativeDate } from '../../../core/format/date';
 import { type CivilDate, deviceTimeZone, zoneToday } from '../../../core/time/calendar';
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { ChoiceChips, type ChoiceOption } from '../../../shared/widgets/ChoiceChips';
-import { DateField } from '../../../shared/widgets/DateField';
-import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
-import { Spacer } from '../../../shared/widgets/Spacer';
-import { TextField } from '../../../shared/widgets/TextField';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { type Subscription } from '../../subscriptions/domain/subscription';
 import { analyticsKeys, usePaymentsQuery } from '../data/queries';
-import { deletePayment, recordPayment } from '../data/paymentRepository';
-import { type PaymentEvent, localCivilDate } from '../domain/paymentEvents';
-import { PaymentEditSheet } from './PaymentEditSheet';
+import { deletePayment, recordPayment, updatePayment } from '../data/paymentRepository';
+import { localCivilDate, paidAtFromCivil, type PaymentEvent } from '../domain/paymentEvents';
+import { AddPaymentDialog, EditPaymentDialog } from './PaymentDialogs';
 
 const OFFLINE_MESSAGE = 'Ödeme kaydı için internet bağlantısı gerekir.';
 
-/** Ödeme geçmişi: aya göre gruplu liste, ödeme ekleme ve silme. Düzenleme sonraki sürümde. */
+/**
+ * Ödeme geçmişi (Flutter `PaymentHistoryScreen`): kayıtlar kart listesi olarak; her kartta ad, tarih, tutar ve
+ * düzenle/sil düğmeleri. "Kayıt ekle" uzatılmış düğmesi ekleme iletişim kutusunu açar. Silme onay istemez.
+ */
 export function PaymentHistoryScreen() {
-  const router = useRouter();
   const { user } = useAuth();
   const payments = usePaymentsQuery(user?.id);
   const subscriptions = useSubscriptionsQuery(user?.id);
+  const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
 
-  const state: AsyncState<PaymentEvent[]> = payments.isPending || subscriptions.isPending
-    ? { status: 'loading' }
-    : payments.isError || subscriptions.isError
-      ? {
-          status: 'error',
-          message: 'Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip tekrar dene.',
-          onRetry: () => {
-            void payments.refetch();
-            void subscriptions.refetch();
-          },
-        }
-      : { status: 'ready', data: payments.data ?? [] };
+  const state: AsyncState<{ payments: PaymentEvent[]; subscriptions: Subscription[] }> =
+    payments.isPending || subscriptions.isPending
+      ? { status: 'loading' }
+      : payments.isError || subscriptions.isError
+        ? {
+            status: 'error',
+            message: 'Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip tekrar dene.',
+            onRetry: () => {
+              void payments.refetch();
+              void subscriptions.refetch();
+            },
+          }
+        : { status: 'ready', data: { payments: payments.data ?? [], subscriptions: subscriptions.data ?? [] } };
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
-        </Pressable>
-        <Text style={textStyle('title')}>Ödeme geçmişi</Text>
-      </View>
-      <Spacer size={spacing.md} />
+      <ScreenTopBar title="Ödeme geçmişi" />
       <AsyncStateView state={state}>
-        {(items) => (
-          <History
-            payments={items}
-            subscriptions={subscriptions.data ?? []}
-          />
-        )}
+        {(data) => <History payments={data.payments} subscriptions={data.subscriptions} today={today} />}
       </AsyncStateView>
     </View>
   );
 }
 
-function History({ payments, subscriptions }: { payments: PaymentEvent[]; subscriptions: Subscription[] }) {
+function History({ payments, subscriptions, today }: { payments: PaymentEvent[]; subscriptions: Subscription[]; today: CivilDate }) {
+  const queryClient = useQueryClient();
+  const snackbar = useSnackbar();
+  const { user } = useAuth();
+  const online = useOnlineStatus();
   const names = useMemo(() => new Map(subscriptions.map((item) => [item.id, item.name])), [subscriptions]);
-  const groups = useMemo(() => groupByMonth(payments), [payments]);
+  const addable = subscriptions.filter((item) => item.status !== 'archived');
+  const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<PaymentEvent | null>(null);
 
-  return (
-    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <AddPayment subscriptions={subscriptions.filter((item) => item.status === 'active' || item.status === 'trial')} />
-      <Spacer size={spacing.md} />
+  const refresh = async () => {
+    if (user) await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
+  };
 
-      {payments.length === 0 ? (
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-          Henüz ödeme kaydı yok. Ödemelerini ekledikçe trend ve kategori analizleri güncellenir.
-        </Text>
-      ) : null}
-
-      {groups.map((group) => (
-        <View key={group.key} style={styles.group}>
-          <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{group.title}</Text>
-          {group.items.map((payment) => (
-            <PaymentRow
-              key={payment.id}
-              payment={payment}
-              name={names.get(payment.subscriptionId ?? '') ?? 'Silinmiş abonelik'}
-              onEdit={() => setEditing(payment)}
-            />
-          ))}
-        </View>
-      ))}
-      <Spacer size={sizes.bottomNavHeight} />
-      <PaymentEditSheet
-        payment={editing}
-        name={names.get(editing?.subscriptionId ?? '') ?? 'Silinmiş abonelik'}
-        onClose={() => setEditing(null)}
-      />
-    </ScrollView>
-  );
-}
-
-function PaymentRow({ payment, name, onEdit }: { payment: PaymentEvent; name: string; onEdit: () => void }) {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const snackbar = useSnackbar();
-  const online = useOnlineStatus();
-  const remove = useMutation({
-    mutationFn: () => {
+  const add = useMutation({
+    mutationFn: async (input: { subscription: Subscription; amount: string }) => {
       if (!online) throw new Error(OFFLINE_MESSAGE);
-      return deletePayment(payment.id);
-    },
-    onSuccess: async () => {
-      if (user) await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
-      snackbar.show('Ödeme kaydı silindi.', 'default');
-    },
-    onError: (error: Error) => snackbar.show(error.message, 'error'),
-  });
-
-  function confirm() {
-    Alert.alert('Ödeme kaydı silinsin mi?', `${name} · ${formatCurrency(payment.amount, payment.currency)}`, [
-      { text: 'Vazgeç', style: 'cancel' },
-      { text: 'Sil', style: 'destructive', onPress: () => remove.mutate() },
-    ]);
-  }
-
-  const paidAt = localCivilDate(payment.paidAt);
-  return (
-    <View style={styles.row}>
-      <Pressable accessibilityRole="button" accessibilityLabel={`${name} ödemesini düzenle`} onPress={onEdit} style={styles.rowText}>
-        <Text style={textStyle('titleSmall')}>{name}</Text>
-        <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{formatLongDate(paidAt)}</Text>
-      </Pressable>
-      <Text style={textStyle('titleSmall', { color: colors.primary })}>{formatCurrency(payment.amount, payment.currency)}</Text>
-      <Pressable accessibilityRole="button" accessibilityLabel="Ödeme kaydını sil" onPress={confirm} style={styles.deleteButton}>
-        <MaterialIcons name="delete-outline" size={22} color={colors.onSurfaceVariant} />
-      </Pressable>
-    </View>
-  );
-}
-
-function AddPayment({ subscriptions }: { subscriptions: Subscription[] }) {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const snackbar = useSnackbar();
-  const online = useOnlineStatus();
-  const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
-
-  const [subscriptionId, setSubscriptionId] = useState<string | null>(subscriptions[0]?.id ?? null);
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState<CivilDate>(today);
-  const [errors, setErrors] = useState<{ amount?: string; subscription?: string }>({});
-
-  const options: ChoiceOption<string>[] = subscriptions.map((item) => ({ value: item.id, label: item.name }));
-  const selected = subscriptions.find((item) => item.id === subscriptionId) ?? null;
-
-  const save = useMutation({
-    mutationFn: async () => {
-      if (!online) throw new Error(OFFLINE_MESSAGE);
-      if (!selected || !user) throw new Error('Abonelik seç.');
-      const money = Money.tryParse(amount);
-      if (!money) throw new Error('Geçerli tutar gir.');
-      const paidAt = new Date(date.year, date.month - 1, date.day, 12, 0, 0);
       await recordPayment({
         idempotencyKey: randomUUID(),
-        subscriptionId: selected.id,
-        amount: money.decimalString,
-        currency: selected.currency,
-        paidAt,
+        subscriptionId: input.subscription.id,
+        amount: input.amount,
+        currency: input.subscription.currency,
+        paidAt: paidAtFromCivil(today),
       });
     },
     onSuccess: async () => {
-      if (user) await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
-      setAmount('');
+      await refresh();
+      setAdding(false);
       snackbar.show('Ödeme kaydedildi.', 'primary');
     },
     onError: (error: Error) => snackbar.show(error.message, 'error'),
   });
 
-  function submit() {
-    const next: { amount?: string; subscription?: string } = {};
-    if (!selected) next.subscription = 'Abonelik seç';
-    const money = Money.tryParse(amount);
-    if (!money || money.compareTo(Money.zero) <= 0) next.amount = 'Geçerli tutar gir';
-    setErrors(next);
-    if (next.amount || next.subscription) return;
-    save.mutate();
-  }
+  const edit = useMutation({
+    mutationFn: async (input: { id: string; amount: string; paidAt: Date }) => {
+      if (!online) throw new Error(OFFLINE_MESSAGE);
+      await updatePayment(input);
+    },
+    onSuccess: async () => {
+      await refresh();
+      setEditing(null);
+    },
+    onError: (error: Error) => snackbar.show(error.message, 'error'),
+  });
 
-  if (subscriptions.length === 0) {
-    return (
-      <View style={styles.card}>
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-          Ödeme eklemek için önce aktif bir abonelik ekle.
-        </Text>
-      </View>
-    );
-  }
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      if (!online) throw new Error(OFFLINE_MESSAGE);
+      await deletePayment(id);
+    },
+    onSuccess: refresh,
+    onError: (error: Error) => snackbar.show(error.message, 'error'),
+  });
 
   return (
-    <View style={styles.card}>
-      <Text style={textStyle('titleSmall')}>Ödeme ekle</Text>
-      {!online ? <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{OFFLINE_MESSAGE}</Text> : null}
-      <ChoiceChips options={options} value={subscriptionId ?? ''} onChange={(value) => setSubscriptionId(value)} />
-      {errors.subscription ? <Text style={textStyle('caption', { color: colors.error })}>{errors.subscription}</Text> : null}
-      <TextField
-        label={`Tutar${selected ? ` (${selected.currency})` : ''}`}
-        value={amount}
-        onChangeText={setAmount}
-        keyboardType="decimal-pad"
-        error={errors.amount}
-        editable={!save.isPending && online}
+    <View style={styles.body}>
+      {payments.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Henüz manuel ödeme kaydı yok.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={payments}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          renderItem={({ item }) => (
+            <PaymentCard
+              payment={item}
+              name={names.get(item.subscriptionId ?? '') ?? 'Silinmiş abonelik'}
+              dateLabel={formatRelativeDate(localCivilDate(item.paidAt), today)}
+              onEdit={() => setEditing(item)}
+              onDelete={() => remove.mutate(item.id)}
+            />
+          )}
+        />
+      )}
+
+      <Pressable accessibilityRole="button" onPress={() => setAdding(true)} style={styles.fab}>
+        <MaterialIcons name="add" size={sizes.iconButtonSize} color={colors.onPrimary} />
+        <Text style={textStyle('label', { color: colors.onPrimary, marginLeft: spacing.xs })}>Kayıt ekle</Text>
+      </Pressable>
+
+      <AddPaymentDialog
+        visible={adding}
+        subscriptions={addable}
+        onClose={() => setAdding(false)}
+        onSave={({ subscription, amount }) => add.mutate({ subscription, amount: amount.decimalString })}
       />
-      <DateField label="Ödeme tarihi" value={date} fallback={today} onChange={setDate} />
-      <PrimaryButton label="Ödemeyi kaydet" onPress={submit} loading={save.isPending} disabled={!online} />
+      {editing ? (
+        <EditPaymentDialog
+          visible
+          currency={editing.currency}
+          initialAmount={editing.amount.amount.toFixed(2)}
+          onClose={() => setEditing(null)}
+          onSave={(amount) => edit.mutate({ id: editing.id, amount: amount.decimalString, paidAt: new Date(editing.paidAt) })}
+        />
+      ) : null}
     </View>
   );
 }
 
-function groupByMonth(payments: PaymentEvent[]): { key: string; title: string; items: PaymentEvent[] }[] {
-  const groups = new Map<string, { key: string; title: string; items: PaymentEvent[] }>();
-  for (const payment of payments) {
-    const civil = localCivilDate(payment.paidAt);
-    const key = `${civil.year}-${civil.month}`;
-    const group = groups.get(key) ?? { key, title: formatMonthYear(civil.year, civil.month), items: [] };
-    group.items.push(payment);
-    groups.set(key, group);
-  }
-  return [...groups.values()];
+function PaymentCard({
+  payment,
+  name,
+  dateLabel,
+  onEdit,
+  onDelete,
+}: {
+  payment: PaymentEvent;
+  name: string;
+  dateLabel: string;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.texts}>
+        <Text style={textStyle('body')} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{dateLabel}</Text>
+      </View>
+      <Text style={textStyle('bodyMediumStrong')}>{formatCurrency(payment.amount, payment.currency)}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel="Düzenle" onPress={onEdit} style={styles.iconButton}>
+        <MaterialIcons name="edit" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Sil" onPress={onDelete} style={styles.iconButton}>
+        <MaterialIcons name="delete-outline" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
+      </Pressable>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: screenGutter - 8,
-    height: sizes.minTouchTarget,
+  body: {
+    flex: 1,
   },
-  backButton: {
-    width: sizes.minTouchTarget,
-    height: sizes.minTouchTarget,
+  empty: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {
-    paddingHorizontal: screenGutter,
-    gap: spacing.xs,
+  list: {
+    padding: spacing.lg,
+    paddingBottom: sizes.bottomNavHeight + spacing.xxl,
+  },
+  separator: {
+    height: spacing.xs,
   },
   card: {
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-    gap: spacing.sm,
-  },
-  group: {
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-  },
-  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.md,
+    paddingLeft: gaps.cardInset,
+    paddingRight: spacing.xs,
+    paddingVertical: spacing.xs,
     borderRadius: radius.medium,
+    borderWidth: borderWidth.hairline,
+    borderColor: withAlpha(colors.outline, 0.5),
     backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
   },
-  rowText: {
+  texts: {
     flex: 1,
-    gap: spacing.xxs,
+    marginRight: spacing.xs,
   },
-  deleteButton: {
+  iconButton: {
     width: sizes.minTouchTarget,
     height: sizes.minTouchTarget,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    right: spacing.lg,
+    bottom: sizes.bottomNavHeight + spacing.md,
+    minHeight: sizes.minTouchTarget + spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
   },
 });

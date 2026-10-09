@@ -6,14 +6,13 @@ import { type Subscription, type SubscriptionStatus } from './subscription';
  * Arşivlenmiş kayıtlar bu listede yer almaz; kendi ekranlarında görünür.
  */
 
-export type ListTab = 'active' | 'trial' | 'paused' | 'cancelled' | 'expired';
+/** Flutter ile aynı üç sekme: Aktif, Deneme, Geçmiş (duraklatılmış, iptal edilmiş ve süresi dolmuş kayıtlar). */
+export type ListTab = 'active' | 'trial' | 'history';
 
 export const LIST_TABS: ReadonlyArray<{ key: ListTab; label: string; statuses: SubscriptionStatus[] }> = [
   { key: 'active', label: 'Aktif', statuses: ['active'] },
   { key: 'trial', label: 'Deneme', statuses: ['trial'] },
-  { key: 'paused', label: 'Duraklatıldı', statuses: ['paused'] },
-  { key: 'cancelled', label: 'İptal edildi', statuses: ['cancelled'] },
-  { key: 'expired', label: 'Geçmiş', statuses: ['expired'] },
+  { key: 'history', label: 'Geçmiş', statuses: ['paused', 'cancelled', 'expired'] },
 ];
 
 export function tabFor(key: ListTab): (typeof LIST_TABS)[number] {
@@ -24,7 +23,7 @@ export function tabFor(key: ListTab): (typeof LIST_TABS)[number] {
 
 /** Her sekmedeki kayıt sayısı (rozet için). */
 export function countsByTab(subscriptions: readonly Subscription[]): Record<ListTab, number> {
-  const counts = { active: 0, trial: 0, paused: 0, cancelled: 0, expired: 0 } satisfies Record<ListTab, number>;
+  const counts = { active: 0, trial: 0, history: 0 } satisfies Record<ListTab, number>;
   for (const subscription of subscriptions) {
     for (const tab of LIST_TABS) {
       if (tab.statuses.includes(subscription.status)) counts[tab.key] += 1;

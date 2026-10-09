@@ -13,7 +13,16 @@ import { colors } from '../design/tokens';
 const BLOB_LEFT = { size: 200, opacity: 0.12 };
 const BLOB_RIGHT = { size: 220, opacity: 0.16 };
 
-export function AmbientBackground({ children, accent = colors.primary }: { children: ReactNode; accent?: string }) {
+export function AmbientBackground({
+  children,
+  accent = colors.primary,
+  wash = colors.ambientWash,
+}: {
+  children: ReactNode;
+  accent?: string;
+  /** Radyal yıkama rengi (tanıtım sayfaları kendi rengini verir). */
+  wash?: string;
+}) {
   const { width, height } = useWindowDimensions();
   const shortest = Math.min(width, height);
   // Flutter RadialGradient(center: (0, -0.6), radius: 1.1): merkez yüzdesi ve yarıçap en kısa kenara göre.
@@ -32,7 +41,7 @@ export function AmbientBackground({ children, accent = colors.primary }: { child
             r={washR * shortest}
             gradientUnits="userSpaceOnUse"
           >
-            <Stop offset="0" stopColor={colors.ambientWash} />
+            <Stop offset="0" stopColor={wash} />
             <Stop offset="1" stopColor={colors.surface} />
           </RadialGradient>
           <RadialGradient id="blobRight" cx="0.5" cy="0.5" r="0.5">

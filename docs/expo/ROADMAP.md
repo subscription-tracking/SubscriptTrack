@@ -180,6 +180,7 @@
 
 | Tarih | Aşama | Olay |
 |---|---|---|
+| 2026-10-09 | Tasarım | Birebir görünüm çalışması (Flutter referansı): alt gezinme 4 sekme (Ana Sayfa, Abonelikler, İstatistikler, Ayarlar) ve dört sekmenin ortak üst barı (ikon, alt başlık, takvim, rozetli bildirim); dört sekme `(app)/(tabs)` grubunda, diğer ekranlar alt gezinmesiz yığında; Flutter kimlik doğrulama ölçüleri (24 boşluk, w800 başlık, 15 düğme yazısı); ana sayfa (kahraman kart, halka, çipler, donut, hızlı işlemler, tasarruf, boş durum); hizmet kimliği (marka ikonları); liste (3 sekme, hap çubuğu, Flutter kartı, filtre paneli); detay (renkli hero, bilgi kutuları, hatırlatmalar, geçmiş ödemeler, eylemler); Flutter biçimli para (`₺1.234,56`) ve tarih (Bugün/Yarın/Geçti). Kalan ekranlar: form, takvim, istatistik, tasarruf, bildirimler, ayarlar alt sayfaları, tanıtım, CSV içe aktarma, arşiv, iptal. Android bundle ve testler (310) geçiyor; cihazda görsel karşılaştırma yapılmadı |
 | 2026-10-09 | 0 | `expo/` iskeleti, Expo Router kurulumu ve boş iki ekran |
 | 2026-10-09 | 0 | Supabase istemcisi (aynı backend), `Money` ve takvim modülleri (Flutter kurallarından port), tema tokenları, `AsyncStateView` ve `OfflineBanner`; 38 test geçiyor, typecheck ve Android bundle hatasız |
 | 2026-10-09 | 0 | Karar verildi: fiziksel silme ve yenileme tarihi için ürün kuralı, bildirim için `expo-notifications` ([PARITY §4](PARITY.md), [ADR 0010](../decisions/0010-expo-parallel-app.md)) |

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { useAuth } from '../../auth/AuthProvider';
@@ -7,27 +7,8 @@ import { FREE_ATTEMPTS, lockoutMs, shouldLockOnResume } from '../domain/appLockR
 import { readAppLock, writeAttempts } from '../data/appLockStore';
 import { authenticateWithBiometrics } from '../data/biometrics';
 import { LockScreen } from './LockScreen';
+import { AppLockContext, type AppLockValue, type UnlockResult } from './appLockContext';
 
-export type UnlockResult = 'ok' | 'wrong' | 'locked_out';
-
-interface AppLockValue {
-  ready: boolean;
-  enabled: boolean;
-  locked: boolean;
-  biometricEnabled: boolean;
-  timeoutMinutes: number;
-  /** Bekleme sürüyorsa kalan süre (ms). */
-  lockoutRemainingMs: number;
-  attemptsLeft: number;
-  unlockWithPin: (pin: string) => Promise<UnlockResult>;
-  unlockWithBiometrics: () => Promise<boolean>;
-  /** Ayarlar değiştiğinde durumu yeniden okur. */
-  refresh: () => Promise<void>;
-}
-
-const AppLockContext = createContext<AppLockValue | null>(null);
-
-/** Uygulama kilidi: arka plandan dönüşte süreye göre kilitler; PIN ve biyometriyle açılır. */
 export function AppLockProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [state, setState] = useState<Omit<AppLockValue, 'unlockWithPin' | 'unlockWithBiometrics' | 'refresh'>>({
@@ -131,10 +112,4 @@ export function AppLockProvider({ children }: { children: ReactNode }) {
       {showLock ? <LockScreen /> : null}
     </AppLockContext.Provider>
   );
-}
-
-export function useAppLock(): AppLockValue {
-  const value = useContext(AppLockContext);
-  if (!value) throw new Error('useAppLock, AppLockProvider içinde kullanılmalıdır.');
-  return value;
 }

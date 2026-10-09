@@ -1,31 +1,15 @@
 import { Money } from '../../../core/domain/money';
-import { type CivilDate, daysBetween, dayNumber } from '../../../core/time/calendar';
+import { type CivilDate, dayNumber } from '../../../core/time/calendar';
 import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
+import { renewingWithin } from '../../subscriptions/domain/activeSelectors';
+
+export { activeForTotals, compareByRenewal, isNotStarted, renewingWithin } from '../../subscriptions/domain/activeSelectors';
 
 /**
  * Ana sayfa hesapları ([PRODUCT §6.3](../../../../../docs/product/PRODUCT.md), Flutter
  * `SubscriptionSelectors` ile aynı). Para birimleri birbirine çevrilmez; her toplam para
  * birimi başına tutulur. I/O yoktur.
  */
-
-/** Başlangıç günü henüz gelmemiş aktif/deneme kaydı (Flutter `isNotStartedOnDay`). */
-export function isNotStarted(subscription: Subscription, today: CivilDate): boolean {
-  if (subscription.status !== 'active' && subscription.status !== 'trial') return false;
-  return subscription.startDate !== null && dayNumber(subscription.startDate) > dayNumber(today);
-}
-
-/** Toplamlara dahil olan aktif kayıtlar, yenileme tarihine göre. */
-export function activeForTotals(subscriptions: readonly Subscription[], today: CivilDate): Subscription[] {
-  return subscriptions
-    .filter((subscription) => subscription.status === 'active' && !isNotStarted(subscription, today))
-    .sort(compareByRenewal);
-}
-
-export function compareByRenewal(a: Subscription, b: Subscription): number {
-  const dayA = a.nextRenewalDate ? dayNumber(a.nextRenewalDate) : Number.POSITIVE_INFINITY;
-  const dayB = b.nextRenewalDate ? dayNumber(b.nextRenewalDate) : Number.POSITIVE_INFINITY;
-  return dayA - dayB;
-}
 
 /** Para birimi başına aylık tahmini toplam (her kaydın aylık eşdeğeri). */
 export function monthlyTotalsByCurrency(active: readonly Subscription[]): Map<string, Money> {
@@ -44,19 +28,6 @@ export function yearlyTotalsByCurrency(active: readonly Subscription[]): Map<str
     yearly.set(currency, monthly.multiply(12));
   }
   return yearly;
-}
-
-/** Önümüzdeki `days` gün içinde (bugün dahil) yenilenecek aktif kayıtlar. */
-export function renewingWithin(
-  subscriptions: readonly Subscription[],
-  today: CivilDate,
-  days: number,
-): Subscription[] {
-  return activeForTotals(subscriptions, today).filter((subscription) => {
-    if (!subscription.nextRenewalDate) return false;
-    const diff = daysBetween(today, subscription.nextRenewalDate);
-    return diff >= 0 && diff <= days;
-  });
 }
 
 /** Ana sayfadaki "Sıradaki ödeme": 30 gün içindeki en yakın aktif yenileme. */

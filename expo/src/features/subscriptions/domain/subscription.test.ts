@@ -86,7 +86,7 @@ describe('liste sekmeleri ve arama', () => {
   });
 
   it('tarihi olmayan kayıtlar listenin sonuna gider', () => {
-    expect(visibleSubscriptions(list, 'paused', '').map((s) => s.id)).toEqual(['d']);
+    expect(visibleSubscriptions(list, 'history', '').map((s) => s.id)).toEqual(['e', 'd']);
   });
 
   it('arama ad içinde büyük/küçük harf duyarsız eşleşir', () => {
@@ -94,12 +94,12 @@ describe('liste sekmeleri ve arama', () => {
   });
 
   it('sekme sayıları her durumu ayrı sayar', () => {
-    expect(countsByTab(list)).toEqual({ active: 2, trial: 1, paused: 1, cancelled: 0, expired: 1 });
+    expect(countsByTab(list)).toEqual({ active: 2, trial: 1, history: 2 });
   });
 
   it('arşivlenmiş kayıt listelerde görünmez', () => {
     const archived = [make({ id: 'z', status: 'archived' })];
-    expect(countsByTab(archived)).toEqual({ active: 0, trial: 0, paused: 0, cancelled: 0, expired: 0 });
+    expect(countsByTab(archived)).toEqual({ active: 0, trial: 0, history: 0 });
   });
 });
 

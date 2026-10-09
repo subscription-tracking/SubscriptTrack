@@ -43,6 +43,16 @@ export async function updateSubscription(payload: UpdatePayload): Promise<void> 
 }
 
 /**
+ * Kalıcı silme. Normal yaşam döngüsünde kullanılmaz (ADR 0006); yalnızca yanlış oluşturulmuş kayıt için
+ * (DOMAIN §4). Satır RLS ile kullanıcının kendi kaydıyla sınırlıdır. Ödeme ve olay kayıtlarının FK/cascade
+ * davranışı canlıda doğrulanmadığı için bağımlı kayıt hatası gelirse kullanıcıya genel mesaj gösterilir.
+ */
+export async function deleteSubscription(subscriptionId: string): Promise<void> {
+  const { error } = await supabase.from('subscriptions').delete().eq('id', subscriptionId);
+  if (error) throw errorFrom(error);
+}
+
+/**
  * Yaşam döngüsü olayı (`subscription_events`). RLS yalnızca kullanıcının kendi satırına
  * yazmasına izin verir. Güncelleme RPC'si olayı aynı işlemde yazmaz; bu yüzden çağıran
  * taraf güncellemeden sonra çağırır.

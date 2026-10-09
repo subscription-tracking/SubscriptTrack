@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { spacing, screenGutter } from '../../src/shared/design/tokens';
+import { spacing } from '../../src/shared/design/tokens';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View } from 'react-native';
@@ -53,7 +53,7 @@ export default function ForgotPasswordScreen() {
             <MaterialIcons name="mark-email-read" size={72} color={colors.primary} />
           </View>
           <Spacer size={spacing.xl} />
-          <Text style={[textStyle('title'), styles.center]}>Mail gönderildi!</Text>
+          <Text style={[textStyle('headlineSmall'), styles.center]}>Mail gönderildi!</Text>
           <Spacer size={spacing.sm} />
           <Text style={[textStyle('bodySmall'), styles.center]}>
             {`${sentTo} adresine şifre sıfırlama bağlantısı gönderildi.\nSpam klasörünü de kontrol et.`}
@@ -68,7 +68,7 @@ export default function ForgotPasswordScreen() {
             <MaterialIcons name="lock-reset" size={64} color={colors.primary} />
           </View>
           <Spacer size={spacing.xl} />
-          <Text style={[textStyle('title'), styles.center]}>Şifre sıfırlama bağlantısı</Text>
+          <Text style={[textStyle('headlineSmall'), styles.center]}>Şifre sıfırlama bağlantısı</Text>
           <Spacer size={spacing.xs} />
           <Text style={[textStyle('bodySmall'), styles.center]}>
             Kayıtlı e-posta adresine şifre sıfırlama bağlantısı göndereceğiz.
@@ -102,7 +102,8 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingHorizontal: screenGutter,
+    // Flutter ForgotPasswordScreen: tüm kenarlar 24 (AuthPageScaffold ile aynı).
+    paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
   },
   centered: {
@@ -121,6 +122,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   topGap: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
 });

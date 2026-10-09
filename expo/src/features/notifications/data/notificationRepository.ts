@@ -21,7 +21,20 @@ interface NotificationRow {
   created_at: string;
 }
 
-/** Son 14 günün bildirimleri (en yeni önce). Okundu işareti yalnızca okunur; yazma bu sürümde yok. */
+/**
+ * Okundu işaretini sunucuya en iyi çabayla yazar (Flutter `NotificationReadSyncService`). Asıl durum cihazdadır;
+ * hata sessizce yutulur ve yalnızca okunmamış satırlar güncellenir.
+ */
+export async function markNotificationsRead(ids: readonly string[]): Promise<void> {
+  if (ids.length === 0) return;
+  try {
+    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).in('id', [...ids]).is('read_at', null);
+  } catch {
+    // Yerel durum kaynak olarak kalır; bir sonraki yüklemede sunucu geri bildirimi yeniden denenebilir.
+  }
+}
+
+/** Son 14 günün bildirimleri (en yeni önce). */
 export async function fetchNotifications(): Promise<CenterNotification[]> {
   const cutoff = new Date(Date.now() - CENTER_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase

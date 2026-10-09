@@ -42,6 +42,8 @@ function formValuesFor(row: ImportRow, today: CivilDate): SubscriptionFormValues
     isTrial: row.trialEndDate !== null,
     trialEndDate: row.trialEndDate,
     trialPrice: row.trialPriceAfter?.decimalString ?? '',
+    initialPaid: false,
+    initialPaymentDate: today,
   };
 }
 

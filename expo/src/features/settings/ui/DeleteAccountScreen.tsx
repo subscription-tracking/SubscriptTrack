@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { messageForError } from '../../auth/domain/authErrors';
 import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
+import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
 import { PasswordField } from '../../../shared/widgets/PasswordField';
-import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
-import { Spacer } from '../../../shared/widgets/Spacer';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { DeleteAccountError, requestAccountDeletion } from '../data/accountRepository';
@@ -20,8 +20,9 @@ import { CONFIRM_WORD, hasDeleteErrors, type DeleteAccountErrors, validateDelete
 const OFFLINE_MESSAGE = 'Hesabını silmek için internet bağlantısı gerekir.';
 
 /**
- * Hesabı sil. Kalıcıdır: hesap, abonelikler, ödeme kayıtları, tasarruf geçmişi ve dışa aktarma
- * dosyaları silinir. Yakın giriş için parola yeniden istenir.
+ * Hesabı sil (Flutter `DeleteAccountScreen`). Kalıcıdır: hesap, abonelikler, ödeme kayıtları, tasarruf geçmişi ve
+ * dışa aktarma dosyaları silinir. Yakın giriş için şifre yeniden doğrulanır; "sil" yazılması ve silinecekleri
+ * anlama onayı da gerekir (Flutter'da yalnızca şifre ve "sil" vardır; onay kutusu Expo'nun ek güvencesidir).
  */
 export function DeleteAccountScreen() {
   const { user, signIn, signOut } = useAuth();
@@ -36,7 +37,7 @@ export function DeleteAccountScreen() {
     mutationFn: async () => {
       if (!online) throw new Error(OFFLINE_MESSAGE);
       if (!user?.email) throw new Error('Oturum bulunamadı. Yeniden giriş yap.');
-      // Yakın giriş: parolayı yeniden doğrula, sonra silme isteği gönder.
+      // Yakın giriş: şifre yeniden doğrulanır, sonra silme isteği gönderilir.
       await signIn(user.email, password);
       await requestAccountDeletion();
     },
@@ -49,8 +50,8 @@ export function DeleteAccountScreen() {
       }
     },
     onError: (error: unknown) => {
-      if (error instanceof DeleteAccountError || (error instanceof Error && error.message === OFFLINE_MESSAGE)) {
-        snackbar.show((error as Error).message, 'error');
+      if (error instanceof DeleteAccountError) {
+        snackbar.show(error.message, 'error');
         return;
       }
       snackbar.show(messageForError(error), 'error');
@@ -68,31 +69,51 @@ export function DeleteAccountScreen() {
     <View style={styles.screen}>
       <ScreenTopBar title="Hesabı sil" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View style={styles.card}>
-          <Text style={textStyle('titleSmall', { color: colors.error })}>Bu işlem geri alınamaz</Text>
-          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-            Hesabın, tüm aboneliklerin, ödeme kayıtların, tasarruf geçmişin ve dışa aktarma dosyaların kalıcı olarak silinir.
+        <View style={styles.warning}>
+          <MaterialIcons name="warning" size={sizes.iconButtonSize} color={colors.error} />
+          <Text style={textStyle('bodySmall', { color: colors.onErrorContainer, marginLeft: spacing.md, flex: 1 })}>
+            Bu işlem geri alınamaz. Hesabın ve tüm abonelik verilerin kalıcı olarak silinecek.
           </Text>
-          {!online ? <Text style={textStyle('caption', { color: colors.error })}>{OFFLINE_MESSAGE}</Text> : null}
         </View>
 
-        <Spacer size={spacing.md} />
-        <View style={styles.card}>
-          <PasswordField label="Şifren" value={password} onChangeText={setPassword} error={errors.password} editable={!remove.isPending} />
-          <TextField
-            label={`Onaylamak için "${CONFIRM_WORD}" yaz`}
-            value={confirmation}
-            onChangeText={setConfirmation}
-            error={errors.confirmation}
-            editable={!remove.isPending}
-          />
-          <CheckboxRow checked={acknowledged} onChange={setAcknowledged}>
-            <Text style={textStyle('bodySmall')}>Silinecek verileri anladım.</Text>
-          </CheckboxRow>
-          {errors.acknowledged ? <Text style={textStyle('caption', { color: colors.error })}>{errors.acknowledged}</Text> : null}
-          <PrimaryButton label="Hesabımı kalıcı olarak sil" onPress={submit} loading={remove.isPending} disabled={!online} />
-        </View>
-        <Spacer size={sizes.bottomNavHeight} />
+        <View style={styles.gapLarge} />
+        <Text style={textStyle('bodySmall')}>Devam etmek için şifreni gir:</Text>
+        <View style={styles.gap} />
+        <PasswordField
+          label="Şifre"
+          value={password}
+          onChangeText={setPassword}
+          error={errors.password}
+          editable={!remove.isPending}
+        />
+
+        <View style={styles.gapLarge} />
+        <Text style={textStyle('bodySmall')}>{`Onaylamak için aşağıya "${CONFIRM_WORD}" yaz:`}</Text>
+        <View style={styles.gap} />
+        <TextField
+          label={CONFIRM_WORD}
+          value={confirmation}
+          onChangeText={setConfirmation}
+          error={errors.confirmation}
+          editable={!remove.isPending}
+        />
+
+        <View style={styles.gap} />
+        <CheckboxRow checked={acknowledged} onChange={setAcknowledged}>
+          <Text style={textStyle('bodySmall')}>Silinecek verileri anladım.</Text>
+        </CheckboxRow>
+        {errors.acknowledged ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>{errors.acknowledged}</Text> : null}
+        {!online ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>{OFFLINE_MESSAGE}</Text> : null}
+
+        <View style={styles.gapLarge} />
+        <FilledButtonLabel
+          label="Hesabı kalıcı olarak sil"
+          tone="danger"
+          busy={remove.isPending}
+          disabled={!online}
+          onPress={submit}
+        />
+        <View style={styles.bottom} />
       </ScrollView>
     </View>
   );
@@ -102,17 +123,26 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
   content: {
-    paddingHorizontal: screenGutter,
+    padding: spacing.lg,
   },
-  card: {
+  warning: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: spacing.md,
     borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-    gap: spacing.sm,
+    borderWidth: borderWidth.hairline,
+    borderColor: withAlpha(colors.error, 0.4),
+    backgroundColor: colors.errorContainer,
+  },
+  gap: {
+    height: spacing.xs,
+  },
+  gapLarge: {
+    height: gaps.sectionTop - 4,
+  },
+  bottom: {
+    height: sizes.bottomNavHeight,
   },
 });

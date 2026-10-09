@@ -13,6 +13,8 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;
   /** Flutter `prefixIcon`. */
   prefixIcon?: MaterialIconName;
+  /** Özel önek (Flutter `prefixIcon` widget'ı); verilirse `prefixIcon` yerine kullanılır. */
+  prefix?: ReactNode;
   /** Flutter `suffixIcon` (örn. parola görünürlük düğmesi). */
   suffix?: ReactNode;
   /** Doğrulama hatası; alanın altında gösterilir (Flutter `validator` metni). */
@@ -23,7 +25,7 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
  * Flutter `InputDecoration` (filled, outline) karşılığı: surfaceHigh dolgu,
  * 14 köşe, 0.5 kenarlık, odakta 1.5 primary kenarlık, etiket içeride → üstte.
  */
-export function TextField({ label, prefixIcon, suffix, error, editable = true, value, onFocus, onBlur, ...inputProps }: TextFieldProps) {
+export function TextField({ label, prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, ...inputProps }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
   const floating = focused || (value ?? '').length > 0;
 
@@ -37,8 +39,8 @@ export function TextField({ label, prefixIcon, suffix, error, editable = true, v
           !editable && styles.fieldDisabled,
         ]}
       >
-        {prefixIcon ? (
-          <MaterialIcons name={prefixIcon} size={22} color={colors.onSurfaceVariant} style={styles.prefix} />
+        {prefix ? <View style={styles.prefixSlot}>{prefix}</View> : prefixIcon ? (
+          <MaterialIcons name={prefixIcon} size={sizes.iconButtonSize} color={colors.onSurfaceVariant} style={styles.prefix} />
         ) : null}
         <View style={styles.inputArea}>
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.labelLayer, floating && styles.labelLayerFloating]}>
@@ -97,7 +99,7 @@ export function FieldIconButton({
       hitSlop={8}
       style={styles.iconButton}
     >
-      <MaterialIcons name={icon} size={22} color={colors.onSurfaceVariant} />
+      <MaterialIcons name={icon} size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
     </Pressable>
   );
 }
@@ -129,6 +131,10 @@ const styles = StyleSheet.create({
   },
   prefix: {
     marginRight: spacing.sm,
+  },
+  prefixSlot: {
+    padding: spacing.xs,
+    marginRight: spacing.xxs,
   },
   inputArea: {
     flex: 1,

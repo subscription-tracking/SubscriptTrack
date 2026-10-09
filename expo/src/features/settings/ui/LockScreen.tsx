@@ -6,7 +6,7 @@ import { colors, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { isValidPin, PIN_MAX_LENGTH, PIN_MIN_LENGTH } from '../domain/appLockRules';
-import { useAppLock } from './AppLockProvider';
+import { useAppLock } from './appLockContext';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'bio', '0', 'del'] as const;
 

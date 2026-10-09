@@ -16,6 +16,8 @@ const valid = (overrides: Partial<SubscriptionFormValues> = {}): SubscriptionFor
   isTrial: false,
   trialEndDate: null,
   trialPrice: '',
+  initialPaid: false,
+  initialPaymentDate: today,
   ...overrides,
 });
 

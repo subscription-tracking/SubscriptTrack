@@ -1,25 +1,45 @@
-import { type Href, useRouter } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useMemo } from 'react';
+import { useRouter } from 'expo-router';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { formatLongDate } from '../../../core/format/date';
-import { civilDate } from '../../../core/time/calendar';
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { colors, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { Spacer } from '../../../shared/widgets/Spacer';
-import { type CenterNotification } from '../data/notificationRepository';
+import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
+import { markNotificationsRead, type CenterNotification } from '../data/notificationRepository';
 import { useNotificationsQuery } from '../data/queries';
-import { notificationText } from '../domain/notificationCenter';
+import { useNotificationLocalState } from '../data/notificationLocalState';
+import { NotificationRow } from './NotificationRow';
 
-/** Bildirim merkezi: son 14 günün bildirimleri. Dokununca abonelik detayına gider. */
+/**
+ * Bildirim merkezi (Flutter `NotificationCenterScreen`): son 14 günün bildirimleri. Dokunma okundu işaretler ve
+ * abonelik ayrıntısını açar; sola kaydırma satırı kapatır; "Tümünü okundu say" hepsini işaretler.
+ */
 export function NotificationCenterScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const query = useNotificationsQuery(user?.id);
+  const local = useNotificationLocalState();
 
-  const state: AsyncState<CenterNotification[]> = query.isPending
+  const items = useMemo(() => (query.data ?? []).filter((item) => !local.dismissed.has(item.id)), [query.data, local.dismissed]);
+  const isRead = (item: CenterNotification) => item.readAt !== null || local.read.has(item.id);
+  const unreadIds = items.filter((item) => !isRead(item)).map((item) => item.id);
+
+  function markOne(item: CenterNotification) {
+    if (isRead(item)) return;
+    local.markRead([item.id]);
+    void markNotificationsRead([item.id]);
+  }
+
+  function markAll() {
+    if (unreadIds.length === 0) return;
+    local.markRead(unreadIds);
+    void markNotificationsRead(unreadIds);
+  }
+
+  const state: AsyncState<CenterNotification[]> = query.isPending || !local.ready
     ? { status: 'loading' }
     : query.isError
       ? {
@@ -27,60 +47,45 @@ export function NotificationCenterScreen() {
           message: 'Bildirimler yüklenemedi. Bağlantını kontrol edip tekrar dene.',
           onRetry: () => void query.refetch(),
         }
-      : (query.data ?? []).length === 0
-        ? {
-            status: 'empty',
-            title: 'Bildirim yok',
-            description: 'Yenileme ve deneme hatırlatmaların burada görünür.',
-          }
-        : { status: 'ready', data: query.data ?? [] };
+      : { status: 'ready', data: items };
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
-        </Pressable>
-        <Text style={textStyle('title')}>Bildirimler</Text>
-      </View>
-      <Spacer size={spacing.md} />
+      <ScreenTopBar
+        title="Bildirimler"
+        action={unreadIds.length > 0 ? { label: 'Tümünü okundu say', onPress: markAll } : undefined}
+      />
       <AsyncStateView state={state}>
-        {(items) => (
-          <FlatList
-            data={items}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-            ItemSeparatorComponent={() => <Spacer size={spacing.xs} />}
-            renderItem={({ item }) => (
-              <NotificationRow
-                item={item}
-                onPress={() => {
-                  if (item.subscriptionId) router.push(`/subscriptions/${item.subscriptionId}` as Href);
-                }}
-              />
-            )}
-          />
-        )}
+        {(visible) =>
+          visible.length === 0 ? (
+            <View style={styles.empty}>
+              <MaterialIcons name="notifications-none" size={sizes.emptyIconLarge + spacing.xxs} color={colors.primary} />
+              <Text style={textStyle('body', { marginTop: spacing.md })}>Yeni bildirim yok</Text>
+              <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+                Yaklaşan yenilemeler burada görünür.
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={visible}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.list}
+              renderItem={({ item }) => (
+                <NotificationRow
+                  item={item}
+                  read={isRead(item)}
+                  onOpen={() => {
+                    markOne(item);
+                    if (item.subscriptionId) router.push(`/subscriptions/${item.subscriptionId}`);
+                  }}
+                  onDismiss={() => local.dismiss(item.id)}
+                />
+              )}
+            />
+          )
+        }
       </AsyncStateView>
     </View>
-  );
-}
-
-function NotificationRow({ item, onPress }: { item: CenterNotification; onPress: () => void }) {
-  const text = notificationText(item.kind, { name: item.name, days: item.days });
-  const created = new Date(item.createdAt);
-  const unread = item.readAt === null;
-  return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      <View style={[styles.dot, { backgroundColor: unread ? colors.primary : colors.outline }]} />
-      <View style={styles.text}>
-        <Text style={textStyle('titleSmall')}>{text.title}</Text>
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{text.body}</Text>
-        <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-          {formatLongDate(civilDate(created.getFullYear(), created.getMonth() + 1, created.getDate()))}
-        </Text>
-      </View>
-    </Pressable>
   );
 }
 
@@ -88,46 +93,14 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: screenGutter - 8,
-    height: sizes.minTouchTarget,
-  },
-  backButton: {
-    width: sizes.minTouchTarget,
-    height: sizes.minTouchTarget,
+  empty: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   list: {
-    paddingHorizontal: screenGutter,
-    paddingBottom: sizes.bottomNavHeight + spacing.xxl,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-  },
-  pressed: {
-    opacity: 0.85,
-  },
-  dot: {
-    width: spacing.xs,
-    height: spacing.xs,
-    borderRadius: radius.xs,
-    marginTop: spacing.xs,
-  },
-  text: {
-    flex: 1,
-    gap: spacing.xxs,
+    paddingVertical: spacing.xs,
+    paddingBottom: sizes.bottomNavHeight + spacing.xl,
   },
 });

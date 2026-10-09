@@ -1,27 +1,63 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { CURRENCY_OPTIONS } from '../../onboarding/domain/slides';
+import { DEFAULT_CURRENCY_SYMBOL, readCurrencySymbol, writeCurrencySymbol } from '../../onboarding/data/currencyPreference';
+import { deviceTimeZone } from '../../../core/time/calendar';
+import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
-import { Spacer } from '../../../shared/widgets/Spacer';
+import { SectionLabel } from './SettingsParts';
 
 /**
- * Görünüm. Uygulama yalnızca koyu temayla çalışır ([CURRENT_STATUS](../../../../../docs/CURRENT_STATUS.md));
- * açık ve sistem temaları Flutter'daki gibi sunulmaz, bunu ekran açıkça söyler.
+ * Para birimi ve saat dilimi (Flutter `AppearanceScreen`). Para birimi seçimi cihazda saklanır ve seçili satırda
+ * onay işareti gösterilir. Saat dilimi bu sürümde cihaz saat dilimini kullanır; Flutter'daki elle seçim henüz yok.
  */
 export function AppearanceScreen() {
+  const [selected, setSelected] = useState(DEFAULT_CURRENCY_SYMBOL);
+
+  useEffect(() => {
+    void readCurrencySymbol().then(setSelected);
+  }, []);
+
+  function choose(symbol: string) {
+    setSelected(symbol);
+    void writeCurrencySymbol(symbol);
+  }
+
   return (
     <View style={styles.screen}>
-      <ScreenTopBar title="Görünüm" />
+      <ScreenTopBar title="Para birimi ve saat dilimi" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.card}>
-          <Text style={textStyle('titleSmall')}>Tema</Text>
-          <Text style={textStyle('bodySmall', { color: colors.primary })}>Koyu</Text>
-          <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
-            Uygulama şu an yalnızca koyu temayla çalışır. Açık tema ileride eklenebilir.
-          </Text>
+        <SectionLabel label="Para birimi" />
+        {CURRENCY_OPTIONS.map((option) => {
+          const active = option.symbol === selected;
+          return (
+            <Pressable
+              key={option.code}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: active }}
+              onPress={() => choose(option.symbol)}
+              style={styles.row}
+            >
+              <Text style={textStyle('tileLabel', { flex: 1 })}>{`${option.name} (${option.code})`}</Text>
+              {active ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
+            </Pressable>
+          );
+        })}
+
+        <SectionLabel label="Saat dilimi" />
+        <View style={styles.row}>
+          <MaterialIcons name="schedule" size={sizes.tileIcon} color={colors.onSurface} />
+          <View style={styles.timezoneText}>
+            <Text style={textStyle('tileLabel')}>Saat dilimi</Text>
+            <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
+              {`Cihaz saat dilimi: ${deviceTimeZone()}`}
+            </Text>
+          </View>
         </View>
-        <Spacer size={sizes.bottomNavHeight} />
+        <View style={styles.bottom} />
       </ScrollView>
     </View>
   );
@@ -31,17 +67,22 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
   content: {
-    paddingHorizontal: screenGutter,
+    paddingBottom: sizes.bottomNavHeight,
   },
-  card: {
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: 0.5,
-    borderColor: colors.outline,
-    gap: spacing.xs,
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: sizes.minTouchTarget,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: gaps.rowLoose - 2 + spacing.xxs / 2,
+    gap: spacing.md,
+  },
+  timezoneText: {
+    flex: 1,
+  },
+  bottom: {
+    height: spacing.lg,
   },
 });

@@ -120,9 +120,5 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  link: {
-    color: colors.primary,
-    ...textStyle('label'),
-    textDecorationLine: 'underline',
-  },
+  link: textStyle('bodyLargeStrong', { color: colors.primary, textDecorationLine: 'underline' }),
 });

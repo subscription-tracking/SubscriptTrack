@@ -1,0 +1,86 @@
+import type { ComponentProps } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
+import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../design/tokens';
+import { textStyle } from '../design/typography';
+import { PrimaryButton } from './PrimaryButton';
+
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+/**
+ * Flutter `AppEmptyState`: yüzey kartı içinde tonlu daire, başlık, açıklama ve isteğe bağlı
+ * "ekle" düğmesi. `compact` daha küçük ölçü kullanır.
+ */
+export function EmptyState({
+  icon,
+  title,
+  description,
+  actionLabel,
+  onAction,
+  compact = false,
+}: {
+  icon: MaterialIconName;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  compact?: boolean;
+}) {
+  const iconSize = compact ? sizes.emptyIconCompact : sizes.emptyIconLarge;
+  const orbSize = compact ? sizes.emptyOrbCompact : sizes.emptyOrbLarge;
+  return (
+    <View style={[styles.card, { paddingVertical: compact ? spacing.xl : spacing.xxl }]}>
+      <View
+        style={[
+          styles.orb,
+          {
+            width: orbSize,
+            height: orbSize,
+            borderRadius: orbSize / 2,
+            backgroundColor: withAlpha(colors.primary, 0.1),
+            borderColor: withAlpha(colors.primary, 0.2),
+          },
+        ]}
+      >
+        <MaterialIcons name={icon} size={iconSize} color={colors.primary} />
+      </View>
+      <Text style={[textStyle('bodyLargeStrong'), styles.centered, styles.title]}>{title}</Text>
+      <Text style={[textStyle('bodySmall'), styles.centered, styles.description]}>{description}</Text>
+      {actionLabel && onAction ? (
+        <View style={styles.action}>
+          <PrimaryButton label={actionLabel} icon="add" tall={false} onPress={onAction} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.medium,
+    borderWidth: borderWidth.hairline,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  orb: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: borderWidth.hairline,
+  },
+  title: {
+    marginTop: spacing.md,
+  },
+  description: {
+    marginTop: spacing.xs,
+  },
+  centered: {
+    textAlign: 'center',
+  },
+  action: {
+    marginTop: spacing.lg,
+    alignSelf: 'stretch',
+  },
+});

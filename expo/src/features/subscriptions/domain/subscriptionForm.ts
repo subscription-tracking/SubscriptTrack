@@ -27,6 +27,9 @@ export interface SubscriptionFormValues {
   isTrial: boolean;
   trialEndDate: CivilDate | null;
   trialPrice: string;
+  /** Yalnızca ekleme formu: ilk ödeme yapıldıysa ödeme kaydı eklenir (Flutter "Ödendi"). */
+  initialPaid: boolean;
+  initialPaymentDate: CivilDate;
 }
 
 export type FormErrors = Partial<
