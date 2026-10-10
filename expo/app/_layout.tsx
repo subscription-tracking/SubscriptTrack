@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type Href, Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 import { AuthProvider, useAuth } from '../src/features/auth/AuthProvider';
 import { resolveRedirect } from '../src/features/auth/domain/sessionState';
@@ -16,8 +17,15 @@ import { AsyncStateView } from '../src/shared/widgets/AsyncStateView';
 
 const queryClient = new QueryClient();
 
+// Açılış ekranı fontlar yüklenene kadar görünür kalır (kök yükleme kapısıyla aynı an).
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(appFonts);
+
+  useEffect(() => {
+    if (fontsLoaded) void SplashScreen.hideAsync().catch(() => undefined);
+  }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return <AsyncStateView<null> state={{ status: 'loading' }}>{() => null}</AsyncStateView>;

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -7,7 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useAuth } from '../../auth/AuthProvider';
 import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { formatCurrency } from '../../../core/format/money';
-import { formatRelativeDate } from '../../../core/format/date';
+import { formatLongDate, formatRelativeDate } from '../../../core/format/date';
 import { type CivilDate, deviceTimeZone, zoneToday } from '../../../core/time/calendar';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
@@ -15,10 +16,13 @@ import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncSt
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
+import { inCurrency } from '../../subscriptions/domain/currencyFilter';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
 import { type Subscription } from '../../subscriptions/domain/subscription';
 import { analyticsKeys, usePaymentsQuery } from '../data/queries';
 import { deletePayment, recordPayment, updatePayment } from '../data/paymentRepository';
 import { localCivilDate, paidAtFromCivil, type PaymentEvent } from '../domain/paymentEvents';
+import { groupPaymentsByMonth } from '../domain/paymentGroups';
 import { AddPaymentDialog, EditPaymentDialog } from './PaymentDialogs';
 
 const OFFLINE_MESSAGE = 'Ödeme kaydı için internet bağlantısı gerekir.';
@@ -33,6 +37,7 @@ export function PaymentHistoryScreen() {
   const subscriptions = useSubscriptionsQuery(user?.id);
   const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
 
+  const currency = useActiveCurrency();
   const state: AsyncState<{ payments: PaymentEvent[]; subscriptions: Subscription[] }> =
     payments.isPending || subscriptions.isPending
       ? { status: 'loading' }
@@ -45,7 +50,13 @@ export function PaymentHistoryScreen() {
               void subscriptions.refetch();
             },
           }
-        : { status: 'ready', data: { payments: payments.data ?? [], subscriptions: subscriptions.data ?? [] } };
+        : {
+            status: 'ready',
+            data: {
+              payments: (payments.data ?? []).filter((payment) => payment.currency === currency),
+              subscriptions: inCurrency(subscriptions.data ?? [], currency),
+            },
+          };
 
   return (
     <View style={styles.screen}>
@@ -58,11 +69,13 @@ export function PaymentHistoryScreen() {
 }
 
 function History({ payments, subscriptions, today }: { payments: PaymentEvent[]; subscriptions: Subscription[]; today: CivilDate }) {
+  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
   const { user } = useAuth();
   const online = useOnlineStatus();
   const names = useMemo(() => new Map(subscriptions.map((item) => [item.id, item.name])), [subscriptions]);
+  const listItems = useMemo(() => groupPaymentsByMonth(payments), [payments]);
   const addable = subscriptions.filter((item) => item.status !== 'archived');
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<PaymentEvent | null>(null);
@@ -119,23 +132,27 @@ function History({ payments, subscriptions, today }: { payments: PaymentEvent[];
         </View>
       ) : (
         <FlatList
-          data={payments}
-          keyExtractor={(item) => item.id}
+          data={listItems}
+          keyExtractor={(item) => item.key}
           contentContainerStyle={styles.list}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => (
-            <PaymentCard
-              payment={item}
-              name={names.get(item.subscriptionId ?? '') ?? 'Silinmiş abonelik'}
-              dateLabel={formatRelativeDate(localCivilDate(item.paidAt), today)}
-              onEdit={() => setEditing(item)}
-              onDelete={() => remove.mutate(item.id)}
-            />
-          )}
+          renderItem={({ item }) =>
+            item.kind === 'header' ? (
+              <Text style={textStyle('caption12Strong', { color: colors.onSurfaceVariant, marginTop: spacing.sm })}>{item.label}</Text>
+            ) : (
+              <PaymentCard
+                payment={item.payment}
+                name={names.get(item.payment.subscriptionId ?? '') ?? 'Silinmiş abonelik'}
+                dateLabel={`${formatLongDate(localCivilDate(item.payment.paidAt))} · ${formatRelativeDate(localCivilDate(item.payment.paidAt), today)}`}
+                onEdit={() => setEditing(item.payment)}
+                onDelete={() => remove.mutate(item.payment.id)}
+              />
+            )
+          }
         />
       )}
 
-      <Pressable accessibilityRole="button" onPress={() => setAdding(true)} style={styles.fab}>
+      <Pressable accessibilityRole="button" onPress={() => setAdding(true)} style={[styles.fab, { bottom: insets.bottom + spacing.md }]}>
         <MaterialIcons name="add" size={sizes.iconButtonSize} color={colors.onPrimary} />
         <Text style={textStyle('label', { color: colors.onPrimary, marginLeft: spacing.xs })}>Kayıt ekle</Text>
       </Pressable>
@@ -206,7 +223,7 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: spacing.lg,
-    paddingBottom: sizes.bottomNavHeight + spacing.xxl,
+    paddingBottom: spacing.huge + spacing.xl,
   },
   separator: {
     height: spacing.xs,
@@ -235,7 +252,6 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: spacing.lg,
-    bottom: sizes.bottomNavHeight + spacing.md,
     minHeight: sizes.minTouchTarget + spacing.xs,
     flexDirection: 'row',
     alignItems: 'center',

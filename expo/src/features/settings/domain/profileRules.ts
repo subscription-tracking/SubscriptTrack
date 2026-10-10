@@ -3,9 +3,12 @@
  * Veritabanındaki `profiles` alanlarıyla eşleşir ([DATA_MODEL §2.7](../../../../../docs/reference/DATA_MODEL.md)). I/O yoktur.
  */
 
+import { ACTIVE_CURRENCIES, type ActiveCurrency, isActiveCurrency } from '../../../core/domain/activeCurrency';
+
 export const NAME_MAX_LENGTH = 60;
-export const PREFERRED_CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const;
-export type PreferredCurrency = (typeof PREFERRED_CURRENCIES)[number];
+/** Tercih edilebilen para birimleri: uygulamanın üç aktif para birimi (`core/domain/activeCurrency`). */
+export const PREFERRED_CURRENCIES = ACTIVE_CURRENCIES;
+export type PreferredCurrency = ActiveCurrency;
 
 export interface ProfileValues {
   firstName: string;
@@ -26,5 +29,5 @@ export function validateProfile(values: ProfileValues): ProfileErrors {
 }
 
 export function isPreferredCurrency(value: string): value is PreferredCurrency {
-  return (PREFERRED_CURRENCIES as readonly string[]).includes(value);
+  return isActiveCurrency(value);
 }

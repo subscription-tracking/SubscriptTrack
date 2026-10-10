@@ -85,6 +85,7 @@ Geçişlerin tamamı `subscription_events` ile kaydedilir.
 
 ## 5. Para kuralları
 
+- **Aktif para birimi:** Uygulama tek bir aktif para birimi kullanır: `TRY`, `USD` veya `EUR`. Etkin değer önce profildeki `preferred_currency` (yoksa bu cihazdaki son seçim, o da yoksa `TRY`). Ana sayfa, liste, takvim, istatistik, tasarruf ve ödeme geçmişi yalnızca aktif para birimindeki kayıtları gösterir; başka para birimindeki kayıtlar gizlenir ve listede kaç kayıt gizlendiği belirtilir. Kur çevrimi yapılmaz. Form varsayılanı aktif para birimidir.
 - Para değeri binary floating point ile saklanmaz.
 - Tutar ve para birimi birlikte anlamlıdır.
 - Farklı para birimleri otomatik olarak toplanmaz.

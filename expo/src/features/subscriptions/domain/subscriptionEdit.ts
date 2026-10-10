@@ -2,6 +2,7 @@ import { Money } from '../../../core/domain/money';
 import { type CivilDate, dayNumber, formatCivilDate } from '../../../core/time/calendar';
 import { type SubscriptionFormValues, type SubscriptionFields } from './subscriptionForm';
 import { type Subscription, type SubscriptionStatus } from './subscription';
+import { daysFromRules } from './reminderRules';
 
 /**
  * Düzenleme ve durum değişikliği yardımcıları. `update_subscription_idempotent` tüm
@@ -38,8 +39,9 @@ export function formValuesFromSubscription(subscription: Subscription, today: Ci
     isTrial: trialEnd !== null,
     trialEndDate: trialEnd,
     trialPrice: subscription.trialPriceAfter?.decimalString ?? '',
-    initialPaid: false,
+    initialPaymentStatus: 'unpaid',
     initialPaymentDate: today,
+    reminderDays: daysFromRules(subscription.notificationRules),
   };
 }
 
@@ -66,12 +68,13 @@ export function toUpdatePayload(
   fields: SubscriptionUpdateFields,
   status: SubscriptionStatus,
   idempotencyKey: string,
+  notificationRules: unknown[] = subscription.notificationRules,
 ): UpdatePayload {
   return {
     p_idempotency_key: idempotencyKey,
     p_subscription_id: subscription.id,
     ...fields,
-    p_notification_rules: subscription.notificationRules,
+    p_notification_rules: notificationRules,
     p_status: status,
   };
 }

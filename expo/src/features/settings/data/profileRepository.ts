@@ -1,5 +1,6 @@
 import { supabase } from '../../../core/supabase/client';
-import { isPreferredCurrency, type PreferredCurrency, type ProfileValues } from '../domain/profileRules';
+import { DEFAULT_ACTIVE_CURRENCY, isActiveCurrency, type ActiveCurrency } from '../../../core/domain/activeCurrency';
+import { type PreferredCurrency, type ProfileValues } from '../domain/profileRules';
 
 /**
  * Profil (`profiles`). RLS yalnızca kullanıcının kendi satırına izin verir. Okuma ve kayıt
@@ -7,6 +8,8 @@ import { isPreferredCurrency, type PreferredCurrency, type ProfileValues } from 
  */
 
 export interface Profile extends ProfileValues {
+  /** Profilde gerçekten bir para birimi tercihi var mı; yoksa cihazdaki seçim geçerlidir. */
+  currencyStored: boolean;
   timezone: string | null;
   defaultNotifyDays: number | null;
 }
@@ -27,11 +30,12 @@ export async function fetchProfile(userId: string): Promise<Profile> {
     .maybeSingle();
   if (error) throw new Error('Profil yüklenemedi. Bağlantını kontrol edip tekrar dene.');
   const row = data as ProfileRow | null;
-  const currency = row?.preferred_currency?.trim() ?? 'TRY';
+  const stored = isActiveCurrency(row?.preferred_currency) ? row?.preferred_currency : null;
   return {
     firstName: row?.first_name ?? '',
     lastName: row?.last_name ?? '',
-    preferredCurrency: isPreferredCurrency(currency) ? currency : 'TRY',
+    preferredCurrency: stored ?? DEFAULT_ACTIVE_CURRENCY,
+    currencyStored: stored !== null && stored !== undefined,
     timezone: row?.timezone ?? null,
     defaultNotifyDays: row?.default_notify_days ?? null,
   };
@@ -48,4 +52,10 @@ export async function saveProfile(userId: string, values: { firstName: string; l
     { onConflict: 'user_id' },
   );
   if (error) throw new Error('Profil kaydedilemedi. Bağlantını kontrol edip tekrar dene.');
+}
+
+/** Yalnızca para birimi tercihini yazar; ad ve soyad değişmez (kısmi upsert). */
+export async function saveActiveCurrency(userId: string, currency: ActiveCurrency): Promise<void> {
+  const { error } = await supabase.from('profiles').upsert({ user_id: userId, preferred_currency: currency }, { onConflict: 'user_id' });
+  if (error) throw new Error('Para birimi kaydedilemedi. Bağlantını kontrol edip tekrar dene.');
 }

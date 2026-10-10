@@ -10,7 +10,7 @@
 -- geri alınır; önce `033_precheck` sorgusuyla ihlal sayısını görün).
 -- Geri alma: her kısıt için `ALTER TABLE ... DROP CONSTRAINT <ad>`.
 --
--- Bu migration repoda yazılmıştır; canlıda UYGULANMAMIŞTIR.
+-- Canlıda 2026-10-10 tarihinde uygulandı (9 kısıt NOT VALID + VALIDATE, hepsi doğrulandı).
 
 -- Ön kontrol (salt okunur): her sayı 0 olmalı.
 --   SELECT count(*) FILTER (WHERE char_length(name) NOT BETWEEN 1 AND 160) AS name,

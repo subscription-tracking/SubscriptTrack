@@ -13,6 +13,8 @@ import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncSt
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { type Subscription } from '../../subscriptions/domain/subscription';
+import { inCurrency } from '../../subscriptions/domain/currencyFilter';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
 import { monthGrid, monthTotalsByCurrency, renewalDaysInMonth, renewalsOnDay, shiftMonth, trialDaysInMonth, trialsOnDay } from '../domain/calendarDays';
 import { CalendarDayCell } from './CalendarDayCell';
 import { CalendarEventItem } from './CalendarEventItem';
@@ -59,6 +61,7 @@ function chunk<T>(items: T[], size: number): T[][] {
 export function CalendarScreen() {
   const { user } = useAuth();
   const query = useSubscriptionsQuery(user?.id);
+  const currency = useActiveCurrency();
   const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
 
   const state: AsyncState<Subscription[]> = query.isPending
@@ -74,7 +77,7 @@ export function CalendarScreen() {
   return (
     <View style={styles.screen}>
       <ScreenTopBar title="Takvim" />
-      <AsyncStateView state={state}>{(subscriptions) => <Month subscriptions={subscriptions} today={today} />}</AsyncStateView>
+      <AsyncStateView state={state}>{(subscriptions) => <Month subscriptions={inCurrency(subscriptions, currency)} today={today} />}</AsyncStateView>
     </View>
   );
 }
@@ -153,6 +156,17 @@ function Month({ subscriptions, today }: { subscriptions: Subscription[]; today:
         ))}
       </View>
 
+      <View style={styles.legend}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: colors.primary }]} />
+          <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Yenileme</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: colors.error }]} />
+          <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>3 gün içinde</Text>
+        </View>
+      </View>
+
       <View style={styles.divider}>
         <View style={styles.dividerLine} />
       </View>
@@ -223,6 +237,22 @@ const styles = StyleSheet.create({
   },
   week: {
     flexDirection: 'row',
+  },
+  legend: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xxs,
+  },
+  legendDot: {
+    width: sizes.calendarDot + 1,
+    height: sizes.calendarDot + 1,
+    borderRadius: (sizes.calendarDot + 1) / 2,
   },
   divider: {
     height: gaps.sectionTop - 4,

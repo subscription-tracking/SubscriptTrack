@@ -10,6 +10,7 @@ import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { borderWidth, colors, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { savingsKeys } from '../../savings/data/queries';
@@ -95,6 +96,7 @@ export function SubscriptionArchivedScreen() {
               data={data}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.list}
+              ListFooterComponent={ScreenBottomInset}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               refreshControl={<RefreshControl refreshing={query.isRefetching} onRefresh={() => void query.refetch()} tintColor={colors.primary} />}
               renderItem={({ item }) => (
@@ -124,8 +126,10 @@ function ArchivedRow({
   onRestore: () => void;
   onDelete: () => void;
 }) {
+  // Kart düğme değildir: içerik alanı açma düğmesi, geri al ve sil düğmeleri kardeş olarak yer alır (iç içe düğme yok).
   return (
-    <Pressable accessibilityRole="button" onPress={onOpen} style={styles.card}>
+    <View style={styles.card}>
+      <Pressable accessibilityRole="button" onPress={onOpen} style={styles.content}>
       <View style={styles.avatar}>
         <MaterialIcons name="archive" size={sizes.iconButtonSize - spacing.xxs} color={colors.onSurfaceVariant} />
       </View>
@@ -137,13 +141,14 @@ function ArchivedRow({
         <Text style={textStyle('bodyMediumStrong', { textAlign: 'right' })}>{formatCurrency(subscription.amount, subscription.currency)}</Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right' })}>{CATEGORY_LABELS[subscription.category]}</Text>
       </View>
+      </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Aktif yap" onPress={onRestore} style={styles.restore}>
         <MaterialIcons name="unarchive" size={sizes.iconButtonSize} color={colors.primary} />
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Kalıcı olarak sil" onPress={onDelete} style={styles.restore}>
         <MaterialIcons name="delete-forever" size={sizes.iconButtonSize} color={colors.error} />
       </Pressable>
-    </Pressable>
+    </View>
   );
 }
 
@@ -159,16 +164,20 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: spacing.md,
-    paddingBottom: sizes.bottomNavHeight + spacing.xxl,
   },
   separator: {
     height: spacing.xs,
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: spacing.md,
-    paddingRight: spacing.xs,
+    paddingRight: spacing.sm,
     paddingVertical: spacing.sm,
     borderRadius: radius.medium,
     borderWidth: borderWidth.hairline,

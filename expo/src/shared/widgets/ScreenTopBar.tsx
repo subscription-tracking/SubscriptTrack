@@ -1,25 +1,30 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
-import { colors, screenGutter, sizes, spacing } from '../design/tokens';
+import { colors, sizes, spacing } from '../design/tokens';
 import { textStyle } from '../design/typography';
+import { HeaderShell } from './HeaderShell';
 
-/** Alt ekranların üst çubuğu: geri düğmesi (48 px dokunma alanı) ve başlık. */
+/**
+ * Geri düğmeli alt ekran barı. Kabuk (güvenli alan, kenar boşluğu, yükseklik) `HeaderShell` ile `TopBar` ile
+ * aynıdır; başlık rolü de aynıdır (`topBarTitle`). Geri düğmesi, glifi kenar boşluğuna hizalayacak şekilde
+ * negatif sol boşlukla yerleşir.
+ */
 export function ScreenTopBar({ title, action }: { title: string; action?: { label: string; onPress: () => void } }) {
   const router = useRouter();
   return (
-    <View style={styles.topBar}>
+    <HeaderShell style={styles.topBar}>
       <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
         <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
       </Pressable>
-      <Text style={[textStyle('title'), styles.title]}>{title}</Text>
+      <Text style={[textStyle('topBarTitle'), styles.title]}>{title}</Text>
       {action ? (
         <Pressable accessibilityRole="button" onPress={action.onPress} style={styles.action}>
           <Text style={textStyle('label', { color: colors.primary })}>{action.label}</Text>
         </Pressable>
       ) : null}
-    </View>
+    </HeaderShell>
   );
 }
 
@@ -33,14 +38,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: spacing.xs,
-    paddingHorizontal: screenGutter - 8,
-    height: sizes.minTouchTarget,
     marginBottom: spacing.md,
   },
   backButton: {
+    // Glif (24) 48 px alanın ortasında; negatif boşlukla glifin sol kenarı ekran kenar boşluğuna oturur.
+    marginLeft: -spacing.sm,
     width: sizes.minTouchTarget,
     height: sizes.minTouchTarget,
     alignItems: 'center',

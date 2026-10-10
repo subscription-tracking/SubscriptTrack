@@ -1,8 +1,9 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { ListRow } from './SettingsControls';
 
@@ -28,7 +29,7 @@ export function PrivacyCenterScreen() {
         <ListRow
           icon="download"
           label="Verilerimi dışa aktar"
-          subtitle="CSV olarak paylaş veya panoya kopyala"
+          subtitle="CSV dosyası olarak paylaş"
           onPress={() => router.push('/settings/export')}
         />
         <ListRow
@@ -38,7 +39,7 @@ export function PrivacyCenterScreen() {
           tone={colors.error}
           onPress={() => router.push('/settings/delete-account')}
         />
-        <View style={styles.bottom} />
+        <ScreenBottomInset />
       </ScrollView>
     </View>
   );
@@ -51,7 +52,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
-    paddingBottom: sizes.bottomNavHeight,
   },
   card: {
     padding: spacing.md,

@@ -11,6 +11,8 @@ import { textStyle } from '../../../shared/design/typography';
 import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
 import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
 import { PasswordField } from '../../../shared/widgets/PasswordField';
+import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
@@ -66,7 +68,7 @@ export function DeleteAccountScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Hesabı sil" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.warning}>
@@ -113,9 +115,9 @@ export function DeleteAccountScreen() {
           disabled={!online}
           onPress={submit}
         />
-        <View style={styles.bottom} />
+        <ScreenBottomInset />
       </ScrollView>
-    </View>
+    </KeyboardScreen>
   );
 }
 

@@ -3,9 +3,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 
 import { createPinRecord, verifyPinRecord } from '../../../core/security/pinRecord';
-import { borderWidth, colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
+import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
@@ -79,7 +81,7 @@ export function AppLockSettingsScreen() {
   const busy = savePin.isPending || disable.isPending;
 
   return (
-    <View style={styles.screen}>
+    <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Uygulama kilidi" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <SwitchTile
@@ -129,9 +131,9 @@ export function AppLockSettingsScreen() {
             ))}
           </>
         ) : null}
-        <View style={styles.bottom} />
+        <ScreenBottomInset />
       </ScrollView>
-    </View>
+    </KeyboardScreen>
   );
 }
 
@@ -218,7 +220,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    paddingBottom: sizes.bottomNavHeight,
   },
   block: {
     paddingHorizontal: spacing.lg,

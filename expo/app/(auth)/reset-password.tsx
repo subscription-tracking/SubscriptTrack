@@ -48,7 +48,7 @@ export default function ResetPasswordScreen() {
   }
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.screen}>
+    <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.screen}>
       <Stack.Screen options={{ headerShown: true, title: 'Yeni şifre oluştur' }} />
       <Spacer size={spacing.md} />
       <View style={styles.iconWrap}>

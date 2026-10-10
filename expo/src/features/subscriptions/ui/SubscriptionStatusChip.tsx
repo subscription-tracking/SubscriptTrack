@@ -38,7 +38,7 @@ export function toneColor(tone: ChipTone): string {
     case 'trial':
       return statusColors.trial;
     case 'muted':
-      return statusColors.muted;
+      return statusColors.mutedText;
     case 'success':
       return statusColors.success;
   }

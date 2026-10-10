@@ -80,6 +80,8 @@ export const statusColors = {
   warning: '#D6A15A',
   trial: '#9B9BD8',
   muted: '#737B8C',
+  /** Metin için açık "muted" (zemin üzerinde ≥4.5:1). Flutter `muted` değerinden sapma; yalnızca küçük metinde kullanılır. */
+  mutedText: '#8A92A3',
 } as const;
 
 export const spacing = {
@@ -258,7 +260,7 @@ export const sizes = {
   /** Takvim: gün hücresi yüksekliği (40), hücre iç boşluğu (3), yenileme noktası (5, alttan 5), ay gezinme ikonu (24), etkinlik avatarı (40). */
   calendarCell: 40,
   calendarCellInset: 3,
-  calendarDot: 5,
+  calendarDot: 6,
   calendarDotBottom: 5,
   calendarNavIcon: 24,
   calendarAvatar: 40,

@@ -1,4 +1,5 @@
 import { Money } from '../../../core/domain/money';
+import { ACTIVE_CURRENCIES } from '../../../core/domain/activeCurrency';
 import { type BillingCycle, type CivilDate, formatCivilDate } from '../../../core/time/calendar';
 import { type SubscriptionCategory } from './subscription';
 
@@ -8,10 +9,13 @@ import { type SubscriptionCategory } from './subscription';
  * Saf fonksiyonlar; I/O yoktur.
  */
 
-export const FORM_CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const;
+/** Form para birimleri: uygulamanın üç aktif para birimi (`core/domain/activeCurrency`). */
+export const FORM_CURRENCIES = ACTIVE_CURRENCIES;
 export type FormCurrency = (typeof FORM_CURRENCIES)[number];
 
 export const FORM_BILLING_CYCLES: readonly BillingCycle[] = ['weekly', 'monthly', 'quarterly', 'yearly'];
+
+export type InitialPaymentStatus = 'paid' | 'unpaid' | 'deferred';
 
 export interface SubscriptionFormValues {
   name: string;
@@ -27,13 +31,15 @@ export interface SubscriptionFormValues {
   isTrial: boolean;
   trialEndDate: CivilDate | null;
   trialPrice: string;
-  /** Yalnızca ekleme formu: ilk ödeme yapıldıysa ödeme kaydı eklenir (Flutter "Ödendi"). */
-  initialPaid: boolean;
+  /** Yalnızca ekleme formu: ilk ödeme durumu. "paid" ödeme kaydı yazar; "deferred" ertelenmiş kayıt yazar. */
+  initialPaymentStatus: InitialPaymentStatus;
   initialPaymentDate: CivilDate;
+  /** Hatırlatma günleri (0/1/3/7 çipleri); en az bir gün. Kayıt `notification_rules` olarak yazılır. */
+  reminderDays: number[];
 }
 
 export type FormErrors = Partial<
-  Record<'name' | 'amount' | 'nextRenewalDate' | 'trialEndDate' | 'trialPrice' | 'notes' | 'paymentMethod', string>
+  Record<'name' | 'amount' | 'nextRenewalDate' | 'trialEndDate' | 'trialPrice' | 'notes' | 'paymentMethod' | 'reminderDays', string>
 >;
 
 /** Veritabanı CHECK sınırları ([DATA_MODEL §2.9.1](../../../../../docs/reference/DATA_MODEL.md)). */
@@ -73,6 +79,7 @@ export function validateSubscriptionForm(values: SubscriptionFormValues): FormEr
     if (!positiveMoney(values.trialPrice)) errors.trialPrice = 'Geçerli bir deneme sonrası fiyatı gir';
   }
 
+  if (values.reminderDays.length === 0) errors.reminderDays = 'En az bir hatırlatma seç';
   if (values.notes.length > LIMITS.notesMax) errors.notes = `Not en fazla ${LIMITS.notesMax} karakter olabilir`;
   if (values.paymentMethod.trim().length > LIMITS.paymentMethodMax) {
     errors.paymentMethod = `Ödeme yöntemi en fazla ${LIMITS.paymentMethodMax} karakter olabilir`;

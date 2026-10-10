@@ -6,17 +6,20 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { type CivilDate, civilDate, deviceTimeZone, zoneToday } from '../../../core/time/calendar';
+import { type CivilDate, civilDate, deviceTimeZone, formatCivilDate, zoneToday } from '../../../core/time/calendar';
 import { colors, gaps, spacing } from '../../../shared/design/tokens';
+import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { saveSubscriptionEdit, submitCreate } from '../data/subscriptionMutations';
 import { type SubmitResult } from '../data/subscriptionSync';
+import { updateSubscription } from '../data/subscriptionWriteRepository';
+import { DEFAULT_REMINDER_DAYS, rulesFromDays, sameDays } from '../domain/reminderRules';
 import { submitNotice } from './submitNotice';
 import { subscriptionKeys, useServiceCatalogQuery } from '../data/queries';
 import { analyticsKeys } from '../../stats/data/queries';
-import { recordPayment } from '../../stats/data/paymentRepository';
+import { recordDeferredPayment, recordPayment } from '../../stats/data/paymentRepository';
 import { paidAtFromCivil } from '../../stats/domain/paymentEvents';
 import { formValuesFromSubscription } from '../domain/subscriptionEdit';
 import {
@@ -29,6 +32,7 @@ import {
 } from '../domain/subscriptionForm';
 import { resolveServicePresets } from '../domain/servicePresets';
 import { type Subscription } from '../domain/subscription';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
 import { ServiceSection } from './form/ServiceSection';
 import { RenewalSection } from './form/RenewalSection';
 import { DetailsSection } from './form/DetailsSection';
@@ -47,6 +51,8 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
   const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
 
   const startDay = parseStartParam(initialStart) ?? today;
+  // Yeni kayıt varsayılanı aktif para birimidir; kullanıcı formda değiştirebilir.
+  const activeCurrency = useActiveCurrency();
 
   const [values, setValues] = useState<SubscriptionFormValues>(() =>
     editing
@@ -54,7 +60,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
       : {
           name: '',
           amount: '',
-          currency: 'TRY',
+          currency: activeCurrency,
           billingCycle: 'monthly',
           category: 'other',
           startDate: startDay,
@@ -64,8 +70,9 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
           isTrial: false,
           trialEndDate: null,
           trialPrice: '',
-          initialPaid: false,
+          initialPaymentStatus: 'unpaid',
           initialPaymentDate: startDay,
+          reminderDays: [...DEFAULT_REMINDER_DAYS],
         },
   );
   const [submitted, setSubmitted] = useState(false);
@@ -86,13 +93,56 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
     },
     onSuccess: async (result) => {
       if (user) await queryClient.invalidateQueries({ queryKey: subscriptionKeys.all(user.id) });
-      if (!editing && values.initialPaid) await recordInitialPayment(result);
+      if (!editing && result.createdId) await applyCreatedReminders(result.createdId);
+      if (!editing && values.initialPaymentStatus === 'paid') await recordInitialPayment(result);
+      if (!editing && values.initialPaymentStatus === 'deferred') await recordDeferredInitial(result);
       const notice = submitNotice(result);
       if (notice) snackbar.show(notice.message, notice.tone);
       router.back();
     },
     onError: (error: Error) => snackbar.show(error.message, 'error'),
   });
+
+  /**
+   * Oluşturma RPC'si hatırlatma kuralı almadığı için, seçim varsayılandan farklıysa kayıt hemen güncellenir.
+   * Deneme aboneliği `trial` durumunda kalır; kuyrukta bekleyen eklemede bu adım çevrimiçi gelince yapılamaz.
+   */
+  async function applyCreatedReminders(subscriptionId: string) {
+    if (sameDays(values.reminderDays, DEFAULT_REMINDER_DAYS)) return;
+    try {
+      await updateSubscription({
+        p_idempotency_key: randomUUID(),
+        p_subscription_id: subscriptionId,
+        ...toSubscriptionFields(values),
+        p_notification_rules: rulesFromDays(values.reminderDays),
+        p_status: values.isTrial ? 'trial' : 'active',
+      });
+    } catch {
+      snackbar.show('Abonelik kaydedildi ama hatırlatmalar eklenemedi. Ayrıntılardan düzenleyebilirsin.', 'error');
+    }
+  }
+
+  /** "Ertelendi" seçili ekleme: kayıt ertelenmiş olarak yazılır ve toplamlara girmez. */
+  async function recordDeferredInitial(result: SubmitResult) {
+    if (!result.createdId || !user) {
+      snackbar.show('Ertelenen ödeme bağlantı gelince eklenmez; ödeme geçmişinden ekleyebilirsin.', 'default');
+      return;
+    }
+    const fields = toSubscriptionFields(values);
+    try {
+      await recordDeferredPayment({
+        userId: user.id,
+        subscriptionId: result.createdId,
+        amount: fields.p_amount,
+        currency: fields.p_currency,
+        paidAt: new Date(),
+        deferredUntil: formatCivilDate(values.initialPaymentDate),
+      });
+      await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
+    } catch {
+      snackbar.show('Abonelik kaydedildi ama ertelenen ödeme eklenemedi.', 'error');
+    }
+  }
 
   /**
    * "Ödendi" seçili ekleme: kayıt çevrimiçi hemen gönderildiyse ödeme kaydı yazılır. Kuyruğa alındıysa kimlik
@@ -127,7 +177,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
   const busy = save.isPending;
 
   return (
-    <View style={styles.screen}>
+    <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title={editing ? 'Aboneliği düzenle' : 'Yeni abonelik'} />
 
       <ScrollView
@@ -152,7 +202,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
         <PrimaryButton label={editing ? 'Değişiklikleri kaydet' : 'Aboneliği kaydet'} onPress={submit} loading={busy} />
       </View>
-    </View>
+    </KeyboardScreen>
   );
 }
 

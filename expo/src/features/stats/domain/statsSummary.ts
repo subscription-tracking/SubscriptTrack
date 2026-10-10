@@ -15,7 +15,6 @@ export interface CategoryShare {
 }
 
 export interface StatsSummary {
-  currencies: string[];
   currency: string;
   monthly: Money;
   yearly: Money;
@@ -34,17 +33,14 @@ export function buildStatsSummary(input: {
   payments: readonly PaymentEvent[];
   today: CivilDate;
   now: Date;
-  selectedCurrency?: string | null;
+  /** Uygulamanın tek aktif para birimi; yalnızca bu para birimindeki kayıtlar hesaplanır. */
+  activeCurrency: string;
   /** Trend penceresi: 3, 6 veya 12 ay (Flutter `_months`). */
   months?: number;
 }): StatsSummary | null {
-  const active = activeForTotals(input.subscriptions, input.today);
-  const currencies = [...new Set(active.map((subscription) => subscription.currency))].sort();
-  if (currencies.length === 0) return null;
-
-  const currency =
-    input.selectedCurrency && currencies.includes(input.selectedCurrency) ? input.selectedCurrency : currencies[0];
-  const inCurrency = active.filter((subscription) => subscription.currency === currency);
+  const currency = input.activeCurrency;
+  const inCurrency = activeForTotals(input.subscriptions, input.today).filter((subscription) => subscription.currency === currency);
+  if (inCurrency.length === 0) return null;
   const monthly = inCurrency.reduce((sum, subscription) => sum.add(monthlyEquivalent(subscription)), Money.zero);
 
   const categoryTotals = new Map<SubscriptionCategory, Money>();
@@ -59,7 +55,6 @@ export function buildStatsSummary(input: {
   const highest = [...inCurrency].sort((a, b) => monthlyEquivalent(b).compareTo(monthlyEquivalent(a)))[0] ?? null;
 
   return {
-    currencies,
     currency,
     monthly,
     yearly: monthly.multiply(12),

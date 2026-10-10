@@ -13,7 +13,7 @@ export function EmptyDayState({ hasSelection, onAddForDay }: { hasSelection: boo
     <View style={styles.wrap}>
       <View style={styles.circle}>
         <MaterialIcons
-          name={hasSelection ? 'check-circle-outline' : 'touch-app'}
+          name={hasSelection ? 'calendar-today' : 'touch-app'}
           size={sizes.emptyDayIcon}
           color={colors.onSurfaceVariant}
         />

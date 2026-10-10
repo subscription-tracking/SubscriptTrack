@@ -25,7 +25,7 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
  * Flutter `InputDecoration` (filled, outline) karşılığı: surfaceHigh dolgu,
  * 14 köşe, 0.5 kenarlık, odakta 1.5 primary kenarlık, etiket içeride → üstte.
  */
-export function TextField({ label, prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, ...inputProps }: TextFieldProps) {
+export function TextField({ label, prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, placeholder, ...inputProps }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
   const floating = focused || (value ?? '').length > 0;
 
@@ -72,6 +72,7 @@ export function TextField({ label, prefixIcon, prefix, suffix, error, editable =
             }}
             style={[styles.input, floating && styles.inputFloating]}
             {...inputProps}
+            placeholder={focused ? placeholder : undefined}
           />
         </View>
         {suffix ? <View style={styles.suffix}>{suffix}</View> : null}
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceHigh,
     borderRadius: radius.small,
     borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
+    borderColor: colors.outline,
     paddingLeft: spacing.md,
     paddingRight: spacing.xxs,
   },
@@ -173,7 +174,8 @@ const styles = StyleSheet.create({
     minHeight: 24,
   },
   inputFloating: {
-    paddingTop: spacing.sm,
+    // Üstteki etiket bandının (8 px boşluk + ~16 px satır) altına inen değer.
+    paddingTop: spacing.xl,
   },
   suffix: {
     marginLeft: spacing.xxs,

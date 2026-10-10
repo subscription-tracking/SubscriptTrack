@@ -45,7 +45,7 @@ export default function ForgotPasswordScreen() {
   }
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.screen}>
+    <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.screen}>
       <Stack.Screen options={{ headerShown: true, title: 'Şifremi unuttum' }} />
       {sentTo !== null ? (
         <View style={styles.centered}>

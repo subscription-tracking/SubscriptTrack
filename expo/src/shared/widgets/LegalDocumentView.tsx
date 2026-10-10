@@ -1,8 +1,9 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../design/tokens';
+import { borderWidth, colors, gaps, radius, spacing, withAlpha } from '../design/tokens';
 import { textStyle } from '../design/typography';
 import { type LegalDocument } from '../../features/legal/domain/legalDocuments';
+import { ScreenBottomInset } from './ScreenBottomInset';
 import { ScreenTopBar } from './ScreenTopBar';
 import { Spacer } from './Spacer';
 
@@ -50,7 +51,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
           Bu metin taslaktır; yayın öncesi hukuki onay gerektirir.
         </Text>
-        <Spacer size={sizes.bottomNavHeight} />
+        <ScreenBottomInset />
       </ScrollView>
     </View>
   );

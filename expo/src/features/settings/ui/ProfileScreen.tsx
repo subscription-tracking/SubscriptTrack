@@ -11,6 +11,8 @@ import { borderWidth, colors, gaps, sizes, spacing } from '../../../shared/desig
 import { textStyle } from '../../../shared/design/typography';
 import { PasswordField } from '../../../shared/widgets/PasswordField';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
@@ -20,17 +22,18 @@ export function ProfileScreen() {
   const { user } = useAuth();
   if (!user) return null;
   return (
-    <View style={styles.screen}>
+    <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Profil" />
       <ProfileBody email={user.email} displayName={user.displayName} createdAt={user.createdAt} />
-    </View>
+    </KeyboardScreen>
   );
 }
 
 function ProfileBody({ email, displayName, createdAt }: { email: string; displayName: string | null; createdAt: string }) {
   const { updateDisplayName, updateEmail, updatePassword, signIn } = useAuth();
   const snackbar = useSnackbar();
-  const currentName = displayName?.trim() || email.split('@')[0];
+  // Ad yoksa alan boş kalır; e-posta öneki ad olarak gösterilmez.
+  const currentName = displayName?.trim() ?? '';
   const [name, setName] = useState(currentName);
   const [newEmail, setNewEmail] = useState(email);
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
@@ -86,13 +89,13 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <Text style={textStyle('avatarInitial', { color: colors.onPrimaryContainer })}>{initial}</Text>
         </View>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>{email}</Text>
-        <Text style={textStyle('bodySmall', { marginTop: spacing.xxs / 2 })}>{`Üye olma: ${memberSince}`}</Text>
+        <Text style={textStyle('bodySmall', { marginTop: spacing.xxs / 2 })}>{`Üyelik tarihi: ${memberSince}`}</Text>
       </View>
 
       <View style={styles.gap28} />
       <Text style={textStyle('titleSmall')}>İsim</Text>
       <View style={styles.gap8} />
-      <TextField label="Adın" prefixIcon="person-outline" value={name} onChangeText={setName} editable={!nameSave.isPending} />
+      <TextField label="Adın" prefixIcon="person-outline" value={name} onChangeText={setName} placeholder="Adını gir" editable={!nameSave.isPending} />
       <View style={styles.gap12} />
       <PrimaryButton label="Kaydet" tall={false} loading={nameSave.isPending} disabled={!nameChanged} onPress={() => nameSave.mutate()} />
 
@@ -136,7 +139,7 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
       />
       <View style={styles.gap12} />
       <PrimaryButton label="Şifreyi güncelle" tall={false} loading={passwordSave.isPending} disabled={!passwordReady} onPress={submitPassword} />
-      <View style={styles.bottom} />
+      <ScreenBottomInset />
     </ScrollView>
   );
 }

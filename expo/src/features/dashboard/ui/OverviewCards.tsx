@@ -6,7 +6,9 @@ import { formatAmount } from '../../../core/format/money';
 import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { DonutChart } from '../../../shared/widgets/DonutChart';
-import { type CategoryGroup, type CategoryTotal, donutEntries, percentOf } from '../domain/dashboardHero';
+import { categorySummary } from '../../stats/domain/chartSummary';
+import { percentShares } from '../../stats/domain/percentShares';
+import { type CategoryGroup, type CategoryTotal, donutEntries } from '../domain/dashboardHero';
 import { SectionHeader } from './StatChips';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -29,31 +31,41 @@ function groupColor(group: CategoryGroup): string {
 export function CategoryDonutCard({ totals, onAll }: { totals: CategoryTotal[]; onAll: () => void }) {
   if (totals.length === 0) return null;
   const { primaryCurrency, entries, total } = donutEntries(totals);
+  const shares = percentShares(
+    entries.map((entry) => entry.amount.minorUnits),
+    entries.reduce((sum, entry) => sum + entry.amount.minorUnits, 0),
+  );
   const slices = entries.map((entry) => ({
     fraction: total === 0 ? 0 : entry.amount.amount / total,
     color: groupColor(entry.group),
   }));
+  const summary = categorySummary({
+    count: entries.length,
+    totalText: formatAmount(total, primaryCurrency),
+    topName: entries[0]?.group ?? null,
+    topPercent: shares[0] ?? 0,
+  });
   return (
     <View>
       <SectionHeader title="Bu ayın görünümü" action="Tüm kategoriler" onAction={onAll} />
       <View style={styles.gapBelowHeader} />
       <View style={styles.donutCard}>
-        <DonutChart size={sizes.donutSize} slices={slices} trackColor={colors.outline}>
+        <DonutChart size={sizes.donutSize} slices={slices} trackColor={colors.outline} accessibilityLabel={summary}>
           <View style={styles.donutCenter}>
-            <Text style={textStyle('donutTotal')} numberOfLines={1}>
+            <Text style={textStyle('donutTotal')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
               {formatAmount(total, primaryCurrency)}
             </Text>
             <Text style={textStyle('donutLabel', { color: withAlpha(colors.onSurfaceVariant, 0.9), marginTop: spacing.xxs / 2 })}>toplam</Text>
           </View>
         </DonutChart>
         <View style={styles.legend}>
-          {entries.slice(0, 3).map((entry) => (
+          {entries.slice(0, 3).map((entry, index) => (
             <View key={entry.group} style={styles.legendRow}>
               <View style={[styles.legendDot, { backgroundColor: groupColor(entry.group) }]} />
               <Text style={textStyle('bodySmall', { flex: 1, marginLeft: spacing.xs })} numberOfLines={1}>
                 {entry.group}
               </Text>
-              <Text style={textStyle('bodySmallStrong')}>{`%${percentOf(entry.amount.amount, total)}`}</Text>
+              <Text style={textStyle('bodySmallStrong')}>{`%${shares[index] ?? 0}`}</Text>
             </View>
           ))}
         </View>
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
   },
   donutCenter: {
     alignItems: 'center',
-    padding: spacing.xs,
+    maxWidth: sizes.donutSize - spacing.xxxl,
   },
   legend: {
     flex: 1,

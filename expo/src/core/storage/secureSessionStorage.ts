@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 /**
@@ -24,7 +25,7 @@ function sanitizeKey(key: string): string {
   return key.replace(/[^A-Za-z0-9._-]/g, '_');
 }
 
-export const secureSessionStorage = {
+const nativeStorage = {
   async getItem(rawKey: string): Promise<string | null> {
     const key = sanitizeKey(rawKey);
     const head = await SecureStore.getItemAsync(key);
@@ -65,6 +66,24 @@ export const secureSessionStorage = {
     await SecureStore.deleteItemAsync(key);
   },
 };
+
+/**
+ * Yalnızca web önizlemesi için: `expo-secure-store` web'de yoktur. Tarayıcı depolaması güvenli depo değildir;
+ * bu adaptör üretim web'i için kullanılmamalıdır (uygulama web'e yayınlanmaz, yalnızca tasarım kontrolü içindir).
+ */
+const webStorage = {
+  async getItem(key: string): Promise<string | null> {
+    return window.localStorage.getItem(key);
+  },
+  async setItem(key: string, value: string): Promise<void> {
+    window.localStorage.setItem(key, value);
+  },
+  async removeItem(key: string): Promise<void> {
+    window.localStorage.removeItem(key);
+  },
+};
+
+export const secureSessionStorage = Platform.OS === 'web' ? webStorage : nativeStorage;
 
 async function removeChunks(key: string): Promise<void> {
   const head = await SecureStore.getItemAsync(key);

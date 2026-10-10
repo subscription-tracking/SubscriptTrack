@@ -3,15 +3,22 @@ import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { type CivilDate } from '../../../../core/time/calendar';
-import { colors, gaps, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { DateField } from '../../../../shared/widgets/DateField';
 import { SelectField } from '../../../../shared/widgets/SelectField';
 import { TextField } from '../../../../shared/widgets/TextField';
 import { CATEGORY_LABELS, SUBSCRIPTION_CATEGORIES, type SubscriptionCategory } from '../../domain/subscription';
-import { type FormErrors, type SubscriptionFormValues } from '../../domain/subscriptionForm';
+import { type FormErrors, type InitialPaymentStatus, type SubscriptionFormValues } from '../../domain/subscriptionForm';
 
 const NOTES_MAX_LENGTH = 500;
+
+/** İlk ödeme seçenekleri (Flutter: Ödendi / Ödenmedi / Ertelendi). */
+const INITIAL_STATUS_OPTIONS: { value: InitialPaymentStatus; label: string }[] = [
+  { value: 'paid', label: 'Ödendi' },
+  { value: 'unpaid', label: 'Ödenmedi' },
+  { value: 'deferred', label: 'Ertelendi' },
+];
 
 /**
  * Flutter `FormDetailsSection`: "Diğer ayrıntılar" açılır satırı. Açıkken deneme anahtarı (ve bitiş tarihi,
@@ -104,22 +111,27 @@ export function DetailsSection({
 
           {showInitialPayment ? (
             <>
-              <View style={styles.trialRow}>
-                <View style={styles.trialText}>
-                  <Text style={textStyle('body')}>İlk ödeme yapıldı</Text>
-                  <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Ödeme geçmişine bir kayıt eklenir</Text>
-                </View>
-                <Switch
-                  value={values.initialPaid}
-                  disabled={disabled}
-                  onValueChange={(next) => onChange('initialPaid', next)}
-                  trackColor={{ false: colors.outline, true: withAlpha(colors.primary, 0.5) }}
-                  thumbColor={values.initialPaid ? colors.primary : colors.onSurfaceVariant}
-                />
+              <Text style={textStyle('body')}>İlk ödeme</Text>
+              <View style={styles.statusChips}>
+                {INITIAL_STATUS_OPTIONS.map((option) => {
+                  const selected = values.initialPaymentStatus === option.value;
+                  return (
+                    <Pressable
+                      key={option.value}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      disabled={disabled}
+                      onPress={() => onChange('initialPaymentStatus', option.value)}
+                      style={[styles.statusChip, selected ? styles.statusChipSelected : null]}
+                    >
+                      <Text style={textStyle('caption12Strong', { color: selected ? colors.primary : colors.onSurfaceVariant })}>{option.label}</Text>
+                    </Pressable>
+                  );
+                })}
               </View>
-              {values.initialPaid ? (
+              {values.initialPaymentStatus !== 'unpaid' ? (
                 <DateField
-                  label="Ödeme tarihi"
+                  label={values.initialPaymentStatus === 'deferred' ? 'Ertelenen tarih' : 'Ödeme tarihi'}
                   icon="event"
                   value={values.initialPaymentDate}
                   fallback={today}
@@ -178,5 +190,22 @@ const styles = StyleSheet.create({
   },
   trialText: {
     flex: 1,
+  },
+  statusChips: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  statusChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.choice,
+    borderWidth: borderWidth.statsEdge,
+    borderColor: withAlpha(colors.outline, 0.5),
+    backgroundColor: colors.surfaceHigh,
+  },
+  statusChipSelected: {
+    borderColor: colors.primary,
+    backgroundColor: withAlpha(colors.primary, 0.16),
   },
 });

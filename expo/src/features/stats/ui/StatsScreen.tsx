@@ -16,7 +16,7 @@ import { type PaymentEvent } from '../domain/paymentEvents';
 import { buildStatsSummary, type StatsSummary } from '../domain/statsSummary';
 import { ActionCards } from './cards/ActionCards';
 import { CategoryBreakdownCard } from './cards/CategoryBreakdownCard';
-import { CurrencySelector } from './cards/CurrencySelector';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
 import { HeroSpendingCard } from './cards/HeroSpendingCard';
 import { InsightsCard } from './cards/InsightsCard';
 import { TrendCard } from './cards/TrendCard';
@@ -33,7 +33,7 @@ export function StatsScreen() {
   const payments = usePaymentsQuery(user?.id);
   const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
   const [months, setMonths] = useState(6);
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+  const currency = useActiveCurrency();
 
   const state: AsyncState<{ subscriptions: Subscription[]; payments: PaymentEvent[] }> =
     subscriptions.isPending || payments.isPending
@@ -73,7 +73,7 @@ export function StatsScreen() {
           payments: data.payments,
           today,
           now,
-          selectedCurrency,
+          activeCurrency: currency,
           months,
         });
         if (!summary) return null;
@@ -98,7 +98,6 @@ export function StatsScreen() {
               now={now}
               months={months}
               onMonthsChanged={setMonths}
-              onCurrency={setSelectedCurrency}
               onPayments={() => router.push('/stats/payments')}
               onSavings={() => router.push('/savings')}
             />
@@ -114,7 +113,6 @@ function Body({
   now,
   months,
   onMonthsChanged,
-  onCurrency,
   onPayments,
   onSavings,
 }: {
@@ -122,7 +120,6 @@ function Body({
   now: Date;
   months: number;
   onMonthsChanged: (months: number) => void;
-  onCurrency: (currency: string) => void;
   onPayments: () => void;
   onSavings: () => void;
 }) {
@@ -130,12 +127,6 @@ function Body({
   const hasInsights = highest !== null || summary.dueSoon.length > 0;
   return (
     <>
-      {summary.currencies.length > 1 ? (
-        <>
-          <CurrencySelector currencies={summary.currencies} selected={summary.currency} onChange={onCurrency} />
-          <View style={styles.gap16} />
-        </>
-      ) : null}
 
       <HeroSpendingCard
         monthly={summary.monthly}

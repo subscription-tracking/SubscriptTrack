@@ -1,26 +1,32 @@
 import { notificationText, parseKind, unreadCount } from './notificationCenter';
 
 describe('notificationText', () => {
-  it('yenileme metinlerini Flutter ile aynı üretir', () => {
+  it('başlık abonelik adı, gövde kalan süre', () => {
     expect(notificationText('renewal_today', { name: 'Netflix' })).toEqual({
-      title: 'Bugün yenileniyor',
-      body: 'Netflix bugün yenileniyor.',
+      title: 'Netflix',
+      body: 'Bugün yenileniyor',
     });
     expect(notificationText('renewal_soon', { name: 'Spotify', days: 3 })).toEqual({
-      title: '3 gün kaldı',
-      body: 'Spotify 3 gün içinde yenileniyor.',
+      title: 'Spotify',
+      body: 'Yenilenmesine 3 gün kaldı',
     });
   });
 
-  it('deneme metinlerini üretir', () => {
-    expect(notificationText('trial_soon', { name: 'BluTV', days: 1 }).body).toBe('BluTV ücretsiz denemesi 1 gün içinde sona eriyor.');
+  it('başlık ve gövde aynı bilgiyi tekrar etmez', () => {
+    const text = notificationText('renewal_soon', { name: 'Xbox', days: 1 });
+    expect(text.body).not.toContain(text.title);
   });
 
-  it('eksik parametrede boş ad ve sıfır gün kullanır', () => {
-    expect(notificationText('renewal_upcoming', {})).toEqual({
-      title: 'Yaklaşan yenileme',
-      body: ' 0 gün içinde yenileniyor.',
+  it('deneme metinleri', () => {
+    expect(notificationText('trial_soon', { name: 'BluTV', days: 1 })).toEqual({
+      title: 'BluTV',
+      body: 'Denemenin bitmesine 1 gün kaldı',
     });
+  });
+
+  it('ad yoksa tür adı başlık olur', () => {
+    expect(notificationText('renewal_upcoming', {})).toEqual({ title: 'Abonelik', body: '0 gün içinde yenilenecek' });
+    expect(notificationText('trial_upcoming', { days: 2 }).title).toBe('Ücretsiz deneme');
   });
 });
 

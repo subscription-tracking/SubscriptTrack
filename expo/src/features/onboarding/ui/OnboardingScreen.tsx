@@ -8,7 +8,8 @@ import { textButtonText, textStyle } from '../../../shared/design/typography';
 import { AmbientBackground } from '../../../shared/widgets/AmbientBackground';
 import { EntranceFade } from '../../../shared/widgets/EntranceFade';
 import { CURRENCY_PAGE, ONBOARDING_PAGE_COUNT, ONBOARDING_SLIDES, isCurrencyPage, isLastPage, type OnboardingSlide } from '../domain/slides';
-import { DEFAULT_CURRENCY_SYMBOL, readCurrencySymbol, writeCurrencySymbol } from '../data/currencyPreference';
+import { readDeviceCurrency, writeDeviceCurrency } from '../data/currencyPreference';
+import { DEFAULT_ACTIVE_CURRENCY, type ActiveCurrency } from '../../../core/domain/activeCurrency';
 import { useOnboardingFlag } from '../data/onboardingFlag';
 import { CurrencyPage } from './CurrencyPage';
 import { AnalyticsIllustration } from './illustrations/AnalyticsIllustration';
@@ -34,17 +35,19 @@ export function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList<Page>>(null);
   const [index, setIndex] = useState(0);
-  const [currency, setCurrency] = useState(DEFAULT_CURRENCY_SYMBOL);
+  const [currency, setCurrency] = useState<ActiveCurrency>(DEFAULT_ACTIVE_CURRENCY);
 
   useEffect(() => {
-    void readCurrencySymbol().then(setCurrency);
+    void readDeviceCurrency().then((stored) => {
+      if (stored) setCurrency(stored);
+    });
   }, []);
 
   const accent = isCurrencyPage(index) ? CURRENCY_PAGE.accent : ONBOARDING_SLIDES[index].accent;
   const wash = isCurrencyPage(index) ? CURRENCY_PAGE.wash : ONBOARDING_SLIDES[index].wash;
 
   async function finish() {
-    await writeCurrencySymbol(currency);
+    await writeDeviceCurrency(currency);
     await markDone();
     router.replace('/login' as Href);
   }

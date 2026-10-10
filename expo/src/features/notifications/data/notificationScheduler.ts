@@ -28,7 +28,8 @@ let loaded: NotificationsModule | null | undefined;
 export function notificationsModule(): NotificationsModule | null {
   if (loaded === undefined) {
     // Expo Go SDK 53+ uzak bildirimleri kaldırdı; modülü yüklemek bile kırmızı hata üretir, bu yüzden hiç yüklenmez.
-    if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
+    // Web önizlemesinde yerel bildirim yoktur; Expo Go'da da uzak bildirim desteği kaldırılmıştır.
+    if (Platform.OS === 'web' || Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
       loaded = null;
       return loaded;
     }
