@@ -64,7 +64,7 @@ npm run typecheck    # tsc --noEmit (strict)
 npx expo-doctor      # Expo bağımlılık ve yapılandırma denetimi
 ```
 
-Bu makinede doğrulanan durum: `npm test` 74 test geçiyor, `npm run typecheck` hatasız, `npx expo-doctor` 21/21 kontrol geçiyor, Android bundle `npx expo export --platform android` ile üretiliyor.
+Bu makinede doğrulanan durum: `npm test` testler geçiyor, `npm run typecheck` hatasız, `npx expo-doctor` 21/21 kontrol geçiyor, Android bundle `npx expo export --platform android` ile üretiliyor.
 
 Lint için Expo'nun ESLint yapılandırması henüz eklenmedi (Aşama 0 kapsamı dışında bırakıldı; ARCHITECTURE.md'de not edildi).
 

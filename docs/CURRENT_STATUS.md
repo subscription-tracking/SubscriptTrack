@@ -48,7 +48,7 @@ Etiketler: **Uygulandı** · **Kısmi** (kod var, doğrulama eksik) · **Planlı
 | Açık tema | Planlı | Yalnızca koyu tema |
 | Analitik / crash raporlama | Planlı | Altyapı yok ([ANALYTICS.md](product/ANALYTICS.md)) |
 | iOS build ve dağıtım | Planlı | Hiç derlenmedi |
-| Expo sürümü (paralel, [ADR 0010](decisions/0010-expo-parallel-app.md)) | Kısmi | Aşama 0 ve Aşama 1 kodu tamam: Supabase istemcisi, Money/takvim modülleri, tokenlar, auth akışı, 74 test; Android bundle üretiliyor; cihaz ve iOS doğrulaması yok ([docs/expo](expo/README.md)) |
+| Expo sürümü (paralel, [ADR 0010](decisions/0010-expo-parallel-app.md)) | Kısmi | Aşama 0 ve Aşama 1 kodu tamam: Supabase istemcisi, Money/takvim modülleri, tokenlar, auth akışı, testler; Android bundle üretiliyor; cihaz ve iOS doğrulaması yok ([docs/expo](expo/README.md)) |
 
 ## Canlı backend
 
@@ -56,7 +56,7 @@ Ayrıntılı, tarihli anlık görüntü: [SUPABASE_LIVE_STATUS.md](reference/SUP
 
 ## Güvenlik düzeltmeleri (repoda; canlıya alınmayı bekliyor)
 
-Güvenlik denetimi bulgularının büyük bölümü kodda, testlerde ve migration dosyalarında (032–035) giderildi; **canlı sistem henüz güncellenmedi**: migration'lar uygulanmadı, Edge Function'lar yeniden deploy edilmedi, hesap/depo ayarları (parola kuralı, özel SMTP, GitHub koruma) yapılmadı. Canlıda doğrulanana kadar bu işler açık sayılır. Ayrıntı: [SECURITY.md](architecture/SECURITY.md#3-açık-güvenlik-işleri).
+Güvenlik denetimi bulgularının büyük bölümü kodda, testlerde ve migration dosyalarında (032–035) giderildi; **canlı veritabanı 2026-10-10 itibarıyla güncellendi**: migration 019, 032–035 uygulandı ve doğrulandı, `process-export` v2 dağıtıldı. Hesap ayarları (sızdırılmış parola koruması, özel SMTP) hâlâ açık sayılır. Ayrıntı: [SECURITY.md](architecture/SECURITY.md#3-açık-güvenlik-işleri).
 
 ## Dağıtım ve CI
 

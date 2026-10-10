@@ -35,7 +35,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S1 — Abonelik yaşam döngüsü (Aşama 2)
 
-**Durum (2026-10-09): Kod tamam.** Düzenleme, durum aksiyonları, arşiv ve arşiv listesi yazıldı; 154 test ve tip kontrolü geçiyor. Cihaz ve canlı veri doğrulaması yapılmadı. Migration gerekmedi: RPC ve `subscription_events` RLS politikası mevcut. Olay yazımı istemcide ve atomik değil (bkz. [API.md §4](../reference/API.md)).
+**Durum (2026-10-09): Kod tamam.** Düzenleme, durum aksiyonları, arşiv ve arşiv listesi yazıldı; testler ve tip kontrolü geçiyor. Cihaz ve canlı veri doğrulaması yapılmadı. Migration gerekmedi: RPC ve `subscription_events` RLS politikası mevcut. Olay yazımı istemcide ve atomik değil (bkz. [API.md §4](../reference/API.md)).
 
 **Hedef:** Bir abonelik eklenip düzenlenebilir, durdurulabilir, iptal edilebilir ve arşivlenebilir. Silme yok.
 
@@ -62,7 +62,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S2 — Liste filtreleri, realtime ve servis kataloğu (Aşama 2)
 
-**Durum (2026-10-09): Kod tamam.** Filtre sayfası, gecikmiş yenileme onayı, realtime senkron ve servis önerileri yazıldı; 183 test ve tip kontrolü geçiyor. Cihazda ve canlı ortamda (realtime, `support-catalog` çağrısı) doğrulama yapılmadı. Migration gerekmedi.
+**Durum (2026-10-09): Kod tamam.** Filtre sayfası, gecikmiş yenileme onayı, realtime senkron ve servis önerileri yazıldı; testler ve tip kontrolü geçiyor. Cihazda ve canlı ortamda (realtime, `support-catalog` çağrısı) doğrulama yapılmadı. Migration gerekmedi.
 
 **Hedef:** Liste, kullanıcının aradığı aboneliği hızlı bulmasını sağlar; çoklu cihazda güncel kalır.
 
@@ -82,7 +82,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S3 — Offline (Aşama 3)
 
-**Durum (2026-10-09): Kod tamam.** Cache, FIFO kuyruk, senkron ve çevrimdışı şerit yazıldı; 203 test ve tip kontrolü geçiyor. Kararlar: depolama için mevcut şifreli (Keychain/Keystore) chunk'lı depo, ağ durumu için `expo-network`; `expo-sqlite` gerekmedi. Uçak modu senaryosu cihazda henüz denenmedi.
+**Durum (2026-10-09): Kod tamam.** Cache, FIFO kuyruk, senkron ve çevrimdışı şerit yazıldı; testler ve tip kontrolü geçiyor. Kararlar: depolama için mevcut şifreli (Keychain/Keystore) chunk'lı depo, ağ durumu için `expo-network`; `expo-sqlite` gerekmedi. Uçak modu senaryosu cihazda henüz denenmedi.
 
 **Hedef:** Ağ yokken son veri gösterilir; yazma işlemleri kaybolmaz.
 
@@ -102,7 +102,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S4 — Dashboard ve takvim (Aşama 4)
 
-**Durum (2026-10-09): Kod tamam.** Ana sayfa (toplamlar, çipler, denemeler, sıradaki ödeme, hızlı eylemler) ve takvim (aylık ızgara, gün detayı, ay toplamları) yazıldı; 219 test ve tip kontrolü geçiyor. Ertelenenler: kategori donut, aylık değişim ve ödeme bağlı sayılar (S5), bildirim rozeti (S6). Yüksek tutarlı yıllık eşiği için ürün kararı bekleniyor.
+**Durum (2026-10-09): Kod tamam.** Ana sayfa (toplamlar, çipler, denemeler, sıradaki ödeme, hızlı eylemler) ve takvim (aylık ızgara, gün detayı, ay toplamları) yazıldı; testler ve tip kontrolü geçiyor. Ertelenenler: kategori donut, aylık değişim ve ödeme bağlı sayılar (S5), bildirim rozeti (S6). Yüksek tutarlı yıllık eşiği için ürün kararı bekleniyor.
 
 **Hedef:** Ana sayfa ve takvim, Flutter'daki hesaplarla aynı sonuçları verir.
 
@@ -120,7 +120,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S5 — İstatistik, ödeme geçmişi, tasarruf ve iptal akışı (Aşama 4)
 
-**Durum (2026-10-09): Kod tamam.** İstatistik (para birimi seçimi, aylık/yıllık, 6 ay trend, kategoriler, 7 gün, en yüksek), ödeme geçmişi (ekleme, silme), tasarruf (toplam, fırsatlar, geçmiş) ve duraklatma/iptalde tasarruf kaydı yazıldı; 234 test ve tip kontrolü geçiyor. Üç seçenekli iptal ekranı sonradan eklendi (sağlayıcı sayfası, İptal ettim, Durdurdum, Kullanmaya devam et). İptal sebebi alınmıyor. Ödeme düzenleme de eklendi (tutar ve tarih; para birimi sabit). Tasarruf kaydı kuyrukta ayrı bir aşamadır (olay tekrarı olmaz).
+**Durum (2026-10-09): Kod tamam.** İstatistik (para birimi seçimi, aylık/yıllık, 6 ay trend, kategoriler, 7 gün, en yüksek), ödeme geçmişi (ekleme, silme), tasarruf (toplam, fırsatlar, geçmiş) ve duraklatma/iptalde tasarruf kaydı yazıldı; testler ve tip kontrolü geçiyor. Üç seçenekli iptal ekranı sonradan eklendi (sağlayıcı sayfası, İptal ettim, Durdurdum, Kullanmaya devam et). İptal sebebi alınmıyor. Ödeme düzenleme de eklendi (tutar ve tarih; para birimi sabit). Tasarruf kaydı kuyrukta ayrı bir aşamadır (olay tekrarı olmaz).
 
 **Hedef:** Kullanıcı harcamasını ve iptal ettiği aboneliklerden kazandığı tasarrufu görür.
 
@@ -139,7 +139,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S6 — Bildirimler (Aşama 5)
 
-**Durum (2026-10-09): Kod tamam.** `expo-notifications` ile yerel planlama (kural, varsayılan gün, deneme 7/3/1, 09:00, 60 sınır, farka dayalı eşitleme), izin açıklaması ve ayar yönlendirmesi, dokunmada deep link, bildirim merkezi (okunur), tercihler ve ana sayfa rozeti yazıldı; 263 test ve tip kontrolü geçiyor. Kararlar: tercihler yerel depoda (sunucu `profiles` yazımı canlı veri onayı gerektirdiği için yok); saat dilimi cihazdan; ertele aksiyonu ve okundu yazımı yok. Cihazda doğrulama yapılmadı.
+**Durum (2026-10-09): Kod tamam.** `expo-notifications` ile yerel planlama (kural, varsayılan gün, deneme 7/3/1, 09:00, 60 sınır, farka dayalı eşitleme), izin açıklaması ve ayar yönlendirmesi, dokunmada deep link, bildirim merkezi (okunur), tercihler ve ana sayfa rozeti yazıldı; testler ve tip kontrolü geçiyor. Kararlar: tercihler yerel depoda (sunucu `profiles` yazımı canlı veri onayı gerektirdiği için yok); saat dilimi cihazdan; ertele aksiyonu ve okundu yazımı yok. Cihazda doğrulama yapılmadı.
 
 **Hedef:** Yerel bildirimler iOS ve Android'de zamanlanır, açılır ve tekrar zamanlanmaz.
 
@@ -160,7 +160,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S7 — Ayarlar ve gizlilik (1) (Aşama 6)
 
-**Durum (2026-10-09): Kod tamam.** Ayarlar ana ekranı, profil (ad, soyad, para birimi, şifre değişimi), görünüm (yalnız koyu), uygulama kilidi (PIN, biyometri, kilit süresi, hatalı deneme beklemesi) ve gizlilik merkezi yazıldı; 275 test ve tip kontrolü geçiyor. PIN özeti Flutter'daki PBKDF2 yerine yinelemeli SHA-256 ile yapılıyor; tur sayısı cihazda ölçülmeli. Cihaz doğrulaması yapılmadı. Dışa aktarma ve hesap silme S8'de.
+**Durum (2026-10-09): Kod tamam.** Ayarlar ana ekranı, profil (ad, soyad, para birimi, şifre değişimi), görünüm (yalnız koyu), uygulama kilidi (PIN, biyometri, kilit süresi, hatalı deneme beklemesi) ve gizlilik merkezi yazıldı; testler ve tip kontrolü geçiyor. PIN özeti Flutter'daki PBKDF2 yerine yinelemeli SHA-256 ile yapılıyor; tur sayısı cihazda ölçülmeli. Cihaz doğrulaması yapılmadı. Dışa aktarma ve hesap silme S8'de.
 
 **Hedef:** Ayarlar bilgi mimarisi [USER_FLOWS §15](../product/USER_FLOWS.md) ile birebir eşleşir.
 
@@ -180,7 +180,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S8 — Ayarlar ve gizlilik (2) (Aşama 6)
 
-**Durum (2026-10-09): Kod tamam.** CSV dışa aktarma (11 alan, formül koruması, cihazda paylaşım), hesap silme (parola, "sil" onayı, yakın giriş), geri bildirim (paylaş ve destek kaydı), ödeme yöntemleri (ekle, kaldır, kaydet) yazıldı; 292 test ve tip kontrolü geçiyor. Bulut dışa aktarma canlıda `request_export_idempotent` RPC'si olmadığı için kullanılmıyor. Canlı hesap silme denenmedi.
+**Durum (2026-10-09): Kod tamam.** CSV dışa aktarma (11 alan, formül koruması, cihazda paylaşım), hesap silme (parola, "sil" onayı, yakın giriş), geri bildirim (paylaş ve destek kaydı), ödeme yöntemleri (ekle, kaldır, kaydet) yazıldı; testler ve tip kontrolü geçiyor. Bulut dışa aktarma canlıda `request_export_idempotent` RPC'si olmadığı için kullanılmıyor. Canlı hesap silme denenmedi.
 
 **Hedef:** Veri dışa aktarma, hesap silme ve destek akışları güvenli ve yanıltıcı olmadan çalışır.
 
@@ -199,7 +199,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ## S9 — Onboarding, yasal metin ve CSV içe aktarma (Aşama 6)
 
-**Durum (2026-10-09): Kod tamam.** Onboarding (Flutter ile aynı üç sayfa; oturum öncesi, cihaz başına bayrak), yasal sayfalar (Flutter'daki metin, taslak olarak; yayın öncesi onay gerekir), CSV içe aktarma (Flutter kuralları, satır bazlı hata, formül önekinin geri alınması, çevrimiçi oluşturma) yazıldı; 307 test ve tip kontrolü geçiyor. Onboarding sayısı önceki belgede 4 yazılmıştı; Flutter kodunda 3'tür. Cihazda doğrulama yapılmadı.
+**Durum (2026-10-09): Kod tamam.** Onboarding (Flutter ile aynı üç sayfa; oturum öncesi, cihaz başına bayrak), yasal sayfalar (Flutter'daki metin, taslak olarak; yayın öncesi onay gerekir), CSV içe aktarma (Flutter kuralları, satır bazlı hata, formül önekinin geri alınması, çevrimiçi oluşturma) yazıldı; testler ve tip kontrolü geçiyor. Onboarding sayısı önceki belgede 4 yazılmıştı; Flutter kodunda 3'tür. Cihazda doğrulama yapılmadı.
 
 **Hedef:** İlk kullanım deneyimi ve içe aktarma tamamlanır.
 
@@ -257,9 +257,9 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ### D1 — Kabuk ve ortak bileşenler
 
-**Durum (2026-10-09): Kod tamam.** Dört sekmeli alt gezinme, 88 px üst bar (ikon kutusu, alt başlık, takvim, rozetli bildirim), `(app)/(tabs)` grubu, Flutter yazı boyutları (11, 15) ve ağırlıkları (w800 başlık), auth boşlukları (24), Flutter biçimli para (`₺1.234,56`) ve tarih ("Bugün/Yarın/Geçti"). 310 test geçiyor.
+**Durum (2026-10-09): Kod tamam.** Dört sekmeli alt gezinme, 88 px üst bar (ikon kutusu, alt başlık, takvim, rozetli bildirim), `(app)/(tabs)` grubu, Flutter yazı boyutları (11, 15) ve ağırlıkları (w800 başlık), auth boşlukları (24), Flutter biçimli para (`₺1.234,56`) ve tarih ("Bugün/Yarın/Geçti"). testler geçiyor.
 
-**Doğrulama:** `tsc` temiz, 310 test geçiyor, Android ve iOS `expo export` başarılı. Metro çalışıyor; `expo-notifications` Expo Go hatası giderildi.
+**Doğrulama:** `tsc` temiz, testler geçiyor, Android ve iOS `expo export` başarılı. Metro çalışıyor; `expo-notifications` Expo Go hatası giderildi.
 
 **Kararlar:** (1) Yeni paket eklenmedi; `react-native-web` yok, görsel doğrulama cihazda D10 kapsamında yapılacak. (2) Alt gezinme ve üst bar ikonları Ionicons / Material kullanır; Flutter'ın Material Rounded glifleri yerine en yakın karşılıklar. Bu bilinçli bir sapma olarak kabul edildi ve D10'da yeniden değerlendirilecek.
 
@@ -267,7 +267,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ### D2a — Kimlik doğrulama ekranları
 
-**Durum (2026-10-09): Kod tamam.** Kayıt ekranında hukuki bağlantılar Flutter ile eşlendi (16, w700, altı çizili). Şifremi unuttum ve şifre sıfırlama ekranlarında yan boşluk 24, başlık 24 px (`headlineSmall`) yapıldı. Giriş ekranı D1 sırasında hizalandı. `tsc` temiz, 310 test geçiyor. Görsel doğrulama D10'da.
+**Durum (2026-10-09): Kod tamam.** Kayıt ekranında hukuki bağlantılar Flutter ile eşlendi (16, w700, altı çizili). Şifremi unuttum ve şifre sıfırlama ekranlarında yan boşluk 24, başlık 24 px (`headlineSmall`) yapıldı. Giriş ekranı D1 sırasında hizalandı. `tsc` temiz, testler geçiyor. Görsel doğrulama D10'da.
 
 ### D2b — Tanıtım
 
@@ -277,7 +277,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 - Flutter: 3 bilgi sayfası (her biri kendi vurgu ve arka plan rengi, `subscriptions/calendar/analytics` illüstrasyonları) + para birimi sayfası; üstte marka satırı ve "Atla"; animasyonlu pill noktalar; gölgeli vurgu renkli "İleri/Başla" düğmesi.
 - Para birimi seçimi Flutter'da `SettingsController`'a yazılır; Expo'da karşılığı yok. Kalıcı kayıt yeri bu sprintte kararlaştırılacak.
 
-**Durum (2026-10-10): Kod tamam.** 4 sayfa (3 bilgi + para birimi), sayfa başına vurgu ve arka plan rengi, üst marka satırı ve "Atla", üç illüstrasyon (`SubscriptionsIllustration`, `CalendarIllustration`, `AnalyticsIllustration`), para birimi çipleri ve seçim listesi, gölgeli "İleri/Başla" düğmesi. `tsc` temiz, 310 test geçiyor, Android export başarılı.
+**Durum (2026-10-10): Kod tamam.** 4 sayfa (3 bilgi + para birimi), sayfa başına vurgu ve arka plan rengi, üst marka satırı ve "Atla", üç illüstrasyon (`SubscriptionsIllustration`, `CalendarIllustration`, `AnalyticsIllustration`), para birimi çipleri ve seçim listesi, gölgeli "İleri/Başla" düğmesi. `tsc` temiz, testler geçiyor, Android export başarılı.
 
 **Bilinen yaklaşımlar (D10'da cihazda doğrulanacak):** (1) Sayfa noktaları genişlik geçişini animasyonsuz yapar (Flutter 300 ms animasyon). (2) Sallanma (bob) fazı, başlangıç gecikmesi olarak uygulanır; sinüs yerine beş noktalı doğrusal yaklaşım kullanılır. (3) Takvim ızgarası yüzde genişlikli kare hücrelerle çizilir; Flutter `GridView` ile piksel düzeyinde aynı olmayabilir. (4) Analiz halkası `strokeDasharray` ile, ilerleme JS tarafında dinlenerek çizilir.
 
@@ -297,7 +297,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ### D4 — Abonelik formu ve alt ekranlar
 
-**Durum (2026-10-10):** Kod tamam, boşluklar aşağıda. Form (servis, yenileme, ayrıntılar), arşiv ve CSV içe aktarma (dosya seç, örnek format diyaloğu, satır listesi, içe aktarma ve geri dönüş) Flutter yapısına göre yazıldı. `tsc` temiz, 310 test geçiyor, Android export başarılı.
+**Durum (2026-10-10):** Kod tamam, boşluklar aşağıda. Form (servis, yenileme, ayrıntılar), arşiv ve CSV içe aktarma (dosya seç, örnek format diyaloğu, satır listesi, içe aktarma ve geri dönüş) Flutter yapısına göre yazıldı. `tsc` temiz, testler geçiyor, Android export başarılı.
 
 **Yapılanlar:** Form Flutter iskeletine göre yeniden kuruldu: popüler servis çipleri (yalnızca ekleme), marka ikonlu ad alanı, para birimi açılır listesi ve tutar yan yana, yenileme sıklığı açılır listesi, "Yenileme" bölümü, katlanabilir "Diğer ayrıntılar" (deneme, kategori, ödeme yöntemi, başlangıç tarihi, not 3 satır/500 karakter). Arşiv, Flutter gibi kart satırları ve yerinde "aktif yap" düğmesi ile geri alır. Kaydetme ve doğrulama kuralları değişmedi.
 
@@ -326,7 +326,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ### D5b — İstatistikler ve ödeme geçmişi
 
-**Durum (2026-10-10): Kod tamam.** İstatistik ekranı Flutter kartlarıyla yeniden yazıldı: para birimi seçici, hero harcama kartı (değişim rozeti dahil), 3/6/12 ay trend kartı (sütunlar, geçerli ay primary), öne çıkanlar ve 7 gün içinde yenilenecekler uyarısı, kategori dağılımı (sırayla renk, yüzde ve ilerleme), tasarruf ve ödeme geçmişi kısayolları. Ödeme geçmişi düz kart listesi, uzatılmış "Kayıt ekle" düğmesi, ekleme ve düzenleme iletişim kutuları; silme Flutter gibi onay istemez. Eski `PaymentEditSheet` kaldırıldı. `tsc` temiz, 310 test geçiyor, Android export başarılı.
+**Durum (2026-10-10): Kod tamam.** İstatistik ekranı Flutter kartlarıyla yeniden yazıldı: para birimi seçici, hero harcama kartı (değişim rozeti dahil), 3/6/12 ay trend kartı (sütunlar, geçerli ay primary), öne çıkanlar ve 7 gün içinde yenilenecekler uyarısı, kategori dağılımı (sırayla renk, yüzde ve ilerleme), tasarruf ve ödeme geçmişi kısayolları. Ödeme geçmişi düz kart listesi, uzatılmış "Kayıt ekle" düğmesi, ekleme ve düzenleme iletişim kutuları; silme Flutter gibi onay istemez. Eski `PaymentEditSheet` kaldırıldı. `tsc` temiz, testler geçiyor, Android export başarılı.
 
 **Boşluklar:** (1) Flutter hero tutarı w900 kullanır; Expo tipografisinde en yüksek ağırlık w800 (fark görsel olarak küçük, D10'da kontrol edilecek). (2) Trend ve kategori hesapları Expo domain'inde (`statsSummary`, `paymentEvents`) yapılır; Flutter `payment_analytics.dart` ile birebir test eşlemesi henüz yazılmadı. (3) Sayfalama ve yıllık tasarruf kartı Flutter'daki gibi tek para birimi seçili gösterilir; birden çok para birimi için davranış aynıdır.
 
@@ -350,7 +350,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 ### D7 — Ayarlar ana ekranı, profil, görünüm, bildirim tercihleri
 
-**Durum (2026-10-10): Kod tamam.** Dört ekran Flutter yapısına göre yazıldı: ayarlar ana ekranı (hesap özeti, tercihler, uygulama, veri ve gizlilik, destek, çıkış, sürüm), profil (üyelik tarihi, görünen ad, e-posta değişikliği, şifre değişikliği), görünüm (para birimi onay işaretiyle, cihazda saklanır) ve bildirim tercihleri (anahtar ve izin, gün seçimi 1/3/7, hatırlatma saati, test bildirimi). Ortak parçalar `SettingsParts.tsx` içinde. Görünen ad ve e-posta güncellemesi auth katmanına eklendi (`updateDisplayName`, `updateEmail`). Tanıtımı yeniden başlatma bayrağı sıfırlanır (`resetOnboardingDone`). `tsc` temiz, 310 test geçiyor (mimari testler dahil), Android export başarılı.
+**Durum (2026-10-10): Kod tamam.** Dört ekran Flutter yapısına göre yazıldı: ayarlar ana ekranı (hesap özeti, tercihler, uygulama, veri ve gizlilik, destek, çıkış, sürüm), profil (üyelik tarihi, görünen ad, e-posta değişikliği, şifre değişikliği), görünüm (para birimi onay işaretiyle, cihazda saklanır) ve bildirim tercihleri (anahtar ve izin, gün seçimi 1/3/7, hatırlatma saati, test bildirimi). Ortak parçalar `SettingsParts.tsx` içinde. Görünen ad ve e-posta güncellemesi auth katmanına eklendi (`updateDisplayName`, `updateEmail`). Tanıtımı yeniden başlatma bayrağı sıfırlanır (`resetOnboardingDone`). `tsc` temiz, testler geçiyor (mimari testler dahil), Android export başarılı.
 
 **Boşluklar:** (1) Saat dilimi seçimi yok: Flutter kullanıcının saat dilimini elle seçtirir; Expo tüm tarih hesaplarında cihaz saat dilimini kullanır ve ekranda bunu gösterir. Elle seçim, tarih hesaplarının tümüne bağlanmasını gerektirir. (2) Tanıtım yeniden başlatıldığında Flutter tanıtımı hemen açar; Expo oturum açıkken yönlendirme kuralıyla tanıtımı bir sonraki açılışta gösterir ve bildirim verir. (3) Profilde Flutter'daki ad/soyad ayrımı yok; Expo'nun eski ad-soyad profil tablosu bu ekranda kullanılmıyor. (4) Test bildirimi 5 saniye sonra planlanır; Flutter anlık gönderir.
 
@@ -364,7 +364,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 **Engel:** Uygulama kilidi cihaz doğrulaması (S7 ile aynı) ve hesap silme sunucu akışı.
 
-**Durum:** Kod tamam; cihaz doğrulaması D10'a bırakıldı. `tsc`, `jest` (310 test) ve Android export geçti.
+**Durum:** Kod tamam; cihaz doğrulaması D10'a bırakıldı. `tsc`, `jest` ve Android export geçti.
 
 **Sapmalar:**
 1. Uygulama kilidinde PIN kapatma ve değiştirme mevcut PIN ister (Flutter'dan daha sıkı).
@@ -379,7 +379,7 @@ Bir ekran ancak aşağıdakilerin tümü sağlandığında "Kod tamam" olur:
 
 **Kapsam:** Gizlilik politikası ve kullanım koşulları ekranlarının başlık, metin stili ve boşlukları Flutter ile eşlenir. Metin içeriği S9'daki onaya bağlıdır; onay gelene kadar "taslak" etiketi kalır.
 
-**Durum:** Kod tamam. Başlık AppBar karşılığı üst bar ile, sürüm satırı, "Kısa özet" kartı ve bölümler Flutter `LegalDocumentScreen` düzenine göre yazıldı. Metin seçilebilir kalır. `tsc`, `jest` (310 test) ve Android export geçti.
+**Durum:** Kod tamam. Başlık AppBar karşılığı üst bar ile, sürüm satırı, "Kısa özet" kartı ve bölümler Flutter `LegalDocumentScreen` düzenine göre yazıldı. Metin seçilebilir kalır. `tsc`, `jest` ve Android export geçti.
 
 **Sapmalar:**
 1. Menü ve metin etiketleri (Gizlilik ve veri merkezi, Verilerimi dışa aktar, Hesabımı ve verilerimi sil, Geri bildirim gönder) Flutter ile birebir eşitlendi.
