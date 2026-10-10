@@ -34,7 +34,18 @@
           "faceIDPermission": "Uygulama kilidini Face ID ile açmak için kullanılır."
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#101217",
+          "dark": {
+            "backgroundColor": "#101217"
+          }
+        }
+      ]
     ],
     "scheme": "subscripttrack",
     "experiments": {

@@ -19,7 +19,7 @@ interface PaymentRow {
 export async function fetchPayments(): Promise<PaymentEvent[]> {
   const { data, error } = await supabase
     .from('payment_events')
-    .select('id, subscription_id, amount, currency, paid_at')
+    .select('id, subscription_id, amount, currency, paid_at, status')
     .order('paid_at', { ascending: false })
     .limit(500);
   if (error) throw new DataWriteError('Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip tekrar dene.');
@@ -55,6 +55,31 @@ export async function updatePayment(input: { id: string; amount: string; paidAt:
 export async function deletePayment(id: string): Promise<void> {
   const { error } = await supabase.from('payment_events').delete().eq('id', id);
   if (error) throw new DataWriteError('Ödeme kaydı silinemedi. Tekrar dene.', { code: error.code || undefined });
+}
+
+/**
+ * Ertelenmiş ilk ödeme: `record_payment_idempotent` durum almadığı için kayıt RLS ile doğrudan yazılır
+ * (`status = 'DEFERRED'`). Ertelenen kayıt toplamlara girmez; yalnızca geçmişte ertelendi olarak görünür.
+ */
+export async function recordDeferredPayment(input: {
+  userId: string;
+  subscriptionId: string;
+  amount: string;
+  currency: string;
+  paidAt: Date;
+  deferredUntil: string;
+}): Promise<void> {
+  const { error } = await supabase.from('payment_events').insert({
+    user_id: input.userId,
+    subscription_id: input.subscriptionId,
+    amount: input.amount,
+    currency: input.currency,
+    paid_at: input.paidAt.toISOString(),
+    source: 'manual',
+    status: 'DEFERRED',
+    deferred_until: input.deferredUntil,
+  });
+  if (error) throw paymentError(error.code);
 }
 
 function paymentError(code: string | undefined): DataWriteError {

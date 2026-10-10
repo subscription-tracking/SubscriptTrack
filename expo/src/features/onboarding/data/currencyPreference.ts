@@ -1,18 +1,18 @@
 import { readJson, writeJson } from '../../../core/storage/secureJsonStore';
+import { isActiveCurrency, type ActiveCurrency } from '../../../core/domain/activeCurrency';
 
 /**
- * Seçilen para birimi sembolü (Flutter `SettingsController.setCurrency` ile aynı). Yalnızca cihazda
- * tutulur; profil tablosuna yazılmaz. Varsayılan Flutter ile aynı: "₺".
+ * Cihazdaki son para birimi seçimi (aktif para birimi). Profil tercihi yoksa (ör. giriş öncesi tanıtım) bu
+ * değer kullanılır. Yalnızca desteklenen kodlar okunur; eski sembol değerleri yok sayılır.
  */
 
-const KEY = 'settings.currency';
-export const DEFAULT_CURRENCY_SYMBOL = '₺';
+const KEY = 'settings.currencyCode';
 
-export async function readCurrencySymbol(): Promise<string> {
+export async function readDeviceCurrency(): Promise<ActiveCurrency | null> {
   const value = await readJson(KEY);
-  return typeof value === 'string' && value.length > 0 ? value : DEFAULT_CURRENCY_SYMBOL;
+  return isActiveCurrency(typeof value === 'string' ? value : null) ? (value as ActiveCurrency) : null;
 }
 
-export async function writeCurrencySymbol(symbol: string): Promise<void> {
-  await writeJson(KEY, symbol);
+export async function writeDeviceCurrency(currency: ActiveCurrency): Promise<void> {
+  await writeJson(KEY, currency);
 }

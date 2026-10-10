@@ -9,6 +9,7 @@ import {
   toUpdatePayload,
 } from '../domain/subscriptionEdit';
 import { advancedRenewalDate, isOverdueRenewal } from '../domain/renewalOverdue';
+import { rulesFromDays } from '../domain/reminderRules';
 import { canTransition } from '../domain/statusTransitions';
 import { savingsDraftFor } from '../../savings/domain/savingsSummary';
 import { type Subscription, type SubscriptionStatus, subscriptionFromRow } from '../domain/subscription';
@@ -46,7 +47,7 @@ export async function saveSubscriptionEdit(input: {
 }): Promise<SubmitResult> {
   const current = await currentOrThrow(input.userId, input.subscriptionId);
   const fields = toSubscriptionFields(input.values);
-  const payload = toUpdatePayload(current, fields, current.status, input.idempotencyKey);
+  const payload = toUpdatePayload(current, fields, current.status, input.idempotencyKey, rulesFromDays(input.values.reminderDays));
   const event = priceChangeEvent(current, { amount: Money.parse(fields.p_amount), currency: fields.p_currency });
   return submitOperation(input.userId, { kind: 'update', payload, event, savings: null });
 }

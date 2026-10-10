@@ -59,7 +59,7 @@ export function resolveServiceColor(name: string, category: SubscriptionCategory
 function resolveColor(mark: ReturnType<typeof serviceMark>, category: SubscriptionCategory): string {
   if (mark.kind === 'initial') {
     if (mark.color) return mark.color;
-    return category === 'software' ? colors.primary : statusColors.muted;
+    return category === 'software' ? colors.primary : statusColors.mutedText;
   }
   return mark.color;
 }

@@ -42,11 +42,11 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
 /** Para birimi sayfası: üç bilgi sayfasından sonra gelir. */
 export const CURRENCY_PAGE = { accent: onboardingColors.indigo, wash: onboardingColors.indigoWash };
 
+/** Seçilebilir üç aktif para birimi (`core/domain/activeCurrency`). Seçim koddur; sembol yalnızca gösterimdir. */
 export const CURRENCY_OPTIONS = [
   { symbol: '₺', name: 'Türk Lirası', code: 'TRY' },
   { symbol: '$', name: 'ABD Doları', code: 'USD' },
   { symbol: '€', name: 'Euro', code: 'EUR' },
-  { symbol: '£', name: 'İngiliz Sterlini', code: 'GBP' },
 ] as const;
 
 /** Toplam sayfa sayısı: bilgi sayfaları + para birimi. */

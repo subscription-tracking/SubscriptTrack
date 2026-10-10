@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
 
 import { Money } from '../../../../core/domain/money';
 import { formatCurrency } from '../../../../core/format/money';
 import { colors, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
+import { PrimaryButton } from '../../../../shared/widgets/PrimaryButton';
+import { trendSummary } from '../../domain/chartSummary';
+import { trendState } from '../../domain/trendState';
 import { StatsCardSurface } from './StatsCardSurface';
 import { TrendBars } from './TrendBars';
 import { trendMonthLabel } from './trendLabels';
@@ -13,7 +18,8 @@ const RANGES = [3, 6, 12] as const;
 
 /**
  * Flutter `TrendCard`: ödeme geçmişi varsa 3/6/12 ay seçici ve sütun grafiği; yoksa yalnızca bu ayın
- * tahmini ve bir ipucu. Geçmiş olmayan aylara bugünkü tahmini yazmak tarihsel harcama gibi görünmesin diye yapılmaz.
+ * tahmini ve bir ipucu. Dokunulan sütun seçilir; toplam satırı seçili ayı gösterir. Hiç ödeme yoksa grafik
+ * yerine açıklama ve "Abonelik ekle" çıkar; tek ayda ödeme varsa karşılaştırma uyarısı gösterilir.
  */
 export function TrendCard({
   trend,
@@ -32,9 +38,23 @@ export function TrendCard({
   now: Date;
   onMonthsChanged: (months: number) => void;
 }) {
+  const router = useRouter();
   const values = hasPaymentHistory ? trend : [monthly.minorUnits];
-  const currentTotal = Money.fromMinorUnits(values[values.length - 1]);
-  const month = trendMonthLabel(now);
+  const last = values.length - 1;
+  const [selected, setSelected] = useState(last);
+  const index = Math.min(selected, last);
+  const state = trendState(values);
+
+  const formatValue = (minorUnits: number) => formatCurrency(Money.fromMinorUnits(minorUnits), currency);
+  const monthAt = (position: number) => trendMonthLabel(new Date(now.getFullYear(), now.getMonth() - (last - position), 1));
+  const peak = values.reduce((best, value, position) => (value > values[best] ? position : best), 0);
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const summary = trendSummary({
+    periodLabel: values.length === 1 ? 'Bu ay' : `Son ${values.length} ay`,
+    totalText: formatValue(total),
+    peakMonth: values[peak] > 0 ? monthAt(peak) : null,
+  });
+
   return (
     <StatsCardSurface>
       <View style={styles.header}>
@@ -47,16 +67,47 @@ export function TrendCard({
         {hasPaymentHistory ? <RangeSelector months={months} onChange={onMonthsChanged} /> : null}
       </View>
 
-      <View style={styles.totalRow}>
+      <View style={styles.totalRow} accessible accessibilityLabel={summary}>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, flex: 1 })}>
-          {hasPaymentHistory ? `${month} toplamı` : `${month} tahmini`}
+          {`${monthAt(index)} ${hasPaymentHistory ? 'toplamı' : 'tahmini'}`}
         </Text>
-        <Text style={textStyle('topBarTitle', { color: colors.primary })}>{formatCurrency(currentTotal, currency)}</Text>
+        <Text style={textStyle('topBarTitle', { color: colors.primary })}>{formatValue(values[index])}</Text>
       </View>
 
-      <View style={styles.bars}>
-        <TrendBars values={values} hasPaymentHistory={hasPaymentHistory} now={now} />
-      </View>
+      {state === 'empty' ? (
+        <View style={styles.empty}>
+          <MaterialIcons name="bar-chart" size={sizes.emptyStateIcon} color={colors.onSurfaceVariant} />
+          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'center', marginTop: spacing.xs })}>
+            Bu dönemde gösterilecek ödeme yok.
+          </Text>
+          <View style={styles.emptyAction}>
+            <PrimaryButton label="Abonelik ekle" icon="add" tall={false} onPress={() => router.push('/subscriptions/add')} />
+          </View>
+        </View>
+      ) : (
+        <>
+          <View style={styles.bars}>
+            <TrendBars
+              values={values}
+              hasPaymentHistory={hasPaymentHistory}
+              now={now}
+              selectedIndex={index}
+              onSelect={setSelected}
+              formatValue={formatValue}
+            />
+          </View>
+          {hasPaymentHistory ? (
+            <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+              {`Son ${values.length} ay, aylık ödeme toplamı. Bir sütuna dokunarak ayı seç.`}
+            </Text>
+          ) : null}
+          {state === 'single' && hasPaymentHistory ? (
+            <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+              Karşılaştırma için en az iki ayda ödeme gerekir.
+            </Text>
+          ) : null}
+        </>
+      )}
 
       {hasPaymentHistory ? null : (
         <View style={styles.hint}>
@@ -123,6 +174,14 @@ const styles = StyleSheet.create({
   bars: {
     height: sizes.trendHeight,
     marginTop: spacing.xs,
+  },
+  empty: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+  },
+  emptyAction: {
+    alignSelf: 'stretch',
+    marginTop: spacing.md,
   },
   hint: {
     flexDirection: 'row',

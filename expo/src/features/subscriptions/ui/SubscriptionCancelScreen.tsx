@@ -16,6 +16,8 @@ import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
 import { DateField } from '../../../shared/widgets/DateField';
 import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
+import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { savingsKeys } from '../../savings/data/queries';
@@ -38,7 +40,6 @@ import { type SubmitResult } from '../data/subscriptionSync';
  * saklanacak bir yer yok ve kişisel not analitiğe gönderilmemeli.
  */
 export function SubscriptionCancelScreen({ id }: { id: string }) {
-  const router = useRouter();
   const { user } = useAuth();
   const query = useSubscriptionQuery(user?.id, id);
 
@@ -56,13 +57,7 @@ export function SubscriptionCancelScreen({ id }: { id: string }) {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
-        </Pressable>
-        <Text style={textStyle('title')}>Aboneliği iptal et</Text>
-      </View>
-      <Spacer size={spacing.md} />
+      <ScreenTopBar title="Aboneliği iptal et" />
       <AsyncStateView state={state}>{(subscription) => <Choices subscription={subscription} />}</AsyncStateView>
     </View>
   );
@@ -124,7 +119,7 @@ function Choices({ subscription }: { subscription: Subscription }) {
         <Choice label="Durdurdum" description="Aboneliği duraklat; kayıt listede kalır." onPress={() => pause.mutate()} />
       ) : null}
       <Choice label="Kullanmaya devam et" description="Hiçbir şey değişmez." onPress={() => router.back()} />
-      <Spacer size={sizes.bottomNavHeight} />
+      <ScreenBottomInset />
     </ScrollView>
   );
 }
@@ -200,7 +195,7 @@ function CancelForm({ subscription, onBack }: { subscription: Subscription; onBa
         <PrimaryButton label="İptali kaydet" onPress={submit} loading={save.isPending} />
         <OutlinedButton label="Geri dön" onPress={onBack} />
       </View>
-      <Spacer size={sizes.bottomNavHeight} />
+      <ScreenBottomInset />
     </ScrollView>
   );
 }
@@ -220,7 +215,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: spacing.xxl,
   },
   topBar: {
     flexDirection: 'row',

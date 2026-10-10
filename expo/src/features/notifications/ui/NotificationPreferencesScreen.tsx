@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -73,8 +74,9 @@ function Preferences({ value }: { value: NotifyPrefs }) {
   const selectedDays = value.defaultDays;
   const hourLabel = `${String(value.reminderHour).padStart(2, '0')}:00`;
 
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.body}>
+    <View style={[styles.body, { paddingBottom: insets.bottom + spacing.xl }]}>
       <View style={styles.switchRow}>
         <MaterialIcons name="notifications-none" size={sizes.tileIcon} color={colors.onSurface} />
         <View style={styles.switchText}>
@@ -141,9 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  body: {
-    paddingBottom: sizes.bottomNavHeight,
-  },
+  body: {},
   switchRow: {
     flexDirection: 'row',
     alignItems: 'center',

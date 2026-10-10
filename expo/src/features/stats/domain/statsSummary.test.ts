@@ -70,31 +70,31 @@ describe('buildStatsSummary', () => {
   ];
 
   it('aylık toplam aktif kayıtlardan, yıllık = aylık × 12', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'TRY' })!;
     expect(summary.currency).toBe('TRY');
     expect(summary.monthly.decimalString).toBe('200.00');
     expect(summary.yearly.decimalString).toBe('2400.00');
     expect(summary.activeCount).toBe(2);
   });
 
-  it('seçili para birimi değişince tüm alanlar o para birimine göre hesaplanır', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, selectedCurrency: 'USD' })!;
+  it('aktif para birimi dışındaki kayıtlar hesaba katılmaz', () => {
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'USD' })!;
     expect(summary.currency).toBe('USD');
     expect(summary.monthly.decimalString).toBe('5.00');
     expect(summary.highest?.id).toBe('c');
   });
 
   it('kategoriler aylık tutara göre büyükten küçüğe sıralanır', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'TRY' })!;
     expect(summary.categories.map((share) => share.category)).toEqual(['streaming', 'cloud']);
   });
 
   it('aktif kayıt yoksa özet null', () => {
-    expect(buildStatsSummary({ subscriptions: [sub({ status: 'paused' })], payments: [], today, now })).toBeNull();
+    expect(buildStatsSummary({ subscriptions: [sub({ status: 'paused' })], payments: [], today, now, activeCurrency: 'TRY' })).toBeNull();
   });
 
   it('ödeme geçmişi yoksa trend bayrağı false', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'TRY' })!;
     expect(summary.hasPaymentHistory).toBe(false);
   });
 });

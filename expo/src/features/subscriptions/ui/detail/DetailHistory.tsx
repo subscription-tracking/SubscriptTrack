@@ -3,7 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { formatAmount } from '../../../../core/format/money';
-import { formatRelativeDate } from '../../../../core/format/date';
+import { formatLongDate, formatRelativeDate } from '../../../../core/format/date';
 import { type CivilDate } from '../../../../core/time/calendar';
 import { borderWidth, colors, radius, sizes, spacing, statusColors, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
@@ -59,9 +59,12 @@ function HistoryRow({ event, today }: { event: PaymentEvent; today: CivilDate })
       <View style={styles.historyCircle}>
         <MaterialIcons name="check" size={sizes.detailCardIcon} color={statusColors.success} />
       </View>
-      <Text style={[textStyle('bodySmall'), styles.historyDate]}>
-        {formatRelativeDate(localCivilDate(event.paidAt), today)}
-      </Text>
+      <View style={styles.historyDate}>
+        <Text style={textStyle('bodySmallStrong')}>{formatLongDate(localCivilDate(event.paidAt))}</Text>
+        <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
+          {formatRelativeDate(localCivilDate(event.paidAt), today)}
+        </Text>
+      </View>
       <Text style={textStyle('bodySmallStrong')}>{formatAmount(event.amount.amount, event.currency)}</Text>
     </View>
   );

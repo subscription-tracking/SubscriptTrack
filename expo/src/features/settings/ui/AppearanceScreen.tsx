@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { CURRENCY_OPTIONS } from '../../onboarding/domain/slides';
-import { DEFAULT_CURRENCY_SYMBOL, readCurrencySymbol, writeCurrencySymbol } from '../../onboarding/data/currencyPreference';
+import { useActiveCurrency, useSetActiveCurrency } from '../data/useActiveCurrency';
 import { deviceTimeZone } from '../../../core/time/calendar';
 import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
+import { type ActiveCurrency } from '../../../core/domain/activeCurrency';
 import { SectionLabel } from './SettingsParts';
 
 /**
@@ -15,15 +16,11 @@ import { SectionLabel } from './SettingsParts';
  * onay işareti gösterilir. Saat dilimi bu sürümde cihaz saat dilimini kullanır; Flutter'daki elle seçim henüz yok.
  */
 export function AppearanceScreen() {
-  const [selected, setSelected] = useState(DEFAULT_CURRENCY_SYMBOL);
+  const selected = useActiveCurrency();
+  const setCurrency = useSetActiveCurrency();
 
-  useEffect(() => {
-    void readCurrencySymbol().then(setSelected);
-  }, []);
-
-  function choose(symbol: string) {
-    setSelected(symbol);
-    void writeCurrencySymbol(symbol);
+  function choose(code: ActiveCurrency) {
+    if (code !== selected) setCurrency.mutate(code);
   }
 
   return (
@@ -32,13 +29,13 @@ export function AppearanceScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SectionLabel label="Para birimi" />
         {CURRENCY_OPTIONS.map((option) => {
-          const active = option.symbol === selected;
+          const active = option.code === selected;
           return (
             <Pressable
               key={option.code}
               accessibilityRole="radio"
               accessibilityState={{ selected: active }}
-              onPress={() => choose(option.symbol)}
+              onPress={() => choose(option.code)}
               style={styles.row}
             >
               <Text style={textStyle('tileLabel', { flex: 1 })}>{`${option.name} (${option.code})`}</Text>
@@ -57,7 +54,7 @@ export function AppearanceScreen() {
             </Text>
           </View>
         </View>
-        <View style={styles.bottom} />
+        <ScreenBottomInset />
       </ScrollView>
     </View>
   );
@@ -69,7 +66,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    paddingBottom: sizes.bottomNavHeight,
   },
   row: {
     flexDirection: 'row',

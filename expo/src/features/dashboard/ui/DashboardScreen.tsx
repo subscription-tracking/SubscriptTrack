@@ -10,6 +10,8 @@ import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncSt
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
+import { inCurrency } from '../../subscriptions/domain/currencyFilter';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
 import { useSavingsQuery } from '../../savings/data/queries';
 import { usePaymentsQuery } from '../../stats/data/queries';
 import { savingsTotalsByCurrency } from '../../savings/domain/savingsSummary';
@@ -83,9 +85,12 @@ function Summary({
 }) {
   const router = useRouter();
   const now = new Date();
-  const active = activeForTotals(subscriptions, today);
+  // Ana sayfa toplamları yalnızca aktif para birimini gösterir (kur çevrimi yok).
+  const currency = useActiveCurrency();
+  const inActiveCurrency = inCurrency(subscriptions, currency);
+  const active = activeForTotals(inActiveCurrency, today);
   const monthly = monthlyTotalsByCurrency(active);
-  const upcomingSoon = renewingWithin(subscriptions, today, 7).length;
+  const upcomingSoon = renewingWithin(inActiveCurrency, today, 7).length;
   const trials = trialsByEnd(subscriptions);
   const upcoming = nextPayment(subscriptions, today);
 
@@ -121,7 +126,7 @@ function Summary({
       {trials.length > 0 ? (
         <>
           <SectionHeader
-            title="Deneme hatırlatmaları"
+            title="Yaklaşan yenilemeler"
             action={trials.length > TRIAL_PREVIEW ? 'Tümünü gör' : undefined}
             onAction={toSubscriptions}
           />

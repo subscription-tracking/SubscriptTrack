@@ -8,6 +8,8 @@ import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../..
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
@@ -35,12 +37,12 @@ export function PaymentMethodsScreen() {
       : { status: 'ready', data: query.data ?? [] };
 
   return (
-    <View style={styles.screen}>
+    <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Ödeme yöntemlerim" />
       <AsyncStateView state={state}>
         {(methods) => <MethodsEditor key={methods.join('|')} initial={methods} userId={user?.id ?? ''} />}
       </AsyncStateView>
-    </View>
+    </KeyboardScreen>
   );
 }
 
@@ -114,7 +116,7 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
 
         <Spacer size={spacing.lg} />
         <PrimaryButton label="Kaydet" loading={save.isPending} disabled={!dirty} onPress={() => save.mutate()} />
-        <Spacer size={sizes.bottomNavHeight} />
+        <ScreenBottomInset />
       </ScrollView>
 
       {dialog ? (

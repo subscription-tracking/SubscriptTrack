@@ -25,10 +25,9 @@ export function homeDateLabel(now: Date): string {
   return `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`;
 }
 
-/** Görünen ad varsa onu, yoksa e-posta yerel kısmını kullanır: "Merhaba, Furkan" / "Merhaba". */
-export function greetingFor(user: { displayName: string | null; email: string } | null): string {
-  const displayName = user?.displayName?.trim() ?? '';
-  const name = displayName.length > 0 ? displayName : (user?.email.split('@')[0] ?? '');
+/** Görünen ad varsa "Merhaba, Furkan"; yoksa yalnızca "Merhaba". E-posta öneki ad yerine kullanılmaz. */
+export function greetingFor(user: { displayName: string | null } | null): string {
+  const name = user?.displayName?.trim() ?? '';
   return name.length > 0 ? `Merhaba, ${name}` : 'Merhaba';
 }
 

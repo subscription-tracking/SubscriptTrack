@@ -1,10 +1,10 @@
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { colors, extraRadius, extraSpacing, sizes, spacing, withAlpha } from '../design/tokens';
 import { textStyle } from '../design/typography';
+import { HeaderShell } from './HeaderShell';
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -27,9 +27,8 @@ export function TopBar({
   onCalendar: () => void;
   onNotifications: () => void;
 }) {
-  const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.bar, { paddingTop: insets.top, height: sizes.topBarHeight + insets.top }]}>
+    <HeaderShell minHeight={sizes.topBarHeight}>
       <View style={styles.titleRow}>
         <View style={styles.iconBox}>
           <Ionicons name={icon} size={sizes.topBarIconSize} color={colors.primary} />
@@ -57,7 +56,7 @@ export function TopBar({
         </View>
         <View style={styles.trailingGap} />
       </View>
-    </View>
+    </HeaderShell>
   );
 }
 
@@ -70,12 +69,6 @@ function IconButton({ icon, label, onPress }: { icon: IoniconName; label: string
 }
 
 const styles = StyleSheet.create({
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    paddingLeft: spacing.lg,
-  },
   titleRow: {
     flex: 1,
     flexDirection: 'row',

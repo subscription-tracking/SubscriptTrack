@@ -10,6 +10,8 @@ import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { EmptyState } from '../../../shared/widgets/EmptyState';
 import { useSubscriptionsQuery } from '../data/queries';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
+import { hiddenCount, inCurrency } from '../domain/currencyFilter';
 import { countsByTab, LIST_TABS, type ListTab, visibleSubscriptions } from '../domain/subscriptionList';
 import { DEFAULT_FILTER, applyFilter, type SubscriptionFilter } from '../domain/subscriptionFilter';
 import { type Subscription, type SubscriptionCategory } from '../domain/subscription';
@@ -45,7 +47,11 @@ export function SubscriptionListScreen() {
   const pager = useRef<ScrollView>(null);
 
   const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
-  const all: Subscription[] = query.data ?? [];
+  const currency = useActiveCurrency();
+  const everything: Subscription[] = query.data ?? [];
+  // Aktif para birimi dışındaki kayıtlar listelenmez; sayıları aşağıda not olarak belirtilir.
+  const all: Subscription[] = inCurrency(everything, currency);
+  const hidden = hiddenCount(everything, currency);
   const counts = useMemo(() => countsByTab(all), [all]);
   const hasArchived = all.some((subscription) => subscription.status === 'archived');
 
@@ -82,6 +88,11 @@ export function SubscriptionListScreen() {
         onFilter={() => setSheetOpen(true)}
       />
       <ListTabBar active={tab} counts={counts} onChange={selectTab} />
+      {hidden > 0 ? (
+        <Text style={textStyle('caption', { color: colors.onSurfaceVariant, paddingHorizontal: spacing.lg, marginTop: spacing.xs })}>
+          {`${hidden} kayıt ${currency} dışındaki para birimlerinde; gizli.`}
+        </Text>
+      ) : null}
       <View style={styles.pagerWrap}>
         <AsyncStateView state={state}>
           {(data) => (

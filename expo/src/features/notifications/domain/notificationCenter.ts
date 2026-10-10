@@ -26,22 +26,27 @@ export interface NotificationParams {
   days?: number;
 }
 
+/**
+ * Bildirim metni: başlık abonelik adı, gövde kalan süre. Ad yoksa tür adı başlık olur (tekrar yok).
+ */
 export function notificationText(kind: NotificationKind, params: NotificationParams): { title: string; body: string } {
-  const name = params.name ?? '';
+  const name = params.name?.trim() ?? '';
   const days = params.days ?? 0;
+  const fallback = kind.startsWith('trial') ? 'Ücretsiz deneme' : 'Abonelik';
+  const title = name.length > 0 ? name : fallback;
   switch (kind) {
     case 'renewal_today':
-      return { title: 'Bugün yenileniyor', body: `${name} bugün yenileniyor.` };
+      return { title, body: 'Bugün yenileniyor' };
     case 'renewal_soon':
-      return { title: `${days} gün kaldı`, body: `${name} ${days} gün içinde yenileniyor.` };
+      return { title, body: `Yenilenmesine ${days} gün kaldı` };
     case 'renewal_upcoming':
-      return { title: 'Yaklaşan yenileme', body: `${name} ${days} gün içinde yenileniyor.` };
+      return { title, body: `${days} gün içinde yenilenecek` };
     case 'trial_today':
-      return { title: 'Ücretsiz deneme bugün sona eriyor', body: `${name} ücretsiz denemesi bugün sona eriyor.` };
+      return { title, body: 'Deneme bugün sona eriyor' };
     case 'trial_soon':
-      return { title: `Denemenin bitmesine ${days} gün kaldı`, body: `${name} ücretsiz denemesi ${days} gün içinde sona eriyor.` };
+      return { title, body: `Denemenin bitmesine ${days} gün kaldı` };
     case 'trial_upcoming':
-      return { title: 'Yaklaşan deneme bitişi', body: `${name} ücretsiz denemesi ${days} gün içinde sona eriyor.` };
+      return { title, body: `Deneme ${days} gün içinde sona erecek` };
   }
 }
 

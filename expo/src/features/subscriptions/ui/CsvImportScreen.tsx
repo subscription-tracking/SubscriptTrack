@@ -12,6 +12,7 @@ import { deviceTimeZone, zoneToday, type CivilDate } from '../../../core/time/ca
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { codeText, textButtonText, textStyle } from '../../../shared/design/typography';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { importSubscriptionRows } from '../data/csvImport';
@@ -121,6 +122,7 @@ export function CsvImportScreen() {
             <Pressable accessibilityRole="button" disabled={busy} onPress={() => void pick()} style={styles.textButton}>
               <Text style={[textButtonText, styles.textButtonLabel]}>Başka dosya seç</Text>
             </Pressable>
+            <ScreenBottomInset />
           </ScrollView>
         )}
       </View>
@@ -177,7 +179,6 @@ const styles = StyleSheet.create({
     marginLeft: spacing.xs,
   },
   list: {
-    paddingBottom: sizes.bottomNavHeight + spacing.xl,
   },
   errors: {
     marginTop: gaps.rowLoose - 2,

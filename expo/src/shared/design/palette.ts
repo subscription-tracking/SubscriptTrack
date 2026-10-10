@@ -36,3 +36,20 @@ export const chartPalette: readonly string[] = [
   chartColors.chart5,
   chartColors.chart6,
 ];
+
+/**
+ * Kategori başına sabit renkler (10 kategori, sıra `SUBSCRIPTION_CATEGORIES` ile aynıdır). Sıralamaya ya da
+ * listedeki konuma bağlı değildir; aynı kategori her ekranda aynı rengi alır.
+ */
+export const categoryPalette: readonly string[] = [
+  '#8B82F6',
+  '#10B981',
+  '#3B82F6',
+  '#F59E0B',
+  '#EC4899',
+  '#06B6D4',
+  '#84CC16',
+  '#F97316',
+  '#A855F7',
+  '#94A3B8',
+];

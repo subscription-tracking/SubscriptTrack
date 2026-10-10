@@ -7,6 +7,7 @@ import { type SubscriptionFormValues, hasErrors, toCreatePayload, validateSubscr
 import { type SubscriptionStatus } from '../domain/subscription';
 import { changeSubscriptionStatus } from './subscriptionMutations';
 import { createSubscription } from './subscriptionWriteRepository';
+import { DEFAULT_REMINDER_DAYS } from '../domain/reminderRules';
 
 /**
  * CSV satırlarını abonelik olarak oluşturur. Her satır ayrı işlemdir: bir satırın hatası diğerlerini durdurmaz.
@@ -42,8 +43,9 @@ function formValuesFor(row: ImportRow, today: CivilDate): SubscriptionFormValues
     isTrial: row.trialEndDate !== null,
     trialEndDate: row.trialEndDate,
     trialPrice: row.trialPriceAfter?.decimalString ?? '',
-    initialPaid: false,
+    initialPaymentStatus: 'unpaid',
     initialPaymentDate: today,
+    reminderDays: [...DEFAULT_REMINDER_DAYS],
   };
 }
 

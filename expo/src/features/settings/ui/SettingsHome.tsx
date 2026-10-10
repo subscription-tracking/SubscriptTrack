@@ -12,6 +12,7 @@ import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { fetchPaymentMethods } from '../data/paymentMethodsRepository';
 import { messageForError } from '../../auth/domain/authErrors';
 import { AccountSummaryCard, SectionLabel, SettingsTile, SignOutButton } from './SettingsParts';
+import { useActiveCurrency } from '../data/useActiveCurrency';
 
 /** Uygulama sürümü (Flutter ayarlar ekranındaki sabit metin). */
 const APP_VERSION = 'v1.0.0';
@@ -33,6 +34,7 @@ export function SettingsHome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const snackbar = useSnackbar();
+  const currency = useActiveCurrency();
   const { user, signOut } = useAuth();
   const prefs = useNotifyPrefs();
   const methods = useQuery({
@@ -92,7 +94,7 @@ export function SettingsHome() {
         value={`${methodCount} kayıtlı yöntem`}
         onPress={() => router.push('/settings/payment-methods')}
       />
-      <SettingsTile icon="tune" label="Para birimi ve saat dilimi" value="Tercihlerini düzenle" onPress={() => router.push('/settings/appearance')} />
+      <SettingsTile icon="tune" label="Para birimi ve saat dilimi" value={currency} onPress={() => router.push('/settings/appearance')} />
 
       <SectionLabel label="Uygulama" />
       <SettingsTile icon="replay" label="Tanıtım turunu yeniden başlat" value="Onboarding ekranlarını tekrar göster" onPress={() => void restartOnboarding()} />
@@ -102,7 +104,7 @@ export function SettingsHome() {
       <SettingsTile
         icon="privacy-tip"
         label="Gizlilik ve veri merkezi"
-        value="Verileri dışa aktarma, yasal bilgiler ve hesap silme"
+        value="Veri, yasal metinler, silme"
         onPress={() => router.push('/settings/privacy')}
       />
 

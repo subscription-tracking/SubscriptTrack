@@ -13,6 +13,8 @@ import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncSt
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { activeForTotals } from '../../subscriptions/domain/activeSelectors';
+import { inCurrency } from '../../subscriptions/domain/currencyFilter';
+import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
 import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
 import { useSavingsQuery } from '../data/queries';
 import { type SavingsEvent } from '../domain/savingsSummary';
@@ -80,9 +82,16 @@ function headline(count: number, currency: string, showCurrency: boolean): strin
 }
 
 function SavingsBody({ subscriptions, events, today }: { subscriptions: Subscription[]; events: SavingsEvent[]; today: CivilDate }) {
-  const active = activeForTotals(subscriptions, today);
+  // Tasarruf yalnızca aktif para birimini gösterir; diğer para birimlerinin olayları gizlenir.
+  const currency = useActiveCurrency();
+  const active = activeForTotals(inCurrency(subscriptions, currency), today);
+  const visibleEvents = events.filter((event) => event.currency === currency);
   const groups = useMemo(() => topThree(active), [active]);
   const showCurrency = groups.size > 1;
+  // Üst kartın saydığı üç kayıt "Tasarruf fırsatları"nda; geri kalanı "Diğer fırsatlar"da.
+  const featuredIds = useMemo(() => new Set([...groups.values()].flat().map((item) => item.id)), [groups]);
+  const featured = active.filter((item) => featuredIds.has(item.id));
+  const others = active.filter((item) => !featuredIds.has(item.id));
 
   if (active.length === 0) {
     return (
@@ -109,14 +118,22 @@ function SavingsBody({ subscriptions, events, today }: { subscriptions: Subscrip
       })}
 
       <Text style={textStyle('titleSmall', { marginTop: gaps.sectionInner - 2 })}>Tasarruf fırsatları</Text>
-      {active.map((subscription) => (
+      {featured.map((subscription) => (
         <SavingsRow key={subscription.id} subscription={subscription} />
       ))}
+      {others.length > 0 ? (
+        <>
+          <Text style={textStyle('titleSmall', { marginTop: gaps.rowLoose + spacing.xs - 2 })}>Diğer fırsatlar</Text>
+          {others.map((subscription) => (
+            <SavingsRow key={subscription.id} subscription={subscription} />
+          ))}
+        </>
+      ) : null}
 
-      {events.length > 0 ? (
+      {visibleEvents.length > 0 ? (
         <>
           <Text style={textStyle('titleSmall', { marginTop: gaps.rowLoose + spacing.xs - 2 })}>İptal ve duraklatma geçmişi</Text>
-          {events.map((event, index) => (
+          {visibleEvents.map((event, index) => (
             <View key={`${event.effectiveAt}-${index}`} style={styles.historyRow}>
               <MaterialIcons name="trending-down" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
               <View style={styles.historyText}>

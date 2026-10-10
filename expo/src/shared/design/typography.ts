@@ -69,7 +69,7 @@ const scale = {
   sectionTitle: { fontSize: 20, fontWeight: '700', color: colors.onSurface },
   /** Halka/donut merkez değeri (14 veya 15, w800). */
   ringValue: { fontSize: 14, fontWeight: '800', color: colors.onSurface },
-  donutTotal: { fontSize: 15, fontWeight: '800', color: colors.onSurface },
+  donutTotal: { fontSize: 12, fontWeight: '800', color: colors.onSurface },
   /** Halka/donut alt etiketi (9.5 ya da 10, w600, yardımcı renk). */
   ringLabel: { fontSize: 9.5, fontWeight: '600', color: colors.onSurfaceVariant },
   donutLabel: { fontSize: 10, fontWeight: '600', color: colors.onSurfaceVariant },

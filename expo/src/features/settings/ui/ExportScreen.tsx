@@ -1,18 +1,22 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import * as Clipboard from 'expo-clipboard';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { type Subscription } from '../../subscriptions/domain/subscription';
 import { buildSubscriptionCsv } from '../domain/csvExport';
 import { shareCsvFile } from '../data/exportFile';
+import { requestCloudExport } from '../data/cloudExportRepository';
 import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
+import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
 
 /**
  * Verileri dışa aktar (Flutter `ExportDataScreen`). Dosya paylaşımı aktif, aktif/duraklatılmış/iptal edilmiş
@@ -45,6 +49,32 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
   const exported = subscriptions.filter((item) => (EXPORTED_STATUSES as readonly string[]).includes(item.status));
   const total = exported.length;
 
+  /** Bulut dışa aktarma: sunucuda CSV üretilir, 1 saat geçerli bağlantı paylaşılır. */
+  async function cloudShare() {
+    setBusy(true);
+    try {
+      const { downloadUrl } = await requestCloudExport();
+      await Share.share({ message: downloadUrl, title: 'SubscriptTrack dışa aktarma' });
+    } catch (error) {
+      snackbar.show(error instanceof Error ? error.message : 'Dışa aktarılamadı.', 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copy() {
+    if (total === 0) return;
+    setBusy(true);
+    try {
+      await Clipboard.setStringAsync(buildSubscriptionCsv(exported));
+      snackbar.show('CSV panoya kopyalandı.', 'primary');
+    } catch {
+      snackbar.show('Panoya kopyalanamadı.', 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function share() {
     setBusy(true);
     try {
@@ -75,21 +105,11 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
       <FilledButtonLabel label="Dosya olarak paylaş" busy={busy} disabled={total === 0} onPress={() => void share()} />
 
       <View style={styles.gap} />
-      <View style={styles.unavailable}>
-        <MaterialIcons name="cloud-upload" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginLeft: spacing.sm, flex: 1 })}>
-          Güvenli biçimde (bulut) dışa aktarma bu sürümde kullanılamıyor: sunucu tarafındaki işlev henüz canlıya alınmadı.
-        </Text>
-      </View>
+      <OutlinedButton label="Bulut bağlantısı oluştur (1 saat geçerli)" onPress={() => void cloudShare()} />
 
       <View style={styles.gap} />
-      <View style={styles.unavailable}>
-        <MaterialIcons name="content-copy" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginLeft: spacing.sm, flex: 1 })}>
-          Panoya kopyalama için pano bağımlılığı eklenmesi gerekir; şimdilik dosya paylaşımını kullan.
-        </Text>
-      </View>
-      <View style={styles.bottom} />
+      <OutlinedButton label="Panoya kopyala" onPress={() => void copy()} />
+      <ScreenBottomInset />
     </ScrollView>
   );
 }

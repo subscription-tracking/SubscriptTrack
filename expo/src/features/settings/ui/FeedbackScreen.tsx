@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Share, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 
-import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
+import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { SelectField, type SelectOption } from '../../../shared/widgets/SelectField';
 import { Spacer } from '../../../shared/widgets/Spacer';
@@ -53,7 +55,7 @@ export function FeedbackScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Geri bildirim" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
@@ -90,9 +92,9 @@ export function FeedbackScreen() {
             if (validate()) ticket.mutate();
           }}
         />
-        <Spacer size={sizes.bottomNavHeight} />
+        <ScreenBottomInset />
       </ScrollView>
-    </View>
+    </KeyboardScreen>
   );
 }
 

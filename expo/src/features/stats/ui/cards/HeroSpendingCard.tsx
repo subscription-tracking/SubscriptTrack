@@ -28,7 +28,8 @@ export function HeroSpendingCard({
   hasPaymentHistory: boolean;
 }) {
   const hasComparison = trend.length >= 2 && trend[trend.length - 2] > 0;
-  const change = trend.length >= 2 ? monthly.minorUnits - trend[trend.length - 2] : 0;
+  // Değişim, ödeme geçmişinin bu ay ile geçen ay toplamı arasındaki farktır (ana sayfadaki yüzdeyle aynı kaynak).
+  const change = trend.length >= 2 ? trend[trend.length - 1] - trend[trend.length - 2] : 0;
   return (
     <StatsCardSurface padding={sizes.heroPadding}>
       <View style={styles.titleRow}>

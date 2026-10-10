@@ -14,15 +14,18 @@ export interface PaymentEvent {
   currency: string;
   /** ISO 8601 (UTC). */
   paidAt: string;
+  /** `PAID` toplamlara girer; `DEFERRED` yalnızca geçmişte ertelendi olarak görünür. */
+  status: 'PAID' | 'DEFERRED';
 }
 
-/** `payment_events` satırını alan modeline çevirir. */
+/** `payment_events` satırını alan modeline çevirir. Durum yoksa ödenmiş sayılır. */
 export function paymentFromRow(row: {
   id: string;
   subscription_id: string | null;
   amount: string | number;
   currency: string;
   paid_at: string;
+  status?: string | null;
 }): PaymentEvent {
   return {
     id: row.id,
@@ -30,6 +33,7 @@ export function paymentFromRow(row: {
     amount: Money.fromJson(row.amount),
     currency: row.currency,
     paidAt: row.paid_at,
+    status: row.status === 'DEFERRED' ? 'DEFERRED' : 'PAID',
   };
 }
 
@@ -42,7 +46,7 @@ export function totalForMonth(events: readonly PaymentEvent[], currency: string,
   const key = localMonthKey(month);
   let total = 0;
   for (const event of events) {
-    if (event.currency === currency && localMonthKey(new Date(event.paidAt)) === key) {
+    if (event.status !== 'DEFERRED' && event.currency === currency && localMonthKey(new Date(event.paidAt)) === key) {
       total += event.amount.minorUnits;
     }
   }

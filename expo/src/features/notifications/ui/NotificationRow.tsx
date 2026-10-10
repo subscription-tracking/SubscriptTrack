@@ -1,23 +1,33 @@
-import { useRef } from 'react';
+import { type ComponentProps, useRef } from 'react';
 import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { formatLongDate } from '../../../core/format/date';
 import { civilDate } from '../../../core/time/calendar';
-import { borderWidth, colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { type CenterNotification } from '../data/notificationRepository';
 import { notificationText, type NotificationKind } from '../domain/notificationCenter';
 
-/** Flutter `NotificationType.icon`: tür başına renk noktası (emoji). */
-const KIND_ICON: Record<NotificationKind, string> = {
-  renewal_today: '🔴',
-  renewal_soon: '🟡',
-  renewal_upcoming: '🔵',
-  trial_today: '🟣',
-  trial_soon: '🟣',
-  trial_upcoming: '🟣',
+/** Tür başına ikon: yenileme ve deneme ayrı; aciliyet rengi ayrıca `kindTone` ile verilir. */
+const KIND_ICON: Record<NotificationKind, MaterialIconName> = {
+  renewal_today: 'autorenew',
+  renewal_soon: 'autorenew',
+  renewal_upcoming: 'autorenew',
+  trial_today: 'hourglass-bottom',
+  trial_soon: 'hourglass-bottom',
+  trial_upcoming: 'hourglass-bottom',
 };
+
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+/** İkon rengi: bugün hata, yakında uyarı, diğerleri birincil; deneme türleri deneme rengi. */
+function kindTone(kind: NotificationKind): string {
+  if (kind === 'renewal_today') return colors.error;
+  if (kind === 'renewal_soon') return statusColors.warning;
+  if (kind.startsWith('trial')) return statusColors.trial;
+  return colors.primary;
+}
 
 /** Okunmamış avatar zemini (Flutter `_avatarColor`): bugün kırmızımsı, yakında sarımsı, diğerleri birincil. */
 function avatarColor(kind: NotificationKind, read: boolean): string {
@@ -72,7 +82,7 @@ export function NotificationRow({
       <Animated.View style={{ transform: [{ translateX }] }} {...responder.panHandlers}>
         <Pressable accessibilityRole="button" onPress={onOpen} style={styles.row}>
           <View style={[styles.avatar, { backgroundColor: avatarColor(item.kind, read) }]}>
-            <Text style={styles.emoji}>{KIND_ICON[item.kind]}</Text>
+            <MaterialIcons name={KIND_ICON[item.kind]} size={sizes.iconButtonSize} color={kindTone(item.kind)} />
           </View>
           <View style={styles.texts}>
             <Text style={textStyle(read ? 'body' : 'bodyLargeStrong', { color: read ? colors.onSurfaceVariant : colors.onSurface })}>
@@ -116,9 +126,6 @@ const styles = StyleSheet.create({
     borderRadius: sizes.notificationAvatar / 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  emoji: {
-    fontSize: sizes.notificationEmoji,
   },
   texts: {
     flex: 1,

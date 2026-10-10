@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+import { type ActiveCurrency } from '../../../core/domain/activeCurrency';
 import { CURRENCY_OPTIONS } from '../domain/slides';
 import { borderWidth, colors, extraRadius, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { onboardingColors } from '../../../shared/design/palette';
@@ -13,7 +14,7 @@ import { Bob } from './OnboardingMotion';
  * Flutter `CurrencyPage`: süzülen para birimi çipleri, başlık ve dört seçenek. Seçim `onSelect` ile
  * üst ekrana iletilir; kalıcı kayıt üst ekranda yapılır.
  */
-export function CurrencyPage({ selected, onSelect }: { selected: string; onSelect: (symbol: string) => void }) {
+export function CurrencyPage({ selected, onSelect }: { selected: ActiveCurrency; onSelect: (code: ActiveCurrency) => void }) {
   return (
     <View style={styles.page}>
       <EntranceFade>
@@ -38,8 +39,8 @@ export function CurrencyPage({ selected, onSelect }: { selected: string; onSelec
               symbol={option.symbol}
               name={option.name}
               code={option.code}
-              selected={selected === option.symbol}
-              onPress={() => onSelect(option.symbol)}
+              selected={selected === option.code}
+              onPress={() => onSelect(option.code)}
             />
           ))}
         </View>
@@ -62,11 +63,6 @@ function FloatingChips() {
       <View style={[styles.floating, { top: 6, right: 0 }]}>
         <Bob phase={2.2}>
           <CurrencyChip symbol="€" />
-        </Bob>
-      </View>
-      <View style={[styles.floating, { bottom: 0, left: 20 }]}>
-        <Bob phase={3.6}>
-          <CurrencyChip symbol="£" />
         </Bob>
       </View>
     </View>

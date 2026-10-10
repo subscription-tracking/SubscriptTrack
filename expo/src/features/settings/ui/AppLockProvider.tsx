@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+import { usePreventScreenCapture } from 'expo-screen-capture';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { verifyPinRecord } from '../../../core/security/pinRecord';
@@ -109,7 +110,17 @@ export function AppLockProvider({ children }: { children: ReactNode }) {
   return (
     <AppLockContext.Provider value={value}>
       {children}
+      {state.enabled ? <ScreenCaptureGuard /> : null}
       {showLock ? <LockScreen /> : null}
     </AppLockContext.Provider>
   );
+}
+
+/**
+ * Uygulama kilidi açıkken ekran görüntüsünü ve son uygulamalar önizlemesini engeller (Flutter `PrivacyScreen`
+ * karşılığı, F-17). Yalnızca kilit etkinken mount edilir; kapatılınca koruma kalkar.
+ */
+function ScreenCaptureGuard() {
+  usePreventScreenCapture('app-lock');
+  return null;
 }

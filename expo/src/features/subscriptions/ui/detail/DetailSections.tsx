@@ -100,15 +100,18 @@ export function ReminderSection({ rules, onEdit }: { rules: unknown[]; onEdit: (
         {days.length === 0 ? (
           <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Bu abonelik için hatırlatma kapalı.</Text>
         ) : (
-          <View style={styles.chips}>
-            {days.map((value) => (
-              <View key={value} style={styles.reminderChip}>
-                <Text style={textStyle('caption12Strong', { color: colors.primary })}>
-                  {value === 0 ? 'Aynı gün' : `${value} gün önce`}
-                </Text>
-              </View>
-            ))}
-          </View>
+          <>
+            <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Yenileme öncesinde bu zamanlarda bildirim gelir:</Text>
+            <View style={styles.chips}>
+              {days.map((value) => (
+                <View key={value} style={styles.reminderChip}>
+                  <Text style={textStyle('caption12Strong', { color: colors.primary })}>
+                    {value === 0 ? 'Yenileme günü' : `${value} gün önce`}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
         )}
       </Card>
     </Section>
@@ -157,12 +160,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     overflow: 'hidden',
   },
+  // Kart köşesinde kırpılmasın diye şerit içeride, sol kenarda ve dikey olarak kısaltılmış.
   stripe: {
     position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
+    left: spacing.xs,
+    top: spacing.md,
+    bottom: spacing.md,
     width: sizes.stripeWidth,
+    borderRadius: radius.pill,
   },
   nextRow: {
     flexDirection: 'row',
