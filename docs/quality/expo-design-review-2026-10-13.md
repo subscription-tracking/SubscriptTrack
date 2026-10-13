@@ -181,5 +181,5 @@ Taslaklar sohbette onaylandı; kararlar: yenileme sıklığı dörtlü segment, 
 
 - **Takvim:** tekrarlayan yenilemeler aylara yansıtılır (`calendar/domain/projectedRenewals.ts`, birim testli), ay toplamı yansıtmaları içerir; seçili günden bağımsız "Gecikmiş" bölümü ve satır içi onaylı "Ödendi" (`OverdueSection`); "Bugüne git" kısayolu.
 - **İstatistik:** dönem seçici `SegmentedControl` oldu, grafikte en yüksek değer çizgisi ve aylık ortalama, kısayol kartları gruplu satırlara indi.
-- **Doğrulama:** jest 141 paket / 879 test, tsc ve lint temiz. Emülatörde (Android, koyu tema, yazı 1,0 ve 1,5) takvim ve istatistik görsel olarak doğrulandı: kanıt `docs/operations/evidence/design-2026-10-13/stats-calendar/`. Açık tema ve gerçek "Ödendi" yazması denenmedi.
+- **Doğrulama:** jest 141 paket / 879 test, tsc ve lint temiz. Emülatörde (Android, koyu tema, yazı 1,0 ve 1,5) takvim ve istatistik görsel olarak doğrulandı: kanıt `docs/operations/evidence/design-2026-10-13/stats-calendar/`. Açık tema da doğrulandı (kanıt: `*-light.png`); gerçek "Ödendi" yazması denenmedi.
 - **Açık:** "Kalan" toplamı eklenmedi: ödenen yenilemeler tarih ilerlediği için veriden ayırt edilemez, ay toplamı zaten kalan tutardır. Kategori yığın çubuğu ve öne çıkanlar kartı mevcut haliyle kaldı.
