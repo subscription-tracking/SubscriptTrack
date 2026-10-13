@@ -107,7 +107,7 @@ it('gecikmiş satır ve Ödendi onayı yenileme eylemini çalıştırır', () =>
   const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
   render(<DashboardScreen />);
 
-  expect(screen.getByText('Dikkat gerektirenler')).toBeTruthy();
+  expect(screen.getByText('Geciken ödemeler')).toBeTruthy();
   expect(screen.getByText(/3 gün gecikti/)).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'Ödendi' }));
 
@@ -122,7 +122,7 @@ it('dikkat gerektiren yoksa bölüm çizilmez', () => {
   mockUseSubscriptionsQuery.mockReturnValue(ready([upcomingSub]));
   render(<DashboardScreen />);
 
-  expect(screen.queryByText('Dikkat gerektirenler')).toBeNull();
+  expect(screen.queryByText('Geciken ödemeler')).toBeNull();
 });
 
 it('zaman çizelgesi günlere göre gruplanır ve Takvim bağlantısı çalışır', () => {
@@ -181,7 +181,7 @@ it('hiç abonelik yokken başlangıç açıklamasını ve ekleme eylemini göste
 
   render(<DashboardScreen />);
 
-  expect(screen.getByText('Ana sayfanı oluşturmaya başla')).toBeTruthy();
+  expect(screen.getByText('Ana sayfanı doldur')).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'İlk aboneliğini ekle' }));
   expect(mockPush).toHaveBeenCalledWith('/subscriptions/add');
 });

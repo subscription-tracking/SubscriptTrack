@@ -4,7 +4,7 @@ Son güncelleme: 13 Ekim 2026 (Expo senaryo kapatmaları; Flutter durum satırla
 
 **13 Ekim Expo form ve bildirim merkezi yeniden tasarımı:** Form segment, tutar satırı, gruplu ek alanlar ve maliyet özetiyle; bildirim merkezi filtre, ×N gruplama, onaylı satır içi "Ödendi" ve izin bandıyla yeniden kuruldu. Ayrıntı: [USER_FLOWS §19](product/USER_FLOWS.md). Cihaz kabulü, iOS ve TalkBack açık.
 
-**13 Ekim Expo ana sayfa ve detay yeniden tasarımı:** Ana sayfa "Bu ay kalan ödemeler" hero'su, "Dikkat gerektirenler" bölümü (satır içi "Ödendi" onayı), 14 günlük zaman çizelgesi ve kategori çubuğuyla; detay ekranı tek birincil ödeme kartı, özet kutuları, gruplu ayrıntılar ve ⋯ alt sayfa menüsüyle yeniden kuruldu. Ayrıntı: [USER_FLOWS §18](product/USER_FLOWS.md). Cihaz kabulü, iOS ve TalkBack açık.
+**13 Ekim Expo ana sayfa ve detay yeniden tasarımı:** Ana sayfa "Bu ay kalan ödemeler" hero'su, "Geciken ödemeler" bölümü (satır içi "Ödendi" onayı), 14 günlük zaman çizelgesi ve kategori çubuğuyla; detay ekranı tek birincil ödeme kartı, özet kutuları, gruplu ayrıntılar ve ⋯ alt sayfa menüsüyle yeniden kuruldu. Ayrıntı: [USER_FLOWS §18](product/USER_FLOWS.md). Cihaz kabulü, iOS ve TalkBack açık.
 
 **13 Ekim Expo tasarım sistemi sadeleştirme:** Statik Hanken Grotesk ağırlıkları, 12 rollük yazı ölçeği (en küçük 12), beş köşe kademesi, kontrastlı bileşen sınırı ve açık tema grafik paleti, düğme hiyerarşisi (Primary/Tonal/Text) ve metin düzeltmeleri uygulandı; kontrast kuralları otomatik teste bağlandı. Ayrıntı: [tasarım incelemesi](quality/expo-design-review-2026-10-13.md#uygulanan-düzeltmeler-aynı-gün). Ekran yeniden tasarımı, iOS ve TalkBack denemesi açık.
 

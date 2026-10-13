@@ -9,7 +9,7 @@ type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 
 /** Alt gezinme sekmeleri (Flutter `BottomNavigation`): Ana sayfa, Abonelikler, İstatistikler, Ayarlar. */
 const TAB_ITEMS: Record<string, NavItem> = {
-  index: { key: 'index', label: 'Ana Sayfa', icon: 'home', iconOutline: 'home-outline' },
+  index: { key: 'index', label: 'Ana sayfa', icon: 'home', iconOutline: 'home-outline' },
   'subscriptions/index': { key: 'subscriptions', label: 'Abonelikler', icon: 'grid', iconOutline: 'grid-outline' },
   stats: { key: 'stats', label: 'İstatistikler', icon: 'bar-chart', iconOutline: 'bar-chart-outline' },
   'settings/index': { key: 'settings', label: 'Ayarlar', icon: 'settings', iconOutline: 'settings-outline' },

@@ -33,7 +33,7 @@ const EMPTY_BY_TAB: Record<ListTab, { message: string; detail: string }> = {
   },
 };
 
-/** Liste satırı: abonelik ya da küçük bölüm başlığı ("Dikkat gerektirenler"). */
+/** Liste satırı: abonelik ya da küçük bölüm başlığı ("Geciken ödemeler"). */
 type ListRow = { kind: 'header'; key: string; title: string } | { kind: 'item'; key: string; subscription: Subscription };
 
 /** Gecikmiş ve bugün vadeli kayıtlar üstte ayrı bir bölümde; başka kayıt yoksa başlık gösterilmez. */
@@ -41,7 +41,7 @@ function withAttentionGroup(items: Subscription[], today: CivilDate): ListRow[] 
   const { attention, rest } = splitAttention(items, today);
   const asRows = (list: Subscription[]): ListRow[] => list.map((subscription) => ({ kind: 'item', key: subscription.id, subscription }));
   if (attention.length === 0) return asRows(items);
-  const rows: ListRow[] = [{ kind: 'header', key: 'h-attention', title: 'Dikkat gerektirenler' }, ...asRows(attention)];
+  const rows: ListRow[] = [{ kind: 'header', key: 'h-attention', title: 'Geciken ödemeler' }, ...asRows(attention)];
   if (rest.length > 0) rows.push({ kind: 'header', key: 'h-rest', title: 'Diğer abonelikler' }, ...asRows(rest));
   return rows;
 }

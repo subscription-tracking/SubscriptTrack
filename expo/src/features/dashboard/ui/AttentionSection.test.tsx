@@ -85,5 +85,5 @@ it('işlem sürerken yalnız o satırın düğmesi pasif olur', () => {
 it('kayıt yoksa hiçbir şey çizmez', () => {
   render(<AttentionSection items={[]} today={today} onOpen={jest.fn()} onMore={jest.fn()} />);
 
-  expect(screen.queryByText('Dikkat gerektirenler')).toBeNull();
+  expect(screen.queryByText('Geciken ödemeler')).toBeNull();
 });

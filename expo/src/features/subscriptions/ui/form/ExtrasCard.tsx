@@ -53,7 +53,7 @@ export function ExtrasCard({
           {showPayment ? (
             <View style={styles.inline}>
               <TextField
-                label="Ödeme yöntemin"
+                label="Ödeme yöntemi adı"
                 value={values.paymentMethod}
                 onChangeText={(next) => onChange('paymentMethod', next)}
                 error={errors.paymentMethod}

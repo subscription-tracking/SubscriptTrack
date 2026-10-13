@@ -19,7 +19,7 @@ export interface CategoryEntry {
 }
 
 /**
- * Flutter `CategoryBreakdownCard`: "Kategori Dağılımı", kategori sayısı, her kategori için sabit renkli nokta,
+ * Flutter `CategoryBreakdownCard`: "Kategori dağılımı", kategori sayısı, her kategori için sabit renkli nokta,
  * ad, tutar, yüzde ve ilerleme çubuğu. Yüzdeler en büyük kalan yöntemiyle yuvarlanır (toplam %100). Çubuklar
  * ilk girişte büyür; ekran okuyucu her kategori için yüzdeyi ve kartın özetini okur.
  */
@@ -42,9 +42,9 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
     <StatsCardSurface>
       <View style={styles.header} accessible accessibilityLabel={summary}>
         <Text style={textStyle('bodyStrong', { flex: 1 })} numberOfLines={1}>
-          Kategori Dağılımı
+          Kategori dağılımı
         </Text>
-        <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginLeft: spacing.xs })}>{`${entries.length} Kategori`}</Text>
+        <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginLeft: spacing.xs })}>{`${entries.length} kategori`}</Text>
       </View>
       <View style={styles.gap} />
       {entries.map((entry, index) => {

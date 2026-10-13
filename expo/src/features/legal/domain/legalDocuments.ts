@@ -18,7 +18,7 @@ export interface LegalDocument {
 }
 
 export const PRIVACY_POLICY: LegalDocument = {
-  title: 'Gizlilik Politikası',
+  title: 'Gizlilik politikası',
   version: '1.0',
   lastUpdated: '20 Eylül 2026',
   summary: [

@@ -83,7 +83,7 @@ describe('abonelik formu yeni düzen', () => {
     render(<SubscriptionFormScreen />);
     expect(screen.getByLabelText('Ödeme yöntemi: Belirtilmedi')).toBeTruthy();
     fireEvent.press(screen.getByLabelText(/^Ödeme yöntemi:/));
-    fireEvent.changeText(screen.getByLabelText('Ödeme yöntemin'), 'Garanti');
+    fireEvent.changeText(screen.getByLabelText('Ödeme yöntemi adı'), 'Garanti');
     expect(screen.getByLabelText('Ödeme yöntemi: Garanti')).toBeTruthy();
   });
 

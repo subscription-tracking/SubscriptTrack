@@ -56,7 +56,7 @@ export default function ForgotPasswordScreen() {
             <MaterialIcons name="mark-email-read" size={72} color={colors.primary} />
           </View>
           <Spacer size={spacing.xl} />
-          <Text style={[textStyle('title'), styles.center]}>Mail gönderildi!</Text>
+          <Text style={[textStyle('title'), styles.center]}>E-posta gönderildi</Text>
           <Spacer size={spacing.sm} />
           <Text style={[textStyle('bodySmall'), styles.center]}>
             {`${sentTo} adresine şifre sıfırlama bağlantısı gönderildi.\nSpam klasörünü de kontrol et.`}

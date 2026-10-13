@@ -217,7 +217,7 @@ describe('SubscriptionListScreen', () => {
 
     fireEvent.press(screen.getByRole('tab', { name: 'Geçmiş 1' }));
     expect(screen.getByRole('tab', { name: 'Geçmiş 1' }).props.accessibilityState.selected).toBe(true);
-    expect(screen.getByRole('button', { name: /Paused Service, Bulut Depolama/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Paused Service, Bulut depolama/ })).toBeTruthy();
   });
 });
 

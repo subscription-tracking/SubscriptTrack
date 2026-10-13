@@ -43,7 +43,7 @@ Uygulama bugün **tutarlı, temiz ve çalışan** bir ürün; asıl zayıflıkla
 | Ekran | İyi | Sorun | Yön |
 |---|---|---|---|
 | Ana sayfa | Güçlü tek odak (aylık tutar), halka "1/5 ödendi" | "Geçen aya göre %94 daha az" yanıltıcı olabilir (tahmini gider ile ödenmiş tutar karşılaştırılıyor); üç çip 11 pt yazı; iki kart da kırmızı çerçeveli (2 gün kaldı ile bugün aynı alarm seviyesinde); her kartta tekrarlanan hatırlatma şeridi uzun, kesiliyor | Tutarı "bu ay ödenecek/ödenen" olarak netleştir; hatırlatma şeridini tek yere indir; aciliyet seviyelerini ayır (bugün / yarın / bu hafta) |
-| Abonelik listesi | Sekmeler ve arama net | Satırda iki sütun sıkışıyor: "Sonraki döngü (tahmini): 6 Kasım 2026" iki satıra sarıyor, ad ve kategori kesiliyor; gecikmiş kayıtlar normal kayıtlarla aynı listede; "Çoklu seçim" bağlantısı başlıksız duruyor | Gecikmiş kayıtları "Dikkat gerektirenler" grubunda topla; satırı iki satıra sadeleştir (ad + tutar / durum) |
+| Abonelik listesi | Sekmeler ve arama net | Satırda iki sütun sıkışıyor: "Sonraki döngü (tahmini): 6 Kasım 2026" iki satıra sarıyor, ad ve kategori kesiliyor; gecikmiş kayıtlar normal kayıtlarla aynı listede; "Çoklu seçim" bağlantısı başlıksız duruyor | Gecikmiş kayıtları "Geciken ödemeler" grubunda topla; satırı iki satıra sadeleştir (ad + tutar / durum) |
 | İstatistikler | Kart yapısı ve ay seçimi | Çubuklarda eksen ve değer yok, "Tem" boş çubuk açıklamasız; "Eki toplamı ₺49,99" iki kez yazılıyor; açık temada çubuklar çok soluk | Etiketli eksen, seçili ayın tek göstergesi, boş ay açıklaması |
 | Takvim | Sade, yoğunluk iyi | Noktalar 6 px ve yalnız renkle ayrışıyor; gecikmiş günler normal gün gibi; "3 gün içinde" kırmızı göstergesi hiç görünmüyor | Nokta yerine sayı rozeti, gecikmiş için ikon |
 | Bildirimler | Tür ikonları anlaşılır | Her satır "Bugün yenileniyor"; tutar yok; aynı abonelik tekrar (Netflix 3 gün ×2); güne göre gruplama yok; satırdan eylem (Ödendi/Ertele) yok | Güne göre grupla, tutar ekle, satırda hızlı eylem |
@@ -103,7 +103,7 @@ Hedef: **"Bu ay ne ödeyeceğim?" sorusuna iki saniyede yanıt veren sakin bir f
 
 **Katman 2 — Bilgi mimarisi (orta risk)**
 1. **Ana sayfa:** "Bu ay": ödenen / kalan tutar, altında tarihe göre sıralı "Sıradaki ödemeler" zaman çizelgesi; analizler ikinci ekrana.
-2. **Liste:** "Dikkat gerektirenler" (gecikmiş, bugün) en üstte, sonra normal liste; satır iki satır.
+2. **Liste:** "Geciken ödemeler" (gecikmiş, bugün) en üstte, sonra normal liste; satır iki satır.
 3. **Detay:** tek bağlamsal birincil eylem ("Ödendi" ya da "Yenile"); Duraklat/Arşivle/İptal/Sil bir "⋯" menüsünde, silme en altta ve yıkıcı renkte.
 4. **Form:** zorunlu alanlar (ad, tutar, sıklık) ilk ekranda, tarih akıllı varsayılan, gerisi "Daha fazla" altında; seçili çipler dolgulu.
 5. **Bildirim merkezi:** güne göre grup, tutar ve satırda "Ödendi / Ertele" eylemleri.
@@ -128,7 +128,7 @@ Plan kapsamı: sistem sadeleştirme ve hızlı ekran düzeltmeleri; ekran yenide
 - Kontrast: `controlBorder` (koyu 3,6–3,9:1; açık 3,3–3,8:1), `disabledSurface`/`disabledText`, açık tema grafik paleti ≥3,8:1; grafik teması `chartTheme.ts`'e ayrıldı (saf `palette.ts` domain tarafından import edilebiliyor). `contrast.test.ts` iki temada oranları korur.
 - Bileşenler: `TonalButton` (yeni), `PrimaryButton`/`TextLink` `tone="danger"`, dolgulu seçili çip, 48 dp onay kutusu, kontrastlı alan sınırları. `OutlinedButton` artık `TonalButton`'a yönlendiren ince bir sarmalayıcıdır.
 
-**Ekranlar ve metinler:** dışa aktarma gizlilik metni, arşiv etiketli düğmeler, ödeme yöntemlerinde boş durum, profil ve geri bildirim akışları, CSV boş durum adımları, takvim işaretleri (gecikmiş ve 3 gün), abonelik listesinde "Dikkat gerektirenler" grubu ve sadeleşen satır, detay ve iptal akışı metinleri, ana sayfada yanıltıcı yüzdenin kaldırılması ve tek hatırlatma şeridi, istatistik grafik etiketi, tasarruf ekranı tarafsız metinleri, bildirim merkezinde güne göre gruplama ve tutar, form çipleri ve tarih satırı. "Geçti" → "Ödendi/Geçmiş", iç sistem dili kullanıcı diline çevrildi; `src/copy.test.ts` yasaklı ifadeleri tarar.
+**Ekranlar ve metinler:** dışa aktarma gizlilik metni, arşiv etiketli düğmeler, ödeme yöntemlerinde boş durum, profil ve geri bildirim akışları, CSV boş durum adımları, takvim işaretleri (gecikmiş ve 3 gün), abonelik listesinde "Geciken ödemeler" grubu ve sadeleşen satır, detay ve iptal akışı metinleri, ana sayfada yanıltıcı yüzdenin kaldırılması ve tek hatırlatma şeridi, istatistik grafik etiketi, tasarruf ekranı tarafsız metinleri, bildirim merkezinde güne göre gruplama ve tutar, form çipleri ve tarih satırı. "Geçti" → "Ödendi/Geçmiş", iç sistem dili kullanıcı diline çevrildi; `src/copy.test.ts` yasaklı ifadeleri tarar.
 
 **Güncel puan tahmini (aynı ölçüt, kendi değerlendirmem; bağımsız yeniden inceleme değil):** ekran ortalaması ≈67 → ≈73, tasarım sistemi ≈58 → ≈75. En çok kazanan: dışa aktarma (54→72), CSV içe aktarma (55→68), arşiv (57→67), bildirimler (61→72), liste (67→76).
 
@@ -144,7 +144,7 @@ Plan kapsamı: sistem sadeleştirme ve hızlı ekran düzeltmeleri; ekran yenide
 
 Taslaklar sohbette onaylandı; karar: hero "Bu ay kalan ödemeler", ana sayfada satır içi "Ödendi", detayda yaşam döngüsü eylemleri ⋯ alt sayfasında. Görüntüler: `docs/operations/evidence/design-2026-10-13/home-detail/`.
 
-**Ana sayfa:** hero kalan tutar + ödenen/toplam çubuğu; "Dikkat gerektirenler" (gecikmiş ve bugün vadeli, en çok 3 satır, onaylı satır içi "Ödendi"); "Önümüzdeki 14 gün" günlere gruplu zaman çizelgesi (deneme bitişleri dahil); "Bu ayın dağılımı" yığılmış çubuk. Kalkanlar: yanıltıcı yüzde ve halka, üç özet çipi, hızlı işlemler, tasarruf kartı, donut, kart içi tekrarlanan hatırlatma şeritleri.
+**Ana sayfa:** hero kalan tutar + ödenen/toplam çubuğu; "Geciken ödemeler" (gecikmiş ve bugün vadeli, en çok 3 satır, onaylı satır içi "Ödendi"); "Önümüzdeki 14 gün" günlere gruplu zaman çizelgesi (deneme bitişleri dahil); "Bu ayın dağılımı" yığılmış çubuk. Kalkanlar: yanıltıcı yüzde ve halka, üç özet çipi, hızlı işlemler, tasarruf kartı, donut, kart içi tekrarlanan hatırlatma şeritleri.
 
 **Detay:** kompakt hero + ⋯ alt sayfa menüsü (Duraklat/Devam et, Arşivle, İptal ettim, Yanlış kaydı sil); ödeme kartında tek birincil eylem "Ödendi ve yenilendi" (vadesi gelmişse) ve sonuç açıklaması; yıllık maliyet ve şimdiye kadar ödenen özet kutuları; Sıklık, Kategori, Ödeme yöntemi ve Hatırlatma gruplu satırlar; son 3 ödeme; yalnız "Nasıl iptal edilir?" düğmesi. Sayfa sonundaki beş eylemlik yığın ve "Aboneliği sil" bağlantısı kalktı.
 

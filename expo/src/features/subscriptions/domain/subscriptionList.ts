@@ -77,7 +77,7 @@ export function isRenewingSoon(subscription: Subscription, today: CivilDate, day
 }
 
 /**
- * Dikkat gerektirenler: yenileme tarihi bugün veya geçmişte olan aktif/deneme kayıtları. Mevcut sıra
+ * Geciken ödemeler: yenileme tarihi bugün veya geçmişte olan aktif/deneme kayıtları. Mevcut sıra
  * her iki grupta da korunur; yalnızca gruplar ayrılır.
  */
 export function splitAttention(

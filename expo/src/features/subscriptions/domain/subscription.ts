@@ -33,7 +33,7 @@ export const CATEGORY_LABELS: Record<SubscriptionCategory, string> = {
   music: 'Müzik',
   gaming: 'Oyun',
   software: 'Yazılım',
-  cloud: 'Bulut Depolama',
+  cloud: 'Bulut depolama',
   fitness: 'Spor & Sağlık',
   news: 'Haber & Dergi',
   food: 'Yemek',

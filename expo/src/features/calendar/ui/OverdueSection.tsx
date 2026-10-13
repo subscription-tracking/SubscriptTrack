@@ -26,10 +26,10 @@ export function OverdueSection({
   const { confirm, pendingId } = useConfirmedRenew(today);
   if (subscriptions.length === 0) return null;
   return (
-    <View style={styles.section} accessibilityLabel="Gecikmiş ödemeler">
+    <View style={styles.section} accessibilityLabel="Geciken ödemeler">
       <View style={styles.header}>
         <MaterialIcons name="error" size={sizes.calendarDot + 6} color={colors.error} />
-        <Text style={textStyle('label', { color: colors.error })}>{`Gecikmiş (${subscriptions.length})`}</Text>
+        <Text style={textStyle('label', { color: colors.error })}>{`Geciken ödemeler (${subscriptions.length})`}</Text>
       </View>
       {subscriptions.map((subscription) => {
         const date = subscription.nextRenewalDate as CivilDate;

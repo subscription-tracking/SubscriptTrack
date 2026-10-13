@@ -88,7 +88,7 @@ describe('CalendarScreen', () => {
 
     render(<CalendarScreen />);
 
-    expect(screen.getByText('Gecikmiş (1)')).toBeTruthy();
+    expect(screen.getByText('Geciken ödemeler (1)')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Ödendi' })).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'Sonraki ay' }));
     expect(screen.getByLabelText(/5 Kasım 2026.*yenileme var/)).toBeTruthy();

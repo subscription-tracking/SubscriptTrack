@@ -22,7 +22,7 @@ describe('PrivacyCenterScreen', () => {
   it('yasal, dışa aktarma ve hesap silme rotalarına yönlendirir', () => {
     render(<PrivacyCenterScreen />);
 
-    fireEvent.press(screen.getByRole('button', { name: 'Gizlilik Politikası' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Gizlilik politikası' }));
     expect(mockPush).toHaveBeenLastCalledWith('/legal/privacy');
 
     fireEvent.press(screen.getByRole('button', { name: 'Kullanım şartları' }));

@@ -27,7 +27,7 @@ export function PrivacyCenterScreen() {
           </Text>
         </View>
         <View style={styles.gap} />
-        <ListRow icon="policy" label="Gizlilik Politikası" onPress={() => router.push('/legal/privacy')} />
+        <ListRow icon="policy" label="Gizlilik politikası" onPress={() => router.push('/legal/privacy')} />
         <ListRow icon="gavel" label="Kullanım şartları" onPress={() => router.push('/legal/terms')} />
         <ListRow
           icon="download"

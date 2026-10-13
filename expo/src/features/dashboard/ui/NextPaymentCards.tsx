@@ -23,7 +23,7 @@ export function EmptyIntro() {
   useThemeRevision();
   return (
     <View style={styles.intro}>
-      <Text style={textStyle('bodyStrong')}>Ana sayfanı oluşturmaya başla</Text>
+      <Text style={textStyle('bodyStrong')}>Ana sayfanı doldur</Text>
       <Text style={[textStyle('bodySmall'), styles.introBody]}>
         Aboneliklerini ekle; aylık giderlerini, yenileme tarihlerini ve ücretsiz denemelerini tek yerde takip et.
       </Text>

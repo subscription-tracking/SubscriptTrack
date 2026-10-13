@@ -234,7 +234,7 @@ Silme ekranı yanıltıcı veya zorlaştırıcı olmamalıdır.
 ```text
 Ana Sayfa
 → Hero: Bu ay kalan ödemeler (büyük tutar), ödenen/toplam çubuğu
-→ Dikkat gerektirenler (vadesi bugün gelmiş ya da geçmiş kayıtlar, en çok 3 satır, +N daha)
+→ Geciken ödemeler (vadesi bugün gelmiş ya da geçmiş kayıtlar, en çok 3 satır, +N daha)
    → Satırdaki "Ödendi" → onay ("<Ad> ödendi mi? Yenileme tarihi <yeni tarih> olacak.")
       → yenileme onaylanır, tarih ilerler, liste yenilenir
    → Satıra dokun → abonelik detayı
@@ -291,7 +291,7 @@ Bildirimler
 → Bildirim izni kapalıysa: uyarı bandı + Ayarları aç
 ```
 
-- "Ödendi" ana sayfadaki "Dikkat gerektirenler" ile aynı onaylı yenileme akışını kullanır (§18). Vadesi gelmemiş ya da silinmiş aboneliklerde eylem satırı çıkmaz.
+- "Ödendi" ana sayfadaki "Geciken ödemeler" ile aynı onaylı yenileme akışını kullanır (§18). Vadesi gelmemiş ya da silinmiş aboneliklerde eylem satırı çıkmaz.
 - Okundu ve kapatma eylemleri grubun tüm bildirimlerine uygulanır. Kaydırarak kapatma erişilebilirlik eylemleriyle ("Kapat", "Okundu say") de yapılabilir.
 
 ## 20. İstatistik ve takvim (Expo, 13 Ekim 2026 yeniden tasarım)

@@ -20,7 +20,7 @@ export function attentionSubtitle(item: AttentionItem): string {
   return item.daysOverdue > 0 ? `${item.daysOverdue} gün gecikti · ${amount}` : `Bugün yenileniyor · ${amount}`;
 }
 
-/** "Dikkat gerektirenler": vadesi gelmiş kayıtlar, satır içi "Ödendi" onayıyla. Kayıt yoksa hiçbir şey çizmez. */
+/** "Geciken ödemeler": vadesi gelmiş kayıtlar, satır içi "Ödendi" onayıyla. Kayıt yoksa hiçbir şey çizmez. */
 export function AttentionSection({
   items,
   today,
@@ -38,7 +38,7 @@ export function AttentionSection({
 
   return (
     <View>
-      <SectionHeader title="Dikkat gerektirenler" badge={items.length} />
+      <SectionHeader title="Geciken ödemeler" badge={items.length} />
       <View style={styles.list}>
         {items.slice(0, MAX_ROWS).map((item) => (
           <SubscriptionRowCard
