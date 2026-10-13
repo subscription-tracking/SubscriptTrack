@@ -33,6 +33,7 @@ export function buildStatsSummary(input: {
   payments: readonly PaymentEvent[];
   today: CivilDate;
   now: Date;
+  timeZone: string;
   /** Uygulamanın tek aktif para birimi; yalnızca bu para birimindeki kayıtlar hesaplanır. */
   activeCurrency: string;
   /** Trend penceresi: 3, 6 veya 12 ay (Flutter `_months`). */
@@ -59,7 +60,7 @@ export function buildStatsSummary(input: {
     monthly,
     yearly: monthly.multiply(12),
     activeCount: inCurrency.length,
-    trend: monthlyTotals(input.payments, currency, input.now, input.months ?? 6),
+    trend: monthlyTotals(input.payments, currency, input.now, input.months ?? 6, input.timeZone),
     hasPaymentHistory: input.payments.some((payment) => payment.currency === currency),
     categories,
     dueSoon: renewingWithin(input.subscriptions, input.today, 7).slice(0, 3),

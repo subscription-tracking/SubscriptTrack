@@ -7,6 +7,7 @@ import { formatDateParam } from '../domain/calendarDateParam';
 import { useCalendarMonth } from './useCalendarMonth';
 import { MonthHeader, MonthGrid, CalendarLegend } from './CalendarMonthParts';
 import { CalendarEventItem } from './CalendarEventItem';
+import { OverdueSection } from './OverdueSection';
 import { EmptyDayState } from './EmptyDayState';
 import { styles } from './calendarStyles';
 
@@ -14,7 +15,9 @@ export function CalendarMonth({ subscriptions, today }: { subscriptions: Subscri
   useThemeRevision();
   const router = useRouter();
   const model = useCalendarMonth(subscriptions, today);
-  const { selected, dayEvents } = model;
+  const { selected, dayEvents: allEvents, overdue } = model;
+  const overdueIds = new Set(overdue.map((item) => item.id));
+  const dayEvents = allEvents.filter((item) => item.isTrial || !overdueIds.has(item.subscription.id));
 
   return (
     // Küçük ekran ve yatay döndürmede ay ızgarası ile gün listesi birlikte dikey kaydırılır.
@@ -25,6 +28,8 @@ export function CalendarMonth({ subscriptions, today }: { subscriptions: Subscri
       <View style={styles.divider}>
         <View style={styles.dividerLine} />
       </View>
+
+      <OverdueSection subscriptions={overdue} today={today} onOpen={(item) => router.push(`/subscriptions/${item.id}`)} />
 
       {dayEvents.length === 0 ? (
         <EmptyDayState

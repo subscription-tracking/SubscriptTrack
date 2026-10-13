@@ -59,6 +59,12 @@ describe('gün olayları', () => {
   it('yenileme yalnızca aktif kayıtlar için gösterilir', () => {
     expect(renewalsOnDay(items, today, civilDate(2026, 10, 15)).map((s) => s.id)).toEqual(['renew']);
   });
+  it('shows future starting renewal in calendar but excludes it from current totals', () => {
+    const future = sub({ id: 'future', start_date: '2026-10-20', next_renewal_date: '2026-10-20' });
+    expect(renewalsOnDay([future], today, civilDate(2026, 10, 20))).toHaveLength(1);
+    expect(renewalDaysInMonth([future], today, 2026, 10).has(20)).toBe(true);
+    expect(monthTotalsByCurrency([future], today, 2026, 10).size).toBe(0);
+  });
 
   it('deneme bitişi ayrı listelenir', () => {
     expect(trialsOnDay(items, civilDate(2026, 10, 15)).map((s) => s.id)).toEqual(['trial']);

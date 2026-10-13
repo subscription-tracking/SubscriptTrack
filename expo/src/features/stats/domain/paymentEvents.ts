@@ -1,9 +1,9 @@
 import { Money } from '../../../core/domain/money';
-import { type CivilDate, civilDate } from '../../../core/time/calendar';
+import { type CivilDate, zoneToday, zonedHourToUtc } from '../../../core/time/calendar';
 
 /**
  * Ödeme kaydı ve aylık analiz (Flutter `PaymentEvent` ve `PaymentAnalytics` ile aynı).
- * Toplamlar minör birimle (tam sayı) yapılır; ay sınırı cihazın yerel saatine göre belirlenir.
+ * Toplamlar minör birimle (tam sayı) yapılır; ay sınırı kullanıcının IANA saat dilimindedir.
  * I/O yoktur.
  */
 
@@ -37,16 +37,16 @@ export function paymentFromRow(row: {
   };
 }
 
-function localMonthKey(date: Date): number {
-  return date.getFullYear() * 12 + date.getMonth();
+function monthKey(day: CivilDate): number {
+  return day.year * 12 + day.month - 1;
 }
 
-/** Belirli bir ayda (yerel saat) para birimi cinsinden ödenen toplam, minör birimle. */
-export function totalForMonth(events: readonly PaymentEvent[], currency: string, month: Date): number {
-  const key = localMonthKey(month);
+/** Belirli bir ayda kullanıcı saat diliminde ödenen toplam, minör birimle. */
+export function totalForMonth(events: readonly PaymentEvent[], currency: string, month: Date, timeZone: string): number {
+  const key = monthKey(zoneToday(timeZone, month));
   let total = 0;
   for (const event of events) {
-    if (event.status !== 'DEFERRED' && event.currency === currency && localMonthKey(new Date(event.paidAt)) === key) {
+    if (event.status !== 'DEFERRED' && event.currency === currency && monthKey(localCivilDate(event.paidAt, timeZone)) === key) {
       total += event.amount.minorUnits;
     }
   }
@@ -54,10 +54,12 @@ export function totalForMonth(events: readonly PaymentEvent[], currency: string,
 }
 
 /** Son `months` ayın toplamları, eskiden yeniye. */
-export function monthlyTotals(events: readonly PaymentEvent[], currency: string, now: Date, months = 6): number[] {
+export function monthlyTotals(events: readonly PaymentEvent[], currency: string, now: Date, months: number, timeZone: string): number[] {
+  const current = zoneToday(timeZone, now);
   return Array.from({ length: months }, (_, index) => {
-    const month = new Date(now.getFullYear(), now.getMonth() - (months - 1 - index), 1);
-    return totalForMonth(events, currency, month);
+    const first = new Date(Date.UTC(current.year, current.month - 1 - (months - 1 - index), 1));
+    const month = zonedHourToUtc({ year: first.getUTCFullYear(), month: first.getUTCMonth() + 1, day: 1 }, 12, timeZone);
+    return totalForMonth(events, currency, month, timeZone);
   });
 }
 
@@ -65,22 +67,23 @@ export function monthlyTotals(events: readonly PaymentEvent[], currency: string,
  * Bu ay ile geçen ay arasındaki yüzde değişim. Karşılaştırılacak veri yoksa (geçen ay 0)
  * `null`. Yuvarlama yalnızca son adımda yapılır.
  */
-export function monthOverMonthPercent(events: readonly PaymentEvent[], currency: string, now: Date): number | null {
-  const current = totalForMonth(events, currency, now);
-  const previous = totalForMonth(events, currency, new Date(now.getFullYear(), now.getMonth() - 1, 1));
+export function monthOverMonthPercent(events: readonly PaymentEvent[], currency: string, now: Date, timeZone: string): number | null {
+  const today = zoneToday(timeZone, now);
+  const current = totalForMonth(events, currency, now, timeZone);
+  const prior = new Date(Date.UTC(today.year, today.month - 2, 1));
+  const previous = totalForMonth(events, currency, zonedHourToUtc({ year: prior.getUTCFullYear(), month: prior.getUTCMonth() + 1, day: 1 }, 12, timeZone), timeZone);
   if (previous === 0) return null;
   return Math.round(((current - previous) * 100) / previous);
 }
 
-/** Yerel takvim gününü (ISO zamanından) verir. Ay sınırı cihaz saatine göre belirlenir. */
-export function localCivilDate(iso: string): CivilDate {
-  const date = new Date(iso);
-  return civilDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+/** ISO zamanının kullanıcı saat dilimindeki takvim günü. */
+export function localCivilDate(iso: string, timeZone: string): CivilDate {
+  return zoneToday(timeZone, new Date(iso));
 }
 
-/** Seçilen takvim gününü kayda yazılacak zamana çevirir: yerel öğle (gün kaymasını önlemek için). */
-export function paidAtFromCivil(day: CivilDate): Date {
-  return new Date(day.year, day.month - 1, day.day, 12, 0, 0);
+/** Seçilen takvim gününü kullanıcı saat dilimindeki öğleye çevirir. */
+export function paidAtFromCivil(day: CivilDate, timeZone: string): Date {
+  return zonedHourToUtc(day, 12, timeZone);
 }
 
 /** Düzenleme/ekleme tutarı: pozitif ve geçerli bir değer; değilse null. */

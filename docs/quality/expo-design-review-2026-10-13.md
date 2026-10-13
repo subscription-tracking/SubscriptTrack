@@ -176,3 +176,10 @@ Taslaklar sohbette onaylandı; kararlar: yenileme sıklığı dörtlü segment, 
 - Satırdaki tarih etiketi kalktı, gün bilgisi yalnız bölüm başlığından gelir.
 - Hataya kaydırma gerçek cihazda ayrıca doğrulanmalı; hata mesajı "Ayrıntılarda düzeltilecek alan var" bölüm adı değiştiği için gözden geçirilmeli.
 - Ödeme yöntemi alanı hata varken kendiliğinden açılır ve kullanıcı kapatamaz.
+
+## İstatistik ve takvim yeniden tasarımı (13 Ekim 2026)
+
+- **Takvim:** tekrarlayan yenilemeler aylara yansıtılır (`calendar/domain/projectedRenewals.ts`, birim testli), ay toplamı yansıtmaları içerir; seçili günden bağımsız "Gecikmiş" bölümü ve satır içi onaylı "Ödendi" (`OverdueSection`); "Bugüne git" kısayolu.
+- **İstatistik:** dönem seçici `SegmentedControl` oldu, grafikte en yüksek değer çizgisi ve aylık ortalama, kısayol kartları gruplu satırlara indi.
+- **Doğrulama:** jest 141 paket / 879 test, tsc ve lint temiz. Emülatör bu oturumda bağlı değildi; görsel kabul açık.
+- **Açık:** "Kalan" toplamı eklenmedi: ödenen yenilemeler tarih ilerlediği için veriden ayırt edilemez, ay toplamı zaten kalan tutardır. Kategori yığın çubuğu ve öne çıkanlar kartı mevcut haliyle kaldı.

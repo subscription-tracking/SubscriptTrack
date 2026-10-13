@@ -15,7 +15,7 @@ type Model = ReturnType<typeof useCalendarMonth>;
 
 export function MonthHeader({ model }: { model: Model }) {
   useThemeRevision();
-  const { view, totals, move } = model;
+  const { view, totals, move, goToday } = model;
   return (
       <View style={styles.monthBar}>
         <Pressable accessibilityRole="button" accessibilityLabel="Önceki ay" onPress={() => move(-1)} style={styles.navButton}>
@@ -29,6 +29,9 @@ export function MonthHeader({ model }: { model: Model }) {
             </Text>
           ))}
         </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Bugüne git" onPress={goToday} style={styles.navButton} hitSlop={0}>
+          <MaterialIcons name="today" size={sizes.calendarNavIcon} color={colors.primary} />
+        </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Sonraki ay" onPress={() => move(1)} style={styles.navButton}>
           <MaterialIcons name="chevron-right" size={sizes.calendarNavIcon} color={colors.onSurface} />
         </Pressable>

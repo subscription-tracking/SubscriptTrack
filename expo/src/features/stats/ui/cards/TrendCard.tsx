@@ -1,15 +1,16 @@
 import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
 import { Money } from '../../../../core/domain/money';
 import { zoneToday } from '../../../../core/time/calendar';
 import { formatCurrency } from '../../../../core/format/money';
-import { colors, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
+import { SegmentedControl } from '../../../../shared/widgets/SegmentedControl';
 import { PrimaryButton } from '../../../../shared/widgets/PrimaryButton';
 import { trendSummary } from '../../domain/chartSummary';
 import { trendState } from '../../domain/trendState';
@@ -17,7 +18,11 @@ import { StatsCardSurface } from './StatsCardSurface';
 import { TrendBars } from './TrendBars';
 import { trendMonthLabel } from './trendLabels';
 
-const RANGES = [3, 6, 12] as const;
+const RANGE_OPTIONS = [
+  { value: '3', label: '3 ay' },
+  { value: '6', label: '6 ay' },
+  { value: '12', label: '12 ay' },
+] as const;
 
 /**
  * Flutter `TrendCard`: ödeme geçmişi varsa 3/6/12 ay seçici ve sütun grafiği; yoksa yalnızca bu ayın
@@ -71,8 +76,17 @@ export function TrendCard({
             {hasPaymentHistory ? 'Kaydedilen ödemeler' : 'Aktif aboneliklerinin aylık toplamı'}
           </Text>
         </View>
-        {hasPaymentHistory ? <RangeSelector months={months} onChange={onMonthsChanged} /> : null}
       </View>
+      {hasPaymentHistory ? (
+        <View style={styles.range}>
+          <SegmentedControl
+            options={RANGE_OPTIONS}
+            value={String(months) as (typeof RANGE_OPTIONS)[number]["value"]}
+            onChange={(next) => onMonthsChanged(Number(next))}
+            accessibilityLabel="Grafik dönemi"
+          />
+        </View>
+      ) : null}
 
       <View style={styles.totalRow} accessible accessibilityLabel={summary}>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, flex: 1 })}>
@@ -93,6 +107,10 @@ export function TrendCard({
         </View>
       ) : (
         <>
+          <View style={styles.axis} accessible={false} importantForAccessibility="no-hide-descendants">
+            <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{formatValue(Math.max(...values))}</Text>
+            <View style={styles.axisLine} />
+          </View>
           <View style={styles.bars}>
             <TrendBars
               values={values}
@@ -106,7 +124,7 @@ export function TrendCard({
           </View>
           {hasPaymentHistory ? (
             <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
-              {`Son ${values.length} ay, aylık ödeme toplamı. Bir sütuna dokunarak ayı seç.`}
+              {`Aylık ortalama ${formatValue(Math.round(total / values.length))}. Bir sütuna dokunarak ayı seç.`}
             </Text>
           ) : null}
           {state === 'single' && hasPaymentHistory ? (
@@ -129,29 +147,6 @@ export function TrendCard({
   );
 }
 
-/** 3 / 6 / 12 ay seçici: seçili seçenek primary dolgulu ve kalın (Flutter `TrendRangeSelector`). */
-function RangeSelector({ months, onChange }: { months: number; onChange: (months: number) => void }) {
-  useThemeRevision();
-  return (
-    <View style={styles.selector}>
-      {RANGES.map((range) => {
-        const selected = range === months;
-        return (
-          <Pressable
-            key={range}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            onPress={() => onChange(range)}
-            style={[styles.option, selected ? styles.optionSelected : null]}
-          >
-            <Text style={textStyle('captionStrong', { color: selected ? colors.onPrimary : colors.onSurfaceVariant })}>{`${range} Ay`}</Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 const styles = themedStyles(() => StyleSheet.create({
   header: {
     flexDirection: 'row',
@@ -160,20 +155,19 @@ const styles = themedStyles(() => StyleSheet.create({
   headerText: {
     flex: 1,
   },
-  selector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.xxs / 2 + 1,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceContainerHighest,
+  range: {
+    marginTop: spacing.md,
   },
-  option: {
-    paddingHorizontal: spacing.sm - spacing.xxs / 2,
-    paddingVertical: spacing.xs - spacing.xxs / 2,
-    borderRadius: radius.pill,
+  axis: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: spacing.sm,
+    gap: spacing.xs,
   },
-  optionSelected: {
-    backgroundColor: colors.primary,
+  axisLine: {
+    flex: 1,
+    height: borderWidth.hairline,
+    backgroundColor: colors.border,
   },
   totalRow: {
     flexDirection: 'row',

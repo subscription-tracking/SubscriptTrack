@@ -293,3 +293,12 @@ Bildirimler
 
 - "Ödendi" ana sayfadaki "Dikkat gerektirenler" ile aynı onaylı yenileme akışını kullanır (§18). Vadesi gelmemiş ya da silinmiş aboneliklerde eylem satırı çıkmaz.
 - Okundu ve kapatma eylemleri grubun tüm bildirimlerine uygulanır. Kaydırarak kapatma erişilebilirlik eylemleriyle ("Kapat", "Okundu say") de yapılabilir.
+
+## 20. İstatistik ve takvim (Expo, 13 Ekim 2026 yeniden tasarım)
+
+**İstatistik:** Hero (tahmini aylık ve yıllık gider, geçen aya göre değişim) → **Ödeme geçmişi** kartı: `SegmentedControl` ile 3/6/12 ay, seçili ay toplamı, sütun grafiği (üstte en yüksek değer çizgisi, altta ay etiketleri) ve aylık ortalama → Öne çıkanlar → Kategori dağılımı → gruplu iki satır: Tasarruf analizi, Ödeme geçmişi.
+
+**Takvim:** Ay çubuğu (önceki/sonraki ay, "Bugüne git") ve ay toplamı → ay ızgarası → **Gecikmiş** bölümü (seçili günden bağımsız; kırmızı çerçeveli satır, "N gün gecikti", onaylı **Ödendi**) → seçili günün yenileme ve deneme bitişleri.
+
+- **Tekrarlayan yenileme projeksiyonu (yalnız gösterim):** aktif aboneliğin `nextRenewalDate` değeri bugünden sonraki aylara döngü döngü (haftalık +7 gün; aylık, 3 aylık, yıllık ay ekleme, fatura günü korunur, ay sonu kırpılır) yansıtılır. Ay toplamı bu yansıtmaları içerir, para birimi başına tam sayı minör birimle toplanır. Geçmiş aylar için projeksiyon yoktur; geçmişi ödeme kayıtları anlatır. Kayıt, bildirim ve `nextRenewalDate` değişmez.
+- Vadesi geçmiş kayıt yalnız kendi tarihinde ve "Gecikmiş" bölümünde görünür; "Ödendi" onaylanınca tarih bugünden sonraki ilk döngüye ilerler (§18) ve sonraki döngüler yeniden projekte edilir.

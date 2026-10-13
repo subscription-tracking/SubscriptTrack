@@ -10,17 +10,17 @@ const row = (status: string | null | undefined, paid_at: string) => ({
 });
 
 describe('ertelenen ödeme', () => {
-  const now = new Date(2026, 9, 15, 12);
+  const now = new Date('2026-10-15T09:00:00.000Z');
 
   it('durum yoksa ödenmiş sayılır', () => {
-    expect(paymentFromRow(row(undefined, '2026-10-05T09:00:00')).status).toBe('PAID');
+    expect(paymentFromRow(row(undefined, '2026-10-05T09:00:00Z')).status).toBe('PAID');
   });
 
   it('ertelenen kayıt aylık toplama girmez', () => {
     const events = [
-      paymentFromRow(row('PAID', '2026-10-05T09:00:00')),
-      paymentFromRow(row('DEFERRED', '2026-10-06T09:00:00')),
+      paymentFromRow(row('PAID', '2026-10-05T09:00:00Z')),
+      paymentFromRow(row('DEFERRED', '2026-10-06T09:00:00Z')),
     ];
-    expect(totalForMonth(events, 'TRY', now)).toBe(10000);
+    expect(totalForMonth(events, 'TRY', now, 'Europe/Istanbul')).toBe(10000);
   });
 });

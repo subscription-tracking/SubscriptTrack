@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { civilDate, dayNumber, type CivilDate } from '../../../core/time/calendar';
 import type { Subscription } from '../../subscriptions/domain/subscription';
 import { buildCells } from '../domain/calendarGrid';
-import { monthTotalsByCurrency, renewalDaysInMonth, renewalsOnDay, shiftMonth, trialDaysInMonth, trialsOnDay } from '../domain/calendarDays';
+import { monthTotalsByCurrency, overdueSubscriptions, renewalDaysInMonth, renewalsOnDay, shiftMonth, trialDaysInMonth, trialsOnDay } from '../domain/calendarDays';
 
 const URGENT_WINDOW_DAYS = 3;
 export function useCalendarMonth(subscriptions: Subscription[], today: CivilDate) {
@@ -13,6 +13,13 @@ export function useCalendarMonth(subscriptions: Subscription[], today: CivilDate
   const renewalDays = useMemo(() => renewalDaysInMonth(subscriptions, today, view.year, view.month), [subscriptions, today, view]);
   const trialDays = useMemo(() => trialDaysInMonth(subscriptions, view.year, view.month), [subscriptions, view]);
   const totals = useMemo(() => monthTotalsByCurrency(subscriptions, today, view.year, view.month), [subscriptions, today, view]);
+
+  function goToday() {
+    setView({ year: today.year, month: today.month });
+    setSelected(today);
+  }
+
+  const overdue = useMemo(() => overdueSubscriptions(subscriptions, today), [subscriptions, today]);
 
   function move(delta: number) {
     setView(shiftMonth(view.year, view.month, delta));
@@ -33,5 +40,5 @@ export function useCalendarMonth(subscriptions: Subscription[], today: CivilDate
     return dayNumber(civilDate(view.year, view.month, day)) < dayNumber(today);
   }
 
-  return { view, selected, setSelected, weeks, renewalDays, trialDays, totals, dayEvents, move, isUrgent, isOverdue };
+  return { goToday, overdue, view, selected, setSelected, weeks, renewalDays, trialDays, totals, dayEvents, move, isUrgent, isOverdue };
 }

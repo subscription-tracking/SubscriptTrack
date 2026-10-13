@@ -1,6 +1,8 @@
 import { Money } from '../../../core/domain/money';
 import { type CivilDate, civilDate, dayNumber, daysInMonth } from '../../../core/time/calendar';
 import { activeForTotals } from '../../dashboard/domain/dashboardSummary';
+import { projectedRenewalDates, renewsOnDay } from './projectedRenewals';
+import { compareByRenewal } from '../../subscriptions/domain/activeSelectors';
 import { type Subscription } from '../../subscriptions/domain/subscription';
 
 /**
@@ -35,10 +37,7 @@ function mondayIndex(date: CivilDate): number {
 }
 
 export function renewalsOnDay(subscriptions: readonly Subscription[], today: CivilDate, day: CivilDate): Subscription[] {
-  const target = dayNumber(day);
-  return activeForTotals(subscriptions, today).filter(
-    (subscription) => subscription.nextRenewalDate !== null && dayNumber(subscription.nextRenewalDate) === target,
-  );
+  return subscriptions.filter((subscription) => renewsOnDay(subscription, today, day)).sort(compareByRenewal);
 }
 
 export function trialsOnDay(subscriptions: readonly Subscription[], day: CivilDate): Subscription[] {
@@ -49,12 +48,11 @@ export function trialsOnDay(subscriptions: readonly Subscription[], day: CivilDa
   );
 }
 
-/** Ayın hangi günlerinde yenileme var (gün numaraları). */
+/** Ayın hangi günlerinde yenileme var (gün numaraları); tekrarlayan yenilemeler dahildir. */
 export function renewalDaysInMonth(subscriptions: readonly Subscription[], today: CivilDate, year: number, month: number): Set<number> {
   const days = new Set<number>();
-  for (const subscription of activeForTotals(subscriptions, today)) {
-    const date = subscription.nextRenewalDate;
-    if (date && date.year === year && date.month === month) days.add(date.day);
+  for (const subscription of subscriptions) {
+    for (const date of projectedRenewalDates(subscription, today, year, month)) days.add(date.day);
   }
   return days;
 }
@@ -69,7 +67,10 @@ export function trialDaysInMonth(subscriptions: readonly Subscription[], year: n
   return days;
 }
 
-/** Ayın para birimi başına toplamı: o ayda yenilemesi olan aktif kayıtların aylık eşdeğeri. */
+/**
+ * Ayın para birimi başına toplamı: aydaki tüm yenilemeler (tekrarlayanlar ve gecikmişler dahil), tam sayı
+ * minör birimle toplanır; kur dönüşümü yoktur. Geçmişte ödenmiş yenilemeler tarih ilerlediği için sayılmaz.
+ */
 export function monthTotalsByCurrency(
   subscriptions: readonly Subscription[],
   today: CivilDate,
@@ -78,12 +79,19 @@ export function monthTotalsByCurrency(
 ): Map<string, Money> {
   const totals = new Map<string, Money>();
   for (const subscription of activeForTotals(subscriptions, today)) {
-    const date = subscription.nextRenewalDate;
-    if (!date || date.year !== year || date.month !== month) continue;
+    const count = projectedRenewalDates(subscription, today, year, month).length;
+    if (count === 0) continue;
     const current = totals.get(subscription.currency) ?? Money.zero;
-    totals.set(subscription.currency, current.add(subscription.amount));
+    totals.set(subscription.currency, current.add(subscription.amount.multiply(count)));
   }
   return totals;
+}
+
+/** Vadesi geçmiş (bugün dahil değil) aktif abonelikler, en eskisi önce. */
+export function overdueSubscriptions(subscriptions: readonly Subscription[], today: CivilDate): Subscription[] {
+  return subscriptions
+    .filter((subscription) => subscription.status === 'active' && subscription.nextRenewalDate !== null && dayNumber(subscription.nextRenewalDate) < dayNumber(today))
+    .sort(compareByRenewal);
 }
 
 /** Ay kaydırma: 1–12 sınırında yıla taşar. */

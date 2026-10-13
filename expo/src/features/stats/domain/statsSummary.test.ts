@@ -24,40 +24,48 @@ const row = (overrides: Partial<SubscriptionRow>): SubscriptionRow => ({
 });
 const sub = (overrides: Partial<SubscriptionRow>) => subscriptionFromRow(row(overrides));
 
-// Yerel saat kullanıldığı için ay ortasında öğlen saati kullanıyoruz (saat dilimi kaymasından etkilenmez).
+const timeZone = 'Europe/Istanbul';
 const payment = (id: string, amount: string, currency: string, month: number, day = 15): PaymentEvent =>
   paymentFromRow({
     id,
     subscription_id: null,
     amount,
     currency,
-    paid_at: new Date(2026, month - 1, day, 12).toISOString(),
+    paid_at: new Date(Date.UTC(2026, month - 1, day, 9)).toISOString(),
   });
 
-const now = new Date(2026, 9, 9, 12);
+const now = new Date('2026-10-09T09:00:00.000Z');
 const today = civilDate(2026, 10, 9);
 
 describe('ödeme analizi', () => {
   const payments = [payment('a', '100', 'TRY', 10), payment('b', '50', 'TRY', 9), payment('c', '20', 'USD', 10)];
 
   it('ay toplamı yalnızca istenen para birimini sayar', () => {
-    expect(totalForMonth(payments, 'TRY', now)).toBe(10000);
-    expect(totalForMonth(payments, 'USD', now)).toBe(2000);
+    expect(totalForMonth(payments, 'TRY', now, timeZone)).toBe(10000);
+    expect(totalForMonth(payments, 'USD', now, timeZone)).toBe(2000);
   });
 
   it('son 6 ay eskiden yeniye sıralanır', () => {
-    const trend = monthlyTotals(payments, 'TRY', now, 6);
+    const trend = monthlyTotals(payments, 'TRY', now, 6, timeZone);
     expect(trend).toHaveLength(6);
     expect(trend[5]).toBe(10000);
     expect(trend[4]).toBe(5000);
   });
 
   it('yüzde değişim geçen ay 0 ise null', () => {
-    expect(monthOverMonthPercent([payment('x', '10', 'TRY', 10)], 'TRY', now)).toBeNull();
+    expect(monthOverMonthPercent([payment('x', '10', 'TRY', 10)], 'TRY', now, timeZone)).toBeNull();
   });
 
   it('yüzde değişim: (bu ay − geçen ay) / geçen ay', () => {
-    expect(monthOverMonthPercent(payments, 'TRY', now)).toBe(100);
+    expect(monthOverMonthPercent(payments, 'TRY', now, timeZone)).toBe(100);
+  });
+
+  it('ay sınırını cihaz yerine profil saat diliminde hesaplar', () => {
+    const boundary = paymentFromRow({ id: 'boundary', subscription_id: null, amount: '10', currency: 'TRY', paid_at: '2026-10-01T00:30:00.000Z' });
+    const instant = new Date('2026-10-15T12:00:00.000Z');
+    expect(totalForMonth([boundary], 'TRY', instant, 'Europe/Istanbul')).toBe(1000);
+    expect(totalForMonth([boundary], 'TRY', instant, 'America/New_York')).toBe(0);
+    expect(monthlyTotals([boundary], 'TRY', instant, 2, 'America/New_York')).toEqual([1000, 0]);
   });
 });
 
@@ -70,7 +78,7 @@ describe('buildStatsSummary', () => {
   ];
 
   it('aylık toplam aktif kayıtlardan, yıllık = aylık × 12', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'TRY' })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, timeZone, activeCurrency: 'TRY' })!;
     expect(summary.currency).toBe('TRY');
     expect(summary.monthly.decimalString).toBe('200.00');
     expect(summary.yearly.decimalString).toBe('2400.00');
@@ -78,23 +86,23 @@ describe('buildStatsSummary', () => {
   });
 
   it('aktif para birimi dışındaki kayıtlar hesaba katılmaz', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'USD' })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, timeZone, activeCurrency: 'USD' })!;
     expect(summary.currency).toBe('USD');
     expect(summary.monthly.decimalString).toBe('5.00');
     expect(summary.highest?.id).toBe('c');
   });
 
   it('kategoriler aylık tutara göre büyükten küçüğe sıralanır', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'TRY' })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, timeZone, activeCurrency: 'TRY' })!;
     expect(summary.categories.map((share) => share.category)).toEqual(['streaming', 'cloud']);
   });
 
   it('aktif kayıt yoksa özet null', () => {
-    expect(buildStatsSummary({ subscriptions: [sub({ status: 'paused' })], payments: [], today, now, activeCurrency: 'TRY' })).toBeNull();
+    expect(buildStatsSummary({ subscriptions: [sub({ status: 'paused' })], payments: [], today, now, timeZone, activeCurrency: 'TRY' })).toBeNull();
   });
 
   it('ödeme geçmişi yoksa trend bayrağı false', () => {
-    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, activeCurrency: 'TRY' })!;
+    const summary = buildStatsSummary({ subscriptions: items, payments: [], today, now, timeZone, activeCurrency: 'TRY' })!;
     expect(summary.hasPaymentHistory).toBe(false);
   });
 });
