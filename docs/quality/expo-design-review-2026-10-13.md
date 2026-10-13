@@ -139,3 +139,22 @@ Plan kapsamı: sistem sadeleştirme ve hızlı ekran düzeltmeleri; ekran yenide
 - Form ekranında "Diğer ayrıntılar" satırı kaydet düğmesine yakın.
 - `expo-doctor` 7 paketin güncel olmadığını bildiriyor (`npx expo install --check`); bu çalışmadan bağımsız.
 - Ana sayfa, detay, form ve bildirim merkezi yeniden tasarımı, iOS ve TalkBack denemesi yapılmadı.
+
+## Ana sayfa ve detay yeniden tasarımı (aynı gün)
+
+Taslaklar sohbette onaylandı; karar: hero "Bu ay kalan ödemeler", ana sayfada satır içi "Ödendi", detayda yaşam döngüsü eylemleri ⋯ alt sayfasında. Görüntüler: `docs/operations/evidence/design-2026-10-13/home-detail/`.
+
+**Ana sayfa:** hero kalan tutar + ödenen/toplam çubuğu; "Dikkat gerektirenler" (gecikmiş ve bugün vadeli, en çok 3 satır, onaylı satır içi "Ödendi"); "Önümüzdeki 14 gün" günlere gruplu zaman çizelgesi (deneme bitişleri dahil); "Bu ayın dağılımı" yığılmış çubuk. Kalkanlar: yanıltıcı yüzde ve halka, üç özet çipi, hızlı işlemler, tasarruf kartı, donut, kart içi tekrarlanan hatırlatma şeritleri.
+
+**Detay:** kompakt hero + ⋯ alt sayfa menüsü (Duraklat/Devam et, Arşivle, İptal ettim, Yanlış kaydı sil); ödeme kartında tek birincil eylem "Ödendi ve yenilendi" (vadesi gelmişse) ve sonuç açıklaması; yıllık maliyet ve şimdiye kadar ödenen özet kutuları; Sıklık, Kategori, Ödeme yöntemi ve Hatırlatma gruplu satırlar; son 3 ödeme; yalnız "Nasıl iptal edilir?" düğmesi. Sayfa sonundaki beş eylemlik yığın ve "Aboneliği sil" bağlantısı kalktı.
+
+**Emülatör doğrulaması:** koyu ve açık tema, yazı 1,5; ⋯ menüsü açıldı; gerçek "Ödendi" dokunuşu yapılmadı (canlı hesaba yazar). Yazı 1,5'te gecikmiş satır alt metni kesilmesin diye iki satıra izin verildi.
+
+**Puan tahmini (kendi değerlendirmem):** ana sayfa 79 → ≈86, detay 73 → ≈83; ekran ortalaması ≈74.
+
+**Açık noktalar**
+- Gerçek "Ödendi" onayı ve yenileme akışı emülatörde denenmedi (yalnız birim testi ve mock).
+- Ödeme geçmişi sayfası (`/stats/payments`) tüm abonelikleri listeler; detaydaki "Tümünü gör" aboneliğe filtre uygulamaz.
+- Hero'nun üst bandında iki tonlu arka plan (dairesel parıltı + alt bant) cihazda gözle değerlendirilmeli.
+- Detayda duraklatılmış, iptal, arşiv ve süresi dolmuş kayıt durum açıklamaları yeni yazıldı; ürün onayı bekler.
+- Gecikmiş vadede "Sonraki döngü (tahmini)" ve "…sonraki tarih … olur" aynı tarihi iki kez gösterir.

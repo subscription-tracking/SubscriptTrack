@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatCurrency } from '../../../core/format/money';
 import { formatLongDate } from '../../../core/format/date';
 import { type CivilDate } from '../../../core/time/calendar';
-import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscription, daysUntilRenewal } from '../domain/subscription';
 import { renewalLabel } from '../domain/renewalLabel';

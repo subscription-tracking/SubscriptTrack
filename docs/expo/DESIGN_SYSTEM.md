@@ -93,6 +93,12 @@ Beş kademe dışında değer yazılmaz. `small`, `medium`, `tile`, `sheet` gibi
 - **Üçüncül:** `TextLink` (düz metin; yıkıcı için `tone="danger"`, kırmızı ve altı çizili).
 - Tüm düğmelerin dokunma alanı ≥48 px; seçili çip dolgulu olur (yalnız çerçeve değil).
 
+### Ortak bileşenler (ana sayfa ve detay yeniden tasarımı)
+- `ActionSheet` (`shared/widgets`): alt sayfa eylem menüsü; satır = ikon + başlık + isteğe bağlı açıklama; yıkıcı satır `error` renginde ve en altta; `LockAwareModal` üzerinde, kilitte kapanır; her satır ≥48 px.
+- `GroupedList` / `ListRow`: etiket solda, değer sağda; dokunulabilir satırda sağ ok ve `accessibilityHint`.
+- `ProgressBar` ve `StackedBar`: ince çubuklar; `ProgressBar` yüzdeyi `accessibilityValue` ile bildirir, `StackedBar` dilimleri `categoryPalette()` renkleriyle çizer.
+- `useRenewAction`: "Ödendi ve yenilendi" eylemi; detay ve ana sayfadaki satır içi "Ödendi" aynı kancayı kullanır.
+
 ## 8. Dokunma alanı
 
 - Her etkileşimli öğenin dokunma alanı en az **48 px**.

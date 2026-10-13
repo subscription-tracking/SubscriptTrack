@@ -1,56 +1,12 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { formatCurrency } from '../../../core/format/money';
-import { formatRelativeDate } from '../../../core/format/date';
-import { type CivilDate } from '../../../core/time/calendar';
-import { type Money } from '../../../core/domain/money';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { ServiceIdentity } from '../../subscriptions/ui/ServiceIdentity';
-import { daysUntilRenewal, type Subscription } from '../../subscriptions/domain/subscription';
 
-/**
- * Flutter `DashboardNextPaymentCard`: sıradaki ödeme. Bugün ya da yarın vadeli (ve geçmiş) kartta hata
- * rengi kenarlık ve metin; 2-7 gün arası kartta nötr kenarlık ve vurgulu metin.
- */
-export function NextPaymentCard({ subscription, today, onPress }: { subscription: Subscription; today: CivilDate; onPress: () => void }) {
-  useThemeRevision();
-  const days = daysUntilRenewal(subscription, today) ?? 0;
-  const urgent = days <= 1;
-  const next = subscription.nextRenewalDate;
-  const daysLabel = days < 0 ? `${Math.abs(days)} gün geçti` : `${days} gün kaldı`;
-  const dateLabel = next ? formatRelativeDate(next, today) : '—';
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [styles.card, { borderColor: urgent ? colors.error : colors.border }, pressed && styles.pressed]}
-    >
-      <View style={styles.summary}>
-        <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.nextPaymentAvatar} />
-        <View style={styles.middle}>
-          <Text style={textStyle('bodyStrong')}>{subscription.name}</Text>
-          <Text style={textStyle('label', { color: urgent ? colors.error : colors.onSurface, marginTop: spacing.xxs - 1 })}>
-            {days === 0 ? dateLabel : `${dateLabel} · ${daysLabel}`}
-          </Text>
-        </View>
-        <View style={styles.trailing}>
-          <Text style={textStyle('heading')}>{formatCurrency(subscription.amount, subscription.currency)}</Text>
-          <View style={styles.detailRow}>
-            <Text style={textStyle('captionStrong', { color: colors.primary })}>Detay</Text>
-            <MaterialIcons name="chevron-right" size={sizes.chevronSmall} color={colors.primary} />
-          </View>
-        </View>
-      </View>
-    </Pressable>
-  );
-}
-
-/** Yenileme bölümlerinin altında tek satır: hatırlatma ayarlarına kısayol (kartlarda tekrarlanmaz). */
+/** Yenileme bölümünün altında tek satır: hatırlatma ayarlarına kısayol (kartlarda tekrarlanmaz). */
 export function ReminderHint({ onPress }: { onPress: () => void }) {
   useThemeRevision();
   return (
@@ -59,37 +15,6 @@ export function ReminderHint({ onPress }: { onPress: () => void }) {
       <Text style={textStyle('caption', { flex: 1, marginLeft: gaps.hint })}>Yenileme öncesi hatırlatmayı ayarlardan yönetebilirsin</Text>
       <Text style={textStyle('captionStrong', { color: colors.primary })}>Ayarlar</Text>
     </Pressable>
-  );
-}
-
-/** Flutter `DashboardEmptyRenewalsCard`: bu hafta yenileme yoksa. */
-export function EmptyRenewalsCard() {
-  useThemeRevision();
-  return (
-    <View style={styles.emptyCard}>
-      <View style={styles.emptyCircle}>
-        <MaterialIcons name="check-circle-outline" size={sizes.emptyIcon} color={colors.primary} />
-      </View>
-      <Text style={[textStyle('label'), styles.emptyTitle]}>Yaklaşan yenileme yok</Text>
-      <Text style={[textStyle('bodySmall'), styles.emptyBody]}>Bu hafta yenileme yok.</Text>
-    </View>
-  );
-}
-
-/** Flutter `DashboardSavingsSummary`: tasarruf toplamları, para birimi başına "/yıl". */
-export function SavingsSummaryCard({ totals }: { totals: ReadonlyMap<string, Money> }) {
-  useThemeRevision();
-  return (
-    <View style={styles.savingsCard}>
-      <Text style={textStyle('bodyStrong')}>Tahmini yıllık tasarruf</Text>
-      <Text style={[textStyle('bodySmall'), styles.savingsSubtitle]}>İptal edilen veya duraklatılan aboneliklerden</Text>
-      {[...totals.entries()].map(([currency, money]) => (
-        <View key={currency} style={styles.savingsRow}>
-          <Text style={textStyle('bodySmall')}>{currency}</Text>
-          <Text style={textStyle('label')}>{`${formatCurrency(money, currency)}/yıl`}</Text>
-        </View>
-      ))}
-    </View>
   );
 }
 
@@ -107,31 +32,6 @@ export function EmptyIntro() {
 }
 
 const styles = themedStyles(() => StyleSheet.create({
-  card: {
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: borderWidth.card,
-    padding: spacing.md,
-  },
-  pressed: {
-    opacity: 0.85,
-  },
-  summary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  middle: {
-    flex: 1,
-    marginLeft: gaps.rowLoose,
-  },
-  trailing: {
-    alignItems: 'flex-end',
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.xxs - 2,
-  },
   hint: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -142,47 +42,6 @@ const styles = themedStyles(() => StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: colors.border,
     backgroundColor: withAlpha(colors.surfaceContainerHighest, 0.5),
-  },
-  emptyCard: {
-    alignItems: 'center',
-    paddingVertical: spacing.xxl,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  emptyCircle: {
-    width: sizes.emptyCircle,
-    height: sizes.emptyCircle,
-    borderRadius: sizes.emptyCircle / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: borderWidth.hairline,
-    borderColor: withAlpha(colors.primary, 0.2),
-    backgroundColor: withAlpha(colors.primary, 0.1),
-  },
-  emptyTitle: {
-    marginTop: gaps.rowLoose,
-  },
-  emptyBody: {
-    marginTop: spacing.xxs,
-    textAlign: 'center',
-  },
-  savingsCard: {
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  savingsSubtitle: {
-    marginTop: gaps.heroLabel,
-  },
-  savingsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: gaps.cardInset - 4,
   },
   intro: {
     padding: gaps.cardInset + spacing.xxs - 4,

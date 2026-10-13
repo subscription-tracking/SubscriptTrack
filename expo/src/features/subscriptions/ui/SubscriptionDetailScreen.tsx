@@ -3,28 +3,29 @@ import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useCivilToday } from '../../../core/clock/useCivilToday';
 import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { colors, sizes, spacing } from '../../../shared/design/tokens';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { Spacer } from '../../../shared/widgets/Spacer';
 import { TextLink } from '../../../shared/widgets/TextLink';
+import { TonalButton } from '../../../shared/widgets/TonalButton';
 import { usePaymentsQuery } from '../../stats/data/queries';
 import { useSubscriptionQuery } from '../data/queries';
 import { type Subscription } from '../domain/subscription';
-import { DetailActions } from './detail/DetailActions';
-import { DetailHero, type DetailMenuAction } from './detail/DetailHero';
-import { InfoGrid, NextPaymentPanel, PaymentMethodSection, ReminderSection } from './detail/DetailSections';
-import { PaymentHistorySection } from './detail/DetailHistory';
+import { DetailHero } from './detail/DetailHero';
+import { DetailMenu, type DetailMenuAction } from './detail/DetailMenu';
+import { PaymentCard } from './detail/PaymentCard';
+import { DetailInfoList, SummaryBoxes } from './detail/DetailSummary';
+import { RecentPayments } from './detail/DetailHistory';
 import { useDetailMutations } from './detail/useDetailMutations';
 import { useDeletionAction } from './useDeletionAction';
 
 /**
- * Abonelik detayı (Flutter `SubscriptionDetailScreen`): renkli hero (durum menüsü ve düzenleme), sonraki
- * ödeme kartı, kategori ve sıklık kutuları, ödeme yöntemi, hatırlatmalar, geçmiş ödemeler ve eylemler.
- * Kayıt bulunamazsa "artık mevcut değil" gösterilir.
+ * Abonelik detayı: kompakt hero (geri, düzenle, ⋯ eylem menüsü), ödeme kartı, özet kutuları, ayrıntı
+ * listesi, son ödemeler ve "Nasıl iptal edilir?" düğmesi. Kayıt bulunamazsa "artık mevcut değil" gösterilir.
  */
 export function SubscriptionDetailScreen({ id }: { id: string }) {
   useThemeRevision();
@@ -76,6 +77,7 @@ function Details({
 }) {
   useThemeRevision();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { user } = useAuth();
   const payments = usePaymentsQuery(user?.id);
   const { change, renew, busy } = useDetailMutations(subscription);
@@ -83,6 +85,7 @@ function Details({
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
   const subscriptionPayments = (payments.data ?? []).filter((event) => event.subscriptionId === subscription.id);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   function changeWithConfirmation(to: Subscription['status']) {
     if (subscription.status === 'cancelled' && to === 'active') {
@@ -97,32 +100,32 @@ function Details({
 
   function onMenuAction(action: DetailMenuAction) {
     if (action === 'cancel') onCancel();
+    else if (action === 'delete') { if (!deletion.busy) deletion.confirm([subscription.id]); }
     else if (action === 'pause') changeWithConfirmation('paused');
     else if (action === 'resume') changeWithConfirmation('active');
     else changeWithConfirmation('archived');
   }
 
+  const canHowToCancel = subscription.status === 'active' || subscription.status === 'paused';
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: sizes.bottomNavHeight + insets.bottom + spacing.xl }} showsVerticalScrollIndicator={false}>
-      <DetailHero subscription={subscription} onBack={onBack} onEdit={onEdit} onMenuAction={onMenuAction} />
+      <DetailHero subscription={subscription} onBack={onBack} onEdit={onEdit} onMenu={() => setMenuOpen(true)} />
       <View style={styles.body}>
-        <NextPaymentPanel subscription={subscription} today={today} />
-        <Spacer size={spacing.md} />
-        <InfoGrid subscription={subscription} />
-        <PaymentMethodSection method={subscription.paymentMethod} onChange={onEdit} />
-        <ReminderSection rules={subscription.notificationRules} onEdit={onEdit} />
-        <PaymentHistorySection payments={subscriptionPayments} timeZone={timeZone} />
-        <Spacer size={spacing.xl + spacing.xs} />
-        <DetailActions
-          subscription={subscription}
-          busy={busy}
-          onChange={changeWithConfirmation}
-          onRenew={() => renew.mutate()}
-          onCancel={onCancel}
-        />
-        <Spacer size={spacing.md} />
-        <TextLink tone="danger" label={deletion.busy ? 'Siliniyor…' : 'Aboneliği sil'} onPress={() => { if (!deletion.busy) deletion.confirm([subscription.id]); }} />
+        <PaymentCard subscription={subscription} today={today} busy={busy} onRenew={() => renew.mutate()} />
+        <SummaryBoxes subscription={subscription} payments={subscriptionPayments} />
+        <DetailInfoList subscription={subscription} onEdit={onEdit} />
+        <RecentPayments payments={subscriptionPayments} timeZone={timeZone} onSeeAll={() => router.push('/stats/payments')} />
+        {canHowToCancel ? <TonalButton label="Nasıl iptal edilir?" onPress={onCancel} /> : null}
       </View>
+      <DetailMenu
+        visible={menuOpen}
+        name={subscription.name}
+        status={subscription.status}
+        deleting={deletion.busy}
+        onClose={() => setMenuOpen(false)}
+        onAction={onMenuAction}
+      />
     </ScrollView>
   );
 }
@@ -135,5 +138,6 @@ const styles = themedStyles(() => StyleSheet.create({
   body: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
+    gap: spacing.md,
   },
 }));

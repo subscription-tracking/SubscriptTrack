@@ -1,88 +1,73 @@
-import { useThemeRevision } from '../../../shared/design/useThemeRevision';
-import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Money } from '../../../core/domain/money';
 import { formatCurrency } from '../../../core/format/money';
-import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { AnimatedMoney } from '../../../shared/widgets/AnimatedMoney';
-import { ProgressRing } from '../../../shared/widgets/ProgressRing';
+import { ProgressBar } from '../../../shared/widgets/ProgressBar';
+import { type MonthPaymentSummary } from '../domain/homeSummary';
+
+function fractionPaid(summary: MonthPaymentSummary): number {
+  return summary.total.minorUnits === 0 ? 0 : summary.paid.minorUnits / summary.total.minorUnits;
+}
 
 /**
- * Flutter `DashboardHeroCard`: aylık tahmini gider (para birimi başına, sayma animasyonlu), aktif
- * aboneliklerin bu ayki ödeme halkası, geçen ay ödenen toplam ve analiz bağlantısı.
+ * Ana sayfa kahramanı: bu ay kalan ödemeler, ödenen oran çubuğu, ödenen/toplam satırı. İlk özet ana para
+ * birimidir; diğerleri küçük satırlar halinde altta yer alır. Kartın tamamı İstatistikler'i açar.
  */
 export function HeroCard({
-  totals,
-  monthChange,
-  completed,
-  totalActive,
-  onAnalysis,
-  fallbackCurrency = 'TRY',
+  summaries,
+  fallbackCurrency,
+  onPress,
 }: {
-  totals: ReadonlyMap<string, Money>;
-  /** Toplam yokken sıfırın gösterileceği para birimi (aktif para birimi). */
-  fallbackCurrency?: string;
-  monthChange: string | null;
-  completed: number;
-  totalActive: number;
-  onAnalysis: (() => void) | null;
+  summaries: readonly MonthPaymentSummary[];
+  /** Hiç özet yokken sıfırın gösterileceği para birimi (aktif para birimi). */
+  fallbackCurrency: string;
+  onPress: () => void;
 }) {
   useThemeRevision();
+  const primary: MonthPaymentSummary = summaries[0] ?? {
+    currency: fallbackCurrency,
+    paid: Money.zero,
+    remaining: Money.zero,
+    total: Money.zero,
+  };
+  const others = summaries.slice(1);
+  const allDone = primary.remaining.minorUnits === 0 && primary.paid.minorUnits > 0;
   return (
-    <View style={styles.card}>
-      <View style={styles.row}>
-        <View style={styles.totals}>
-          <Text style={textStyle('label', { color: colors.onSurfaceVariant, letterSpacing: 0.3, marginBottom: gaps.heroLabel })}>
-            Tahmini aylık abonelik gideri
-          </Text>
-          {totals.size === 0 ? (
-            <Text style={textStyle('display')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-              {formatCurrency(Money.zero, fallbackCurrency)}
-            </Text>
-          ) : (
-            [...totals.entries()].map(([currency, money]) => (
-              <AnimatedMoney key={currency} amount={money.amount} currency={currency} style={textStyle('display')} fit />
-            ))
-          )}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Bu ay özetini aç, İstatistikler"
+      onPress={onPress}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+    >
+      <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginBottom: gaps.heroLabel })}>Bu ay kalan ödemeler</Text>
+      {allDone ? (
+        <View style={styles.doneRow}>
+          <MaterialIcons name="check-circle" size={sizes.checkIcon} color={statusColors.success} />
+          <Text style={textStyle('title', { marginLeft: spacing.xs })}>Bu ay tüm ödemeler tamam</Text>
         </View>
-        {totalActive > 0 ? (
-          <Pressable accessibilityRole="button" disabled={!onAnalysis} onPress={onAnalysis ?? undefined}>
-            <ProgressRing
-              size={sizes.ringSize}
-              progress={completed / totalActive}
-              color={colors.primary}
-              trackColor={withAlpha(colors.primary, 0.15)}
-            >
-              <Text style={textStyle('label')}>{`${completed}/${totalActive}`}</Text>
-              <Text style={textStyle('caption')}>ödendi</Text>
-            </ProgressRing>
-          </Pressable>
-        ) : null}
+      ) : (
+        <Text style={textStyle('display')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+          {formatCurrency(primary.remaining, primary.currency)}
+        </Text>
+      )}
+      <View style={styles.bar}>
+        <ProgressBar fraction={fractionPaid(primary)} accessibilityLabel="Bu ay ödenen oran" />
       </View>
-
-      {monthChange ? (
-        <View style={styles.changeRow}>
-          <MaterialIcons name="history" size={sizes.heroIcon} color={colors.onSurfaceVariant} />
-          <Text style={textStyle('label', { marginLeft: gaps.heroLabel, color: colors.onSurfaceVariant })}>
-            {monthChange}
-          </Text>
-        </View>
-      ) : null}
-
-      {onAnalysis ? (
-        <Pressable accessibilityRole="button" onPress={onAnalysis} style={styles.analysisLink}>
-          <Ionicons name="bar-chart-outline" size={sizes.heroIcon} color={colors.primary} />
-          <Text style={textStyle('label', { flex: 1, marginLeft: spacing.xs })}>
-            Abonelik giderlerini incele
-          </Text>
-          <MaterialIcons name="chevron-right" size={sizes.chevronIcon} color={colors.onSurfaceVariant} />
-        </Pressable>
-      ) : null}
-    </View>
+      <View style={styles.row}>
+        <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{`Ödenen ${formatCurrency(primary.paid, primary.currency)}`}</Text>
+        <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{`Toplam ${formatCurrency(primary.total, primary.currency)}`}</Text>
+      </View>
+      {others.map((summary) => (
+        <Text key={summary.currency} style={textStyle('caption', { marginTop: gaps.hint })}>
+          {`${summary.currency}: kalan ${formatCurrency(summary.remaining, summary.currency)} · ödenen ${formatCurrency(summary.paid, summary.currency)}`}
+        </Text>
+      ))}
+    </Pressable>
   );
 }
 
@@ -95,22 +80,8 @@ const styles = themedStyles(() => StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: colors.border,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  totals: {
-    flex: 1,
-  },
-  changeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  analysisLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: gaps.rowLoose,
-    paddingVertical: spacing.xxs,
-  },
+  pressed: { opacity: 0.9 },
+  doneRow: { flexDirection: 'row', alignItems: 'center' },
+  bar: { marginTop: gaps.rowLoose, marginBottom: gaps.heroLabel },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
 }));

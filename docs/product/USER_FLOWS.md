@@ -210,6 +210,8 @@ Ayarlar
 → Hazır olduğunda güvenli indirme/paylaşım
 ```
 
+CSV, kullanıcının trial, active, paused, cancelled, expired ve archived durumlarındaki tüm abonelik kayıtlarını içerir. Bu kapsam 10 Ekim 2026 ürün kararıdır; Flutter'ın mevcut cihaz CSV'si geçiş süresince eski dar kapsamıyla korunur.
+
 ## 17. Hesap silme
 
 ```text
@@ -224,3 +226,38 @@ Ayarlar
 ```
 
 Silme ekranı yanıltıcı veya zorlaştırıcı olmamalıdır.
+
+## 18. Ana sayfa ve abonelik detayı (Expo, 13 Ekim 2026 yeniden tasarım)
+
+**Ana sayfa** soruya yanıt verir: "Bu ay ne ödeyeceğim?"
+
+```text
+Ana Sayfa
+→ Hero: Bu ay kalan ödemeler (büyük tutar), ödenen/toplam çubuğu
+→ Dikkat gerektirenler (vadesi bugün gelmiş ya da geçmiş kayıtlar, en çok 3 satır, +N daha)
+   → Satırdaki "Ödendi" → onay ("<Ad> ödendi mi? Yenileme tarihi <yeni tarih> olacak.")
+      → yenileme onaylanır, tarih ilerler, liste yenilenir
+   → Satıra dokun → abonelik detayı
+→ Önümüzdeki 14 gün (günlere gruplu yenilemeler ve deneme bitişleri) → Takvim
+→ Bu ayın dağılımı (yığılmış çubuk, ana para birimi) → İstatistikler
+```
+
+- Hero tutarı para birimi başına hesaplanır, kur dönüşümü yoktur. `kalan` = yenileme tarihi bu ayın sonuna kadar olan aktif kayıtların tutarı (gecikmiş ve bugün dahil; haftalıkta kalan her vade ayrı sayılır); `ödenen` = bu ay `PAID` ödemeler; `toplam` = ikisinin toplamı.
+- Otomatik tarih ilerletme yoktur; "Ödendi" kullanıcı onayıyla çalışır (DOMAIN §7). Çevrimdışıyken eylem mevcut kuyruk davranışıyla bekler.
+- Tasarruf özeti ve hızlı işlemler ana sayfadan kaldırıldı: tasarruf İstatistikler'deki karttan, ekleme ve takvim üst çubuk ve alt gezinmeden erişilir.
+
+**Abonelik detayı**
+
+```text
+Detay
+→ Hero (logo, ad, tutar · kategori, durum çipi); ⋯ menüsü
+→ Ödeme kartı: sonraki tarih, geri sayım çipi
+   → vadesi gelmişse birincil "Ödendi ve yenilendi"
+→ Özet: Yıllık maliyet · Şimdiye kadar ödenen
+→ Ayrıntılar (Sıklık, Kategori, Ödeme yöntemi, Hatırlatma; dokununca düzenle)
+→ Son ödemeler (en çok 3) → Tümünü gör
+→ "Nasıl iptal edilir?" → iptal akışı (§9)
+⋯ menüsü (alt sayfa): Duraklat / Devam et, Arşivle, İptal ettim, Yanlış kaydı sil
+```
+
+- Yaşam döngüsü eylemleri yalnızca ⋯ menüsündedir; sayfa sonunda eylem yığını yoktur. Yıkıcı eylem ("Yanlış kaydı sil") menünün en altında, hata renginde ve mevcut kalıcı silme/arşiv kurallarına (ADR 0006) bağlıdır; silme kullanılamıyorsa kullanıcıya "Silme şu an kullanılamıyor" mesajı gösterilir.
