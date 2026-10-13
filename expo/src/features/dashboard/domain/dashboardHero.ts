@@ -3,6 +3,7 @@ import { formatCurrency } from '../../../core/format/money';
 import { monthOverMonthPercent, type PaymentEvent } from '../../stats/domain/paymentEvents';
 import type { Subscription, SubscriptionCategory } from '../../subscriptions/domain/subscription';
 import { monthlyEquivalent } from '../../subscriptions/domain/subscription';
+import { zoneToday } from '../../../core/time/calendar';
 
 /**
  * Ana sayfa kahramanı ve kategori özeti (Flutter `DashboardHeroCard` ve `DashboardCategoryDonutCard`
@@ -10,11 +11,12 @@ import { monthlyEquivalent } from '../../subscriptions/domain/subscription';
  */
 
 /** Bu takvim ayında en az bir ödeme kaydı girilmiş aktif abonelik sayısı. */
-export function completedThisMonth(active: readonly Subscription[], payments: readonly PaymentEvent[], now: Date): number {
+export function completedThisMonth(active: readonly Subscription[], payments: readonly PaymentEvent[], now: Date, timeZone: string): number {
   const paidIds = new Set<string>();
+  const current = zoneToday(timeZone, now);
   for (const event of payments) {
-    const paid = new Date(event.paidAt);
-    if (paid.getFullYear() === now.getFullYear() && paid.getMonth() === now.getMonth() && event.subscriptionId) {
+    const paid = zoneToday(timeZone, new Date(event.paidAt));
+    if (event.status === 'PAID' && paid.year === current.year && paid.month === current.month && event.subscriptionId) {
       paidIds.add(event.subscriptionId);
     }
   }
@@ -22,20 +24,21 @@ export function completedThisMonth(active: readonly Subscription[], payments: re
 }
 
 /** "Geçen aya göre %12 daha az" biçimi; karşılaştırılacak veri yoksa `null`. Para birimi ilk kaydınkidir (Flutter ile aynı). */
-export function monthChangeLabel(payments: readonly PaymentEvent[], now: Date): string | null {
+export function monthChangeLabel(payments: readonly PaymentEvent[], now: Date, timeZone: string): string | null {
   if (payments.length === 0) return null;
-  const percent = monthOverMonthPercent(payments, payments[0].currency, now);
+  const percent = monthOverMonthPercent(payments, payments[0].currency, now, timeZone);
   if (percent === null) return null;
   const direction = percent <= 0 ? 'daha az' : 'daha fazla';
   return `Geçen aya göre %${Math.abs(percent)} ${direction}`;
 }
 
-/** Ana sayfa yıllık çipi: ilk para biriminin aylık toplamı × 12, yoksa "Yıllık: ₺0". */
-export function annualChipLabel(monthlyTotals: ReadonlyMap<string, Money>): string {
-  const first = monthlyTotals.entries().next();
-  if (first.done) return 'Yıllık: ₺0';
-  const [currency, monthly] = first.value;
-  return `${formatCurrency(monthly.multiply(12), currency)} / yıl`;
+/**
+ * Ana sayfa yıllık çipi: para birimi başına yıllık eşdeğer toplam ("₺1.200 / yıl · $120 / yıl").
+ * Toplam yoksa `fallbackCurrency` ile sıfır gösterilir.
+ */
+export function annualChipLabel(yearlyTotals: ReadonlyMap<string, Money>, fallbackCurrency = 'TRY'): string {
+  if (yearlyTotals.size === 0) return `Yıllık: ${formatCurrency(Money.zero, fallbackCurrency)}`;
+  return [...yearlyTotals.entries()].map(([currency, yearly]) => `${formatCurrency(yearly, currency)} / yıl`).join(' · ');
 }
 
 export type CategoryGroup = 'Eğlence' | 'Müzik' | 'Üretkenlik' | 'Araçlar';
@@ -67,16 +70,20 @@ export interface CategoryTotal {
   count: number;
 }
 
-/** Grupların aylık toplamı; ekleme sırası korunur (ilk grubun para birimi ana para birimidir). */
+/**
+ * Grupların aylık toplamı; ekleme sırası korunur (ilk grubun para birimi ana para birimidir).
+ * Grup anahtarı grup + para birimidir: farklı para birimleri tek tutarda toplanmaz.
+ */
 export function categoryTotals(active: readonly Subscription[]): CategoryTotal[] {
-  const groups = new Map<CategoryGroup, CategoryTotal>();
+  const groups = new Map<string, CategoryTotal>();
   for (const subscription of active) {
     const group = categoryGroup(subscription.category);
-    const existing = groups.get(group);
-    groups.set(group, {
+    const key = `${group}|${subscription.currency}`;
+    const existing = groups.get(key);
+    groups.set(key, {
       group,
       amount: (existing?.amount ?? Money.zero).add(monthlyEquivalent(subscription)),
-      currency: existing?.currency ?? subscription.currency,
+      currency: subscription.currency,
       count: (existing?.count ?? 0) + 1,
     });
   }

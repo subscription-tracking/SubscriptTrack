@@ -1,6 +1,6 @@
 import { Money } from '../../../core/domain/money';
 import { type CivilDate, dayNumber } from '../../../core/time/calendar';
-import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
+import { annualEquivalent, monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
 import { renewingWithin } from '../../subscriptions/domain/activeSelectors';
 
 export { activeForTotals, compareByRenewal, isNotStarted, renewingWithin } from '../../subscriptions/domain/activeSelectors';
@@ -21,11 +21,12 @@ export function monthlyTotalsByCurrency(active: readonly Subscription[]): Map<st
   return totals;
 }
 
-/** Para birimi başına yıllık tahmin: aylık toplam × 12 ([DOMAIN §6]). */
+/** Para birimi başına yıllık tahmin: her kaydın yıllık eşdeğerinin toplamı (yuvarlama kaybı yok). */
 export function yearlyTotalsByCurrency(active: readonly Subscription[]): Map<string, Money> {
   const yearly = new Map<string, Money>();
-  for (const [currency, monthly] of monthlyTotalsByCurrency(active)) {
-    yearly.set(currency, monthly.multiply(12));
+  for (const subscription of active) {
+    const current = yearly.get(subscription.currency) ?? Money.zero;
+    yearly.set(subscription.currency, current.add(annualEquivalent(subscription)));
   }
   return yearly;
 }

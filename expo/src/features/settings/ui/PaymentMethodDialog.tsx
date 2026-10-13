@@ -1,5 +1,8 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { LockAwareModal } from '../../../shared/widgets/LockAwareModal';
 
 import { colors, radius, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
@@ -26,11 +29,12 @@ export function PaymentMethodDialog({
   onCancel: () => void;
   onSubmit: (name: string) => string | null;
 }) {
+  useThemeRevision();
   const [draft, setDraft] = useState(initialName);
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onCancel}>
+    <LockAwareModal visible transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.overlay}>
         <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={StyleSheet.absoluteFill} onPress={onCancel} />
         <View style={styles.dialog}>
@@ -59,11 +63,11 @@ export function PaymentMethodDialog({
           </View>
         </View>
       </View>
-    </Modal>
+    </LockAwareModal>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'center',
@@ -82,4 +86,4 @@ const styles = StyleSheet.create({
   action: {
     flex: 1,
   },
-});
+}));

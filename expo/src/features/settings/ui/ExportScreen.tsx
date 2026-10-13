@@ -1,9 +1,12 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Clipboard from 'expo-clipboard';
 
 import { useAuth } from '../../auth/AuthProvider';
+import { useUserTimeZone } from '../data/useActiveCurrency';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
@@ -19,11 +22,11 @@ import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
 import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
 
 /**
- * Verileri dışa aktar (Flutter `ExportDataScreen`). Dosya paylaşımı aktif, aktif/duraklatılmış/iptal edilmiş
- * kayıtlar CSV'ye yazılır (Flutter ile aynı). Bulut dışa aktarma ve pano kopyalama bu sürümde kullanılamaz; nedeni
- * ekranda belirtilir.
+ * Verileri dışa aktar. Tüm abonelik durumları cihaz CSV'sine yazılır;
+ * bulut bağlantısı ve pano kopyalama ayrı eylemlerdir.
  */
 export function ExportScreen() {
+  useThemeRevision();
   const { user } = useAuth();
   const query = useSubscriptionsQuery(user?.id);
   const state: AsyncState<Subscription[]> = query.isPending
@@ -40,14 +43,12 @@ export function ExportScreen() {
   );
 }
 
-/** Flutter ile aynı kapsam: aktif, duraklatılmış ve iptal edilmiş kayıtlar. */
-const EXPORTED_STATUSES = ['active', 'paused', 'cancelled'] as const;
-
 function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
+  useThemeRevision();
+  const timeZone = useUserTimeZone();
   const snackbar = useSnackbar();
   const [busy, setBusy] = useState(false);
-  const exported = subscriptions.filter((item) => (EXPORTED_STATUSES as readonly string[]).includes(item.status));
-  const total = exported.length;
+  const total = subscriptions.length;
 
   /** Bulut dışa aktarma: sunucuda CSV üretilir, 1 saat geçerli bağlantı paylaşılır. */
   async function cloudShare() {
@@ -66,7 +67,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
     if (total === 0) return;
     setBusy(true);
     try {
-      await Clipboard.setStringAsync(buildSubscriptionCsv(exported));
+      await Clipboard.setStringAsync(buildSubscriptionCsv(subscriptions));
       snackbar.show('CSV panoya kopyalandı.', 'primary');
     } catch {
       snackbar.show('Panoya kopyalanamadı.', 'error');
@@ -78,7 +79,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
   async function share() {
     setBusy(true);
     try {
-      await shareCsvFile(buildSubscriptionCsv(exported));
+      await shareCsvFile(buildSubscriptionCsv(subscriptions), timeZone);
     } catch (error) {
       snackbar.show(error instanceof Error ? error.message : 'Dışa aktarılamadı.', 'error');
     } finally {
@@ -105,16 +106,20 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
       <FilledButtonLabel label="Dosya olarak paylaş" busy={busy} disabled={total === 0} onPress={() => void share()} />
 
       <View style={styles.gap} />
-      <OutlinedButton label="Bulut bağlantısı oluştur (1 saat geçerli)" onPress={() => void cloudShare()} />
+      <View pointerEvents={busy ? 'none' : 'auto'} style={busy ? styles.disabled : undefined} accessibilityState={{ disabled: busy, busy }}>
+        <OutlinedButton label="Bulut bağlantısı oluştur (1 saat geçerli)" onPress={() => { if (!busy) void cloudShare(); }} />
+      </View>
 
       <View style={styles.gap} />
-      <OutlinedButton label="Panoya kopyala" onPress={() => void copy()} />
+      <View pointerEvents={busy ? 'none' : 'auto'} style={busy ? styles.disabled : undefined} accessibilityState={{ disabled: busy, busy }}>
+        <OutlinedButton label="Panoya kopyala" onPress={() => { if (!busy) void copy(); }} />
+      </View>
       <ScreenBottomInset />
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -133,6 +138,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  disabled: {
+    opacity: 0.5,
+  },
   gap: {
     height: gaps.rowLoose - 2,
   },
@@ -147,4 +155,4 @@ const styles = StyleSheet.create({
   bottom: {
     height: sizes.bottomNavHeight,
   },
-});
+}));

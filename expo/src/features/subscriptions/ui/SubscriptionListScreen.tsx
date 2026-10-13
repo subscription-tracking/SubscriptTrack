@@ -1,17 +1,19 @@
-import { useMemo, useRef, useState } from 'react';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, type ListRenderItemInfo, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { type CivilDate, deviceTimeZone, zoneToday } from '../../../core/time/calendar';
 import { colors, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { EmptyState } from '../../../shared/widgets/EmptyState';
 import { useSubscriptionsQuery } from '../data/queries';
-import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
-import { hiddenCount, inCurrency } from '../domain/currencyFilter';
+import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
+import { useDeletionAction } from './useDeletionAction';
 import { countsByTab, LIST_TABS, type ListTab, visibleSubscriptions } from '../domain/subscriptionList';
 import { DEFAULT_FILTER, applyFilter, type SubscriptionFilter } from '../domain/subscriptionFilter';
 import { type Subscription, type SubscriptionCategory } from '../domain/subscription';
@@ -30,11 +32,25 @@ const EMPTY_BY_TAB: Record<ListTab, { message: string; detail: string }> = {
   },
 };
 
+/** Satır ayırıcı; bileşen referansı render dışında sabit tutulur (FlatList yeniden oluşturmasın). */
+function keyOf(row: Subscription): string {
+  return row.id;
+}
+
+function ItemSeparator() {
+  return <View style={styles.separator} />;
+}
+
+/** Kaydırma penceresi: ilk ekrana sığan satırlar kadar çizilir. */
+const INITIAL_ROWS = 10;
+const WINDOW_SIZE = 7;
+
 /**
  * Abonelikler sekmesi (Flutter `SubscriptionListScreen`): arama ve filtre başlığı, üç hap sekme ve
  * yatay kaydırılabilir sayfalar (Aktif, Deneme, Geçmiş). Sekme değişimi kaydırmayla da yapılır.
  */
 export function SubscriptionListScreen() {
+  useThemeRevision();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -46,14 +62,16 @@ export function SubscriptionListScreen() {
   const [filter, setFilter] = useState<SubscriptionFilter>(DEFAULT_FILTER);
   const pager = useRef<ScrollView>(null);
 
-  const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
-  const currency = useActiveCurrency();
-  const everything: Subscription[] = query.data ?? [];
+  const timeZone = useUserTimeZone();
+  const today = useCivilToday(timeZone);
+  const [selected, setSelected] = useState<string[] | null>(null);
+  const deletion = useDeletionAction(() => setSelected(null));
+  const everything: Subscription[] = useMemo(() => query.data ?? [], [query.data]);
   // Aktif para birimi dışındaki kayıtlar listelenmez; sayıları aşağıda not olarak belirtilir.
-  const all: Subscription[] = inCurrency(everything, currency);
-  const hidden = hiddenCount(everything, currency);
+  const all: Subscription[] = everything;
   const counts = useMemo(() => countsByTab(all), [all]);
-  const hasArchived = all.some((subscription) => subscription.status === 'archived');
+  // Arşiv ekranı tüm para birimlerini gösterir; bağlantı etkin para birimine göre gizlenmemeli.
+  const hasArchived = everything.some((subscription) => subscription.status === 'archived');
 
   const state: AsyncState<Subscription[]> = query.isPending
     ? { status: 'loading' }
@@ -64,6 +82,43 @@ export function SubscriptionListScreen() {
           onRetry: () => void query.refetch(),
         }
       : { status: 'ready', data: all };
+
+  // Pencere genişliği değişince (döndürme) sayfa ofseti yeni genişliğe göre yeniden hizalanır.
+  useEffect(() => {
+    const index = LIST_TABS.findIndex((item) => item.key === tab);
+    pager.current?.scrollTo({ x: index * width, animated: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width]);
+
+  // Sekme türetmeleri yalnızca veri, arama, süzgeç veya gün değişince yeniden hesaplanır.
+  const pages = useMemo(
+    () =>
+      LIST_TABS.map((item) => ({
+        key: item.key,
+        total: visibleSubscriptions(all, item.key, '').length,
+        items: applyFilter(visibleSubscriptions(all, item.key, search), filter, today),
+      })),
+    [all, search, filter, today],
+  );
+
+  const openSubscription = useCallback((id: string) => router.push(`/subscriptions/${id}`), [router]);
+  const toggleSelected = useCallback(
+    (id: string) => setSelected((current) => (current?.includes(id) ? current.filter((item) => item !== id) : [...(current ?? []), id])),
+    [],
+  );
+  const renderRow = useCallback(
+    ({ item: row }: ListRenderItemInfo<Subscription>) => (
+      <View>
+        {selected !== null ? (
+          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected.includes(row.id) }} accessibilityLabel={`${row.name} seç`} onPress={() => toggleSelected(row.id)}>
+            <Text style={textStyle('button')}>{selected.includes(row.id) ? '☑ Seçili' : '□ Seç'}</Text>
+          </Pressable>
+        ) : null}
+        <SubscriptionTile subscription={row} today={today} onPress={openSubscription} />
+      </View>
+    ),
+    [selected, today, openSubscription, toggleSelected],
+  );
 
   function selectTab(next: ListTab) {
     setTab(next);
@@ -88,11 +143,10 @@ export function SubscriptionListScreen() {
         onFilter={() => setSheetOpen(true)}
       />
       <ListTabBar active={tab} counts={counts} onChange={selectTab} />
-      {hidden > 0 ? (
-        <Text style={textStyle('caption', { color: colors.onSurfaceVariant, paddingHorizontal: spacing.lg, marginTop: spacing.xs })}>
-          {`${hidden} kayıt ${currency} dışındaki para birimlerinde; gizli.`}
-        </Text>
-      ) : null}
+      <View style={{ flexDirection: 'row', padding: spacing.sm, gap: spacing.md }}>
+        <Pressable accessibilityRole="button" onPress={() => setSelected(selected === null ? [] : null)}><Text style={textStyle('button')}>{selected === null ? 'Çoklu seçim' : 'Seçimden çık'}</Text></Pressable>
+        {selected !== null ? <Pressable accessibilityRole="button" disabled={deletion.busy || !selected.length} onPress={() => deletion.confirm(selected)}><Text style={textStyle('button', { color: colors.error })}>{`${selected.length} kayıt sil`}</Text></Pressable> : null}
+      </View>
       <View style={styles.pagerWrap}>
         <AsyncStateView state={state}>
           {(data) => (
@@ -101,53 +155,48 @@ export function SubscriptionListScreen() {
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
               scrollEventThrottle={16}
               onMomentumScrollEnd={(event) => onMomentumEnd(event.nativeEvent.contentOffset.x)}
             >
-              {LIST_TABS.map((item) => {
-                const pageAll = visibleSubscriptions(data, item.key, '');
-                const items = applyFilter(visibleSubscriptions(data, item.key, search), filter, today);
-                return (
-                  <View key={item.key} style={{ width }}>
-                    {pageAll.length === 0 ? (
-                      <View style={styles.emptyWrap}>
-                        <EmptyState
-                          icon="grid-view"
-                          title={EMPTY_BY_TAB[item.key].message}
-                          description={EMPTY_BY_TAB[item.key].detail}
-                          actionLabel="Abonelik ekle"
-                          onAction={() => router.push('/subscriptions/add')}
-                        />
-                      </View>
-                    ) : items.length === 0 ? (
-                      <View style={styles.noResult}>
-                        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Sonuç bulunamadı.</Text>
-                      </View>
-                    ) : (
-                      <FlatList
-                        data={items}
-                        keyExtractor={(row) => row.id}
-                        contentContainerStyle={[styles.list, { paddingBottom: bottomInset }]}
-                        ItemSeparatorComponent={() => <View style={styles.separator} />}
-                        refreshControl={
-                          <RefreshControl
-                            refreshing={query.isRefetching}
-                            onRefresh={() => void query.refetch()}
-                            tintColor={colors.primary}
-                          />
-                        }
-                        renderItem={({ item: row }) => (
-                          <SubscriptionTile
-                            subscription={row}
-                            today={today}
-                            onPress={() => router.push(`/subscriptions/${row.id}`)}
-                          />
-                        )}
+              {pages.map((page) => (
+                <View key={page.key} style={{ width }}>
+                  {page.total === 0 ? (
+                    <View style={styles.emptyWrap}>
+                      <EmptyState
+                        icon="grid-view"
+                        title={EMPTY_BY_TAB[page.key].message}
+                        description={EMPTY_BY_TAB[page.key].detail}
+                        actionLabel="Abonelik ekle"
+                        onAction={() => router.push('/subscriptions/add')}
                       />
-                    )}
-                  </View>
-                );
-              })}
+                    </View>
+                  ) : page.items.length === 0 ? (
+                    <View style={styles.noResult}>
+                      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Sonuç bulunamadı.</Text>
+                    </View>
+                  ) : (
+                    <FlatList
+                      data={page.items}
+                      keyExtractor={keyOf}
+                      keyboardShouldPersistTaps="handled"
+                      initialNumToRender={INITIAL_ROWS}
+                      windowSize={WINDOW_SIZE}
+                      extraData={selected}
+                      contentContainerStyle={[styles.list, { paddingBottom: bottomInset }]}
+                      ItemSeparatorComponent={ItemSeparator}
+                      refreshControl={
+                        <RefreshControl
+                          refreshing={query.isRefetching}
+                          onRefresh={() => void query.refetch()}
+                          tintColor={colors.primary}
+                        />
+                      }
+                      renderItem={renderRow}
+                    />
+                  )}
+                </View>
+              ))}
             </ScrollView>
           )}
         </AsyncStateView>
@@ -156,6 +205,8 @@ export function SubscriptionListScreen() {
         visible={sheetOpen}
         category={filter.category}
         sort={filter.sort}
+        currency={filter.currency}
+        onCurrency={(currency) => setFilter((previous) => ({ ...previous, currency }))}
         hasArchived={hasArchived}
         onCategory={(next: SubscriptionCategory | null) => setFilter((prev) => ({ ...prev, category: next }))}
         onSort={(next) => setFilter((prev) => ({ ...prev, sort: next }))}
@@ -173,7 +224,7 @@ export function SubscriptionListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -198,4 +249,4 @@ const styles = StyleSheet.create({
   separator: {
     height: spacing.xs,
   },
-});
+}));

@@ -1,5 +1,8 @@
-import { useState, type ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { LockAwareModal } from '../../../shared/widgets/LockAwareModal';
 
 import { Money } from '../../../core/domain/money';
 import { colors, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
@@ -28,8 +31,9 @@ export function DialogShell({
   children: ReactNode;
   actions: ReactNode;
 }) {
+  useThemeRevision();
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <LockAwareModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.dialog}>
           <Text style={textStyle('headlineSmall')}>{title}</Text>
@@ -37,11 +41,12 @@ export function DialogShell({
           <View style={styles.actions}>{actions}</View>
         </View>
       </View>
-    </Modal>
+    </LockAwareModal>
   );
 }
 
 export function TextAction({ label, onPress }: { label: string; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.textAction}>
       <Text style={textButtonText}>{label}</Text>
@@ -50,6 +55,7 @@ export function TextAction({ label, onPress }: { label: string; onPress: () => v
 }
 
 export function FilledAction({ label, onPress, disabled = false }: { label: string; onPress: () => void; disabled?: boolean }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={[styles.filled, disabled ? styles.disabled : null]}>
       <Text style={textStyle('button', { color: colors.onPrimary })}>{label}</Text>
@@ -69,11 +75,30 @@ export function AddPaymentDialog({
   onClose: () => void;
   onSave: (input: { subscription: Subscription; amount: Money }) => void;
 }) {
+  useThemeRevision();
   const first = subscriptions[0];
   const [selectedId, setSelectedId] = useState(first?.id ?? '');
   const selected = subscriptions.find((item) => item.id === selectedId) ?? first;
   const [amount, setAmount] = useState(selected ? selected.amount.amount.toFixed(2) : '');
   const [invalid, setInvalid] = useState(false);
+  const initializedForOpen = useRef(false);
+  const firstId = first?.id ?? '';
+  const firstAmount = first ? first.amount.amount.toFixed(2) : '';
+
+  useEffect(() => {
+    if (!visible) {
+      initializedForOpen.current = false;
+      return;
+    }
+    if (initializedForOpen.current || !firstId) return;
+
+    // Abonelikler dialog açıldıktan sonra yüklenebilir. İlk seçenek hazır
+    // olduğunda formu başlat; sonraki açılışta da önceki girişi temizle.
+    initializedForOpen.current = true;
+    setSelectedId(firstId);
+    setAmount(firstAmount);
+    setInvalid(false);
+  }, [visible, firstId, firstAmount]);
 
   function pick(id: string) {
     setSelectedId(id);
@@ -135,6 +160,7 @@ export function EditPaymentDialog({
   onClose: () => void;
   onSave: (amount: Money) => void;
 }) {
+  useThemeRevision();
   const [amount, setAmount] = useState(initialAmount);
   const [invalid, setInvalid] = useState(false);
 
@@ -170,7 +196,7 @@ export function EditPaymentDialog({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   backdrop: {
     flex: 1,
     justifyContent: 'center',
@@ -210,5 +236,5 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-});
+}));
 

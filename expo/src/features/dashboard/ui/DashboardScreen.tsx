@@ -1,24 +1,26 @@
-import { useMemo } from 'react';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { } from 'react';
 import { useRouter } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { type CivilDate, deviceTimeZone, zoneToday } from '../../../core/time/calendar';
+import { type CivilDate, } from '../../../core/time/calendar';
 import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
-import { inCurrency } from '../../subscriptions/domain/currencyFilter';
-import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
+import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { useSavingsQuery } from '../../savings/data/queries';
 import { usePaymentsQuery } from '../../stats/data/queries';
 import { savingsTotalsByCurrency } from '../../savings/domain/savingsSummary';
 import { type PaymentEvent } from '../../stats/domain/paymentEvents';
 import { type SavingsEvent } from '../../savings/domain/savingsSummary';
 import { type Subscription } from '../../subscriptions/domain/subscription';
-import { activeForTotals, monthlyTotalsByCurrency, nextPayment, renewingWithin, trialsByEnd } from '../domain/dashboardSummary';
+import { activeForTotals, monthlyTotalsByCurrency, nextPayment, renewingWithin, trialsByEnd, yearlyTotalsByCurrency } from '../domain/dashboardSummary';
 import { annualChipLabel, categoryTotals, completedThisMonth, monthChangeLabel } from '../domain/dashboardHero';
 import { CategoryDonutCard, QuickActions } from './OverviewCards';
 import { HeroCard } from './HeroCard';
@@ -32,12 +34,14 @@ const TRIAL_PREVIEW = 3;
  * ödeme, kategori donut'ı, hızlı işlemler, tasarruf özeti ve ilk abonelik istemi.
  */
 export function DashboardScreen() {
+  useThemeRevision();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const query = useSubscriptionsQuery(user?.id);
   const payments = usePaymentsQuery(user?.id);
   const savings = useSavingsQuery(user?.id);
-  const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
+  const timeZone = useUserTimeZone();
+  const today = useCivilToday(timeZone);
 
   const state: AsyncState<Subscription[]> = query.isPending
     ? { status: 'loading' }
@@ -57,6 +61,7 @@ export function DashboardScreen() {
           payments={payments.data ?? []}
           savings={savings.data ?? []}
           today={today}
+          timeZone={timeZone}
           bottomInset={sizes.bottomNavHeight + insets.bottom + spacing.xl}
           refreshing={query.isRefetching}
           onRefresh={() => void query.refetch()}
@@ -71,6 +76,7 @@ function Summary({
   payments,
   savings,
   today,
+  timeZone,
   bottomInset,
   refreshing,
   onRefresh,
@@ -79,22 +85,26 @@ function Summary({
   payments: PaymentEvent[];
   savings: SavingsEvent[];
   today: CivilDate;
+  timeZone: string;
   bottomInset: number;
   refreshing: boolean;
   onRefresh: () => void;
 }) {
+  useThemeRevision();
   const router = useRouter();
   const now = new Date();
-  // Ana sayfa toplamları yalnızca aktif para birimini gösterir (kur çevrimi yok).
+  // Toplamlar para birimi başına ayrı tutulur (kur çevrimi yok); sayaçlar tüm aktif kayıtlardan türer,
+  // böylece "N aktif abonelik" ile "Bu hafta N yenileme" aynı kümeyi sayar.
   const currency = useActiveCurrency();
-  const inActiveCurrency = inCurrency(subscriptions, currency);
-  const active = activeForTotals(inActiveCurrency, today);
+  const active = activeForTotals(subscriptions, today);
   const monthly = monthlyTotalsByCurrency(active);
-  const upcomingSoon = renewingWithin(inActiveCurrency, today, 7).length;
+  const yearly = yearlyTotalsByCurrency(active);
+  const upcomingSoon = renewingWithin(active, today, 7).length;
   const trials = trialsByEnd(subscriptions);
   const upcoming = nextPayment(subscriptions, today);
 
   const toSubscriptions = () => router.navigate('/subscriptions');
+  const toCalendar = () => router.push('/calendar');
   const toStats = () => router.navigate('/stats');
   const toAdd = () => router.push('/subscriptions/add');
   const openSubscription = (id: string) => router.push(`/subscriptions/${id}`);
@@ -108,8 +118,9 @@ function Summary({
     >
       <HeroCard
         totals={monthly}
-        monthChange={monthChangeLabel(payments, now)}
-        completed={completedThisMonth(active, payments, now)}
+        fallbackCurrency={currency}
+        monthChange={monthChangeLabel(payments, now, timeZone)}
+        completed={completedThisMonth(active, payments, now, timeZone)}
         totalActive={active.length}
         onAnalysis={active.length === 0 ? null : toStats}
       />
@@ -118,7 +129,7 @@ function Summary({
         items={[
           { icon: 'refresh', label: `${active.length} aktif abonelik` },
           { icon: 'notifications-active', label: `Bu hafta ${upcomingSoon} yenileme` },
-          { icon: 'bar-chart', label: annualChipLabel(monthly) },
+          { icon: 'bar-chart', label: annualChipLabel(yearly, currency) },
         ]}
       />
       <Spacer size={gaps.sectionTop} />
@@ -140,7 +151,7 @@ function Summary({
         </>
       ) : null}
 
-      <SectionHeader title="Sıradaki ödeme" action={upcoming ? 'Takvimde gör' : undefined} onAction={toSubscriptions} />
+  <SectionHeader title="Sıradaki ödeme" action={upcoming ? 'Takvimde gör' : undefined} onAction={toCalendar} />
       <Spacer size={gaps.sectionInner} />
       {upcoming ? (
         <NextPaymentCard subscription={upcoming} today={today} onPress={() => openSubscription(upcoming.id)} />
@@ -156,7 +167,7 @@ function Summary({
           <QuickActions
             actions={[
               { icon: 'add-circle-outline', label: 'Abonelik ekle', color: colors.primary, onPress: toAdd },
-              { icon: 'calendar-today', label: 'Takvimi aç', color: colors.secondary, onPress: toSubscriptions },
+              { icon: 'calendar-today', label: 'Takvimi aç', color: colors.secondary, onPress: toCalendar },
               { icon: 'pie-chart-outline', label: 'Dağılım', color: colors.tertiary, onPress: toStats },
             ]}
           />
@@ -182,7 +193,7 @@ function Summary({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -194,4 +205,4 @@ const styles = StyleSheet.create({
   trialItem: {
     marginBottom: gaps.trialCard,
   },
-});
+}));

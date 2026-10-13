@@ -49,17 +49,34 @@ describe('applyFilter', () => {
 
   it('fiyat sıralaması aylık eşdeğere göre yapılır', () => {
     // Aylık eşdeğerler: Netflix 149.99, Spotify 59.90, iCloud 4.99/12 ≈ 0.42
-    expect(applyFilter(all, filter({ sort: 'amountAsc' }), today).map((s) => s.id)).toEqual(['i', 's', 'n']);
-    expect(applyFilter(all, filter({ sort: 'amountDesc' }), today).map((s) => s.id)).toEqual(['n', 's', 'i']);
+    expect(applyFilter(all, filter({ sort: 'amountAsc', currency: 'TRY' }), today).map((s) => s.id)).toEqual(['s', 'n']);
+    expect(applyFilter(all, filter({ sort: 'amountDesc', currency: 'TRY' }), today).map((s) => s.id)).toEqual(['n', 's']);
   });
 
   it('isme göre sıralar', () => {
     expect(applyFilter(all, filter({ sort: 'name' }), today).map((s) => s.name)).toEqual(['iCloud', 'Netflix', 'Spotify']);
   });
+  it('para birimi seçili değilken fiyat sıralaması para birimine göre gruplanır; tarih eşitliği ada ve kimliğe göre çözülür', () => {
+    expect(applyFilter(all, filter({ sort: 'amountAsc' }), today).map((item) => item.id)).toEqual(['s', 'n', 'i']);
+    const same = [sub({ id: 'b', name: 'Same' }), sub({ id: 'a', name: 'Same' }), sub({ id: 'x', next_renewal_date: null })];
+    expect(applyFilter(same, DEFAULT_FILTER, today).map((item) => item.id)).toEqual(['a', 'b', 'x']);
+  });
+
+  it('fiyat sıralaması TRY, USD, EUR sırasıyla gruplar; bilinmeyen para birimi sona gider', () => {
+    const mixed = [
+      sub({ id: 'chf', currency: 'CHF', amount: '1' }),
+      sub({ id: 'eur', currency: 'EUR', amount: '1' }),
+      sub({ id: 'usd-big', currency: 'USD', amount: '50' }),
+      sub({ id: 'usd-small', currency: 'USD', amount: '5' }),
+      sub({ id: 'try', currency: 'TRY', amount: '500' }),
+    ];
+    expect(applyFilter(mixed, filter({ sort: 'amountAsc' }), today).map((item) => item.id)).toEqual(['try', 'usd-small', 'usd-big', 'eur', 'chf']);
+    expect(applyFilter(mixed, filter({ sort: 'amountDesc' }), today).map((item) => item.id)).toEqual(['try', 'usd-big', 'usd-small', 'eur', 'chf']);
+  });
 
   it('girdi dizisini değiştirmez', () => {
     const copy = [...all];
-    applyFilter(all, filter({ sort: 'amountDesc' }), today);
+    applyFilter(all, filter({ sort: 'amountDesc', currency: 'TRY' }), today);
     expect(all).toEqual(copy);
   });
 });

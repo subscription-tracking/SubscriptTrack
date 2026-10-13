@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
@@ -6,36 +8,36 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { type CivilDate, civilDate, deviceTimeZone, formatCivilDate, zoneToday } from '../../../core/time/calendar';
+import { type CivilDate, parseCivilDate } from '../../../core/time/calendar';
 import { colors, gaps, spacing } from '../../../shared/design/tokens';
 import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
-import { saveSubscriptionEdit, submitCreate } from '../data/subscriptionMutations';
-import { type SubmitResult } from '../data/subscriptionSync';
-import { updateSubscription } from '../data/subscriptionWriteRepository';
-import { DEFAULT_REMINDER_DAYS, rulesFromDays, sameDays } from '../domain/reminderRules';
+import { saveSubscriptionEdit } from '../data/subscriptionMutations';
+import { createSubscriptionWorkflow } from '../data/createSubscriptionWorkflow';
+import { DEFAULT_REMINDER_DAYS } from '../domain/reminderRules';
 import { submitNotice } from './submitNotice';
-import { subscriptionKeys, useServiceCatalogQuery } from '../data/queries';
+import { createNotice } from './createNotice';
+import { subscriptionKeys, useServiceCatalogQuery, useSubscriptionsQuery } from '../data/queries';
 import { analyticsKeys } from '../../stats/data/queries';
-import { recordDeferredPayment, recordPayment } from '../../stats/data/paymentRepository';
-import { paidAtFromCivil } from '../../stats/domain/paymentEvents';
 import { formValuesFromSubscription } from '../domain/subscriptionEdit';
 import {
+  hasDetailsErrors,
+  hasDuplicateName,
   hasErrors,
-  toCreatePayload,
-  toSubscriptionFields,
   validateSubscriptionForm,
   type FormErrors,
   type SubscriptionFormValues,
 } from '../domain/subscriptionForm';
 import { resolveServicePresets } from '../domain/servicePresets';
 import { type Subscription } from '../domain/subscription';
-import { useActiveCurrency } from '../../settings/data/useActiveCurrency';
+import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { ServiceSection } from './form/ServiceSection';
 import { RenewalSection } from './form/RenewalSection';
 import { DetailsSection } from './form/DetailsSection';
+import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { automaticFormDate, changeFormField, type ScheduleMode } from '../domain/formSchedule';
 
 /**
  * Abonelik formu (Flutter `AddSubscriptionScreen` / `EditSubscriptionScreen` ve `SubscriptionFormScaffold`):
@@ -43,12 +45,14 @@ import { DetailsSection } from './form/DetailsSection';
  * Kaydetme ve doğrulama kuralları değişmedi; yalnızca düzen Flutter'a göre yeniden kuruldu.
  */
 export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Subscription; initialStart?: string }) {
+  useThemeRevision();
   const router = useRouter();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const today = useMemo<CivilDate>(() => zoneToday(deviceTimeZone()), []);
+  const timeZone = useUserTimeZone();
+  const today = useCivilToday(timeZone);
 
   const startDay = parseStartParam(initialStart) ?? today;
   // Yeni kayıt varsayılanı aktif para birimidir; kullanıcı formda değiştirebilir.
@@ -64,7 +68,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
           billingCycle: 'monthly',
           category: 'other',
           startDate: startDay,
-          nextRenewalDate: startDay,
+          nextRenewalDate: automaticFormDate({ startDate: startDay, billingCycle: 'monthly' }, today),
           notes: '',
           paymentMethod: '',
           isTrial: false,
@@ -76,101 +80,62 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
         },
   );
   const [submitted, setSubmitted] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState<ScheduleMode>(editing ? 'manual' : 'automatic');
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const submitting = useRef(false);
+  const requestKeys = useRef<string[]>([]);
   const catalog = useServiceCatalogQuery();
-  const errors: FormErrors = submitted ? validateSubscriptionForm(values) : {};
+  // Mevcut liste önbellekten gelir (yeni ağ çağrısı yok); yalnızca ekleme formunda uyarı gösterilir.
+  const existing = useSubscriptionsQuery(user?.id);
+  const duplicateName = !editing && hasDuplicateName(values.name, existing.data ?? []);
+  const resolvedValues = scheduleMode === 'automatic' ? { ...values, nextRenewalDate: automaticFormDate(values, today) } : values;
+  const errors: FormErrors = submitted ? validateSubscriptionForm(resolvedValues) : {};
 
   function update<K extends keyof SubscriptionFormValues>(key: K, value: SubscriptionFormValues[K]) {
-    setValues((current) => ({ ...current, [key]: value }));
+    if (key === 'nextRenewalDate') setScheduleMode('manual');
+    if (key === 'startDate' || key === 'billingCycle') setScheduleMode('automatic');
+    setValues((current) => changeFormField(current, key, value, today));
   }
 
   const save = useMutation({
     mutationFn: async () => {
+      let index = 0;
+      const key = () => requestKeys.current[index] ?? (requestKeys.current[index] = randomUUID());
+      const nextKey = () => { const value = key(); index += 1; return value; };
       if (editing && user) {
-        return saveSubscriptionEdit({ userId: user.id, subscriptionId: editing.id, values, idempotencyKey: randomUUID() });
+        return { submission: await saveSubscriptionEdit({ userId: user.id, subscriptionId: editing.id, values: resolvedValues, idempotencyKey: nextKey() }), payment: 'skipped' as const, notices: [] };
       }
       if (!user) throw new Error('Oturum bulunamadı. Yeniden giriş yap.');
-      return submitCreate(user.id, toCreatePayload(values, randomUUID()));
+      return createSubscriptionWorkflow({ userId: user.id, values: resolvedValues, timeZone, key: nextKey });
     },
     onSuccess: async (result) => {
       if (user) await queryClient.invalidateQueries({ queryKey: subscriptionKeys.all(user.id) });
-      if (!editing && result.createdId) await applyCreatedReminders(result.createdId);
-      if (!editing && values.initialPaymentStatus === 'paid') await recordInitialPayment(result);
-      if (!editing && values.initialPaymentStatus === 'deferred') await recordDeferredInitial(result);
-      const notice = submitNotice(result);
+      if (user && result.payment === 'saved') await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
+      for (const code of result.notices) {
+        const notice = createNotice(code);
+        snackbar.show(notice.message, notice.tone);
+      }
+      const notice = submitNotice(result.submission);
       if (notice) snackbar.show(notice.message, notice.tone);
       router.back();
     },
     onError: (error: Error) => snackbar.show(error.message, 'error'),
+    onSettled: () => { submitting.current = false; },
   });
 
-  /**
-   * Oluşturma RPC'si hatırlatma kuralı almadığı için, seçim varsayılandan farklıysa kayıt hemen güncellenir.
-   * Deneme aboneliği `trial` durumunda kalır; kuyrukta bekleyen eklemede bu adım çevrimiçi gelince yapılamaz.
-   */
-  async function applyCreatedReminders(subscriptionId: string) {
-    if (sameDays(values.reminderDays, DEFAULT_REMINDER_DAYS)) return;
-    try {
-      await updateSubscription({
-        p_idempotency_key: randomUUID(),
-        p_subscription_id: subscriptionId,
-        ...toSubscriptionFields(values),
-        p_notification_rules: rulesFromDays(values.reminderDays),
-        p_status: values.isTrial ? 'trial' : 'active',
-      });
-    } catch {
-      snackbar.show('Abonelik kaydedildi ama hatırlatmalar eklenemedi. Ayrıntılardan düzenleyebilirsin.', 'error');
-    }
-  }
-
-  /** "Ertelendi" seçili ekleme: kayıt ertelenmiş olarak yazılır ve toplamlara girmez. */
-  async function recordDeferredInitial(result: SubmitResult) {
-    if (!result.createdId || !user) {
-      snackbar.show('Ertelenen ödeme bağlantı gelince eklenmez; ödeme geçmişinden ekleyebilirsin.', 'default');
-      return;
-    }
-    const fields = toSubscriptionFields(values);
-    try {
-      await recordDeferredPayment({
-        userId: user.id,
-        subscriptionId: result.createdId,
-        amount: fields.p_amount,
-        currency: fields.p_currency,
-        paidAt: new Date(),
-        deferredUntil: formatCivilDate(values.initialPaymentDate),
-      });
-      await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
-    } catch {
-      snackbar.show('Abonelik kaydedildi ama ertelenen ödeme eklenemedi.', 'error');
-    }
-  }
-
-  /**
-   * "Ödendi" seçili ekleme: kayıt çevrimiçi hemen gönderildiyse ödeme kaydı yazılır. Kuyruğa alındıysa kimlik
-   * henüz yoktur; ödeme RPC'si kuyruğa alınmaz (API §4), bu yüzden kullanıcı ödeme geçmişinden ekler.
-   */
-  async function recordInitialPayment(result: SubmitResult) {
-    if (!result.createdId) {
-      snackbar.show('İlk ödeme bağlantı gelince eklenmez; ödeme geçmişinden ekleyebilirsin.', 'default');
-      return;
-    }
-    const fields = toSubscriptionFields(values);
-    try {
-      await recordPayment({
-        idempotencyKey: randomUUID(),
-        subscriptionId: result.createdId,
-        amount: fields.p_amount,
-        currency: fields.p_currency,
-        paidAt: paidAtFromCivil(values.initialPaymentDate),
-      });
-      if (user) await queryClient.invalidateQueries({ queryKey: analyticsKeys.payments(user.id) });
-    } catch {
-      snackbar.show('Abonelik kaydedildi ama ilk ödeme eklenemedi. Ödeme geçmişinden ekleyebilirsin.', 'error');
-    }
-  }
-
   function submit() {
+    if (submitting.current) return;
     setSubmitted(true);
-    if (hasErrors(validateSubscriptionForm(values))) return;
+    const found = validateSubscriptionForm(resolvedValues);
+    if (hasErrors(found)) {
+      // Kapalı "Ayrıntılar" bölümündeki hata görünmez kalmasın.
+      if (hasDetailsErrors(found)) {
+        setDetailsOpen(true);
+        snackbar.show('Ayrıntılarda düzeltilecek alan var', 'error');
+      }
+      return;
+    }
+    submitting.current = true;
     save.mutate();
   }
 
@@ -186,17 +151,23 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
         showsVerticalScrollIndicator={false}
       >
         <ServiceSection
-          values={values}
+          values={resolvedValues}
           errors={errors}
           presets={resolveServicePresets(catalog.data)}
           showPresets={!editing}
           disabled={busy}
+          nameNotice={duplicateName ? 'Aynı isimde bir abonelik zaten var; yine de kaydedebilirsin.' : undefined}
           onChange={update}
         />
         <View style={styles.gapSection} />
-        <RenewalSection values={values} errors={errors} today={today} onChange={update} />
+        <RenewalSection values={resolvedValues} errors={errors} today={today} onChange={update}
+          scheduleMode={scheduleMode} onAutomatic={() => {
+            setScheduleMode('automatic');
+            setValues((current) => ({ ...current, nextRenewalDate: automaticFormDate(current, today) }));
+          }} />
         <View style={styles.gapDetails} />
-        <DetailsSection values={values} errors={errors} today={today} disabled={busy} showInitialPayment={!editing} onChange={update} />
+        <DetailsSection values={resolvedValues} errors={errors} today={today} disabled={busy} showInitialPayment={!editing}
+          expanded={detailsOpen} onExpandedChange={setDetailsOpen} onChange={update} />
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
@@ -208,16 +179,10 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
 
 /** YYYY-AA-GG biçimindeki takvim günü; geçersizse null. */
 function parseStartParam(value: string | undefined): CivilDate | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? '');
-  if (!match) return null;
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = civilDate(year, month, day);
-  return date.month === month && date.day === day ? date : null;
+  return value ? parseCivilDate(value) : null;
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -237,4 +202,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm + spacing.xxs / 2,
   },
-});
+}));

@@ -1,7 +1,10 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 
+import { useAuth } from '../../auth/AuthProvider';
 import { createPinRecord, verifyPinRecord } from '../../../core/security/pinRecord';
 import { borderWidth, colors, gaps, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
@@ -29,8 +32,10 @@ const TIMEOUT_OPTIONS: { minutes: number; label: string }[] = [
  * Kapatma ve PIN değiştirme mevcut PIN'in doğrulanmasını ister; bu Flutter'dan daha sıkı bir güvenlik kuralıdır.
  */
 export function AppLockSettingsScreen() {
+  useThemeRevision();
   const lock = useAppLock();
   const snackbar = useSnackbar();
+  const userId = useAuth().user?.id;
   const [hasBiometrics, setHasBiometrics] = useState(false);
 
   useEffect(() => {
@@ -39,13 +44,14 @@ export function AppLockSettingsScreen() {
 
   const savePin = useMutation({
     mutationFn: async (input: { pin: string; current?: string }) => {
+      if (!userId) throw new Error('Oturum bulunamadı.');
       if (lock.enabled) {
-        const stored = await readAppLock();
+        const stored = await readAppLock(userId);
         if (!stored.pinRecord || !input.current || !(await verifyPinRecord(input.current, stored.pinRecord))) {
           throw new Error('Mevcut PIN yanlış.');
         }
       }
-      await writePinRecord(await createPinRecord(input.pin));
+      await writePinRecord(userId, await createPinRecord(input.pin));
     },
     onSuccess: async () => {
       await lock.refresh();
@@ -56,10 +62,11 @@ export function AppLockSettingsScreen() {
 
   const disable = useMutation({
     mutationFn: async (current: string) => {
-      const stored = await readAppLock();
+      if (!userId) throw new Error('Oturum bulunamadı.');
+      const stored = await readAppLock(userId);
       if (!stored.pinRecord || !(await verifyPinRecord(current, stored.pinRecord))) throw new Error('PIN yanlış.');
-      await writePinRecord(null);
-      await writeBiometric(false);
+      await writePinRecord(userId, null);
+      await writeBiometric(userId, false);
     },
     onSuccess: async () => {
       await lock.refresh();
@@ -69,12 +76,12 @@ export function AppLockSettingsScreen() {
   });
 
   const setTimeout = useMutation({
-    mutationFn: (minutes: number) => writeTimeoutMinutes(minutes),
+    mutationFn: async (minutes: number) => { if (userId) await writeTimeoutMinutes(userId, minutes); },
     onSuccess: () => lock.refresh(),
   });
 
   const setBiometric = useMutation({
-    mutationFn: (enabled: boolean) => writeBiometric(enabled),
+    mutationFn: async (enabled: boolean) => { if (userId) await writeBiometric(userId, enabled); },
     onSuccess: () => lock.refresh(),
   });
 
@@ -139,12 +146,18 @@ export function AppLockSettingsScreen() {
 
 /** PIN kapalıyken: yeni PIN ve "PIN'i etkinleştir" düğmesi. */
 function SetupSection({ busy, onSetup }: { busy: boolean; onSetup: (pin: string) => void }) {
+  useThemeRevision();
   const [pin, setPin] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   function submit() {
     if (!isValidPin(pin)) {
       setError(`PIN ${PIN_MIN_LENGTH}–${PIN_MAX_LENGTH} rakam olmalı`);
+      return;
+    }
+    if (pin !== confirm) {
+      setError('PIN’ler eşleşmiyor');
       return;
     }
     setError(null);
@@ -153,11 +166,16 @@ function SetupSection({ busy, onSetup }: { busy: boolean; onSetup: (pin: string)
 
   return (
     <View style={styles.block}>
-      <TextField label="Yeni PIN" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error} />
+      <TextField label="Yeni PIN" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} />
+      <View style={styles.gap} />
+      <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error} />
       <View style={styles.gap} />
       <FilledButtonLabel label="PIN’i etkinleştir" busy={busy} onPress={submit} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         PIN cihazında özetlenmiş olarak saklanır; sunucuya gönderilmez.
+      </Text>
+      <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+        Önceki uygulamada PIN kullanıyorsan bu sürümde yeniden etkinleştir. İstersen aynı PIN&apos;i seçebilirsin.
       </Text>
     </View>
   );
@@ -173,6 +191,7 @@ function EnabledSection({
   onChangePin: (pin: string, current: string) => void;
   onDisable: (current: string) => void;
 }) {
+  useThemeRevision();
   const snackbar = useSnackbar();
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
@@ -214,7 +233,7 @@ function EnabledSection({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -236,4 +255,4 @@ const styles = StyleSheet.create({
   bottom: {
     height: spacing.lg,
   },
-});
+}));

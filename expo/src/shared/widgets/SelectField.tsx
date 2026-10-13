@@ -1,5 +1,8 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { useState, type ReactNode } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LockAwareModal } from './LockAwareModal';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { borderWidth, colors, radius, spacing, sizes } from '../design/tokens';
@@ -31,6 +34,7 @@ export function SelectField<T extends string>({
   error?: string | null;
   disabled?: boolean;
 }) {
+  useThemeRevision();
   const [open, setOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
 
@@ -54,7 +58,7 @@ export function SelectField<T extends string>({
       </Pressable>
       {error ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xxs, marginLeft: spacing.md })}>{error}</Text> : null}
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+      <LockAwareModal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={styles.backdrop} onPress={() => setOpen(false)} />
         <View style={styles.sheet}>
           <Text style={textStyle('titleSmall', { marginBottom: spacing.sm })}>{label}</Text>
@@ -77,12 +81,12 @@ export function SelectField<T extends string>({
             )}
           />
         </View>
-      </Modal>
+      </LockAwareModal>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   field: {
     minHeight: sizes.minTouchTarget + spacing.xs,
     flexDirection: 'row',
@@ -122,4 +126,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: sizes.minTouchTarget,
   },
-});
+}));

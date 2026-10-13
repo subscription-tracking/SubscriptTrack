@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -27,6 +29,7 @@ const OFFLINE_MESSAGE = 'Hesabını silmek için internet bağlantısı gerekir.
  * anlama onayı da gerekir (Flutter'da yalnızca şifre ve "sil" vardır; onay kutusu Expo'nun ek güvencesidir).
  */
 export function DeleteAccountScreen() {
+  useThemeRevision();
   const { user, signIn, signOut } = useAuth();
   const online = useOnlineStatus();
   const snackbar = useSnackbar();
@@ -46,7 +49,7 @@ export function DeleteAccountScreen() {
     onSuccess: async () => {
       snackbar.show('Hesabın silindi.', 'default');
       try {
-        await signOut();
+        await signOut({ accountDeleted: true });
       } catch {
         // Hesap silindi; yerel oturum temizlenemezse yönlendirme oturum kapısında yapılır.
       }
@@ -121,7 +124,7 @@ export function DeleteAccountScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -147,4 +150,4 @@ const styles = StyleSheet.create({
   bottom: {
     height: sizes.bottomNavHeight,
   },
-});
+}));

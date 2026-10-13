@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../../../src/shared/design/useThemeRevision';
 import type { ComponentProps } from 'react';
 import { Tabs } from 'expo-router';
 
@@ -15,6 +16,7 @@ const TAB_ITEMS: Record<string, NavItem> = {
 };
 
 function AppTabBar({ state, navigation }: TabBarProps) {
+  useThemeRevision();
   const items = state.routes.map((route: { name: string }) => TAB_ITEMS[route.name]);
   return (
     <BottomNavigation
@@ -27,9 +29,10 @@ function AppTabBar({ state, navigation }: TabBarProps) {
 
 /** Dört ana sekmenin kabuğu. Diğer tüm ekranlar (takvim, detay, ayarlar alt sayfaları) bu kabuğun dışında yığınla açılır. */
 export default function TabsLayout() {
+  useThemeRevision();
   return (
     <Tabs
-      tabBar={AppTabBar}
+      tabBar={(props) => <AppTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: colors.background },

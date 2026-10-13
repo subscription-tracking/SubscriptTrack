@@ -1,51 +1,46 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
-import { type CivilDate } from '../../../../core/time/calendar';
-import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
+import { colors, sizes } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { DateField } from '../../../../shared/widgets/DateField';
 import { SelectField } from '../../../../shared/widgets/SelectField';
 import { TextField } from '../../../../shared/widgets/TextField';
 import { CATEGORY_LABELS, SUBSCRIPTION_CATEGORIES, type SubscriptionCategory } from '../../domain/subscription';
-import { type FormErrors, type InitialPaymentStatus, type SubscriptionFormValues } from '../../domain/subscriptionForm';
+import type { DetailsSectionProps } from './detailsTypes';
+import { TrialFields } from './TrialFields';
+import { InitialPaymentFields } from './InitialPaymentFields';
+import { styles } from './detailsStyles';
 
-const NOTES_MAX_LENGTH = 500;
-
-/** İlk ödeme seçenekleri (Flutter: Ödendi / Ödenmedi / Ertelendi). */
-const INITIAL_STATUS_OPTIONS: { value: InitialPaymentStatus; label: string }[] = [
-  { value: 'paid', label: 'Ödendi' },
-  { value: 'unpaid', label: 'Ödenmedi' },
-  { value: 'deferred', label: 'Ertelendi' },
-];
-
-/**
- * Flutter `FormDetailsSection`: "Diğer ayrıntılar" açılır satırı. Açıkken deneme anahtarı (ve bitiş tarihi,
- * deneme sonrası fiyat), kategori, ödeme yöntemi, başlangıç tarihi ve not alanları görünür.
- * İlk ödeme yalnızca ekleme formunda; "Ödendi" seçilirse ödeme kaydı eklenir. Flutter'daki "Ertelendi" durumu
- * `record_payment_idempotent` RPC'sinde alan olmadığı için bu sürümde yoktur.
- */
+/** Diğer ayrıntılar: deneme ve ilk ödeme alanları ayrı sunum bölümleridir. */
 export function DetailsSection({
   values,
   errors,
   today,
   disabled,
   showInitialPayment,
+  expanded: controlledExpanded,
+  onExpandedChange,
   onChange,
-}: {
-  values: SubscriptionFormValues;
-  errors: FormErrors;
-  today: CivilDate;
-  disabled: boolean;
-  /** Yalnızca ekleme formunda: ilk ödeme anahtarı ve tarihi. */
-  showInitialPayment: boolean;
-  onChange: <K extends keyof SubscriptionFormValues>(key: K, value: SubscriptionFormValues[K]) => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
+}: DetailsSectionProps) {
+  useThemeRevision();
+  const [ownExpanded, setOwnExpanded] = useState(false);
+  const expanded = controlledExpanded ?? ownExpanded;
+  const setExpanded = (update: (open: boolean) => boolean) => {
+    const next = update(expanded);
+    if (onExpandedChange) onExpandedChange(next);
+    else setOwnExpanded(next);
+  };
   return (
     <View style={styles.wrap}>
-      <Pressable accessibilityRole="button" onPress={() => setExpanded((open) => !open)} style={styles.toggle}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Diğer ayrıntılar"
+        accessibilityState={{ expanded }}
+        onPress={() => setExpanded((open) => !open)}
+        style={styles.toggle}
+      >
         <MaterialIcons name="tune" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
         <View style={styles.toggleText}>
           <Text style={textStyle('body')}>Diğer ayrıntılar</Text>
@@ -56,40 +51,7 @@ export function DetailsSection({
 
       {expanded ? (
         <View style={styles.fields}>
-          <View style={styles.trialRow}>
-            <View style={styles.trialText}>
-              <Text style={textStyle('body')}>Ücretsiz deneme</Text>
-              <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Deneme bitince ücret alınmaya başlar</Text>
-            </View>
-            <Switch
-              value={values.isTrial}
-              disabled={disabled}
-              onValueChange={(next) => onChange('isTrial', next)}
-              trackColor={{ false: colors.outline, true: withAlpha(colors.primary, 0.5) }}
-              thumbColor={values.isTrial ? colors.primary : colors.onSurfaceVariant}
-            />
-          </View>
-          {values.isTrial ? (
-            <>
-              <DateField
-                label="Deneme bitiş tarihi"
-                icon="hourglass-bottom"
-                value={values.trialEndDate}
-                fallback={today}
-                error={errors.trialEndDate}
-                onChange={(next) => onChange('trialEndDate', next)}
-              />
-              <TextField
-                label="Deneme sonrası fiyat"
-                prefixIcon="payments"
-                value={values.trialPrice}
-                onChangeText={(next) => onChange('trialPrice', next)}
-                error={errors.trialPrice}
-                keyboardType="decimal-pad"
-                editable={!disabled}
-              />
-            </>
-          ) : null}
+          <TrialFields values={values} errors={errors} today={today} disabled={disabled} showInitialPayment={showInitialPayment} onChange={onChange} />
 
           <SelectField<SubscriptionCategory>
             label="Kategori"
@@ -109,37 +71,7 @@ export function DetailsSection({
             editable={!disabled}
           />
 
-          {showInitialPayment ? (
-            <>
-              <Text style={textStyle('body')}>İlk ödeme</Text>
-              <View style={styles.statusChips}>
-                {INITIAL_STATUS_OPTIONS.map((option) => {
-                  const selected = values.initialPaymentStatus === option.value;
-                  return (
-                    <Pressable
-                      key={option.value}
-                      accessibilityRole="radio"
-                      accessibilityState={{ selected }}
-                      disabled={disabled}
-                      onPress={() => onChange('initialPaymentStatus', option.value)}
-                      style={[styles.statusChip, selected ? styles.statusChipSelected : null]}
-                    >
-                      <Text style={textStyle('caption12Strong', { color: selected ? colors.primary : colors.onSurfaceVariant })}>{option.label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              {values.initialPaymentStatus !== 'unpaid' ? (
-                <DateField
-                  label={values.initialPaymentStatus === 'deferred' ? 'Ertelenen tarih' : 'Ödeme tarihi'}
-                  icon="event"
-                  value={values.initialPaymentDate}
-                  fallback={today}
-                  onChange={(next) => onChange('initialPaymentDate', next)}
-                />
-              ) : null}
-            </>
-          ) : null}
+          <InitialPaymentFields values={values} errors={errors} today={today} disabled={disabled} showInitialPayment={showInitialPayment} onChange={onChange} />
 
           <DateField
             label="Başlangıç tarihi"
@@ -154,8 +86,7 @@ export function DetailsSection({
             prefixIcon="notes"
             value={values.notes}
             onChangeText={(next) => onChange('notes', next)}
-            error={errors.notes}
-            maxLength={NOTES_MAX_LENGTH}
+            error={errors.notes ?? (values.notes.length > 2000 ? 'Not en fazla 2000 karakter olabilir' : undefined)}
             multiline
             editable={!disabled}
           />
@@ -164,48 +95,3 @@ export function DetailsSection({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    marginTop: spacing.xs,
-  },
-  toggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: sizes.tileMinHeight,
-  },
-  toggleText: {
-    flex: 1,
-    marginLeft: gaps.rowLoose - 2,
-    marginRight: spacing.xs,
-  },
-  fields: {
-    marginTop: spacing.md,
-    gap: spacing.md,
-  },
-  trialRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: sizes.tileMinHeight,
-  },
-  trialText: {
-    flex: 1,
-  },
-  statusChips: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginTop: spacing.xs,
-  },
-  statusChip: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.choice,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
-    backgroundColor: colors.surfaceHigh,
-  },
-  statusChipSelected: {
-    borderColor: colors.primary,
-    backgroundColor: withAlpha(colors.primary, 0.16),
-  },
-});

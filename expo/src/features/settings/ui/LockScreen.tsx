@@ -1,7 +1,11 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+import { useAuth } from '../../auth/AuthProvider';
+import { messageForError } from '../../auth/domain/authErrors';
 import { colors, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
@@ -12,7 +16,9 @@ const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'bio', '0', 'del'] as
 
 /** Uygulama kilidi ekranı: PIN tuş takımı ve (açıksa) biyometri. Tüm ekranı kaplar. */
 export function LockScreen() {
-  const { unlockWithPin, unlockWithBiometrics, biometricEnabled, attemptsLeft, lockoutRemainingMs } = useAppLock();
+  useThemeRevision();
+  const { signOut } = useAuth();
+  const { unlockWithPin, unlockWithBiometrics, biometricEnabled } = useAppLock();
   const [pin, setPin] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -27,11 +33,12 @@ export function LockScreen() {
   async function submit() {
     if (!isValidPin(pin)) return;
     setBusy(true);
-    const result = await unlockWithPin(pin);
+    const outcome = await unlockWithPin(pin);
     setBusy(false);
     setPin('');
-    if (result === 'wrong') setMessage(`PIN yanlış. Kalan deneme: ${attemptsLeft}`);
-    else if (result === 'locked_out') setMessage(`Çok fazla hatalı deneme. ${Math.ceil(lockoutRemainingMs / 1000)} sn sonra tekrar dene.`);
+    if (outcome.result === 'wrong') setMessage(`PIN yanlış. Kalan deneme: ${outcome.attemptsLeft}`);
+    else if (outcome.result === 'locked_out') setMessage(`Çok fazla hatalı deneme. ${Math.ceil(outcome.lockoutRemainingMs / 1000)} sn sonra tekrar dene.`);
+    else if (outcome.result === 'storage_error') setMessage('Güvenli kilit verisi okunamadı. Tekrar dene.');
     else setMessage(null);
   }
 
@@ -42,11 +49,23 @@ export function LockScreen() {
     if (pin.length < PIN_MAX_LENGTH) setPin((current) => current + key);
   }
 
+  /** PIN unutulduğunda tek çıkış yolu: oturum kapanır, yerel abonelik verisi temizlenir, kilit kaydı kullanıcıda kalır. */
+  function confirmSignOut() {
+    Alert.alert('Çıkış yap', 'Hesabından çıkmak istiyor musun? Bu cihazdaki abonelik verisi silinir.', [
+      { text: 'İptal', style: 'cancel' },
+      {
+        text: 'Çıkış yap',
+        style: 'destructive',
+        onPress: () => { signOut().catch((error: unknown) => setMessage(messageForError(error))); },
+      },
+    ]);
+  }
+
   return (
     <View style={styles.overlay} accessibilityViewIsModal>
       <MaterialIcons name="lock-outline" size={40} color={colors.primary} />
       <Text style={textStyle('title')}>Uygulama kilitli</Text>
-      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>PIN'ini gir.</Text>
+      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>PIN&apos;ini gir.</Text>
 
       <View style={styles.dots} accessibilityLabel={`${pin.length} hane girildi`}>
         {Array.from({ length: PIN_MAX_LENGTH }, (_, index) => (
@@ -88,11 +107,15 @@ export function LockScreen() {
           {PIN_MIN_LENGTH}–{PIN_MAX_LENGTH} hane
         </Text>
       </View>
+
+      <Pressable accessibilityRole="button" accessibilityLabel="Çıkış yap" disabled={busy} onPress={confirmSignOut} style={styles.signOut}>
+        <Text style={textStyle('bodySmall', { color: colors.primary })}>Çıkış yap</Text>
+      </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: colors.background,
@@ -138,8 +161,13 @@ const styles = StyleSheet.create({
   keyHidden: {
     backgroundColor: 'transparent',
   },
+  signOut: {
+    minHeight: sizes.minTouchTarget,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+  },
   submit: {
     width: 260,
     gap: spacing.xs,
   },
-});
+}));

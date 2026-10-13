@@ -1,5 +1,8 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { useState, type ComponentProps } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { LockAwareModal } from '../../../../shared/widgets/LockAwareModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -9,6 +12,7 @@ import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../..
 import { textStyle } from '../../../../shared/design/typography';
 import { BILLING_CYCLE_LABELS, type Subscription, type SubscriptionStatus } from '../../domain/subscription';
 import { ServiceIdentity, resolveServiceColor } from '../ServiceIdentity';
+import { canTransition } from '../../domain/statusTransitions';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -26,6 +30,7 @@ export function DetailHero({
   onEdit: () => void;
   onMenuAction: (action: DetailMenuAction) => void;
 }) {
+  useThemeRevision();
   const insets = useSafeAreaInsets();
   const brand = resolveServiceColor(subscription.name, subscription.category);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -71,6 +76,7 @@ export function DetailHero({
 
 /** Flutter `_Backdrop`: 0 → 0.4 → 1 gradyan (siyah %38, şeffaf, arka plan) ve sağ üstte beyaz %12 halka. */
 function Backdrop({ height }: { height: number }) {
+  useThemeRevision();
   const { width } = useWindowDimensions();
   return (
     <Svg style={StyleSheet.absoluteFill} width={width} height={height} pointerEvents="none">
@@ -100,6 +106,7 @@ function GlassButton({
   size?: number;
   iconSize?: number;
 }) {
+  useThemeRevision();
   return (
     <Pressable
       accessibilityRole="button"
@@ -123,21 +130,15 @@ function DetailMenu({
   onClose: () => void;
   onSelect: (action: DetailMenuAction) => void;
 }) {
-  const items: { action: DetailMenuAction; label: string; icon: MaterialIconName }[] =
-    status === 'active'
-      ? [
-          { action: 'pause', label: 'Duraklat', icon: 'pause-circle-outline' },
-          { action: 'cancel', label: 'İptal Et', icon: 'cancel' },
-          { action: 'archive', label: 'Arşivle', icon: 'archive' },
-        ]
-      : status === 'paused'
-        ? [
-            { action: 'resume', label: 'Devam Ettir', icon: 'play-circle-outline' },
-            { action: 'archive', label: 'Arşivle', icon: 'archive' },
-          ]
-        : [];
+  useThemeRevision();
+  const items: { action: DetailMenuAction; label: string; icon: MaterialIconName }[] = [
+    ...(canTransition(status, 'paused') ? [{ action: 'pause' as const, label: 'Duraklat', icon: 'pause-circle-outline' as const }] : []),
+    ...(canTransition(status, 'active') ? [{ action: 'resume' as const, label: status === 'cancelled' ? 'Yeniden Etkinleştir' : status === 'archived' ? 'Arşivden Çıkar' : status === 'trial' || status === 'expired' ? 'Aktif Yap' : 'Devam Ettir', icon: 'play-circle-outline' as const }] : []),
+    ...(canTransition(status, 'cancelled') ? [{ action: 'cancel' as const, label: 'İptal Et', icon: 'cancel' as const }] : []),
+    ...(canTransition(status, 'archived') ? [{ action: 'archive' as const, label: 'Arşivle', icon: 'archive' as const }] : []),
+  ];
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <LockAwareModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable accessibilityRole="button" accessibilityLabel="Menüyü kapat" style={styles.menuBackdrop} onPress={onClose}>
         <View style={styles.menu}>
           {items.map((item) => (
@@ -148,11 +149,11 @@ function DetailMenu({
           ))}
         </View>
       </Pressable>
-    </Modal>
+    </LockAwareModal>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   hero: {
     width: '100%',
     overflow: 'hidden',
@@ -222,4 +223,4 @@ const styles = StyleSheet.create({
   menuLabel: {
     marginLeft: spacing.sm,
   },
-});
+}));

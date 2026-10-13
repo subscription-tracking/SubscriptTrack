@@ -119,3 +119,13 @@ export function renewalAdvancedEvent(from: CivilDate, to: CivilDate): Subscripti
     payload: { from_date: formatCivilDate(from), to_date: formatCivilDate(to) },
   };
 }
+
+/**
+ * Düzenleme sonrası durum: aktif kayda deneme eklenirse `trial`, deneme kapatılırsa
+ * ve kayıt `trial` ise `active` olur. Diğer durumlara (duraklatıldı, iptal, süresi doldu, arşiv) dokunulmaz.
+ */
+export function statusAfterEdit(current: SubscriptionStatus, isTrial: boolean, trialEndDate: CivilDate | null): SubscriptionStatus {
+  if (current === 'active' && isTrial && trialEndDate) return 'trial';
+  if (current === 'trial' && !isTrial) return 'active';
+  return current;
+}

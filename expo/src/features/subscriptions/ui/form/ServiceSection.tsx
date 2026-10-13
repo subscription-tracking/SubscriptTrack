@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { type BillingCycle } from '../../../../core/time/calendar';
@@ -21,6 +23,7 @@ export function ServiceSection({
   presets,
   showPresets,
   disabled,
+  nameNotice,
   onChange,
 }: {
   values: SubscriptionFormValues;
@@ -28,8 +31,11 @@ export function ServiceSection({
   presets: readonly ServicePreset[];
   showPresets: boolean;
   disabled: boolean;
+  /** Ada ilişkin engellemeyen bilgi uyarısı (örn. aynı isimde kayıt var). */
+  nameNotice?: string;
   onChange: <K extends keyof SubscriptionFormValues>(key: K, value: SubscriptionFormValues[K]) => void;
 }) {
+  useThemeRevision();
   const currentName = values.name.trim().toLowerCase();
 
   function pickPreset(preset: ServicePreset) {
@@ -80,6 +86,9 @@ export function ServiceSection({
         editable={!disabled}
         prefix={<ServiceIdentity name={values.name} category={values.category} size={28} />}
       />
+      {nameNotice && !errors.name ? (
+        <Text accessibilityRole="text" style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{nameNotice}</Text>
+      ) : null}
 
       <View style={styles.row}>
         <View style={styles.currency}>
@@ -114,7 +123,7 @@ export function ServiceSection({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   presetsBlock: {
     gap: spacing.xs,
   },
@@ -142,4 +151,4 @@ const styles = StyleSheet.create({
   amount: {
     flex: 1,
   },
-});
+}));

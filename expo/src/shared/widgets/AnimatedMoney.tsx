@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../design/useThemeRevision';
 import { useEffect, useState } from 'react';
 import { Text, type TextStyle } from 'react-native';
 
@@ -12,14 +13,22 @@ export function AnimatedMoney({
   currency,
   style,
   duration = 900,
+  fit = false,
 }: {
   amount: number;
   currency: string;
   style?: TextStyle;
   duration?: number;
+  /** Büyük tutarlarda tek satıra sığacak şekilde yazıyı küçültür. */
+  fit?: boolean;
 }) {
+  useThemeRevision();
   const value = useCountUp(amount, duration);
-  return <Text style={style}>{formatAmount(value, currency)}</Text>;
+  return (
+    <Text style={style} numberOfLines={fit ? 1 : undefined} adjustsFontSizeToFit={fit} minimumFontScale={fit ? 0.6 : undefined}>
+      {formatAmount(value, currency)}
+    </Text>
+  );
 }
 
 /** Hedef değere easeOutCubic ile ulaşan sayı. Her hedef değişiminde 0'dan yeniden sayar. */

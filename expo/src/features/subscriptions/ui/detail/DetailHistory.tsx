@@ -1,5 +1,8 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LockAwareModal } from '../../../../shared/widgets/LockAwareModal';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { formatAmount } from '../../../../core/format/money';
@@ -11,7 +14,8 @@ import { localCivilDate, type PaymentEvent } from '../../../stats/domain/payment
 import { Card, Section } from './DetailSections';
 
 /** Flutter `DetailPaymentHistorySection`: en son iki ödeme, "Tümünü gör" ile tüm liste. */
-export function PaymentHistorySection({ payments, today }: { payments: PaymentEvent[]; today: CivilDate }) {
+export function PaymentHistorySection({ payments, today, timeZone }: { payments: PaymentEvent[]; today: CivilDate; timeZone: string }) {
+  useThemeRevision();
   const [showAll, setShowAll] = useState(false);
   const recent = payments.slice(0, 2);
   return (
@@ -32,37 +36,38 @@ export function PaymentHistorySection({ payments, today }: { payments: PaymentEv
           recent.map((event, index) => (
             <View key={event.id}>
               {index > 0 ? <View style={styles.divider} /> : null}
-              <HistoryRow event={event} today={today} />
+              <HistoryRow event={event} today={today} timeZone={timeZone} />
             </View>
           ))
         )}
       </Card>
-      <Modal visible={showAll} transparent animationType="fade" onRequestClose={() => setShowAll(false)}>
+      <LockAwareModal visible={showAll} transparent animationType="fade" onRequestClose={() => setShowAll(false)}>
         <Pressable style={styles.dialogBackdrop} onPress={() => setShowAll(false)}>
           <View style={styles.dialog}>
             <Text style={textStyle('titleSmall')}>Geçmiş ödemeler</Text>
             <ScrollView style={styles.dialogList}>
               {payments.map((event) => (
-                <HistoryRow key={event.id} event={event} today={today} />
+                <HistoryRow key={event.id} event={event} today={today} timeZone={timeZone} />
               ))}
             </ScrollView>
           </View>
         </Pressable>
-      </Modal>
+      </LockAwareModal>
     </Section>
   );
 }
 
-function HistoryRow({ event, today }: { event: PaymentEvent; today: CivilDate }) {
+function HistoryRow({ event, today, timeZone }: { event: PaymentEvent; today: CivilDate; timeZone: string }) {
+  useThemeRevision();
   return (
     <View style={styles.historyRow}>
       <View style={styles.historyCircle}>
         <MaterialIcons name="check" size={sizes.detailCardIcon} color={statusColors.success} />
       </View>
       <View style={styles.historyDate}>
-        <Text style={textStyle('bodySmallStrong')}>{formatLongDate(localCivilDate(event.paidAt))}</Text>
+        <Text style={textStyle('bodySmallStrong')}>{formatLongDate(localCivilDate(event.paidAt, timeZone))}</Text>
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
-          {formatRelativeDate(localCivilDate(event.paidAt), today)}
+          {formatRelativeDate(localCivilDate(event.paidAt, timeZone), today)}
         </Text>
       </View>
       <Text style={textStyle('bodySmallStrong')}>{formatAmount(event.amount.amount, event.currency)}</Text>
@@ -70,7 +75,7 @@ function HistoryRow({ event, today }: { event: PaymentEvent; today: CivilDate })
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   seeAll: {
     paddingHorizontal: spacing.xs,
   },
@@ -113,4 +118,4 @@ const styles = StyleSheet.create({
   dialogList: {
     marginTop: spacing.sm,
   },
-});
+}));

@@ -1,7 +1,15 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { civilDate } from '../../../core/time/calendar';
-import { type SubscriptionFormValues, hasErrors, toCreatePayload, validateSubscriptionForm } from './subscriptionForm';
+import { SUBSCRIPTION_LIMITS } from './subscription';
+import { type SubscriptionFormValues, hasDetailsErrors, hasDuplicateName, hasErrors, toCreatePayload, validateSubscriptionForm } from './subscriptionForm';
 
 const today = civilDate(2026, 10, 9);
+const amountLimits = JSON.parse(readFileSync(resolve(process.cwd(), '../testdata/flutter_expo_domain_goldens.json'), 'utf8')).subscriptionAmountLimits as {
+  max: string;
+  maxMinorUnits: number;
+  overByOneCent: string;
+};
 
 const valid = (overrides: Partial<SubscriptionFormValues> = {}): SubscriptionFormValues => ({
   name: 'Netflix',
@@ -37,6 +45,14 @@ describe('validateSubscriptionForm', () => {
     expect(validateSubscriptionForm(valid({ amount: '0' })).amount).toBe('Geçerli tutar gir');
     expect(validateSubscriptionForm(valid({ amount: '-5' })).amount).toBe('Geçerli tutar gir');
     expect(validateSubscriptionForm(valid({ amount: 'abc' })).amount).toBe('Geçerli tutar gir');
+  });
+
+  it('kuruş hassasiyetini ve canlı API üst sınırını uygular', () => {
+    expect(SUBSCRIPTION_LIMITS.amountMaxMinorUnits).toBe(amountLimits.maxMinorUnits);
+    expect(validateSubscriptionForm(valid({ amount: '1.234' })).amount).toBe('Geçerli tutar gir');
+    expect(validateSubscriptionForm(valid({ amount: '1e3' })).amount).toBe('Geçerli tutar gir');
+    expect(validateSubscriptionForm(valid({ amount: amountLimits.max })).amount).toBeUndefined();
+    expect(validateSubscriptionForm(valid({ amount: amountLimits.overByOneCent })).amount).toBe('Tutar çok yüksek');
   });
 
   it('üç ondalık basamaklı tutarı reddeder (kuruş sınırı)', () => {
@@ -94,5 +110,26 @@ describe('toCreatePayload', () => {
 
   it('doğrulanmamış formla yük üretmeyi reddeder', () => {
     expect(() => toCreatePayload(valid({ amount: '' }), 'k')).toThrow(RangeError);
+    expect(() => toCreatePayload(valid({ amount: '1000000000.01' }), 'k')).toThrow(RangeError);
+  });
+});
+
+describe('hasDuplicateName', () => {
+  const list = [{ name: 'Netflix' }, { name: 'İstanbul Kart' }];
+  it('kırpma ve büyük/küçük harf duyarsız eşleşir (tr-TR)', () => {
+    expect(hasDuplicateName('  netflix ', list)).toBe(true);
+    expect(hasDuplicateName('istanbul kart', list)).toBe(true);
+  });
+  it('boş veya farklı ad eşleşmez', () => {
+    expect(hasDuplicateName('   ', list)).toBe(false);
+    expect(hasDuplicateName('Spotify', list)).toBe(false);
+  });
+});
+
+describe('hasDetailsErrors', () => {
+  it('yalnızca ayrıntı alanlarındaki hataları sayar', () => {
+    expect(hasDetailsErrors({ name: 'x', amount: 'y' })).toBe(false);
+    expect(hasDetailsErrors({ trialPrice: 'x' })).toBe(true);
+    expect(hasDetailsErrors({ notes: 'x' })).toBe(true);
   });
 });

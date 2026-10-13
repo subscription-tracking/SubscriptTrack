@@ -62,6 +62,19 @@ describe('toplamlar', () => {
     expect(totals.get('USD')?.decimalString).toBe('10.00');
   });
 
+  it('yıllık 100,00 abonelik yıllık toplamda 100,00 kalır (yuvarlama kaybı yok)', () => {
+    const yearly = yearlyTotalsByCurrency([sub({ id: 'y', amount: '100', billing_cycle: 'yearly' })]);
+    expect(yearly.get('TRY')?.decimalString).toBe('100.00');
+  });
+
+  it('yıllık eşdeğer: haftalık x52, üç aylık x4', () => {
+    const yearly = yearlyTotalsByCurrency([
+      sub({ id: 'w', amount: '1', billing_cycle: 'weekly' }),
+      sub({ id: 'q', amount: '10', billing_cycle: 'quarterly' }),
+    ]);
+    expect(yearly.get('TRY')?.decimalString).toBe('92.00');
+  });
+
   it('yıllık toplam aylık toplamın 12 katıdır', () => {
     const yearly = yearlyTotalsByCurrency(activeForTotals(items, today));
     expect(yearly.get('TRY')?.decimalString).toBe('2400.00');

@@ -4,6 +4,7 @@ import { toSubscriptionFields, type SubscriptionFormValues } from './subscriptio
 import {
   formValuesFromSubscription,
   priceChangeEvent,
+  statusAfterEdit,
   statusChangeEvent,
   subscriptionUpdateFields,
   toUpdatePayload,
@@ -122,5 +123,17 @@ describe('statusChangeEvent', () => {
       eventType: 'STATUS_CHANGED',
       payload: { from_status: 'active', to_status: 'paused' },
     });
+  });
+});
+
+describe('statusAfterEdit', () => {
+  const end = civilDate(2026, 11, 1);
+  it('aktif kayda deneme eklenince trial olur', () => expect(statusAfterEdit('active', true, end)).toBe('trial'));
+  it('deneme tarihi yoksa aktif kalır', () => expect(statusAfterEdit('active', true, null)).toBe('active'));
+  it('deneme kapanınca trial aktif olur', () => expect(statusAfterEdit('trial', false, null)).toBe('active'));
+  it('trial ve deneme sürüyorsa değişmez', () => expect(statusAfterEdit('trial', true, end)).toBe('trial'));
+  it.each(['paused', 'cancelled', 'expired', 'archived'] as const)('%s durumuna dokunmaz', (status) => {
+    expect(statusAfterEdit(status, true, end)).toBe(status);
+    expect(statusAfterEdit(status, false, null)).toBe(status);
   });
 });

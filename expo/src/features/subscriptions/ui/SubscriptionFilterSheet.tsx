@@ -1,4 +1,7 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LockAwareModal } from '../../../shared/widgets/LockAwareModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import type { ComponentProps } from 'react';
@@ -24,6 +27,8 @@ export function SubscriptionFilterSheet({
   onOpenArchive,
   onImportCsv,
   onClose,
+  currency = null,
+  onCurrency,
 }: {
   visible: boolean;
   category: SubscriptionCategory | null;
@@ -34,10 +39,13 @@ export function SubscriptionFilterSheet({
   onOpenArchive: () => void;
   onImportCsv: () => void;
   onClose: () => void;
+  currency?: string | null;
+  onCurrency?: (currency: string | null) => void;
 }) {
+  useThemeRevision();
   const insets = useSafeAreaInsets();
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <LockAwareModal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.barrier}>
         <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
@@ -48,6 +56,9 @@ export function SubscriptionFilterSheet({
             <Text style={textStyle('title')}>Filtrele ve sırala</Text>
             <View style={styles.gapTitle} />
 
+            {onCurrency ? <View style={styles.chips}>
+              {[null, 'TRY', 'USD', 'EUR'].map((code) => <FilterChip key={code ?? 'all'} label={code ?? 'Tüm para birimleri'} selected={currency === code} onPress={() => onCurrency(code)} />)}
+            </View> : null}
             <Text style={textStyle('titleSmall')}>Kategori</Text>
             <View style={styles.gapSection} />
             <View style={styles.chips}>
@@ -79,11 +90,12 @@ export function SubscriptionFilterSheet({
           </ScrollView>
         </View>
       </View>
-    </Modal>
+    </LockAwareModal>
   );
 }
 
 function FilterChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable
       accessibilityRole="button"
@@ -103,6 +115,7 @@ function FilterChip({ label, selected, onPress }: { label: string; selected: boo
 }
 
 function RadioRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={onPress} style={styles.radioRow}>
       <View style={[styles.radioOuter, { borderColor: selected ? colors.primary : colors.onSurfaceVariant }]}>
@@ -114,6 +127,7 @@ function RadioRow({ label, selected, onPress }: { label: string; selected: boole
 }
 
 function LinkButton({ icon, label, onPress }: { icon: MaterialIconName; label: string; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.link}>
       <MaterialIcons name={icon} size={sizes.linkIcon} color={colors.primary} />
@@ -122,7 +136,7 @@ function LinkButton({ icon, label, onPress }: { icon: MaterialIconName; label: s
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   barrier: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -209,4 +223,4 @@ const styles = StyleSheet.create({
   linkLabel: {
     marginLeft: spacing.xs,
   },
-});
+}));

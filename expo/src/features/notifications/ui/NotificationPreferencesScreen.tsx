@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useEffect, useState } from 'react';
+import { AppState, Linking, Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { borderWidth, colors, gaps, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
@@ -21,6 +23,7 @@ const DAY_LABELS: Record<number, string> = { 1: '1 gün önce', 3: '3 gün önce
  * seçimi, hatırlatma saati ve test bildirimi. Açık değilken gün, saat ve test satırları gizlenir.
  */
 export function NotificationPreferencesScreen() {
+  useThemeRevision();
   const prefs = useNotifyPrefs();
   const state: AsyncState<NotifyPrefs> = prefs.isPending
     ? { status: 'loading' }
@@ -37,6 +40,7 @@ export function NotificationPreferencesScreen() {
 }
 
 function Preferences({ value }: { value: NotifyPrefs }) {
+  useThemeRevision();
   const save = useSetNotifyPrefs();
   const snackbar = useSnackbar();
   const permission = usePermissionQuery();
@@ -44,31 +48,53 @@ function Preferences({ value }: { value: NotifyPrefs }) {
   const [requesting, setRequesting] = useState(false);
   const [pickingHour, setPickingHour] = useState(false);
   const unsupported = permission.data === 'unsupported';
+  const denied = value.enabled && permission.data === 'denied';
+
+  // Ayarlardan dönülünce izin durumu yenilenir; izin verilince uyarı bandı kaybolur.
+  const refetchPermission = permission.refetch;
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) => {
+      if (next === 'active') void refetchPermission();
+    });
+    return () => subscription.remove();
+  }, [refetchPermission]);
+
+  function openSettings() {
+    void Linking.openSettings().catch(() => snackbar.show('Cihaz ayarları açılamadı.', 'error'));
+  }
 
   async function toggleEnabled(next: boolean) {
-    if (next) {
-      setRequesting(true);
-      const status = await requestPermission();
-      setRequesting(false);
-      if (status !== 'granted') {
-        snackbar.show('Bildirim izni verilmedi. Ayarlardan açabilirsin.', 'error');
-        return;
+    try {
+      if (next) {
+        setRequesting(true);
+        const status = await requestPermission();
+        if (status !== 'granted') {
+          snackbar.show('Bildirim izni verilmedi. Ayarlardan açabilirsin.', 'error');
+          return;
+        }
       }
-    } else {
-      await cancelAllReminders();
-    }
-    await save({ ...value, enabled: next });
+      await save({ ...value, enabled: next });
+      if (!next) await cancelAllReminders();
+    } catch (error) {
+      snackbar.show(error instanceof Error ? error.message : 'Tercihler kaydedilemedi.', 'error');
+    } finally { setRequesting(false); }
   }
 
   async function pickHour(event: DateTimePickerEvent, picked?: Date) {
     if (Platform.OS === 'android') setPickingHour(false);
     if (event.type === 'dismissed' || !picked) return;
-    await save({ ...value, reminderHour: picked.getHours() });
+    try {
+      await save({ ...value, reminderHour: picked.getHours() });
+    } catch (error) {
+      snackbar.show(error instanceof Error ? error.message : 'Saat kaydedilemedi.', 'error');
+    }
   }
 
   async function sendTest() {
-    const sent = await sendTestReminder();
-    snackbar.show(sent ? 'Test bildirimi gönderildi.' : 'Bildirim izni kapalı. Önce cihaz ayarlarından izin ver.', sent ? 'primary' : 'error');
+    try {
+      const sent = await sendTestReminder();
+      snackbar.show(sent ? 'Test bildirimi gönderildi.' : 'Bildirim izni kapalı. Önce cihaz ayarlarından izin ver.', sent ? 'primary' : 'error');
+    } catch { snackbar.show('Test bildirimi planlanamadı. İzinleri kontrol edip tekrar dene.', 'error'); }
   }
 
   const selectedDays = value.defaultDays;
@@ -91,9 +117,18 @@ function Preferences({ value }: { value: NotifyPrefs }) {
           thumbColor={value.enabled ? colors.primary : colors.onSurfaceVariant}
         />
       </View>
+      {denied ? (
+        <View style={styles.deniedBand} accessibilityRole="alert">
+          <MaterialIcons name="notifications-off" size={sizes.tileIcon} color={colors.error} />
+          <Text style={[textStyle('bodySmall', { color: colors.onSurface }), styles.deniedText]}>Bildirim izni kapalı; hatırlatmalar gelmeyecek.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Ayarları aç" onPress={openSettings} style={styles.deniedAction}>
+            <Text style={textStyle('tileLabel', { color: colors.primary })}>Ayarları aç</Text>
+          </Pressable>
+        </View>
+      ) : null}
       {unsupported ? (
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
-          Bu derlemede yerel bildirim kullanılamıyor (Expo Go). Geliştirme derlemesinde çalışır.
+          Bu Android Expo Go oturumunda yerel bildirim modülü başlatılamıyor. Geliştirme derlemesinde kullanılabilir.
         </Text>
       ) : null}
 
@@ -138,7 +173,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -155,6 +190,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: gaps.rowLoose - 2,
     marginRight: spacing.xs,
+  },
+  deniedBand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xs,
+    padding: spacing.sm,
+    borderRadius: radius.tile,
+    backgroundColor: withAlpha(colors.error, 0.12),
+  },
+  deniedText: {
+    flex: 1,
+    marginHorizontal: spacing.xs,
+  },
+  deniedAction: {
+    minHeight: sizes.minTouchTarget,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xs,
   },
   divider: {
     height: borderWidth.hairline,
@@ -181,4 +234,4 @@ const styles = StyleSheet.create({
     borderRadius: sizes.radioInner / 2,
     backgroundColor: colors.primary,
   },
-});
+}));

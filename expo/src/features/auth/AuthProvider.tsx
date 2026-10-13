@@ -1,5 +1,7 @@
+import { useThemeRevision } from '../../shared/design/useThemeRevision';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { runSessionCleanup } from '../../core/security/sessionCleanup';
 import * as authRepository from './data/authRepository';
 import { INITIAL_SESSION_STATE, reduceSession, type SessionState } from './domain/sessionState';
 
@@ -12,7 +14,8 @@ import { INITIAL_SESSION_STATE, reduceSession, type SessionState } from './domai
 interface AuthContextValue extends SessionState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<{ requiresEmailConfirmation: boolean }>;
-  signOut: () => Promise<void>;
+  /** `accountDeleted`: hesap silindi; kilit verisi dahil tüm yerel veri temizlenir. */
+  signOut: (options?: { accountDeleted?: boolean }) => Promise<void>;
   sendPasswordResetEmail: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
   updateDisplayName: (name: string) => Promise<void>;
@@ -23,6 +26,7 @@ interface AuthContextValue extends SessionState {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  useThemeRevision();
   const [state, setState] = useState<SessionState>(INITIAL_SESSION_STATE);
 
   useEffect(() => {
@@ -41,7 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await authRepository.signUp(email, password);
         return { requiresEmailConfirmation: result.requiresEmailConfirmation };
       },
-      signOut: () => authRepository.signOut(),
+      signOut: async (options) => {
+        // Yerel veri temizliği en iyi çabayla yapılır; başarısızlığı çıkışı engellemez.
+        const userId = state.user?.id;
+        if (userId) await runSessionCleanup(userId, options?.accountDeleted ? 'account-deleted' : 'sign-out');
+        await authRepository.signOut();
+      },
       sendPasswordResetEmail: (email) => authRepository.sendPasswordResetEmail(email),
       updatePassword: (newPassword) => authRepository.updatePassword(newPassword),
       updateDisplayName: (name) => authRepository.updateDisplayName(name),

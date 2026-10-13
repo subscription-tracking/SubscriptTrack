@@ -1,7 +1,7 @@
 import { Money } from '../../../core/domain/money';
 import { ACTIVE_CURRENCIES } from '../../../core/domain/activeCurrency';
 import { type BillingCycle, type CivilDate, formatCivilDate } from '../../../core/time/calendar';
-import { type SubscriptionCategory } from './subscription';
+import { SUBSCRIPTION_LIMITS, type SubscriptionCategory } from './subscription';
 
 /**
  * Abonelik formu: doğrulama ve RPC yükü. Flutter `SubscriptionFormValidators` ve
@@ -45,7 +45,7 @@ export type FormErrors = Partial<
 /** Veritabanı CHECK sınırları ([DATA_MODEL §2.9.1](../../../../../docs/reference/DATA_MODEL.md)). */
 export const LIMITS = {
   nameMax: 160,
-  amountMax: 1_000_000_000,
+  amountMaxMinorUnits: SUBSCRIPTION_LIMITS.amountMaxMinorUnits,
   notesMax: 2000,
   paymentMethodMax: 80,
 } as const;
@@ -69,7 +69,7 @@ export function validateSubscriptionForm(values: SubscriptionFormValues): FormEr
   } else {
     const money = positiveMoney(values.amount);
     if (!money) errors.amount = 'Geçerli tutar gir';
-    else if (money.amount > LIMITS.amountMax) errors.amount = 'Tutar çok yüksek';
+    else if (money.minorUnits > LIMITS.amountMaxMinorUnits) errors.amount = 'Tutar çok yüksek';
   }
 
   if (!values.nextRenewalDate) errors.nextRenewalDate = 'Yenileme tarihini seç';
@@ -114,7 +114,9 @@ export type SubscriptionFields = Omit<CreateSubscriptionPayload, 'p_idempotency_
 export function toSubscriptionFields(values: SubscriptionFormValues): SubscriptionFields {
   const amount = positiveMoney(values.amount);
   const trialPrice = values.isTrial ? positiveMoney(values.trialPrice) : null;
-  if (!amount || !values.nextRenewalDate) throw new RangeError('Form doğrulanmadan yük üretilemez');
+  if (!amount || amount.minorUnits > LIMITS.amountMaxMinorUnits || !values.nextRenewalDate) {
+    throw new RangeError('Form doğrulanmadan yük üretilemez');
+  }
 
   return {
     p_name: values.name.trim(),
@@ -134,4 +136,16 @@ export function toSubscriptionFields(values: SubscriptionFormValues): Subscripti
 /** Doğrulanmış formu `create_subscription_idempotent` yüküne çevirir. */
 export function toCreatePayload(values: SubscriptionFormValues, idempotencyKey: string): CreateSubscriptionPayload {
   return { p_idempotency_key: idempotencyKey, ...toSubscriptionFields(values) };
+}
+
+/** Ekleme formunda girilen ad mevcut (silinmemiş) bir kayıtla eşleşiyor mu? Engel değil, bilgi uyarısıdır. */
+export function hasDuplicateName(name: string, subscriptions: readonly { name: string }[]): boolean {
+  const key = name.trim().toLocaleLowerCase('tr-TR');
+  if (!key) return false;
+  return subscriptions.some((item) => item.name.trim().toLocaleLowerCase('tr-TR') === key);
+}
+
+/** Hatalı alanlardan biri kapalı "Ayrıntılar" bölümünde mi? */
+export function hasDetailsErrors(errors: FormErrors): boolean {
+  return Boolean(errors.notes || errors.paymentMethod || errors.trialEndDate || errors.trialPrice);
 }

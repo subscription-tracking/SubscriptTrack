@@ -2,6 +2,7 @@ import { supabase } from '../../../core/supabase/client';
 import { DataWriteError, type DataWriteErrorOptions } from '../../../core/errors/dataWriteError';
 import { type CreateSubscriptionPayload } from '../domain/subscriptionForm';
 import { type SubscriptionEventDraft, type UpdatePayload } from '../domain/subscriptionEdit';
+import { isTransientCode, withWriteTimeout } from './transientErrors';
 
 /**
  * Abonelik yazma çağrıları. Ekleme ve güncelleme idempotent RPC üzerinden yapılır; aynı
@@ -23,22 +24,26 @@ function messageFor(code: string | undefined): string {
   return 'Abonelik kaydedilemedi. Bağlantını kontrol edip tekrar dene.';
 }
 
-/** Kod yoksa ağ hatasıdır (yeniden denenir). 42501 oturum süresi: yeniden girişle düzelir, yeniden denenir. */
-function errorFrom(error: { code?: string | null }): SubscriptionWriteError {
+/** Kod yoksa ağ hatasıdır; geçici sunucu/bağlantı/yük kodları da yeniden denenir. 42501 oturum süresi: yeniden girişle düzelir, yeniden denenir. */
+function errorFrom(error: { code?: string | null; message?: string }): SubscriptionWriteError {
   const code = error.code || undefined;
-  return new SubscriptionWriteError(messageFor(code), { code, retryable: !code || code === '42501' });
+  const message = code === '23514' && error.message?.includes('quota_exceeded: subscriptions')
+    ? '1.000 abonelik sınırına ulaştın. Yeni kayıt için mevcut bir aboneliği sil.' : messageFor(code);
+  return new SubscriptionWriteError(message, { code, retryable: code === '42501' || isTransientCode(code) });
 }
+
+const timeoutError = (message: string) => new SubscriptionWriteError(message, { retryable: true });
 
 /** Yeni kaydın kimliğini döner (RPC satırın tamamını JSON olarak verir). */
 export async function createSubscription(payload: CreateSubscriptionPayload): Promise<string | null> {
-  const { data, error } = await supabase.rpc('create_subscription_idempotent', payload);
+  const { data, error } = await withWriteTimeout(supabase.rpc('create_subscription_idempotent', payload), timeoutError);
   if (error) throw errorFrom(error);
   const id = (data as { id?: unknown } | null)?.id;
   return typeof id === 'string' ? id : null;
 }
 
 export async function updateSubscription(payload: UpdatePayload): Promise<void> {
-  const { error } = await supabase.rpc('update_subscription_idempotent', payload);
+  const { error } = await withWriteTimeout(supabase.rpc('update_subscription_idempotent', payload), timeoutError);
   if (error) throw errorFrom(error);
 }
 
@@ -68,5 +73,5 @@ export async function recordSubscriptionEvent(
     event_type: event.eventType,
     payload: event.payload,
   });
-  if (error) throw new SubscriptionWriteError('Olay kaydı yazılamadı.', { code: error.code || undefined, retryable: !error.code });
+  if (error) throw new SubscriptionWriteError('Olay kaydı yazılamadı.', { code: error.code || undefined, retryable: isTransientCode(error.code) });
 }

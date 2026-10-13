@@ -9,6 +9,11 @@ import { type BillingCycle, type CivilDate, daysBetween, parseCivilDate } from '
 export const SUBSCRIPTION_STATUSES = ['trial', 'active', 'paused', 'cancelled', 'expired', 'archived'] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
+/** Live API CHECK for `subscriptions.amount` (migration 033), in exact minor units. */
+export const SUBSCRIPTION_LIMITS = {
+  amountMaxMinorUnits: 100_000_000_000,
+} as const;
+
 export const SUBSCRIPTION_CATEGORIES = [
   'streaming',
   'music',
@@ -54,6 +59,7 @@ export const STATUS_LABELS: Record<SubscriptionStatus, string> = {
 
 /** Veritabanı satırı (`subscriptions` tablosu, [DATA_MODEL §2.1](../../../../../docs/reference/DATA_MODEL.md)). */
 export interface SubscriptionRow {
+  deleted_at?: string | null;
   id: string;
   name: string;
   amount: string | number;
@@ -145,6 +151,23 @@ export function monthlyEquivalent(subscription: Subscription): Money {
       return subscription.amount.divide(12);
     default:
       return subscription.amount;
+  }
+}
+
+/**
+ * Yıllık eşdeğer tutar: haftalık ×52, aylık ×12, üç aylık ×4, yıllık ×1. Tam sayı minör birim
+ * çarpımıdır; aylık eşdeğerin yuvarlanmış halinin ×12'si değildir (yıllık 100,00 → 100,00).
+ */
+export function annualEquivalent(subscription: Subscription): Money {
+  switch (subscription.billingCycle) {
+    case 'weekly':
+      return subscription.amount.multiply(52);
+    case 'quarterly':
+      return subscription.amount.multiply(4);
+    case 'yearly':
+      return subscription.amount;
+    default:
+      return subscription.amount.multiply(12);
   }
 }
 

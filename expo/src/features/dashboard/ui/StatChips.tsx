@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -9,12 +11,13 @@ type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 /** Flutter `DashboardStatChipsRow`: üç eşit çip, aralarında 10 px. */
 export function StatChips({ items }: { items: { icon: MaterialIconName; label: string }[] }) {
+  useThemeRevision();
   return (
     <View style={styles.row}>
       {items.map((item) => (
         <View key={item.label} style={styles.chip}>
           <MaterialIcons name={item.icon} size={sizes.chipIcon} color={colors.primary} />
-          <Text numberOfLines={2} style={[textStyle('chip'), styles.chipLabel]}>
+          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} style={[textStyle('chip'), styles.chipLabel]}>
             {item.label}
           </Text>
         </View>
@@ -25,6 +28,7 @@ export function StatChips({ items }: { items: { icon: MaterialIconName; label: s
 
 /** Flutter `DashboardSectionHeader`: 20 px başlık ve isteğe bağlı sağda eylem bağlantısı. */
 export function SectionHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+  useThemeRevision();
   return (
     <View style={styles.header}>
       <Text style={[textStyle('sectionTitle'), styles.headerTitle]}>{title}</Text>
@@ -37,7 +41,7 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: gaps.chip,
@@ -64,4 +68,4 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
   },
-});
+}));

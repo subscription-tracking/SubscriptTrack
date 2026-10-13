@@ -8,6 +8,8 @@ Kullanıcıyı doğru zamanda, doğru kanaldan ve tekrar etmeyen biçimde yakla�
 
 ## 2. Kanallar
 
+Expo SDK 57 istemcisi `expo-notifications` ile cihaz planını eşitler. Planlı kayıtların kimliği yanında UTC tetikleme anı, başlık, gövde ve abonelik kimliğinden parmak izi saklar. Saat, IANA bölgesi veya içerik değişince eski planlı kayıt iptal edilip yenisi yazılır; aynı parmak izinde işlem yapılmaz. `st:z|` erteleme ve `st:test|` test kayıtları eşitleme dışında kalır. Bir kayıt değiştiğinde önce eski kayıt iptal edilir ve yenisi kurulur; yeni kayıt kurulamazsa eski kayıt, cihazda okunan içerik ve tarih tetikleyicisiyle geri yüklenir (Expo'nun aynı kimlikle yeniden zamanlamanın mevcut kaydı değiştirdiğini belgelemediği için sıralama buna dayanmaz). Planlama hatası ekranda gösterilir ve uygulama yeniden öne geldiğinde tekrar denenir. Expo Go 57.0.9 Android denemesinde modül açılışı hata verdiği için Go'da bildirim desteği kapalıdır; cihaz kabulü development/native build ile yapılır.
+
 - Cihaz üzerinde yerel bildirim (`flutter_local_notifications`)
 - Uygulama içi kalıcı bildirim
 - E-posta: Supabase Auth akışları için kullanılabilir; yenileme e-postası bu sürümde aktif bir kanal değildir
@@ -34,8 +36,8 @@ MVP için ilk ikisi zorunludur.
 ## 4. Mevcut üretim akışı
 
 ```text
-1. Mobil uygulama abonelik ve bildirim kurallarını yükler.
-2. Cihaz timezone’ı okunur ve geçmiş tarihler elenir.
+1. Mobil uygulama abonelik, bildirim kuralları ve kullanıcının kaydedilmiş IANA saat dilimi tercihini yükler.
+2. Tercih yoksa cihaz IANA bölgesi başlangıç varsayılanıdır; kayıtlı tercih varsa cihaz bölgesi kullanılmaz. Flutter tercihi cihazda, Expo tercihi kullanıcı profilinde saklar. Geçmiş tarihler bu etkin bölgeye göre elenir.
 3. Yenileme ve trial adayları yerel scheduler’a yazılır.
 4. Bildirim payload’ı abonelik kimliğini taşır.
 5. Kullanıcı bildirime dokununca ilgili detay ekranına gider veya 30 dakika erteler.
@@ -46,11 +48,22 @@ uygulamanın çalışma yolu değildir.
 
 ## 5. Zamanlama
 
-- Kullanıcı zaman dilimi IANA zone olarak saklanır.
+- Kullanıcı zaman dilimi IANA zone olarak saklanır; Expo'da profil tercihi, Flutter'da cihaz tercihi kullanılır. İlk kurulumda cihaz bölgesi başlangıç değeri olabilir.
 - Varsayılan teslimat saati kullanıcı yerel saatinde 09:00 olabilir.
 - `days_before` 0–30 aralığındadır.
 - Trial için farklı günler desteklenebilir: 7, 3, 1.
 - Sunucu bütün hesapları UTC ile çalıştırır, planı yerel saate dönüştürür.
+
+### 5.1 Yedek (catch-up) ve gecikme bildirimi (Expo)
+
+Teslim saati kaçmış hatırlatma sessizce kaybolmaz; planlayıcı (`reminderPlanner.planReminders`) tek seferlik yedek üretir. "Bugün" kullanıcının IANA gününe göre hesaplanır; yalnızca aktif ve en az bir etkin bildirim kuralı (veya varsayılan gün) olan kayıtlar için geçerlidir.
+
+- **Yenileme bugün, saat geçmiş:** kimlik `st:c|<id>|<yenilemeTarihi>`, now+60 sn, içerik "Bugün yenileniyor — tutar · tarih". Aynı yenileme tarihi için en fazla bir kez.
+- **Yenileme tarihi geçmişte (gecikmiş):** kimlik `st:o|<id>|<bugün>`, now+60 sn, içerik "Vadesi geçti — tutar · tarih. Ödemeyi kontrol et." Günde en fazla bir kez; kayıt ödenip yenileme tarihi ilerleyene ya da iptal edilene kadar her yeni gün bir tane.
+- Yedekler 60 bildirim sınırında normal adaylardan önce gelir.
+- **Gönderildi işareti:** planlayıcı saf kalır, `sentMarkers` girdisini alır. `NotificationSync` yedekler cihaza planlanınca kimliği kullanıcıya özel `notifications.catchup.sent.<userId>` anahtarına (şifreli depo) işler; 7 günden eski işaretler budanır. İşaretli kimlik yeniden üretilmez, bekleyen yedek de iptal edilmez.
+- Yedek kimliklerde zaman parmak izine girmez; senkron her çalıştığında now+60 sn kaymasıyla yeniden zamanlanmaz.
+- `cancelAllReminders`, hesap değişimi ve silinen abonelik temizliği `st:c|`/`st:o|` kayıtlarını da kapsar.
 
 ## 6. Tekrar engelleme
 
@@ -138,6 +151,7 @@ Metinler lokalizasyon anahtarı ve parametrelerle oluşturulmalıdır; veritaban
 3. Sistem izni istenir
 4. Reddedilirse sessiz ve saygılı fallback
 5. Ayarlarda sistem ayarına gitme bağlantısı
+6. Expo: bildirimler açıkken izin "denied" ise bildirim ayarları ekranında kalıcı uyarı bandı ("Bildirim izni kapalı; hatırlatmalar gelmeyecek.") ve "Ayarları aç" düğmesi (`Linking.openSettings()`) gösterilir; uygulama öne dönünce izin yenilenir, verilince bant kaybolur.
 
 ### 12.1 Tam zamanlı alarm izni (`SCHEDULE_EXACT_ALARM`)
 
@@ -183,3 +197,10 @@ Unsubscribe işlemi pazarlama e-postasından ayrı değerlendirilmelidir; işlem
 - Birden fazla cihaz
 - Geçersiz token
 - Uygulama kapalı/arka planda/açık
+# Expo bildirim sorumlulukları — 12 Ekim 2026
+
+`notificationRuntime.ts` native modülün yüklenmesi, kanal/kategori ve izinleri; `notificationResponses.ts` dokunma, ilk açılış ve ertelemeyi; `notificationScheduler.ts` plan eşitleme, test bildirimi ve toplu iptali yönetir. Scheduler mevcut dış API'yi yeniden export eder. Ayrıştırma yeni bildirim davranışı eklemez; plan değiştirme ve erteleme testleri korunur. Gerçek Android/iOS teslim, soğuk açılış ve izin kabulü ayrıca gereklidir.
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

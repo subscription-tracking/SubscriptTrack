@@ -1,8 +1,11 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { type Money } from '../../../core/domain/money';
+import { Money } from '../../../core/domain/money';
+import { formatCurrency } from '../../../core/format/money';
 import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AnimatedMoney } from '../../../shared/widgets/AnimatedMoney';
@@ -18,13 +21,17 @@ export function HeroCard({
   completed,
   totalActive,
   onAnalysis,
+  fallbackCurrency = 'TRY',
 }: {
   totals: ReadonlyMap<string, Money>;
+  /** Toplam yokken sıfırın gösterileceği para birimi (aktif para birimi). */
+  fallbackCurrency?: string;
   monthChange: string | null;
   completed: number;
   totalActive: number;
   onAnalysis: (() => void) | null;
 }) {
+  useThemeRevision();
   const decreased = monthChange?.includes('daha az') ?? false;
   return (
     <View style={styles.card}>
@@ -34,10 +41,12 @@ export function HeroCard({
             Tahmini aylık abonelik gideri
           </Text>
           {totals.size === 0 ? (
-            <Text style={textStyle('amountLarge')}>₺0,00</Text>
+            <Text style={textStyle('amountLarge')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+              {formatCurrency(Money.zero, fallbackCurrency)}
+            </Text>
           ) : (
             [...totals.entries()].map(([currency, money]) => (
-              <AnimatedMoney key={currency} amount={money.amount} currency={currency} style={textStyle('amountLarge')} />
+              <AnimatedMoney key={currency} amount={money.amount} currency={currency} style={textStyle('amountLarge')} fit />
             ))
           )}
         </View>
@@ -87,7 +96,7 @@ export function HeroCard({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   card: {
     width: '100%',
     padding: spacing.lg,
@@ -114,4 +123,4 @@ const styles = StyleSheet.create({
     marginTop: gaps.rowLoose,
     paddingVertical: spacing.xxs,
   },
-});
+}));

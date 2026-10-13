@@ -1,6 +1,7 @@
 import { type CivilDate } from '../../../core/time/calendar';
 import { isRenewingSoon } from './subscriptionList';
 import { monthlyEquivalent, type Subscription, type SubscriptionCategory } from './subscription';
+import { compareByRenewal } from './activeSelectors';
 
 /**
  * Liste filtreleri ve sıralaması (PARITY: durum, kategori, para birimi, yaklaşan tarih;
@@ -15,8 +16,8 @@ export type SortOption = (typeof SORT_OPTIONS)[number];
 
 export const SORT_LABELS: Record<SortOption, string> = {
   date: 'Yenileme tarihine göre',
-  amountAsc: 'Fiyat: artan',
-  amountDesc: 'Fiyat: azalan',
+  amountAsc: 'Aylık eşdeğer: artan',
+  amountDesc: 'Aylık eşdeğer: azalan',
   name: 'İsme göre',
 };
 
@@ -45,11 +46,19 @@ export function availableCurrencies(subscriptions: readonly Subscription[]): str
   return [...new Set(subscriptions.map((subscription) => subscription.currency))].sort();
 }
 
+/** Fiyat sıralamasında para birimi grup sırası; bilinmeyenler sona gider. */
+const CURRENCY_ORDER = ['TRY', 'USD', 'EUR'];
+
+function currencyRank(currency: string): number {
+  const index = CURRENCY_ORDER.indexOf(currency);
+  return index === -1 ? CURRENCY_ORDER.length : index;
+}
+
 /**
  * Süzgeci uygular. Girdi değiştirilmez. Tarih sıralaması girdinin sırasını korur
- * (sekme aşamasında yenileme tarihine göre sıralanmış olur). Fiyat sıralaması aylık
- * eşdeğere göre yapılır; farklı para birimleri karşılaştırılmaz, yalnızca gösterilen
- * sayılar sıralanır (Flutter ile aynı).
+ * (sekme aşamasında yenileme tarihine göre sıralanmış olur). Fiyat sıralaması önce
+ * para birimine göre gruplar (TRY, USD, EUR, bilinmeyenler sonda), her grupta aylık
+ * eşdeğere göre sıralar; kur dönüşümü yapılmaz, farklı para birimleri karşılaştırılmaz.
  */
 export function applyFilter(
   subscriptions: readonly Subscription[],
@@ -65,12 +74,12 @@ export function applyFilter(
 
   switch (filter.sort) {
     case 'date':
-      return filtered;
+      return filtered.sort(compareByRenewal);
     case 'amountAsc':
-      return filtered.sort((a, b) => monthlyEquivalent(a).compareTo(monthlyEquivalent(b)));
+      return filtered.sort((a, b) => currencyRank(a.currency) - currencyRank(b.currency) || monthlyEquivalent(a).compareTo(monthlyEquivalent(b)) || compareByRenewal(a, b));
     case 'amountDesc':
-      return filtered.sort((a, b) => monthlyEquivalent(b).compareTo(monthlyEquivalent(a)));
+      return filtered.sort((a, b) => currencyRank(a.currency) - currencyRank(b.currency) || monthlyEquivalent(b).compareTo(monthlyEquivalent(a)) || compareByRenewal(a, b));
     case 'name':
-      return filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr-TR'));
+      return filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr-TR') || a.id.localeCompare(b.id));
   }
 }
