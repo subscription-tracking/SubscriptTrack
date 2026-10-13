@@ -33,14 +33,14 @@ export function OverdueSection({
       </View>
       {subscriptions.map((subscription) => {
         const date = subscription.nextRenewalDate as CivilDate;
-        const days = daysBetween(date, today);
+        const days = Math.max(0, daysBetween(date, today));
         return (
           <View key={subscription.id} style={styles.row}>
             <View style={styles.main}>
               <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.calendarAvatar} />
               <View style={styles.texts}>
                 <Text style={textStyle('label')} numberOfLines={1} onPress={() => onOpen(subscription)} accessibilityRole="link">{subscription.name}</Text>
-                <Text style={textStyle('bodySmall', { color: colors.error })}>{`${days} gün gecikti · ${formatCurrency(subscription.amount, subscription.currency)}`}</Text>
+                <Text style={textStyle('bodySmall', { color: colors.error })}>{`${days > 0 ? `${days} gün gecikti` : 'Bugün yenileniyor'} · ${formatCurrency(subscription.amount, subscription.currency)}`}</Text>
               </View>
               </View>
             <TonalButton label={pendingId === subscription.id ? 'Kaydediliyor…' : 'Ödendi'} disabled={pendingId === subscription.id} onPress={() => confirm(subscription)} />

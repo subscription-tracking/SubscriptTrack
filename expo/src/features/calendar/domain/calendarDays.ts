@@ -1,6 +1,7 @@
 import { Money } from '../../../core/domain/money';
 import { type CivilDate, civilDate, dayNumber, daysInMonth } from '../../../core/time/calendar';
 import { activeForTotals } from '../../dashboard/domain/dashboardSummary';
+import { isRenewalDue } from '../../subscriptions/domain/renewalOverdue';
 import { projectedRenewalDates, renewsOnDay } from './projectedRenewals';
 import { compareByRenewal } from '../../subscriptions/domain/activeSelectors';
 import { type Subscription } from '../../subscriptions/domain/subscription';
@@ -87,11 +88,9 @@ export function monthTotalsByCurrency(
   return totals;
 }
 
-/** Vadesi geçmiş (bugün dahil değil) aktif abonelikler, en eskisi önce. */
+/** Vadesi gelmiş (bugün dahil) aktif ve deneme kayıtları, en eskisi önce; ana sayfadaki "Geciken ödemeler" ile aynı kural. */
 export function overdueSubscriptions(subscriptions: readonly Subscription[], today: CivilDate): Subscription[] {
-  return subscriptions
-    .filter((subscription) => subscription.status === 'active' && subscription.nextRenewalDate !== null && dayNumber(subscription.nextRenewalDate) < dayNumber(today))
-    .sort(compareByRenewal);
+  return subscriptions.filter((subscription) => isRenewalDue(subscription, today)).sort(compareByRenewal);
 }
 
 /** Ay kaydırma: 1–12 sınırında yıla taşar. */

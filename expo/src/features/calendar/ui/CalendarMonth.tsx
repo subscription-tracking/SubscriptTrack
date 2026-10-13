@@ -31,7 +31,7 @@ export function CalendarMonth({ subscriptions, today }: { subscriptions: Subscri
 
       <OverdueSection subscriptions={overdue} today={today} onOpen={(item) => router.push(`/subscriptions/${item.id}`)} />
 
-      {dayEvents.length === 0 ? (
+      {dayEvents.length === 0 && allEvents.length > 0 ? null : dayEvents.length === 0 ? (
         <EmptyDayState
           hasSelection={selected !== null}
           onAddForDay={selected ? () => router.push(`/subscriptions/add?start=${formatDateParam(selected)}`) : undefined}

@@ -83,7 +83,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
           </View>
         </View>
 
-        <Trailing subscription={subscription} days={days} today={today} overdue={upcoming !== null} />
+        <Trailing subscription={subscription} days={days} today={today} />
       </View>
       {upcoming ? (
         <Text numberOfLines={1} style={[textStyle('caption'), styles.note]}>
@@ -94,7 +94,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
   );
 });
 
-function Trailing({ subscription, days, today, overdue }: { subscription: Subscription; days: number | null; today: CivilDate; overdue: boolean }) {
+function Trailing({ subscription, days, today }: { subscription: Subscription; days: number | null; today: CivilDate }) {
   useThemeRevision();
   const status = subscription.status;
   const isPaused = status === 'paused';
@@ -108,7 +108,7 @@ function Trailing({ subscription, days, today, overdue }: { subscription: Subscr
       : urgent
         ? colors.error
         : colors.onSurfaceVariant;
-  const label = isPaused ? 'Duraklatıldı' : isCancelled ? 'İptal edildi' : isExpired ? 'Süresi doldu' : isNotStarted(subscription, today) ? 'Henüz başlamadı' : days === null ? '—' : days < 0 ? 'Gecikmiş vade' : renewalLabel(days);
+  const label = isPaused ? 'Duraklatıldı' : isCancelled ? 'İptal edildi' : isExpired ? 'Süresi doldu' : isNotStarted(subscription, today) ? 'Henüz başlamadı' : days === null ? '—' : days < 0 ? `${-days} gün gecikti` : renewalLabel(days);
   return (
     <View style={styles.trailing}>
       <Text style={textStyle('heading', { color: isCancelled || isPaused || isExpired ? colors.onSurfaceVariant : colors.onSurface })}>
@@ -117,7 +117,7 @@ function Trailing({ subscription, days, today, overdue }: { subscription: Subscr
       <Text
         style={textStyle(urgent ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
       >
-        {overdue && subscription.nextRenewalDate ? `${label}: ${formatLongDate(subscription.nextRenewalDate)}` : label}
+        {label}
       </Text>
     </View>
   );
