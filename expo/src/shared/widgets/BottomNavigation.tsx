@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,16 +32,21 @@ export function BottomNavigation({
   activeIndex: number;
   onChange: (index: number) => void;
 }) {
+  useThemeRevision();
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.bar, { height: sizes.bottomNavHeight + insets.bottom, paddingBottom: insets.bottom }]}>
+    <View
+      accessibilityRole="tablist"
+      accessibilityLabel="Ana gezinme"
+      style={[styles.bar, { height: sizes.bottomNavHeight + insets.bottom, paddingBottom: insets.bottom }]}
+    >
       {items.map((item, index) => {
         const active = index === activeIndex;
         const color = active ? colors.primary : colors.onSurfaceVariant;
         return (
           <Pressable
             key={item.key}
-            accessibilityRole="button"
+            accessibilityRole="tab"
             accessibilityLabel={item.label}
             accessibilityState={{ selected: active }}
             onPress={() => onChange(index)}
@@ -52,7 +59,11 @@ export function BottomNavigation({
               ]}
             />
             <Ionicons name={active ? item.icon : item.iconOutline} size={sizes.navIconSize} color={color} />
-            <Text numberOfLines={1} style={textStyle(active ? 'labelSmallStrong' : 'labelSmall', { color, marginTop: extraSpacing.navLabelGap })}>
+            <Text
+              style={textStyle(active ? 'captionStrong' : 'caption', { color, marginTop: extraSpacing.navLabelGap })}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
               {item.label}
             </Text>
           </Pressable>
@@ -62,7 +73,7 @@ export function BottomNavigation({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   bar: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
@@ -71,6 +82,7 @@ const styles = StyleSheet.create({
   },
   item: {
     flex: 1,
+    minHeight: sizes.minTouchTarget,
     height: sizes.bottomNavHeight,
     alignItems: 'center',
     justifyContent: 'center',
@@ -80,4 +92,4 @@ const styles = StyleSheet.create({
     borderRadius: extraRadius.navIndicator,
     marginBottom: extraSpacing.navIndicatorGap,
   },
-});
+}));

@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -27,6 +29,7 @@ export function TopBar({
   onCalendar: () => void;
   onNotifications: () => void;
 }) {
+  useThemeRevision();
   return (
     <HeaderShell minHeight={sizes.topBarHeight}>
       <View style={styles.titleRow}>
@@ -34,8 +37,8 @@ export function TopBar({
           <Ionicons name={icon} size={sizes.topBarIconSize} color={colors.primary} />
         </View>
         <View style={styles.titleColumn}>
-          {subtitle ? <Text numberOfLines={1} style={textStyle('labelSmall')}>{subtitle}</Text> : null}
-          <Text numberOfLines={1} style={[textStyle('topBarTitle'), subtitle ? styles.subtitleGap : null]}>
+          {subtitle ? <Text numberOfLines={1} style={textStyle('caption')}>{subtitle}</Text> : null}
+          <Text numberOfLines={1} style={[textStyle('heading'), subtitle ? styles.subtitleGap : null]}>
             {title}
           </Text>
         </View>
@@ -50,7 +53,7 @@ export function TopBar({
           />
           {unreadCount > 0 ? (
             <View style={styles.badge}>
-              <Text style={textStyle('labelSmall', { color: colors.white })}>{String(unreadCount)}</Text>
+              <Text style={textStyle('caption', { color: colors.white })}>{String(unreadCount)}</Text>
             </View>
           ) : null}
         </View>
@@ -61,6 +64,7 @@ export function TopBar({
 }
 
 function IconButton({ icon, label, onPress }: { icon: IoniconName; label: string; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.iconButton}>
       <Ionicons name={icon} size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
@@ -68,7 +72,7 @@ function IconButton({ icon, label, onPress }: { icon: IoniconName; label: string
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   titleRow: {
     flex: 1,
     flexDirection: 'row',
@@ -115,4 +119,4 @@ const styles = StyleSheet.create({
   trailingGap: {
     width: spacing.xs,
   },
-});
+}));

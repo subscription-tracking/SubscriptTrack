@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 
@@ -27,17 +29,18 @@ export function AsyncStateView<T>({
   children,
   loadingLabel = 'Yükleniyor',
 }: AsyncStateViewProps<T>) {
+  useThemeRevision();
   switch (state.status) {
     case 'loading':
       return (
-        <View style={styles.centered} accessibilityRole="progressbar" accessibilityLabel={loadingLabel}>
+        <View style={styles.centered} accessibilityRole="progressbar" accessibilityLabel={loadingLabel} accessibilityLiveRegion="polite">
           <ActivityIndicator color={colors.primary} />
         </View>
       );
 
     case 'error':
       return (
-        <View style={styles.centered} accessibilityRole="alert">
+        <View style={styles.centered} accessibilityRole="alert" accessibilityLiveRegion="assertive">
           <Text style={styles.title}>Bir sorun oluştu</Text>
           <Text style={styles.description}>{state.message}</Text>
           {state.onRetry ? (
@@ -54,7 +57,7 @@ export function AsyncStateView<T>({
 
     case 'empty':
       return (
-        <View style={styles.centered}>
+        <View style={styles.centered} accessibilityLiveRegion="polite">
           <Text style={styles.title}>{state.title}</Text>
           {state.description ? <Text style={styles.description}>{state.description}</Text> : null}
           {state.action}
@@ -66,7 +69,7 @@ export function AsyncStateView<T>({
   }
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   centered: {
     flex: 1,
     alignItems: 'center',
@@ -77,7 +80,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.onBackground,
-    ...textStyle('titleSmall'),
+    ...textStyle('bodyStrong'),
     textAlign: 'center',
   },
   description: {
@@ -101,4 +104,4 @@ const styles = StyleSheet.create({
     color: colors.onPrimary,
     ...buttonText,
   },
-});
+}));

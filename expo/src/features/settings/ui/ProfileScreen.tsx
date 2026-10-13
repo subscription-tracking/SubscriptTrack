@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
@@ -5,8 +7,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthProvider';
 import { messageForError } from '../../auth/domain/authErrors';
 import { PASSWORD_REQUIREMENT, validateLoginPassword, validateNewPassword } from '../../auth/domain/authRules';
-import { formatLongDate } from '../../../core/format/date';
-import { civilDate } from '../../../core/time/calendar';
+import { formatTimestampDate } from '../../../core/format/date';
 import { borderWidth, colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { PasswordField } from '../../../shared/widgets/PasswordField';
@@ -16,9 +17,11 @@ import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
+import { useUserTimeZone } from '../data/useActiveCurrency';
 
 /** Flutter `ProfileScreen`: başlık (avatar, e-posta, üyelik tarihi), görünen ad, e-posta ve şifre değiştirme. */
 export function ProfileScreen() {
+  useThemeRevision();
   const { user } = useAuth();
   if (!user) return null;
   return (
@@ -30,8 +33,10 @@ export function ProfileScreen() {
 }
 
 function ProfileBody({ email, displayName, createdAt }: { email: string; displayName: string | null; createdAt: string }) {
+  useThemeRevision();
   const { updateDisplayName, updateEmail, updatePassword, signIn } = useAuth();
   const snackbar = useSnackbar();
+  const timeZone = useUserTimeZone();
   // Ad yoksa alan boş kalır; e-posta öneki ad olarak gösterilmez.
   const currentName = displayName?.trim() ?? '';
   const [name, setName] = useState(currentName);
@@ -44,6 +49,8 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
   const passwordReady =
     passwords.current.length > 0 && validateNewPassword(passwords.next) === null && passwords.next === passwords.confirm;
 
+  const passwordTouched = passwords.current.length > 0 || passwords.next.length > 0 || passwords.confirm.length > 0;
+
   const nameSave = useMutation({
     mutationFn: () => updateDisplayName(name.trim()),
     onSuccess: () => snackbar.show('İsim güncellendi.', 'primary'),
@@ -52,7 +59,7 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
 
   const emailSave = useMutation({
     mutationFn: () => updateEmail(newEmail),
-    onSuccess: () => snackbar.show('E-posta güncellendi. Yeni adresine doğrulama bağlantısı gönderilebilir.', 'primary'),
+    onSuccess: () => snackbar.show('E-posta güncellendi. Yeni adresine doğrulama bağlantısı gönderildi.', 'primary'),
     onError: (error: unknown) => snackbar.show(messageForError(error), 'error'),
   });
 
@@ -79,40 +86,47 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
   }
 
   const initial = (displayName?.trim() ? displayName.trim() : email).charAt(0).toUpperCase();
-  const created = new Date(createdAt);
-  const memberSince = formatLongDate(civilDate(created.getFullYear(), created.getMonth() + 1, created.getDate()));
+  const memberSince = formatTimestampDate(createdAt, timeZone);
 
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <View style={styles.avatar}>
-          <Text style={textStyle('avatarInitial', { color: colors.onPrimaryContainer })}>{initial}</Text>
+          <Text style={textStyle('headline', { color: colors.onPrimaryContainer })}>{initial}</Text>
         </View>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>{email}</Text>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xxs / 2 })}>{`Üyelik tarihi: ${memberSince}`}</Text>
       </View>
 
       <View style={styles.gap28} />
-      <Text style={textStyle('titleSmall')}>İsim</Text>
+      <Text style={textStyle('bodyStrong')}>İsim</Text>
       <View style={styles.gap8} />
       <TextField label="Adın" prefixIcon="person-outline" value={name} onChangeText={setName} placeholder="Adını gir" editable={!nameSave.isPending} />
-      <View style={styles.gap12} />
-      <PrimaryButton label="Kaydet" tall={false} loading={nameSave.isPending} disabled={!nameChanged} onPress={() => nameSave.mutate()} />
+      {nameChanged ? (
+        <>
+          <View style={styles.gap12} />
+          <PrimaryButton label="Adı kaydet" tall={false} loading={nameSave.isPending} onPress={() => nameSave.mutate()} />
+        </>
+      ) : null}
 
       <View style={styles.gap28} />
-      <Text style={textStyle('titleSmall')}>E-posta</Text>
+      <Text style={textStyle('bodyStrong')}>E-posta</Text>
       <View style={styles.gap8} />
       <TextField label="E-posta" prefixIcon="email" value={newEmail} onChangeText={setNewEmail} keyboardType="email-address" autoComplete="email" editable={!emailSave.isPending} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs })}>
-        E-posta adresini doğrulaman istenirse yeni adresine bir bağlantı gönderilir.
+        E-postanı değiştirirsen yeni adresine doğrulama bağlantısı gönderilir.
       </Text>
-      <View style={styles.gap12} />
-      <PrimaryButton label="E-postayı güncelle" tall={false} loading={emailSave.isPending} disabled={!emailChanged} onPress={() => emailSave.mutate()} />
+      {emailChanged ? (
+        <>
+          <View style={styles.gap12} />
+          <PrimaryButton label="E-postayı güncelle" tall={false} loading={emailSave.isPending} onPress={() => emailSave.mutate()} />
+        </>
+      ) : null}
 
       <View style={styles.gap32} />
       <View style={styles.divider} />
       <View style={styles.gap20} />
-      <Text style={textStyle('titleSmall')}>Şifre değiştir</Text>
+      <Text style={textStyle('bodyStrong')}>Şifre değiştir</Text>
       <View style={styles.gap12} />
       <PasswordField
         label="Mevcut şifre"
@@ -137,14 +151,18 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
         error={confirmError}
         editable={!passwordSave.isPending}
       />
-      <View style={styles.gap12} />
-      <PrimaryButton label="Şifreyi güncelle" tall={false} loading={passwordSave.isPending} disabled={!passwordReady} onPress={submitPassword} />
+      {passwordTouched ? (
+        <>
+          <View style={styles.gap12} />
+          <PrimaryButton label="Şifreyi güncelle" tall={false} loading={passwordSave.isPending} disabled={!passwordReady} onPress={submitPassword} />
+        </>
+      ) : null}
       <ScreenBottomInset />
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -185,4 +203,4 @@ const styles = StyleSheet.create({
   bottom: {
     height: sizes.bottomNavHeight,
   },
-});
+}));

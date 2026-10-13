@@ -6,14 +6,14 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Money } from '../../../core/domain/money';
 import { formatCurrency } from '../../../core/format/money';
-import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AnimatedMoney } from '../../../shared/widgets/AnimatedMoney';
 import { ProgressRing } from '../../../shared/widgets/ProgressRing';
 
 /**
  * Flutter `DashboardHeroCard`: aylık tahmini gider (para birimi başına, sayma animasyonlu), aktif
- * aboneliklerin bu ayki ödeme halkası, geçen aya göre değişim ve analiz bağlantısı.
+ * aboneliklerin bu ayki ödeme halkası, geçen ay ödenen toplam ve analiz bağlantısı.
  */
 export function HeroCard({
   totals,
@@ -32,21 +32,20 @@ export function HeroCard({
   onAnalysis: (() => void) | null;
 }) {
   useThemeRevision();
-  const decreased = monthChange?.includes('daha az') ?? false;
   return (
     <View style={styles.card}>
       <View style={styles.row}>
         <View style={styles.totals}>
-          <Text style={textStyle('bodySmallStrong', { color: withAlpha(colors.onSurfaceVariant, 0.9), letterSpacing: 0.3, marginBottom: gaps.heroLabel })}>
+          <Text style={textStyle('label', { color: colors.onSurfaceVariant, letterSpacing: 0.3, marginBottom: gaps.heroLabel })}>
             Tahmini aylık abonelik gideri
           </Text>
           {totals.size === 0 ? (
-            <Text style={textStyle('amountLarge')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+            <Text style={textStyle('display')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
               {formatCurrency(Money.zero, fallbackCurrency)}
             </Text>
           ) : (
             [...totals.entries()].map(([currency, money]) => (
-              <AnimatedMoney key={currency} amount={money.amount} currency={currency} style={textStyle('amountLarge')} fit />
+              <AnimatedMoney key={currency} amount={money.amount} currency={currency} style={textStyle('display')} fit />
             ))
           )}
         </View>
@@ -58,8 +57,8 @@ export function HeroCard({
               color={colors.primary}
               trackColor={withAlpha(colors.primary, 0.15)}
             >
-              <Text style={textStyle('ringValue')}>{`${completed}/${totalActive}`}</Text>
-              <Text style={textStyle('ringLabel', { color: withAlpha(colors.onSurfaceVariant, 0.9) })}>ödendi</Text>
+              <Text style={textStyle('label')}>{`${completed}/${totalActive}`}</Text>
+              <Text style={textStyle('caption')}>ödendi</Text>
             </ProgressRing>
           </Pressable>
         ) : null}
@@ -67,17 +66,8 @@ export function HeroCard({
 
       {monthChange ? (
         <View style={styles.changeRow}>
-          <MaterialIcons
-            name={decreased ? 'trending-down' : 'trending-up'}
-            size={sizes.heroIcon}
-            color={decreased ? statusColors.success : statusColors.warning}
-          />
-          <Text
-            style={textStyle('bodySmallStrong', {
-              marginLeft: gaps.heroLabel,
-              color: decreased ? statusColors.success : colors.onSurfaceVariant,
-            })}
-          >
+          <MaterialIcons name="history" size={sizes.heroIcon} color={colors.onSurfaceVariant} />
+          <Text style={textStyle('label', { marginLeft: gaps.heroLabel, color: colors.onSurfaceVariant })}>
             {monthChange}
           </Text>
         </View>
@@ -86,7 +76,7 @@ export function HeroCard({
       {onAnalysis ? (
         <Pressable accessibilityRole="button" onPress={onAnalysis} style={styles.analysisLink}>
           <Ionicons name="bar-chart-outline" size={sizes.heroIcon} color={colors.primary} />
-          <Text style={textStyle('bodySmallStrong', { flex: 1, marginLeft: spacing.xs, color: withAlpha(colors.onSurface, 0.85) })}>
+          <Text style={textStyle('label', { flex: 1, marginLeft: spacing.xs })}>
             Abonelik giderlerini incele
           </Text>
           <MaterialIcons name="chevron-right" size={sizes.chevronIcon} color={colors.onSurfaceVariant} />

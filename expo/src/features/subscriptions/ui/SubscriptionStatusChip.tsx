@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Text, View, StyleSheet } from 'react-native';
 
 import { borderWidth, colors, radius, spacing, statusColors, withAlpha } from '../../../shared/design/tokens';
@@ -15,6 +17,7 @@ export function SubscriptionStatusChip({
   isNotStarted?: boolean;
   daysUntilRenewal?: number | null;
 }) {
+  useThemeRevision();
   const state = statusChipState({ status, isNotStarted, daysUntilRenewal });
   const color = toneColor(state.tone);
   return (
@@ -22,7 +25,7 @@ export function SubscriptionStatusChip({
       accessibilityLabel={state.label}
       style={[styles.chip, { backgroundColor: withAlpha(color, 0.14), borderColor: withAlpha(color, 0.28) }]}
     >
-      <Text style={textStyle('labelSmallStrong', { color })}>{state.label}</Text>
+      <Text style={textStyle('captionStrong', { color })}>{state.label}</Text>
     </View>
   );
 }
@@ -44,11 +47,11 @@ export function toneColor(tone: ChipTone): string {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   chip: {
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xxs,
     borderRadius: radius.pill,
     borderWidth: borderWidth.regular,
   },
-});
+}));

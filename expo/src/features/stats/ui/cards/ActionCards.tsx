@@ -1,14 +1,17 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
-import { chartColors } from '../../../../shared/design/palette';
+import { chartColors } from '../../../../shared/design/chartTheme';
 import { textStyle } from '../../../../shared/design/typography';
 
 /**
  * Flutter `ActionCards`: tasarruf analizi ve ödeme geçmişine iki eşit kısayol kartı.
  */
 export function ActionCards({ onSavings, onPaymentHistory }: { onSavings: () => void; onPaymentHistory: () => void }) {
+  useThemeRevision();
   return (
     <View style={styles.row}>
       <ActionTile icon="trending-down" tone={chartColors.emerald} title="Tasarruf Analizi" subtitle="Tasarruf fırsatları" onPress={onSavings} />
@@ -31,22 +34,23 @@ function ActionTile({
   subtitle: string;
   onPress: () => void;
 }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.tile, pressed ? styles.pressed : null]}>
       <View style={[styles.iconBox, { backgroundColor: withAlpha(tone, 0.12) }]}>
         <MaterialIcons name={icon} size={sizes.iconButtonSize - spacing.xxs} color={tone} />
       </View>
-      <Text style={textStyle('bodySmallStrong', { marginTop: gaps.sectionInner - 2 })} numberOfLines={1}>
+      <Text style={textStyle('label', { marginTop: gaps.sectionInner - 2 })} numberOfLines={1}>
         {title}
       </Text>
-      <Text style={textStyle('chip', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })} numberOfLines={1}>
+      <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })} numberOfLines={1}>
         {subtitle}
       </Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
@@ -69,4 +73,4 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
     borderRadius: radius.chip,
   },
-});
+}));

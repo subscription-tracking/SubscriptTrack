@@ -52,10 +52,10 @@ export function DetailHero({
           <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.heroLogoIcon} />
         </View>
         <View style={styles.titleColumn}>
-          <Text numberOfLines={1} style={textStyle('heroTitle', { letterSpacing: -0.5 })}>
+          <Text numberOfLines={1} style={textStyle('headline', { color: colors.white, letterSpacing: -0.5 })}>
             {subscription.name}
           </Text>
-          <Text numberOfLines={1} style={textStyle('heroSub', { color: withAlpha(colors.white, 0.82), marginTop: spacing.xxs })}>
+          <Text numberOfLines={1} style={textStyle('label', { color: withAlpha(colors.white, 0.82), marginTop: spacing.xxs })}>
             {`${BILLING_CYCLE_LABELS[subscription.billingCycle]} • ${formatAmount(subscription.amount.amount, subscription.currency)}`}
           </Text>
         </View>

@@ -1,9 +1,9 @@
 import { Money } from '../../../core/domain/money';
 import { formatCurrency } from '../../../core/format/money';
-import { monthOverMonthPercent, type PaymentEvent } from '../../stats/domain/paymentEvents';
+import { totalForMonth, type PaymentEvent } from '../../stats/domain/paymentEvents';
 import type { Subscription, SubscriptionCategory } from '../../subscriptions/domain/subscription';
 import { monthlyEquivalent } from '../../subscriptions/domain/subscription';
-import { zoneToday } from '../../../core/time/calendar';
+import { zoneToday, zonedHourToUtc } from '../../../core/time/calendar';
 
 /**
  * Ana sayfa kahramanı ve kategori özeti (Flutter `DashboardHeroCard` ve `DashboardCategoryDonutCard`
@@ -23,13 +23,20 @@ export function completedThisMonth(active: readonly Subscription[], payments: re
   return active.filter((subscription) => paidIds.has(subscription.id)).length;
 }
 
-/** "Geçen aya göre %12 daha az" biçimi; karşılaştırılacak veri yoksa `null`. Para birimi ilk kaydınkidir (Flutter ile aynı). */
-export function monthChangeLabel(payments: readonly PaymentEvent[], now: Date, timeZone: string): string | null {
+/**
+ * "Geçen ay ödenen ₺1.200" biçimi. Bu ay henüz tamamlanmadığı için kısmi bir toplamı geçen
+ * ayın tamamıyla yüzde olarak kıyaslamak yanıltıcıdır; yalnızca geçen ayın gerçek toplamı
+ * gösterilir. Geçen ay ödeme yoksa `null`. Para birimi verilmezse ilk kaydınkidir.
+ */
+export function monthChangeLabel(payments: readonly PaymentEvent[], now: Date, timeZone: string, currency?: string): string | null {
   if (payments.length === 0) return null;
-  const percent = monthOverMonthPercent(payments, payments[0].currency, now, timeZone);
-  if (percent === null) return null;
-  const direction = percent <= 0 ? 'daha az' : 'daha fazla';
-  return `Geçen aya göre %${Math.abs(percent)} ${direction}`;
+  const code = currency ?? payments[0].currency;
+  const today = zoneToday(timeZone, now);
+  const prior = new Date(Date.UTC(today.year, today.month - 2, 1));
+  const middle = zonedHourToUtc({ year: prior.getUTCFullYear(), month: prior.getUTCMonth() + 1, day: 1 }, 12, timeZone);
+  const minorUnits = totalForMonth(payments, code, middle, timeZone);
+  if (minorUnits <= 0) return null;
+  return `Geçen ay ödenen ${formatCurrency(Money.fromMinorUnits(minorUnits), code)}`;
 }
 
 /**

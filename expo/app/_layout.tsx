@@ -1,5 +1,7 @@
+import { useThemeRevision } from '../src/shared/design/useThemeRevision';
 import { useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppState } from 'react-native';
 import { type Href, Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -9,11 +11,12 @@ import { AuthProvider, useAuth } from '../src/features/auth/AuthProvider';
 import { resolveRedirect } from '../src/features/auth/domain/sessionState';
 import { appFonts } from '../src/shared/design/fonts';
 import { colors } from '../src/shared/design/tokens';
-import { fontFamily, textStyle } from '../src/shared/design/typography';
+import { textStyle } from '../src/shared/design/typography';
 import { AppSnackbarProvider } from '../src/shared/widgets/AppSnackbar';
 import { AppLockProvider } from '../src/features/settings/ui/AppLockProvider';
 import { useOnboardingFlag } from '../src/features/onboarding/data/onboardingFlag';
 import { AsyncStateView } from '../src/shared/widgets/AsyncStateView';
+import { ThemeProvider } from '../src/shared/design/ThemeProvider';
 
 const queryClient = new QueryClient();
 
@@ -21,7 +24,13 @@ const queryClient = new QueryClient();
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
+  useThemeRevision();
   const [fontsLoaded] = useFonts(appFonts);
+  useEffect(() => {
+    focusManager.setFocused(AppState.currentState === 'active');
+    const subscription = AppState.addEventListener('change', (state) => focusManager.setFocused(state === 'active'));
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded) void SplashScreen.hideAsync().catch(() => undefined);
@@ -33,16 +42,23 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
       <AppSnackbarProvider>
         <AuthProvider>
           <AppLockProvider>
-            <StatusBar style="light" />
+            <ThemeStatusBar />
             <AuthGate />
           </AppLockProvider>
         </AuthProvider>
       </AppSnackbarProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+function ThemeStatusBar() {
+  const theme = useThemeRevision();
+  return <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />;
 }
 
 /**
@@ -51,6 +67,7 @@ export default function RootLayout() {
  * e-posta bağlantısıyla şifre sıfırlama açıksa yeni şifre ekranına gider.
  */
 function AuthGate() {
+  useThemeRevision();
   const auth = useAuth();
   const segments = useSegments();
   const router = useRouter();
@@ -77,7 +94,7 @@ function AuthGate() {
         headerShown: false,
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.onBackground,
-        headerTitleStyle: textStyle('title', { fontFamily }),
+        headerTitleStyle: textStyle('title'),
         headerShadowVisible: false,
         contentStyle: { backgroundColor: colors.background },
       }}

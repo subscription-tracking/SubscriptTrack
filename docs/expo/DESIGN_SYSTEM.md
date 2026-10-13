@@ -1,5 +1,7 @@
 # Tasarım Sistemi — Expo Uygulaması
 
+> Güncelleme 13 Ekim 2026: yazı ölçeği, köşe kademeleri, kontrast kuralları ve düğme hiyerarşisi bu sayfadaki hâliyle uygulanmıştır (bkz. [tasarım incelemesi](../quality/expo-design-review-2026-10-13.md)). Flutter'ın token adları burada geçerli değildir.
+
 > **Durum: Onaylı, uygulandı.** Dört karar 2026-10-09 tarihinde onaylandı ve kodda uygulandı; §10 ihlalleri kapatıldı. Kural seti `expo/src/design-system.test.ts` ile zorlanır. Bu belge `expo/` uygulamasının tasarım kurallarını tanımlar. Görsel hedef Flutter sürümüyle aynıdır ([docs/product/DESIGN_SYSTEM.md](../product/DESIGN_SYSTEM.md)); ürün ilkeleri ve semantic renk isimleri orada tanımlıdır. Bu belge yalnızca Expo'da **nasıl uygulanacağını** ve Flutter'dan sapma varsa neyin geçerli olacağını söyler.
 >
 > Kodda bugün uygulanan tokenlar: [expo/src/shared/design/tokens.ts](../../expo/src/shared/design/tokens.ts) ve [typography.ts](../../expo/src/shared/design/typography.ts). Bu belgedeki kurallar, kodla çeliştiği yerlerde **uygulanacak** kurallardır; mevcut ihlaller §10'da listelenmiştir.
@@ -39,42 +41,57 @@ Ekranlar değer yazmaz, **token seçer**. Stil dosyasında `padding: 13` ya da `
 
 ## 5. Yazı (typography)
 
-Yazı yalnızca **roller** üzerinden kullanılır. Rol, boyut ve kalınlığın tek kaynağıdır; ekran `fontSize` ya da `fontWeight` yazmaz.
+Yazı yalnızca **roller** üzerinden kullanılır (`textStyle(role)`). Rol; boyut, ağırlık ve rengin tek kaynağıdır; ekran `fontSize`, `fontWeight` ya da `fontFamily` yazmaz. Yazı tipi **Hanken Grotesk** statik ağırlıklarıdır (`@expo-google-fonts/hanken-grotesk`, SIL OFL 1.1, pakete gömülü; çalışma zamanında indirilmez). Her ağırlık ayrı aile adıyla yüklenir (400, 500, 600, 700); Android'de değişken font ağırlıkları uygulanmadığı için `fontWeight` kullanılmaz.
 
-| Rol | Boyut | Kalınlık | Kullanım |
+| Rol | Boyut | Ağırlık | Kullanım |
 |---|---|---|---|
-| `display` | 36 | 700 | Karşılama ekranı (nadir) |
-| `headline` | 28 | 700 | Ekran başlığı |
-| `title` | 22 | 700 | Üst çubuk, bölüm başlığı |
-| `titleSmall` | 16 | 600 | Kart başlığı, liste başlığı |
+| `display` | 36 | 700 | Ana tutar (tabular rakam) |
+| `headline` | 28 | 700 | Karşılama ve kimlik ekranı başlığı |
+| `title` | 22 | 700 | Ekran ve bölüm başlığı |
+| `heading` | 18 | 600 | Üst çubuk, kart ve bölüm alt başlığı |
 | `body` | 16 | 400 | Metin, form alanı |
+| `bodyStrong` | 16 | 600 | Düğme, liste satırı başlığı |
 | `bodySmall` | 14 | 400 | Yardımcı açıklama |
-| `label` | 14 | 600 | Düğme, çip, sekme |
-| `caption` | 12 | 500 | Etiket, durum, hata metni |
+| `label` | 14 | 600 | Çip, sekme, satır etiketi |
+| `caption` | 12 | 500 | Alt metin, durum, hata |
+| `captionStrong` | 12 | 700 | Rozet, vurgulu alt metin |
+| `overline` | 12 | 700 | Büyük harfli bölüm etiketi |
+| `numeric` | 16 | 700 | Liste tutarları (tabular rakam) |
 
 **Kurallar:**
-- Yalnızca bu tablodaki boyutlar kullanılır (12, 14, 16, 22, 28, 36). Tabloda olmayan her boyut hatadır.
-- Kalınlık yalnızca 400, 500, 600, 700 olur. **800 kullanılmaz.** *(Öneri; §11 karar 2.)*
+- Yalnızca 12, 14, 16, 18, 22, 28 ve 36 kullanılır; **en küçük boyut 12**. 9–11 pt yazı yoktur.
+- Rol adı anlam taşır (ör. `caption`); Flutter widget adı ya da ekran adı taşımaz.
 - Hata ve yardımcı metin en az `caption` (12) boyutunda.
+- Metin renkleri rolün varsayılanıdır; farklı renk gerekirse `textStyle(role, { color })` ile semantik token verilir.
 
 ## 6. Köşe yarıçapı (radius)
 
 | Token | Değer | Kullanım |
 |---|---|---|
-| `xs` | 4 | Snackbar, küçük işaret |
-| `sm` | 14 | Giriş alanı, düğme |
-| `md` | 20 | Kart |
-| `pill` | 100 | Çip, sekme |
-| `circle` | yarı genişlik | Avatar, dairesel simge |
+| `xs` | 4 | Onay kutusu, küçük işaret |
+| `sm` | 8 | Küçük çip, seçim kutusu |
+| `md` | 12 | Giriş alanı, düğme, satır kartı |
+| `lg` | 20 | Kart, alt sayfa |
+| `pill` | 100 | Hap sekme, çip |
 
-Ham sayı yok. 2, 21, 36 gibi değerler kullanılmaz; daire için `circle` kullanılır.
+Beş kademe dışında değer yazılmaz. `small`, `medium`, `tile`, `sheet` gibi eski adlar geçiş takma adıdır ve yukarıdaki kademelere eşlenir; yeni kodda kullanılmaz.
 
-## 7. Renk
+## 7. Renk, kontrast ve durumlar
 
-- Hex değeri ve `rgba(...)` yalnızca `tokens.ts` içinde tanımlanır. Ekran dosyaları bunları yazmaz.
-- Metin opaklığı için token + opaklık fonksiyonu kullanılır (ör. `withAlpha(colors.onBackground, 0.55)`). Bu fonksiyon `tokens.ts` içinde olur.
-- Durum renkleri (başarı, uyarı, deneme, pasif) yalnızca durum bildirir. Marka rengi durum için kullanılmaz.
-- Devre dışı öğeler: metin `onSurface` %38, arka plan `onSurface` %12 (Flutter ile aynı).
+- Hex değeri ve `rgba(...)` yalnızca `src/shared/design` içinde tanımlanır. Ekranlar token kullanır.
+- **Metin kontrastı ≥4,5:1** (`onSurface`, `onSurfaceVariant`, `primary`, `error`, durum renkleri; iki temada, `background`, `surface` ve `surfaceHigh` üzerinde).
+- **Bileşen sınırı ≥3:1** (WCAG 1.4.11): giriş alanı, çerçeveli düğme, çip ve onay kutusu `controlBorder` kullanır (koyu `#6B7385`, açık `#7A849A`). Kart ve ayırıcılar `border`/`outlineHalf` kullanır; bunlar bilgi taşımaz.
+- **Grafik ve kategori renkleri ≥3:1** (iki tema): `chartColors` ve `categoryPalette()` etkin temaya göre çözülür (`shared/design/chartTheme.ts`); ham değerler saf `palette.ts` içindedir.
+- Anlam yalnızca renkle taşınmaz: durum için ikon, şekil ya da metin eklenir (ör. takvimde gecikmiş vade ünlem işaretidir).
+- **Pasif durum** opaklıkla değil, `disabledSurface` ve `disabledText` ile gösterilir.
+- Durum renkleri (başarı, uyarı, deneme, pasif) yalnızca durum bildirir. Metinde `statusColors.muted` yerine `mutedText` kullanılır.
+- Bu kurallar `src/shared/design/contrast.test.ts` ile iki temada otomatik doğrulanır.
+
+### Düğme hiyerarşisi
+- **Birincil:** `PrimaryButton` (dolu; yıkıcı için `tone="danger"`).
+- **İkincil:** `TonalButton` (yüzey dolgusu + `controlBorder`; yıkıcı için `tone="danger"`).
+- **Üçüncül:** `TextLink` (düz metin; yıkıcı için `tone="danger"`, kırmızı ve altı çizili).
+- Tüm düğmelerin dokunma alanı ≥48 px; seçili çip dolgulu olur (yalnız çerçeve değil).
 
 ## 8. Dokunma alanı
 

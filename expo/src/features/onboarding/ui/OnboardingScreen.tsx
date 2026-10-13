@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useEffect, useRef, useState } from 'react';
 import { type Href, useRouter } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions, type ListRenderItemInfo } from 'react-native';
@@ -29,6 +31,7 @@ const PAGES: Page[] = [
  * bayrak yazılır ve giriş ekranına gidilir. Bildirim izni burada istenmez.
  */
 export function OnboardingScreen() {
+  useThemeRevision();
   const router = useRouter();
   const { markDone } = useOnboardingFlag();
   const { width } = useWindowDimensions();
@@ -73,7 +76,7 @@ export function OnboardingScreen() {
       <View style={styles.screen}>
         <View style={[styles.topBar, { paddingTop: insets.top + spacing.xxs }]}>
           <View style={[styles.brandDot, { backgroundColor: accent }]} />
-          <Text style={textStyle('brand', { color: withAlpha(colors.onSurface, opacity.muted), marginLeft: spacing.xs, letterSpacing: -0.2 })}>
+          <Text style={textStyle('label', { color: withAlpha(colors.onSurface, opacity.muted), marginLeft: spacing.xs, letterSpacing: -0.2 })}>
             SubscriptTrack
           </Text>
           <View style={styles.spacer} />
@@ -113,7 +116,7 @@ export function OnboardingScreen() {
               onPress={next}
               style={({ pressed }) => [styles.button, { backgroundColor: accent }, pressed && styles.pressed]}
             >
-              <Text style={textStyle('button', { color: colors.white })}>{isLastPage(index) ? 'Başla' : 'İleri'}</Text>
+              <Text style={textStyle('bodyStrong', { color: colors.white })}>{isLastPage(index) ? 'Başla' : 'İleri'}</Text>
             </Pressable>
           </View>
         </View>
@@ -123,6 +126,7 @@ export function OnboardingScreen() {
 }
 
 function InfoPage({ slide }: { slide: OnboardingSlide }) {
+  useThemeRevision();
   return (
     <View style={styles.info}>
       <EntranceFade>
@@ -136,7 +140,7 @@ function InfoPage({ slide }: { slide: OnboardingSlide }) {
       </EntranceFade>
       <View style={styles.gapTitle} />
       <EntranceFade delay={80}>
-        <Text style={textStyle('headlineSmallStrong', { textAlign: 'center' })}>{slide.title}</Text>
+        <Text style={textStyle('title', { textAlign: 'center' })}>{slide.title}</Text>
       </EntranceFade>
       <View style={styles.gapBody} />
       <EntranceFade delay={140}>
@@ -146,7 +150,7 @@ function InfoPage({ slide }: { slide: OnboardingSlide }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     paddingBottom: spacing.xl,
@@ -218,5 +222,5 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.88,
   },
-});
+}));
 

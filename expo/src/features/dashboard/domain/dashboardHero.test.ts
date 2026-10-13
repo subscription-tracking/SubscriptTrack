@@ -1,6 +1,7 @@
 import { Money } from '../../../core/domain/money';
 import { type SubscriptionRow, subscriptionFromRow } from '../../subscriptions/domain/subscription';
-import { annualChipLabel, categoryTotals, donutEntries } from './dashboardHero';
+import type { PaymentEvent } from '../../stats/domain/paymentEvents';
+import { annualChipLabel, categoryTotals, donutEntries, monthChangeLabel } from './dashboardHero';
 
 const sub = (overrides: Partial<SubscriptionRow>) =>
   subscriptionFromRow({
@@ -51,5 +52,29 @@ describe('categoryTotals', () => {
     );
     expect(primaryCurrency).toBe('TRY');
     expect(entries).toHaveLength(1);
+  });
+});
+
+describe('monthChangeLabel', () => {
+  const now = new Date('2026-10-13T09:00:00Z');
+  const payment = (iso: string, amount: string, currency = 'TRY'): PaymentEvent => ({
+    id: iso + amount,
+    subscriptionId: 's',
+    amount: Money.parse(amount),
+    currency,
+    paidAt: iso,
+    status: 'PAID',
+  });
+
+  it('kısmi ayı yüzdeyle kıyaslamaz, geçen ay ödenen toplamı yazar', () => {
+    const label = monthChangeLabel([payment('2026-09-05T09:00:00Z', '100'), payment('2026-10-02T09:00:00Z', '5')], now, 'Europe/Istanbul', 'TRY');
+    expect(label).toContain('Geçen ay ödenen');
+    expect(label).toContain('100');
+    expect(label).not.toContain('%');
+  });
+
+  it('geçen ay ödeme yoksa ya da kayıt yoksa gösterilmez', () => {
+    expect(monthChangeLabel([], now, 'Europe/Istanbul')).toBeNull();
+    expect(monthChangeLabel([payment('2026-10-02T09:00:00Z', '5')], now, 'Europe/Istanbul', 'TRY')).toBeNull();
   });
 });

@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { useState, type ComponentProps } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -29,6 +31,7 @@ export function DateField({
   fallback: CivilDate;
   icon?: MaterialIconName;
 }) {
+  useThemeRevision();
   const [open, setOpen] = useState(false);
   const shown = value ?? fallback;
 
@@ -68,7 +71,7 @@ export function DateField({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   tile: {
     minHeight: sizes.tileMinHeight,
     flexDirection: 'row',
@@ -76,8 +79,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.field,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.outlineHalf,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.controlBorder,
   },
   tileError: {
     borderColor: colors.error,
@@ -88,4 +91,4 @@ const styles = StyleSheet.create({
   textsWithIcon: {
     marginLeft: spacing.md,
   },
-});
+}));

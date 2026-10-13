@@ -53,7 +53,7 @@ export function ServiceSection({
     <FormSection>
       {showPresets ? (
         <View style={styles.presetsBlock}>
-          <Text style={textStyle('formLabel', { color: withAlpha(colors.onSurface, 0.6) })}>
+          <Text style={textStyle('captionStrong', { letterSpacing: 0.5, color: withAlpha(colors.onSurface, 0.6) })}>
             Popüler servisler
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.presetRow}>
@@ -65,10 +65,10 @@ export function ServiceSection({
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
                   onPress={() => pickPreset(preset)}
-                  style={[styles.preset, { borderColor: selected ? colors.primary : colors.outlineHalf, borderWidth: selected ? borderWidth.focused + 0.5 : borderWidth.hairline }]}
+                  style={[styles.preset, { borderColor: selected ? colors.primary : colors.controlBorder, borderWidth: selected ? borderWidth.focused + 0.5 : borderWidth.hairline }]}
                 >
                   <ServiceIdentity name={preset.name} category={preset.category} size={26} />
-                  <Text style={textStyle(selected ? 'presetLabelStrong' : 'presetLabel', { marginLeft: spacing.xs })}>{preset.name}</Text>
+                  <Text style={textStyle(selected ? 'label' : 'bodySmall', { marginLeft: spacing.xs, ...(selected ? {} : { color: colors.onSurfaceVariant }) })}>{preset.name}</Text>
                 </Pressable>
               );
             })}

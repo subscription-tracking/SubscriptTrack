@@ -1,11 +1,13 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { StyleSheet, Text, View } from 'react-native';
-import { radius } from '../design/tokens';
+import { radius , colors, opacity, spacing, withAlpha } from '../design/tokens';
 
-import { colors, opacity, spacing, withAlpha } from '../design/tokens';
 import { textStyle } from '../design/typography';
 
 /** Flutter `BrandMark`: küçük nokta ve "SubscriptTrack" yazısı. */
 export function BrandMark() {
+  useThemeRevision();
   return (
     <View style={styles.row}>
       <View style={styles.dot} />
@@ -14,7 +16,7 @@ export function BrandMark() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -27,6 +29,6 @@ const styles = StyleSheet.create({
   },
   label: {
     marginLeft: spacing.xs,
-    ...textStyle('brand', { color: withAlpha(colors.onBackground, opacity.muted), letterSpacing: -0.2 }),
+    ...textStyle('label', { color: withAlpha(colors.onBackground, opacity.muted), letterSpacing: -0.2 }),
   },
-});
+}));

@@ -1,6 +1,8 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps, ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
-import { spacing } from '../../../shared/design/tokens';
+import { spacing , colors, extraSpacing as authSpacing } from '../../../shared/design/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -8,7 +10,6 @@ import { AmbientBackground } from '../../../shared/widgets/AmbientBackground';
 import { BrandMark } from '../../../shared/widgets/BrandMark';
 import { EntranceFade } from '../../../shared/widgets/EntranceFade';
 import { GlowOrb } from '../../../shared/widgets/GlowOrb';
-import { colors, extraSpacing as authSpacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { Spacer } from '../../../shared/widgets/Spacer';
 
@@ -19,6 +20,7 @@ type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
  * dikey 24 px kaydırılabilir form. Giriş, kayıt ve yeni şifre ekranları bunu kullanır.
  */
 export function AuthScaffold({ children }: { children: ReactNode }) {
+  useThemeRevision();
   return (
     <AmbientBackground>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom', 'left', 'right']}>
@@ -41,6 +43,7 @@ export function AuthScaffold({ children }: { children: ReactNode }) {
  * Flutter `authHeaderChildren`: marka, simge (giriş animasyonuyla), başlık ve alt metin.
  */
 export function AuthHeader({ icon, title, subtitle }: { icon: MaterialIconName; title: string; subtitle: string }) {
+  useThemeRevision();
   return (
     <>
       <BrandMark />
@@ -50,7 +53,7 @@ export function AuthHeader({ icon, title, subtitle }: { icon: MaterialIconName; 
       </EntranceFade>
       <Spacer size={spacing.xl} />
       <EntranceFade>
-        <Text style={textStyle('headlineStrong')}>{title}</Text>
+        <Text style={textStyle('headline')}>{title}</Text>
       </EntranceFade>
       <Spacer size={authSpacing.titleToSubtitle} />
       <EntranceFade delay={60}>
@@ -60,7 +63,7 @@ export function AuthHeader({ icon, title, subtitle }: { icon: MaterialIconName; 
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   flex: {
     flex: 1,
   },
@@ -70,4 +73,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
-});
+}));

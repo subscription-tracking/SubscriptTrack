@@ -36,7 +36,7 @@ export function DialogShell({
     <LockAwareModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.dialog}>
-          <Text style={textStyle('headlineSmall')}>{title}</Text>
+          <Text style={textStyle('title')}>{title}</Text>
           <View style={styles.body}>{children}</View>
           <View style={styles.actions}>{actions}</View>
         </View>
@@ -58,7 +58,7 @@ export function FilledAction({ label, onPress, disabled = false }: { label: stri
   useThemeRevision();
   return (
     <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={[styles.filled, disabled ? styles.disabled : null]}>
-      <Text style={textStyle('button', { color: colors.onPrimary })}>{label}</Text>
+      <Text style={textStyle('bodyStrong', { color: colors.onPrimary })}>{label}</Text>
     </Pressable>
   );
 }

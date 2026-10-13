@@ -24,7 +24,7 @@ import { activeForTotals, monthlyTotalsByCurrency, nextPayment, renewingWithin, 
 import { annualChipLabel, categoryTotals, completedThisMonth, monthChangeLabel } from '../domain/dashboardHero';
 import { CategoryDonutCard, QuickActions } from './OverviewCards';
 import { HeroCard } from './HeroCard';
-import { NextPaymentCard, EmptyIntro, EmptyRenewalsCard, SavingsSummaryCard } from './NextPaymentCards';
+import { NextPaymentCard, EmptyIntro, EmptyRenewalsCard, ReminderHint, SavingsSummaryCard } from './NextPaymentCards';
 import { SectionHeader, StatChips } from './StatChips';
 
 const TRIAL_PREVIEW = 3;
@@ -107,6 +107,7 @@ function Summary({
   const toCalendar = () => router.push('/calendar');
   const toStats = () => router.navigate('/stats');
   const toAdd = () => router.push('/subscriptions/add');
+  const toReminders = () => router.push('/settings/notifications');
   const openSubscription = (id: string) => router.push(`/subscriptions/${id}`);
 
   return (
@@ -119,7 +120,7 @@ function Summary({
       <HeroCard
         totals={monthly}
         fallbackCurrency={currency}
-        monthChange={monthChangeLabel(payments, now, timeZone)}
+        monthChange={monthChangeLabel(payments, now, timeZone, currency)}
         completed={completedThisMonth(active, payments, now, timeZone)}
         totalActive={active.length}
         onAnalysis={active.length === 0 ? null : toStats}
@@ -151,13 +152,19 @@ function Summary({
         </>
       ) : null}
 
-  <SectionHeader title="Sıradaki ödeme" action={upcoming ? 'Takvimde gör' : undefined} onAction={toCalendar} />
+      <SectionHeader title="Sıradaki ödeme" action={upcoming ? 'Takvimde gör' : undefined} onAction={toCalendar} />
       <Spacer size={gaps.sectionInner} />
       {upcoming ? (
         <NextPaymentCard subscription={upcoming} today={today} onPress={() => openSubscription(upcoming.id)} />
       ) : (
         <EmptyRenewalsCard />
       )}
+      {upcoming || trials.length > 0 ? (
+        <>
+          <Spacer size={gaps.sectionInner} />
+          <ReminderHint onPress={toReminders} />
+        </>
+      ) : null}
 
       {active.length > 0 ? (
         <>

@@ -6,7 +6,7 @@ import { LockAwareModal } from '../../../shared/widgets/LockAwareModal';
 
 import { colors, radius, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
+import { TonalButton } from '../../../shared/widgets/TonalButton';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { TextField } from '../../../shared/widgets/TextField';
@@ -38,7 +38,7 @@ export function PaymentMethodDialog({
       <View style={styles.overlay}>
         <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={StyleSheet.absoluteFill} onPress={onCancel} />
         <View style={styles.dialog}>
-          <Text style={textStyle('titleSmall')}>{title}</Text>
+          <Text style={textStyle('bodyStrong')}>{title}</Text>
           <Spacer size={spacing.md} />
           <TextField
             label="Ödeme yöntemi adı"
@@ -55,7 +55,7 @@ export function PaymentMethodDialog({
           <Spacer size={spacing.lg} />
           <View style={styles.actions}>
             <View style={styles.action}>
-              <OutlinedButton label="İptal" onPress={onCancel} />
+              <TonalButton label="İptal" onPress={onCancel} />
             </View>
             <View style={styles.action}>
               <PrimaryButton label={confirmLabel} tall={false} onPress={() => setError(onSubmit(draft))} />

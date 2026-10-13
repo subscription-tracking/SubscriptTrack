@@ -106,7 +106,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
       <View style={styles.switchRow}>
         <MaterialIcons name="notifications-none" size={sizes.tileIcon} color={colors.onSurface} />
         <View style={styles.switchText}>
-          <Text style={textStyle('tileLabel')}>Yenileme bildirimleri</Text>
+          <Text style={textStyle('label')}>Yenileme bildirimleri</Text>
           <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Abonelik yenilenmeden önce bildirim al</Text>
         </View>
         <Switch
@@ -122,7 +122,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
           <MaterialIcons name="notifications-off" size={sizes.tileIcon} color={colors.error} />
           <Text style={[textStyle('bodySmall', { color: colors.onSurface }), styles.deniedText]}>Bildirim izni kapalı; hatırlatmalar gelmeyecek.</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Ayarları aç" onPress={openSettings} style={styles.deniedAction}>
-            <Text style={textStyle('tileLabel', { color: colors.primary })}>Ayarları aç</Text>
+            <Text style={textStyle('label', { color: colors.primary })}>Ayarları aç</Text>
           </Pressable>
         </View>
       ) : null}

@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -9,6 +11,7 @@ import { textButtonText, textStyle } from '../../../shared/design/typography';
  * Seçili günde ekleme bağlantısı, o tarihte başlayan yeni abonelik formunu açar.
  */
 export function EmptyDayState({ hasSelection, onAddForDay }: { hasSelection: boolean; onAddForDay?: () => void }) {
+  useThemeRevision();
   return (
     <View style={styles.wrap}>
       <View style={styles.circle}>
@@ -18,7 +21,7 @@ export function EmptyDayState({ hasSelection, onAddForDay }: { hasSelection: boo
           color={colors.onSurfaceVariant}
         />
       </View>
-      <Text style={textStyle('bodySmallStrong', { color: colors.onSurfaceVariant, marginTop: gaps.rowLoose - 2 })}>
+      <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginTop: gaps.rowLoose - 2 })}>
         {hasSelection ? 'Bu gün yenileme yok' : 'Bir gün seç'}
       </Text>
       {onAddForDay ? (
@@ -31,7 +34,7 @@ export function EmptyDayState({ hasSelection, onAddForDay }: { hasSelection: boo
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   wrap: {
     flex: 1,
     alignItems: 'center',
@@ -55,4 +58,4 @@ const styles = StyleSheet.create({
     marginTop: gaps.rowLoose - 2,
     paddingHorizontal: gaps.sectionInner,
   },
-});
+}));

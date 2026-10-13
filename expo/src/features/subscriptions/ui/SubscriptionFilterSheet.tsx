@@ -59,7 +59,7 @@ export function SubscriptionFilterSheet({
             {onCurrency ? <View style={styles.chips}>
               {[null, 'TRY', 'USD', 'EUR'].map((code) => <FilterChip key={code ?? 'all'} label={code ?? 'Tüm para birimleri'} selected={currency === code} onPress={() => onCurrency(code)} />)}
             </View> : null}
-            <Text style={textStyle('titleSmall')}>Kategori</Text>
+            <Text style={textStyle('bodyStrong')}>Kategori</Text>
             <View style={styles.gapSection} />
             <View style={styles.chips}>
               <FilterChip label="Tümü" selected={category === null} onPress={() => onCategory(null)} />
@@ -74,7 +74,7 @@ export function SubscriptionFilterSheet({
             </View>
             <View style={styles.gapBlock} />
 
-            <Text style={textStyle('titleSmall')}>Sıralama</Text>
+            <Text style={textStyle('bodyStrong')}>Sıralama</Text>
             {SORT_OPTIONS.map((option) => (
               <RadioRow key={option} label={SORT_LABELS[option]} selected={sort === option} onPress={() => onSort(option)} />
             ))}
@@ -109,7 +109,7 @@ function FilterChip({ label, selected, onPress }: { label: string; selected: boo
         },
       ]}
     >
-      <Text style={selected ? textStyle('filterChipStrong') : textStyle('filterChip')}>{label}</Text>
+      <Text style={selected ? textStyle('captionStrong', { color: colors.primary }) : textStyle('caption')}>{label}</Text>
     </Pressable>
   );
 }

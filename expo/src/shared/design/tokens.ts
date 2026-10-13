@@ -7,46 +7,8 @@
  * Yalnızca koyu tema vardır ([CURRENT_STATUS](../../../../docs/CURRENT_STATUS.md): açık tema planlı).
  */
 
-export const colors = {
-  background: '#101217',
-  surface: '#181B22',
-  surfaceHigh: '#20242D',
-  /** Flutter `surfaceContainerHighest` (ipucu ve analiz rozeti). */
-  surfaceContainerHighest: '#252A33',
-  /** Flutter `surfaceContainerLow` (alt sayfa zemini). */
-  surfaceLow: '#151820',
-  /** Flutter Material container renkleri (bildirim avatarları, kaydırma arka planı). */
-  errorContainer: '#352124',
-  onErrorContainer: '#F0B4B4',
-  tertiaryContainer: '#2B261E',
-  /** Flutter `primaryContainer` / `onPrimaryContainer` (tasarruf özet kartı). */
-  primaryContainer: '#252746',
-  onPrimaryContainer: '#C7C8FF',
-  /** Flutter `outline` %50 (form bölüm ve satır kenarlıkları). */
-  outlineHalf: 'rgba(76, 83, 97, 0.5)',
-  /** Flutter `secondaryContainer` (ekle düğmesi dolgusu). */
-  secondaryContainer: '#252834',
-  border: '#2B303B',
-  primary: '#8B8CF7',
-  onPrimary: '#171824',
-  secondary: '#B5B6FF',
-  tertiary: '#D6A15A',
-  onBackground: '#F2F4F7',
-  onSurface: '#F2F4F7',
-  onSurfaceVariant: '#AAB1C0',
-  error: '#D77979',
-  outline: '#4C5361',
-  /** Flutter `AmbientBackground` varsayılan yıkama rengi. */
-  ambientWash: '#0C0E2A',
-  /** Flutter ColorScheme.inverseSurface / onInverseSurface (snackbar varsayılanı). */
-  inverseSurface: '#F2F4F7',
-  onInverseSurface: '#101217',
-  white: '#FFFFFF',
-  /** Modal arka plan karartması (Flutter barrier ). */
-  scrim: '#000000',
-  /** Detay hero'su logo kutusu zemini (Flutter #0D1017). */
-  logoTile: '#0D1017',
-} as const;
+import { colors, statusColors } from './themeRuntime';
+export { colors };
 
 /** Metin ve yüzey opaklıkları. Ekranlar ham rgba yazmaz; bu değerleri `withAlpha` ile uygular. */
 export const opacity = {
@@ -75,14 +37,7 @@ export function withAlpha(hex: string, alpha: number): string {
  */
 
 
-export const statusColors = {
-  success: '#78A987',
-  warning: '#D6A15A',
-  trial: '#9B9BD8',
-  muted: '#737B8C',
-  /** Metin için açık "muted" (zemin üzerinde ≥4.5:1). Flutter `muted` değerinden sapma; yalnızca küçük metinde kullanılır. */
-  mutedText: '#8A92A3',
-} as const;
+export { statusColors };
 
 export const spacing = {
   none: 0,
@@ -100,26 +55,29 @@ export const spacing = {
 /** Ekran kenar boşluğu (yatay). Tasarım kuralı §4: auth ve uygulama ekranlarında aynı, 20. */
 export const screenGutter = spacing.lg;
 
+/**
+ * Köşe yarıçapı: beş kademe. Eski adlar (small, medium, tile …) geçiş için yeni kademelere eşlenir;
+ * yeni kodda yalnızca xs, sm, md, lg ve pill kullanılır.
+ */
 export const radius = {
   xs: 4,
-  small: 14,
-  medium: 20,
-  large: 24,
+  sm: 8,
+  md: 12,
+  lg: 20,
   pill: 100,
-  /** Flutter ara köşe değerleri: çip ve kısa kartlar (12), hızlı işlem (16), giriş kutusu (18). */
+  /** Geçiş takma adları (kullanımdan kalkacak). */
+  small: 12,
+  medium: 20,
+  large: 20,
   chip: 12,
-  tile: 16,
-  intro: 18,
-  /** İstatistik kart köşesi (24), çip (8), ikon kutusu (12, zaten chip). */
-  statsCard: 24,
+  tile: 12,
+  intro: 20,
+  statsCard: 20,
   choice: 8,
-  /** Detay hero logo kutusu (22). */
-  logo: 22,
-  /** Alt sayfa üst köşesi (Flutter M3 28). */
-  sheet: 28,
-  /** Form satırı ve açılır seçim köşesi (12) ve bölüm kutusu (16). */
+  logo: 20,
+  sheet: 20,
   field: 12,
-  section: 16,
+  section: 12,
 } as const;
 
 /** Flutter `OutlineInputBorder`/`BorderSide(width: 0.5)` ve `1.5` kalınlıkları. */

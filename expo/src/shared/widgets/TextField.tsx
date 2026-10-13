@@ -1,9 +1,11 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { useState, type ComponentProps, type ReactNode } from 'react';
-import { spacing } from '../design/tokens';
+import { spacing , borderWidth, colors, radius, sizes } from '../design/tokens';
 import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { borderWidth, colors, radius, sizes } from '../design/tokens';
+
 import { fontFamily } from '../design/typography';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -26,6 +28,7 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
  * 14 köşe, 0.5 kenarlık, odakta 1.5 primary kenarlık, etiket içeride → üstte.
  */
 export function TextField({ label, prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, placeholder, ...inputProps }: TextFieldProps) {
+  useThemeRevision();
   const [focused, setFocused] = useState(false);
   const floating = focused || (value ?? '').length > 0;
 
@@ -57,6 +60,7 @@ export function TextField({ label, prefixIcon, prefix, suffix, error, editable =
           </View>
           <TextInput
             accessibilityLabel={label}
+            accessibilityState={{ disabled: !editable }}
             placeholderTextColor={colors.onSurfaceVariant}
             autoCapitalize="none"
             autoCorrect={false}
@@ -92,6 +96,7 @@ export function FieldIconButton({
   onPress: () => void;
   accessibilityLabel: string;
 }) {
+  useThemeRevision();
   return (
     <Pressable
       onPress={onPress}
@@ -105,7 +110,7 @@ export function FieldIconButton({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   wrapper: {
     gap: spacing.xxs,
   },
@@ -115,8 +120,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surfaceHigh,
     borderRadius: radius.small,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.outline,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.controlBorder,
     paddingLeft: spacing.md,
     paddingRight: spacing.xxs,
   },
@@ -192,4 +197,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingLeft: spacing.md,
   },
-});
+}));

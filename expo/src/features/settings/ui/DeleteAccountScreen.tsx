@@ -11,7 +11,7 @@ import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
-import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
+import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { PasswordField } from '../../../shared/widgets/PasswordField';
 import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
@@ -111,10 +111,10 @@ export function DeleteAccountScreen() {
         {!online ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>{OFFLINE_MESSAGE}</Text> : null}
 
         <View style={styles.gapLarge} />
-        <FilledButtonLabel
+        <PrimaryButton
           label="Hesabı kalıcı olarak sil"
           tone="danger"
-          busy={remove.isPending}
+          loading={remove.isPending}
           disabled={!online}
           onPress={submit}
         />

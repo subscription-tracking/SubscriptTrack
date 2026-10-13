@@ -46,7 +46,8 @@ export const styles = themedStyles(() => StyleSheet.create({
   legend: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: spacing.md,
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     marginTop: spacing.sm,
   },
   legendItem: {
@@ -55,9 +56,14 @@ export const styles = themedStyles(() => StyleSheet.create({
     gap: spacing.xxs,
   },
   legendDot: {
+    width: sizes.calendarDot + 2,
+    height: sizes.calendarDot + 2,
+    borderRadius: (sizes.calendarDot + 2) / 2,
+  },
+  legendDiamond: {
     width: sizes.calendarDot + 1,
     height: sizes.calendarDot + 1,
-    borderRadius: (sizes.calendarDot + 1) / 2,
+    transform: [{ rotate: '45deg' }],
   },
   divider: {
     height: gaps.sectionTop - 4,

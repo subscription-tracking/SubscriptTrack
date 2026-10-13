@@ -39,7 +39,7 @@ export function NotificationSync() {
   const accountId = user?.id;
   useEffect(() => {
     handledLaunch.current = false;
-    return () => { void cancelAllReminders().catch(() => snackbar.show('Önceki hesabın hatırlatmaları temizlenemedi. Yeniden açıldığında denenecek.', 'error')); };
+    return () => { void cancelAllReminders().catch(() => snackbar.show('Önceki hesabın hatırlatmaları temizlenemedi. Uygulamayı yeniden açmayı dene.', 'error')); };
   }, [accountId, snackbar]);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function NotificationSync() {
         setZoneTick((value) => value + 1);
       }
     }
-    const check = () => { void checkZone().catch(() => snackbar.show('Saat dilimi tercihi okunamadı. Yeniden açıldığında denenecek.', 'error')); };
+    const check = () => { void checkZone().catch(() => snackbar.show('Saat dilimi tercihi okunamadı. Uygulamayı yeniden açmayı dene.', 'error')); };
     check();
     const subscription = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
@@ -73,7 +73,7 @@ export function NotificationSync() {
 
   useEffect(() => {
     if (!user) return;
-    const unsubscribe = subscribeToTaps((id) => { if (user) router.push(`/subscriptions/${id}` as Href); }, () => snackbar.show('Bildirim ertelenemedi. İzinleri ve kapasiteyi kontrol et.', 'error'));
+    const unsubscribe = subscribeToTaps((id) => { if (user) router.push(`/subscriptions/${id}` as Href); }, () => snackbar.show('Bildirim ertelenemedi. Bildirim izinlerini kontrol edip tekrar dene.', 'error'));
     if (user && !handledLaunch.current) {
       handledLaunch.current = true;
       void getLaunchTapSubscriptionId().then((id) => {

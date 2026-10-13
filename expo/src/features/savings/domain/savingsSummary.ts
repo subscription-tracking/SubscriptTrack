@@ -51,3 +51,14 @@ export function potentialSavings(active: readonly Subscription[]): PotentialSavi
     .map((subscription) => ({ subscription, annual: monthlyEquivalent(subscription).multiply(12) }))
     .sort((a, b) => b.annual.compareTo(a.annual));
 }
+
+/** Geçmiş satırı başlığı: "İptal edildi · 10 Ekim 2026" ya da tarih yoksa yalnızca "Duraklatıldı". */
+export function savingsEventTitle(eventType: string, dateText: string | null): string {
+  const base = eventType === 'PAUSED' ? 'Duraklatıldı' : 'İptal edildi';
+  return dateText ? `${base} · ${dateText}` : base;
+}
+
+/** Üst özet cümlesi: "İlk 3 abonelik yılda ₺1.080,00 tutuyor." */
+export function topCostSentence(count: number, yearlyText: string): string {
+  return count === 1 ? `Bu abonelik yılda ${yearlyText} tutuyor.` : `İlk ${count} abonelik yılda ${yearlyText} tutuyor.`;
+}

@@ -1,4 +1,4 @@
-import { categoryPalette } from '../../../../shared/design/palette';
+import { categoryPalette } from '../../../../shared/design/chartTheme';
 import { SUBSCRIPTION_CATEGORIES, type SubscriptionCategory } from '../../../subscriptions/domain/subscription';
 
 /**
@@ -7,5 +7,6 @@ import { SUBSCRIPTION_CATEGORIES, type SubscriptionCategory } from '../../../sub
  */
 export function categoryColor(category: SubscriptionCategory): string {
   const index = SUBSCRIPTION_CATEGORIES.indexOf(category);
-  return categoryPalette[index] ?? categoryPalette[categoryPalette.length - 1];
+  const palette = categoryPalette();
+  return palette[index] ?? palette[palette.length - 1];
 }

@@ -1,11 +1,16 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
+import { useUserTimeZone } from '../../../settings/data/useActiveCurrency';
 import { type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { zoneToday, deviceTimeZone } from '../../../../core/time/calendar';
+import { zoneToday } from '../../../../core/time/calendar';
+import { useCivilToday } from '../../../../core/clock/useCivilToday';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { type Subscription, type SubscriptionStatus } from '../../domain/subscription';
+import { canTransition } from '../../domain/statusTransitions';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -27,8 +32,15 @@ export function DetailActions({
   /** İptal tarih isteyen ayrı ekrana yönlendirilir (USER_FLOWS §9). */
   onCancel: () => void;
 }) {
-  const isDue = subscription.status === 'active' && isDueNow(subscription);
+  useThemeRevision();
+  const timeZone = useUserTimeZone();
+  const today = useCivilToday(timeZone);
+  const isDue = subscription.status === 'active' && isDueNow(subscription, today);
   const paused = subscription.status === 'paused';
+  const canPause = canTransition(subscription.status, 'paused');
+  const canActivate = canTransition(subscription.status, 'active');
+  const canArchive = canTransition(subscription.status, 'archived');
+  const canCancel = canTransition(subscription.status, 'cancelled');
 
   return (
     <View style={styles.wrap}>
@@ -40,34 +52,33 @@ export function DetailActions({
           style={({ pressed }) => [styles.filled, pressed && styles.pressed, busy && styles.disabled]}
         >
           <MaterialIcons name="check-circle-outline" size={sizes.buttonIcon} color={colors.onPrimary} />
-          <Text style={[textStyle('button', { color: colors.onPrimary }), styles.label]}>Ödendi ve yenilendi</Text>
+          <Text style={[textStyle('bodyStrong', { color: colors.onPrimary }), styles.label]}>Ödendi ve yenilendi</Text>
         </Pressable>
       ) : null}
       {isDue ? <View style={styles.gap} /> : null}
 
-      <View style={styles.row}>
-        <ActionButton
-          icon={paused ? 'play-arrow' : 'pause'}
-          label={paused ? 'Devam Ettir' : 'Duraklat'}
+      {canPause || canActivate || canArchive ? <View style={styles.row}>
+        {canPause || canActivate ? <ActionButton
+          icon={canActivate ? 'play-arrow' : 'pause'}
+          label={subscription.status === 'cancelled' ? 'Yeniden Etkinleştir' : subscription.status === 'archived' ? 'Arşivden Çıkar' : paused ? 'Devam Ettir' : canActivate ? 'Aktif Yap' : 'Duraklat'}
           disabled={busy}
-          onPress={() => onChange(paused ? 'active' : 'paused')}
-        />
-        <View style={styles.rowGap} />
-        <ActionButton icon="archive" label="Arşivle" disabled={busy} onPress={() => onChange('archived')} />
-      </View>
-      <View style={styles.gap} />
+          onPress={() => onChange(canActivate ? 'active' : 'paused')}
+        /> : null}
+        {canArchive && (canPause || canActivate) ? <View style={styles.rowGap} /> : null}
+        {canArchive ? <ActionButton icon="archive" label="Arşivle" disabled={busy} onPress={() => onChange('archived')} /> : null}
+      </View> : null}
+      {canCancel ? <View style={styles.gap} /> : null}
 
-      <Pressable accessibilityRole="button" onPress={onCancel} style={({ pressed }) => [styles.cancel, pressed && styles.pressed]}>
+      {canCancel ? <Pressable accessibilityRole="button" onPress={onCancel} style={({ pressed }) => [styles.cancel, pressed && styles.pressed]}>
         <MaterialIcons name="cancel" size={sizes.cancelIcon} color={colors.error} />
-        <Text style={[textStyle('buttonStrong'), styles.label]}>Aboneliği İptal Et</Text>
-      </Pressable>
+        <Text style={[textStyle('bodyStrong', { color: colors.error }), styles.label]}>Aboneliği iptal et</Text>
+      </Pressable> : null}
     </View>
   );
 }
 
 /** Flutter `DetailActionButtonsSection` tarafındaki "vadesi geldi": kalan gün sıfır veya geçmiş. */
-function isDueNow(subscription: Subscription): boolean {
-  const today = zoneToday(deviceTimeZone());
+function isDueNow(subscription: Subscription, today: ReturnType<typeof zoneToday>): boolean {
   const next = subscription.nextRenewalDate;
   if (!next) return false;
   return next.year * 10000 + next.month * 100 + next.day <= today.year * 10000 + today.month * 100 + today.day;
@@ -84,6 +95,7 @@ function ActionButton({
   onPress: () => void;
   disabled: boolean;
 }) {
+  useThemeRevision();
   return (
     <Pressable
       accessibilityRole="button"
@@ -92,12 +104,12 @@ function ActionButton({
       style={({ pressed }) => [styles.outlined, pressed && styles.pressed, disabled && styles.disabled]}
     >
       <MaterialIcons name={icon} size={sizes.buttonIcon} color={colors.onSurface} />
-      <Text style={[textStyle('button'), styles.label]}>{label}</Text>
+      <Text style={[textStyle('bodyStrong'), styles.label]}>{label}</Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   wrap: {
     width: '100%',
   },
@@ -130,7 +142,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.tile,
     backgroundColor: colors.surface,
     borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
+    borderColor: colors.controlBorder,
   },
   cancel: {
     minHeight: sizes.primaryButtonHeight,
@@ -148,4 +160,4 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-});
+}));

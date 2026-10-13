@@ -1,6 +1,8 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { colors, radius, sizes, spacing } from '../design/tokens';
+import { borderWidth, colors, radius, sizes, spacing } from '../design/tokens';
 import { textStyle } from '../design/typography';
 
 export interface ChoiceOption<T extends string> {
@@ -14,10 +16,11 @@ export function ChoiceChips<T extends string>({
   value,
   onChange,
 }: {
-  options: ReadonlyArray<ChoiceOption<T>>;
+  options: readonly ChoiceOption<T>[];
   value: T;
   onChange: (next: T) => void;
 }) {
+  useThemeRevision();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
       {options.map((option) => {
@@ -41,7 +44,7 @@ export function ChoiceChips<T extends string>({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   row: {
     gap: spacing.xs,
     paddingVertical: spacing.xxs,
@@ -53,8 +56,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surfaceHigh,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.controlBorder,
   },
   chipSelected: {
     backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
-});
+}));

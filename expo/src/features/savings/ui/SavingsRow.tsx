@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { formatCurrency } from '../../../core/format/money';
@@ -6,9 +8,10 @@ import { textStyle } from '../../../shared/design/typography';
 import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
 
 /**
- * Flutter `_SavingsRow`: aktif bir aboneliğin aylık tutarı ve sağda olası yıllık tasarruf.
+ * Flutter `_SavingsRow`: aktif bir aboneliğin aylık tutarı ve sağda yıllık maliyeti.
  */
 export function SavingsRow({ subscription }: { subscription: Subscription }) {
+  useThemeRevision();
   const monthly = monthlyEquivalent(subscription);
   const yearly = monthly.multiply(12);
   return (
@@ -17,15 +20,12 @@ export function SavingsRow({ subscription }: { subscription: Subscription }) {
         <Text style={textStyle('body')}>{subscription.name}</Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${formatCurrency(monthly, subscription.currency)}/ay`}</Text>
       </View>
-      <View style={styles.trailing}>
-        <Text style={textStyle('bodySmallStrong')}>{`${formatCurrency(yearly, subscription.currency)}/yıl`}</Text>
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Olası yıllık tasarruf</Text>
-      </View>
+      <Text style={textStyle('label')}>{`${formatCurrency(yearly, subscription.currency)}/yıl`}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -40,7 +40,4 @@ const styles = StyleSheet.create({
   texts: {
     flex: 1,
   },
-  trailing: {
-    alignItems: 'flex-end',
-  },
-});
+}));

@@ -65,7 +65,7 @@ export function AppearanceScreen() {
         <SectionLabel label="Tema" />
         {theme.error ? <Text style={textStyle('bodySmall', { color: colors.error })}>{theme.error}</Text> : null}
         {(['system', 'light', 'dark'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: theme.preference === value }} style={styles.row} onPress={() => { void theme.setPreference(value).catch((error: Error) => snackbar.show(error.message, 'error')); }}>
-          <Text style={textStyle('tileLabel', { flex: 1 })}>{value === 'system' ? 'Sistem teması' : value === 'light' ? 'Açık tema' : 'Koyu tema'}</Text>
+          <Text style={textStyle('label', { flex: 1 })}>{value === 'system' ? 'Sistem teması' : value === 'light' ? 'Açık tema' : 'Koyu tema'}</Text>
           {theme.preference === value ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
         </Pressable>)}
         <SectionLabel label="Para birimi" />
@@ -79,7 +79,7 @@ export function AppearanceScreen() {
               onPress={() => choose(option.code)}
               style={styles.row}
             >
-              <Text style={textStyle('tileLabel', { flex: 1 })}>{`${option.name} (${option.code})`}</Text>
+              <Text style={textStyle('label', { flex: 1 })}>{`${option.name} (${option.code})`}</Text>
               {active ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
             </Pressable>
           );
@@ -87,7 +87,7 @@ export function AppearanceScreen() {
 
         <SectionLabel label="Saat dilimi" />
         {(['device', 'fixed'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: mode === value }} disabled={setMode.isPending} style={styles.row} onPress={() => setMode.mutate(value, { onError: (error: Error) => snackbar.show(error.message, 'error') })}>
-          <Text style={textStyle('tileLabel')}>{value === 'device' ? 'Cihazı izle' : 'Sabit hesap bölgesi'}</Text>
+          <Text style={textStyle('label')}>{value === 'device' ? 'Cihazı izle' : 'Sabit hesap bölgesi'}</Text>
         </Pressable>)}
         <Pressable
           accessibilityRole="button"
@@ -97,7 +97,7 @@ export function AppearanceScreen() {
         >
           <MaterialIcons name="schedule" size={sizes.tileIcon} color={colors.onSurface} />
           <View style={styles.timezoneText}>
-            <Text style={textStyle('tileLabel')}>Saat dilimi</Text>
+            <Text style={textStyle('label')}>Saat dilimi</Text>
             <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
               {`Hesap saat dilimi: ${timeZone}`}
             </Text>
@@ -107,12 +107,12 @@ export function AppearanceScreen() {
         {showTimeZones ? (
           <View>
             <Pressable accessibilityRole="radio" accessibilityState={{ selected: timeZone === deviceTimeZone() }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(deviceTimeZone())} style={styles.row}>
-              <Text style={textStyle('tileLabel', { flex: 1 })}>{`Cihazın şu anki bölgesi (${deviceTimeZone()})`}</Text>
+              <Text style={textStyle('label', { flex: 1 })}>{`Cihazın şu anki bölgesi (${deviceTimeZone()})`}</Text>
               {timeZone === deviceTimeZone() ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
             </Pressable>
             {TIME_ZONES.map(([label, zone]) => (
               <Pressable key={zone} accessibilityRole="radio" accessibilityState={{ selected: timeZone === zone }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(zone)} style={styles.row}>
-                <Text style={textStyle('tileLabel', { flex: 1 })}>{`${label} (${zone})`}</Text>
+                <Text style={textStyle('label', { flex: 1 })}>{`${label} (${zone})`}</Text>
                 {timeZone === zone ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
               </Pressable>
             ))}

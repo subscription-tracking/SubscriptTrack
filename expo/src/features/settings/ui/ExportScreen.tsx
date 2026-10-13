@@ -7,7 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { useUserTimeZone } from '../data/useActiveCurrency';
-import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
@@ -18,8 +18,8 @@ import { type Subscription } from '../../subscriptions/domain/subscription';
 import { buildSubscriptionCsv } from '../domain/csvExport';
 import { shareCsvFile } from '../data/exportFile';
 import { requestCloudExport } from '../data/cloudExportRepository';
-import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
+import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { TonalButton } from '../../../shared/widgets/TonalButton';
 
 /**
  * Verileri dışa aktar. Tüm abonelik durumları cihaz CSV'sine yazılır;
@@ -50,7 +50,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
   const [busy, setBusy] = useState(false);
   const total = subscriptions.length;
 
-  /** Bulut dışa aktarma: sunucuda CSV üretilir, 1 saat geçerli bağlantı paylaşılır. */
+  /** Bulut dışa aktarma: CSV bulutta üretilir, 1 saat geçerli bağlantı paylaşılır. */
   async function cloudShare() {
     setBusy(true);
     try {
@@ -92,28 +92,30 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <MaterialIcons name="table-chart" size={sizes.iconButtonSize} color={colors.primary} />
-          <Text style={textStyle('bodyLargeStrong', { marginLeft: spacing.sm, flex: 1 })}>Tekrar içe aktarılabilir CSV</Text>
+          <Text style={textStyle('bodyStrong', { marginLeft: spacing.sm, flex: 1 })}>Tekrar içe aktarılabilir CSV</Text>
         </View>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>
           {`${total} abonelik; dışa aktarılan dosya tekrar içe aktarılabilir.`}
         </Text>
-        <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>
-          Dosya cihazında oluşturulur; sunucuya yüklenmez. Paylaştıktan sonra dosyayı kendi sorumluluğunda sakla.
-        </Text>
       </View>
 
       <View style={styles.gap} />
-      <FilledButtonLabel label="Dosya olarak paylaş" busy={busy} disabled={total === 0} onPress={() => void share()} />
+      <PrimaryButton label="Dosya olarak paylaş" loading={busy} disabled={total === 0} onPress={() => void share()} />
+      <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+        Nasıl çalışır: Dosya cihazında oluşturulur, sunucuya yüklenmez.
+      </Text>
 
       <View style={styles.gap} />
-      <View pointerEvents={busy ? 'none' : 'auto'} style={busy ? styles.disabled : undefined} accessibilityState={{ disabled: busy, busy }}>
-        <OutlinedButton label="Bulut bağlantısı oluştur (1 saat geçerli)" onPress={() => { if (!busy) void cloudShare(); }} />
-      </View>
+      <TonalButton label="Bulut bağlantısı oluştur" disabled={busy} onPress={() => void cloudShare()} />
+      <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+        Nasıl çalışır: Dosya sunucuya yüklenir ve 1 saat geçerli bir bağlantıyla paylaşılır.
+      </Text>
 
       <View style={styles.gap} />
-      <View pointerEvents={busy ? 'none' : 'auto'} style={busy ? styles.disabled : undefined} accessibilityState={{ disabled: busy, busy }}>
-        <OutlinedButton label="Panoya kopyala" onPress={() => { if (!busy) void copy(); }} />
-      </View>
+      <TonalButton label="Panoya kopyala" disabled={busy || total === 0} onPress={() => void copy()} />
+      <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+        Nasıl çalışır: CSV metni yalnızca bu cihazın panosuna kopyalanır, sunucuya yüklenmez.
+      </Text>
       <ScreenBottomInset />
     </ScrollView>
   );
@@ -131,15 +133,12 @@ const styles = themedStyles(() => StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.medium,
     borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.border,
     backgroundColor: colors.surface,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  disabled: {
-    opacity: 0.5,
   },
   gap: {
     height: gaps.rowLoose - 2,
@@ -150,7 +149,7 @@ const styles = themedStyles(() => StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.field + 2,
     borderWidth: borderWidth.hairline,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.border,
   },
   bottom: {
     height: sizes.bottomNavHeight,

@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { colors, gaps, radius, sizes, spacing } from '../../../shared/design/tokens';
@@ -17,6 +19,7 @@ export function ListTabBar({
   counts: Record<ListTab, number>;
   onChange: (tab: ListTab) => void;
 }) {
+  useThemeRevision();
   return (
     <ScrollView
       horizontal
@@ -35,7 +38,7 @@ export function ListTabBar({
             onPress={() => onChange(tab.key)}
             style={[styles.pill, { backgroundColor: selected ? colors.primary : colors.surfaceHigh }]}
           >
-            <Text style={selected ? textStyle('pillStrong') : textStyle('pill')}>{`${tab.label} ${counts[tab.key]}`}</Text>
+            <Text style={selected ? textStyle('label', { color: colors.onPrimary }) : textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${tab.label} ${counts[tab.key]}`}</Text>
           </Pressable>
         );
       })}
@@ -43,7 +46,7 @@ export function ListTabBar({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   bar: {
     flexGrow: 0,
     height: sizes.pillHeight,
@@ -59,4 +62,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

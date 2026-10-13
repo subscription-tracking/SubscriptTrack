@@ -1,3 +1,6 @@
+import { usePermissionQuery } from '../../../notifications/data/notificationPermission';
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { type ComponentProps, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -7,30 +10,36 @@ import { type CivilDate } from '../../../../core/time/calendar';
 import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, daysUntilRenewal, type Subscription } from '../../domain/subscription';
+import { advancedRenewalDate } from '../../domain/renewalOverdue';
+import { isNotStarted } from '../../domain/activeSelectors';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 /** Flutter `DetailNextPaymentCard`: sağda 4 px durum çizgisi; gün sayısı rozetinde "BUGÜN" ya da "GÜN KALDI/GECİKTİ". */
 export function NextPaymentPanel({ subscription, today }: { subscription: Subscription; today: CivilDate }) {
+  useThemeRevision();
   const days = daysUntilRenewal(subscription, today);
   if (days === null || !subscription.nextRenewalDate) return null;
   const tone = days < 0 ? colors.error : days <= 3 ? colors.tertiary : days <= 7 ? statusColors.warning : colors.primary;
+  const upcoming = days < 0 ? advancedRenewalDate(subscription, today) : null;
   return (
     <View style={styles.nextCard}>
       <View style={[styles.stripe, { backgroundColor: tone }]} />
       <View style={styles.nextRow}>
         <View style={styles.nextText}>
-          <Text style={textStyle('labelSmallStrong', { letterSpacing: 1 })}>SONRAKİ ÖDEME</Text>
-          <Text style={[textStyle('detailDate'), styles.nextDate]}>{formatLongDate(subscription.nextRenewalDate)}</Text>
+          <Text style={textStyle('captionStrong', { color: colors.onSurfaceVariant, letterSpacing: 1 })}>{days < 0 ? 'GECİKMİŞ VADE' : 'SONRAKİ ÖDEME'}</Text>
+          <Text style={[textStyle('heading'), styles.nextDate]}>{formatLongDate(subscription.nextRenewalDate)}</Text>
+          {upcoming ? <Text style={textStyle('caption')}>{`Sonraki döngü: ${formatLongDate(upcoming)} (tahmini)`}</Text> : null}
+          {isNotStarted(subscription, today) ? <Text style={textStyle('caption')}>Henüz başlamadı</Text> : null}
         </View>
         {days === 0 ? (
           <View style={[styles.todayBadge, badgeTone(tone)]}>
-            <Text style={textStyle('topBarTitle', { color: tone, letterSpacing: 0.5, fontSize: 16 })}>BUGÜN</Text>
+            <Text style={textStyle('heading', { color: tone, letterSpacing: 0.5, fontSize: 16 })}>BUGÜN</Text>
           </View>
         ) : (
           <View style={[styles.dayBadge, badgeTone(tone)]}>
-            <Text style={textStyle('dayCount', { color: tone, lineHeight: sizes.dayCountLine })}>{String(Math.abs(days))}</Text>
-            <Text style={textStyle('dayCaption', { color: tone, letterSpacing: 0.5 })}>{days < 0 ? 'GÜN GECİKTİ' : 'GÜN KALDI'}</Text>
+            <Text style={textStyle('title', { color: tone, lineHeight: sizes.dayCountLine })}>{String(Math.abs(days))}</Text>
+            <Text style={textStyle('caption', { color: tone, letterSpacing: 0.5 })}>{days < 0 ? 'GÜN GECİKTİ' : 'GÜN KALDI'}</Text>
           </View>
         )}
       </View>
@@ -44,6 +53,7 @@ function badgeTone(tone: string) {
 
 /** Flutter `DetailGridCategoryAndCycle`: kategori ve yenileme sıklığı kutuları. */
 export function InfoGrid({ subscription }: { subscription: Subscription }) {
+  useThemeRevision();
   return (
     <View style={styles.grid}>
       <InfoTile title="KATEGORİ" value={CATEGORY_LABELS[subscription.category]} icon="movie-filter" color={colors.primary} />
@@ -54,14 +64,15 @@ export function InfoGrid({ subscription }: { subscription: Subscription }) {
 }
 
 function InfoTile({ title, value, icon, color }: { title: string; value: string; icon: MaterialIconName; color: string }) {
+  useThemeRevision();
   return (
     <View style={styles.infoTile}>
-      <Text style={textStyle('caption10Strong', { letterSpacing: 1 })}>{title}</Text>
+      <Text style={textStyle('captionStrong', { color: colors.onSurfaceVariant, letterSpacing: 1 })}>{title}</Text>
       <View style={styles.infoRow}>
         <View style={[styles.infoCircle, { backgroundColor: withAlpha(color, 0.15) }]}>
           <MaterialIcons name={icon} size={sizes.detailCardIcon} color={color} />
         </View>
-        <Text numberOfLines={1} style={[textStyle('bodySmallStrong'), styles.infoValue]}>
+        <Text numberOfLines={1} style={[textStyle('label'), styles.infoValue]}>
           {value}
         </Text>
       </View>
@@ -71,6 +82,7 @@ function InfoTile({ title, value, icon, color }: { title: string; value: string;
 
 /** Flutter `DetailPaymentMethodSection`: ödeme yöntemi adı ya da "Belirtilmedi", "Değiştir" bağlantısı. */
 export function PaymentMethodSection({ method, onChange }: { method: string | null; onChange: () => void }) {
+  useThemeRevision();
   return (
     <Section caption="ÖDEME YÖNTEMİ">
       <Card>
@@ -79,8 +91,8 @@ export function PaymentMethodSection({ method, onChange }: { method: string | nu
             <MaterialIcons name="credit-card" size={sizes.detailMethodIcon} color={colors.secondary} />
           </View>
           <View style={styles.methodText}>
-            <Text style={textStyle('bodySmallStrong')}>{method ?? 'Belirtilmedi'}</Text>
-            <Text style={textStyle('caption12', { marginTop: spacing.xxs / 2 })}>
+            <Text style={textStyle('label')}>{method ?? 'Belirtilmedi'}</Text>
+            <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>
               {method ? 'Kayıtlı ödeme yöntemi' : 'Ödeme yöntemi seçilmedi'}
             </Text>
           </View>
@@ -93,7 +105,10 @@ export function PaymentMethodSection({ method, onChange }: { method: string | nu
 
 /** Flutter `DetailReminderSection`: etkin hatırlatma günleri çip olarak; yoksa kapalı mesajı. */
 export function ReminderSection({ rules, onEdit }: { rules: unknown[]; onEdit: () => void }) {
+  useThemeRevision();
   const days = enabledRuleDays(rules);
+  const permission = usePermissionQuery().data;
+  const notificationsBlocked = permission === 'denied' || permission === 'undetermined';
   return (
     <Section caption="HATIRLATMALAR" action={<CompactLink label="Düzenle" onPress={onEdit} />}>
       <Card>
@@ -101,11 +116,15 @@ export function ReminderSection({ rules, onEdit }: { rules: unknown[]; onEdit: (
           <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Bu abonelik için hatırlatma kapalı.</Text>
         ) : (
           <>
-            <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Yenileme öncesinde bu zamanlarda bildirim gelir:</Text>
+            {notificationsBlocked ? (
+              <Text style={textStyle('bodySmall', { color: colors.error })}>Bildirim izni verilmediği için bu hatırlatmalar gelmeyecek. Ayarlar › Bildirimler&apos;den izin ver.</Text>
+            ) : (
+              <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Yenileme öncesinde bu zamanlarda bildirim gelir:</Text>
+            )}
             <View style={styles.chips}>
               {days.map((value) => (
                 <View key={value} style={styles.reminderChip}>
-                  <Text style={textStyle('caption12Strong', { color: colors.primary })}>
+                  <Text style={textStyle('captionStrong', { color: colors.primary })}>
                     {value === 0 ? 'Yenileme günü' : `${value} gün önce`}
                   </Text>
                 </View>
@@ -129,10 +148,11 @@ function enabledRuleDays(rules: unknown[]): number[] {
 }
 
 export function Section({ caption, action, children }: { caption: string; action?: ReactNode; children: ReactNode }) {
+  useThemeRevision();
   return (
     <View style={styles.section}>
       <View style={styles.captionRow}>
-        <Text style={textStyle('labelSmallStrong', { letterSpacing: 1 })}>{caption}</Text>
+        <Text style={textStyle('captionStrong', { color: colors.onSurfaceVariant, letterSpacing: 1 })}>{caption}</Text>
         {action}
       </View>
       {children}
@@ -141,18 +161,20 @@ export function Section({ caption, action, children }: { caption: string; action
 }
 
 export function Card({ children, padding = spacing.md }: { children: ReactNode; padding?: number }) {
+  useThemeRevision();
   return <View style={[styles.card, { padding }]}>{children}</View>;
 }
 
 export function CompactLink({ label, onPress }: { label: string; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.compact}>
-      <Text style={textStyle('compactLink')}>{label}</Text>
+      <Text style={textStyle('label', { color: colors.primary })}>{label}</Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   nextCard: {
     borderRadius: radius.medium,
     borderWidth: borderWidth.hairline,
@@ -272,4 +294,4 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: withAlpha(colors.primary, 0.1),
   },
-});
+}));

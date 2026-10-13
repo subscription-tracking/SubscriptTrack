@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { borderWidth, colors, gaps, radius, spacing, withAlpha } from '../design/tokens';
@@ -15,6 +17,7 @@ const BODY_LINE_HEIGHT = 21;
  * Metin seçilebilir kalır (Flutter `SelectionArea`). Taslak uyarısı her zaman görünür.
  */
 export function LegalDocumentView({ document }: { document: LegalDocument }) {
+  useThemeRevision();
   return (
     <View style={styles.screen}>
       <ScreenTopBar title={document.title} />
@@ -25,7 +28,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
         <Spacer size={spacing.lg} />
 
         <View style={styles.card}>
-          <Text style={textStyle('titleSmall')}>Kısa özet</Text>
+          <Text style={textStyle('bodyStrong')}>Kısa özet</Text>
           <Spacer size={spacing.xs} />
           {document.summary.map((line) => (
             <Text key={line} selectable style={textStyle('bodySmall', { marginBottom: spacing.xxs })}>
@@ -38,7 +41,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
 
         {document.sections.map((section) => (
           <View key={section.title} style={styles.section}>
-            <Text accessibilityRole="header" style={textStyle('titleSmall')}>
+            <Text accessibilityRole="header" style={textStyle('bodyStrong')}>
               {section.title}
             </Text>
             <Spacer size={spacing.xs} />
@@ -57,7 +60,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -75,4 +78,4 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: spacing.lg,
   },
-});
+}));

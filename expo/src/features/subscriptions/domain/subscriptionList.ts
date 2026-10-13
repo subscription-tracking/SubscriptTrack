@@ -1,5 +1,6 @@
 import { type CivilDate, dayNumber } from '../../../core/time/calendar';
 import { type Subscription, type SubscriptionStatus } from './subscription';
+import { isRenewalDue } from './renewalOverdue';
 
 /**
  * Liste sekmeleri ve sıralama (Flutter `SubscriptionListViewModel` karşılığı).
@@ -9,7 +10,7 @@ import { type Subscription, type SubscriptionStatus } from './subscription';
 /** Flutter ile aynı üç sekme: Aktif, Deneme, Geçmiş (duraklatılmış, iptal edilmiş ve süresi dolmuş kayıtlar). */
 export type ListTab = 'active' | 'trial' | 'history';
 
-export const LIST_TABS: ReadonlyArray<{ key: ListTab; label: string; statuses: SubscriptionStatus[] }> = [
+export const LIST_TABS: readonly { key: ListTab; label: string; statuses: SubscriptionStatus[] }[] = [
   { key: 'active', label: 'Aktif', statuses: ['active'] },
   { key: 'trial', label: 'Deneme', statuses: ['trial'] },
   { key: 'history', label: 'Geçmiş', statuses: ['paused', 'cancelled', 'expired'] },
@@ -59,7 +60,7 @@ export function visibleSubscriptions(
 function compareByRenewal(a: Subscription, b: Subscription): number {
   const dayA = renewalDay(a);
   const dayB = renewalDay(b);
-  if (dayA === dayB) return a.name.localeCompare(b.name, 'tr-TR');
+  if (dayA === dayB) return a.name.localeCompare(b.name, 'tr-TR') || a.id.localeCompare(b.id);
   return dayA - dayB;
 }
 
@@ -73,4 +74,18 @@ export function isRenewingSoon(subscription: Subscription, today: CivilDate, day
   if (subscription.status !== 'active' && subscription.status !== 'trial') return false;
   const diff = dayNumber(subscription.nextRenewalDate) - dayNumber(today);
   return diff >= 0 && diff <= days;
+}
+
+/**
+ * Dikkat gerektirenler: yenileme tarihi bugün veya geçmişte olan aktif/deneme kayıtları. Mevcut sıra
+ * her iki grupta da korunur; yalnızca gruplar ayrılır.
+ */
+export function splitAttention(
+  subscriptions: readonly Subscription[],
+  today: CivilDate,
+): { attention: Subscription[]; rest: Subscription[] } {
+  const attention: Subscription[] = [];
+  const rest: Subscription[] = [];
+  for (const subscription of subscriptions) (isRenewalDue(subscription, today) ? attention : rest).push(subscription);
+  return { attention, rest };
 }

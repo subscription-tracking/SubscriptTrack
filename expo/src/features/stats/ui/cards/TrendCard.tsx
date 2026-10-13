@@ -1,9 +1,12 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
 import { Money } from '../../../../core/domain/money';
+import { zoneToday } from '../../../../core/time/calendar';
 import { formatCurrency } from '../../../../core/format/money';
 import { colors, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
@@ -28,6 +31,7 @@ export function TrendCard({
   hasPaymentHistory,
   monthly,
   now,
+  timeZone,
   onMonthsChanged,
 }: {
   trend: number[];
@@ -36,8 +40,10 @@ export function TrendCard({
   hasPaymentHistory: boolean;
   monthly: Money;
   now: Date;
+  timeZone: string;
   onMonthsChanged: (months: number) => void;
 }) {
+  useThemeRevision();
   const router = useRouter();
   const values = hasPaymentHistory ? trend : [monthly.minorUnits];
   const last = values.length - 1;
@@ -46,7 +52,8 @@ export function TrendCard({
   const state = trendState(values);
 
   const formatValue = (minorUnits: number) => formatCurrency(Money.fromMinorUnits(minorUnits), currency);
-  const monthAt = (position: number) => trendMonthLabel(new Date(now.getFullYear(), now.getMonth() - (last - position), 1));
+  const current = zoneToday(timeZone, now);
+  const monthAt = (position: number) => trendMonthLabel(new Date(Date.UTC(current.year, current.month - 1 - (last - position), 1)));
   const peak = values.reduce((best, value, position) => (value > values[best] ? position : best), 0);
   const total = values.reduce((sum, value) => sum + value, 0);
   const summary = trendSummary({
@@ -59,7 +66,7 @@ export function TrendCard({
     <StatsCardSurface>
       <View style={styles.header}>
         <View style={styles.headerText}>
-          <Text style={textStyle('cardTitle')}>{hasPaymentHistory ? 'Ödeme geçmişi' : 'Aylık gider tahmini'}</Text>
+          <Text style={textStyle('bodyStrong')}>{hasPaymentHistory ? 'Ödeme geçmişi' : 'Aylık gider tahmini'}</Text>
           <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
             {hasPaymentHistory ? 'Kaydedilen ödemeler' : 'Aktif aboneliklerinin aylık toplamı'}
           </Text>
@@ -71,7 +78,7 @@ export function TrendCard({
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, flex: 1 })}>
           {`${monthAt(index)} ${hasPaymentHistory ? 'toplamı' : 'tahmini'}`}
         </Text>
-        <Text style={textStyle('topBarTitle', { color: colors.primary })}>{formatValue(values[index])}</Text>
+        <Text style={textStyle('heading', { color: colors.primary })}>{formatValue(values[index])}</Text>
       </View>
 
       {state === 'empty' ? (
@@ -91,6 +98,7 @@ export function TrendCard({
               values={values}
               hasPaymentHistory={hasPaymentHistory}
               now={now}
+              timeZone={timeZone}
               selectedIndex={index}
               onSelect={setSelected}
               formatValue={formatValue}
@@ -112,7 +120,7 @@ export function TrendCard({
       {hasPaymentHistory ? null : (
         <View style={styles.hint}>
           <MaterialIcons name="info-outline" size={sizes.hintIcon + 1} color={colors.onSurfaceVariant} />
-          <Text style={textStyle('chip', { color: colors.onSurfaceVariant, marginLeft: spacing.xs, flex: 1 })}>
+          <Text style={textStyle('caption', { marginLeft: spacing.xs, flex: 1 })}>
             Geçmiş ödemeleri görüntülemek için abonelik ayrıntılarından ödeme kaydı ekle.
           </Text>
         </View>
@@ -123,6 +131,7 @@ export function TrendCard({
 
 /** 3 / 6 / 12 ay seçici: seçili seçenek primary dolgulu ve kalın (Flutter `TrendRangeSelector`). */
 function RangeSelector({ months, onChange }: { months: number; onChange: (months: number) => void }) {
+  useThemeRevision();
   return (
     <View style={styles.selector}>
       {RANGES.map((range) => {
@@ -135,7 +144,7 @@ function RangeSelector({ months, onChange }: { months: number; onChange: (months
             onPress={() => onChange(range)}
             style={[styles.option, selected ? styles.optionSelected : null]}
           >
-            <Text style={textStyle('badge', { color: selected ? colors.onPrimary : colors.onSurfaceVariant })}>{`${range} Ay`}</Text>
+            <Text style={textStyle('captionStrong', { color: selected ? colors.onPrimary : colors.onSurfaceVariant })}>{`${range} Ay`}</Text>
           </Pressable>
         );
       })}
@@ -143,7 +152,7 @@ function RangeSelector({ months, onChange }: { months: number; onChange: (months
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -192,4 +201,4 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip,
     backgroundColor: withAlpha(colors.surfaceContainerHighest, 0.6),
   },
-});
+}));

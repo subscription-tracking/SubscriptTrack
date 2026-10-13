@@ -11,8 +11,8 @@ export const onboardingColors = {
   chipShadow: '#000000',
 } as const;
 
-/** Kategori dilimleri sırayla (Flutter `CategoryBreakdownCard._palette`). */
-export const chartColors = {
+/** Kategori dilimleri sırayla (koyu tema; açık tema için `lightChartColors`). */
+export const darkChartColors = {
   chart0: '#8B82F6',
   chart1: '#10B981',
   chart2: '#3B82F6',
@@ -27,21 +27,25 @@ export const chartColors = {
   emerald: '#10B981',
 } as const;
 
-export const chartPalette: readonly string[] = [
-  chartColors.chart0,
-  chartColors.chart1,
-  chartColors.chart2,
-  chartColors.chart3,
-  chartColors.chart4,
-  chartColors.chart5,
-  chartColors.chart6,
-];
+/** Açık tema: beyaz yüzeye karşı her renk ≥3:1 (grafik ve ikon, WCAG 1.4.11). */
+export const lightChartColors = {
+  chart0: '#6C63E0',
+  chart1: '#0B8A60',
+  chart2: '#2F6FE0',
+  chart3: '#B77400',
+  chart4: '#D63384',
+  chart5: '#0A7F95',
+  chart6: '#5B8A00',
+  decrease: '#2F7044',
+  amber: '#B77400',
+  emerald: '#0B8A60',
+} as const;
 
 /**
  * Kategori başına sabit renkler (10 kategori, sıra `SUBSCRIPTION_CATEGORIES` ile aynıdır). Sıralamaya ya da
  * listedeki konuma bağlı değildir; aynı kategori her ekranda aynı rengi alır.
  */
-export const categoryPalette: readonly string[] = [
+export const darkCategoryPalette: readonly string[] = [
   '#8B82F6',
   '#10B981',
   '#3B82F6',
@@ -52,4 +56,17 @@ export const categoryPalette: readonly string[] = [
   '#F97316',
   '#A855F7',
   '#94A3B8',
+];
+
+export const lightCategoryPalette: readonly string[] = [
+  '#6C63E0',
+  '#0B8A60',
+  '#2F6FE0',
+  '#B77400',
+  '#D63384',
+  '#0A7F95',
+  '#5B8A00',
+  '#C85A0A',
+  '#8A3FD6',
+  '#64748B',
 ];

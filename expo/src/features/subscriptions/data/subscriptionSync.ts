@@ -30,6 +30,6 @@ const coordinator = createSubscriptionSync({
 });
 export const { resolveRows, submitOperation, runSync } = coordinator;
 export async function removeSubscriptions(userId: string, ids: string[], key: string) {
-  if (!env.softDeletionEnabled && ids.some((id) => !id.startsWith('pending:'))) throw new Error('Silme özelliği sunucu güncellemesini bekliyor.');
+  if (!env.softDeletionEnabled && ids.some((id) => !id.startsWith('pending:'))) throw new Error('Silme şu an kullanılamıyor. Daha sonra tekrar dene.');
   return coordinator.removeSubscriptions(userId, ids, key);
 }

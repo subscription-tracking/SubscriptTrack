@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
@@ -7,7 +9,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useAuth } from '../../auth/AuthProvider';
 import { formatCurrency } from '../../../core/format/money';
 import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
-import { borderWidth, colors, radius, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
@@ -16,6 +18,7 @@ import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { savingsKeys } from '../../savings/data/queries';
 import { changeSubscriptionStatus } from '../data/subscriptionMutations';
 import { deleteSubscription } from '../data/subscriptionWriteRepository';
+import { cancelSubscriptionReminders } from '../../notifications/data/notificationScheduler';
 import { subscriptionKeys, useSubscriptionsQuery } from '../data/queries';
 import { archivedSubscriptions } from '../domain/subscriptionList';
 import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscription } from '../domain/subscription';
@@ -25,6 +28,7 @@ import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscription } from '../dom
  * düğmesi ile geri alınır. Arşiv silme değildir; kayıt burada kalır (bkz. ADR 0006).
  */
 export function SubscriptionArchivedScreen() {
+  useThemeRevision();
   const router = useRouter();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
@@ -42,6 +46,8 @@ export function SubscriptionArchivedScreen() {
       return deleteSubscription(subscription.id);
     },
     onSuccess: async (_result, subscription) => {
+      try { await cancelSubscriptionReminders([subscription.id]); }
+      catch { snackbar.show('Kayıt silindi ancak hatırlatmaları kaldırılamadı. Bildirim izinlerini kontrol et.', 'error'); }
       if (user) {
         await queryClient.invalidateQueries({ queryKey: subscriptionKeys.all(user.id) });
         await queryClient.invalidateQueries({ queryKey: savingsKeys.all(user.id) });
@@ -52,9 +58,9 @@ export function SubscriptionArchivedScreen() {
   });
 
   function confirmRemove(subscription: Subscription) {
-    Alert.alert('Aboneliği kalıcı olarak sil', `${subscription.name} ve ödeme geçmişi geri alınamaz şekilde silinecek.`, [
+    Alert.alert('Yanlış oluşturulan kaydı sil', `${subscription.name} yalnızca yanlış oluşturulmuş bir kayıt ise silinebilir. Abonelik ve ödeme geçmişi geri alınamaz. Bu kayıt yanlış mı oluşturuldu?`, [
       { text: 'Vazgeç', style: 'cancel' },
-      { text: 'Kalıcı olarak sil', style: 'destructive', onPress: () => remove.mutate(subscription) },
+      { text: 'Evet, yanlış kayıt', style: 'destructive', onPress: () => remove.mutate(subscription) },
     ]);
   }
 
@@ -105,6 +111,8 @@ export function SubscriptionArchivedScreen() {
                   onOpen={() => router.push(`/subscriptions/${item.id}`)}
                   onRestore={() => restore.mutate(item)}
                   onDelete={() => confirmRemove(item)}
+                  restorePending={restore.isPending}
+                  deletePending={remove.isPending}
                 />
               )}
             />
@@ -120,39 +128,51 @@ function ArchivedRow({
   onOpen,
   onRestore,
   onDelete,
+  restorePending,
+  deletePending,
 }: {
   subscription: Subscription;
   onOpen: () => void;
   onRestore: () => void;
   onDelete: () => void;
+  restorePending: boolean;
+  deletePending: boolean;
 }) {
+  useThemeRevision();
   // Kart düğme değildir: içerik alanı açma düğmesi, geri al ve sil düğmeleri kardeş olarak yer alır (iç içe düğme yok).
   return (
     <View style={styles.card}>
-      <Pressable accessibilityRole="button" onPress={onOpen} style={styles.content}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${subscription.name}, ${BILLING_CYCLE_LABELS[subscription.billingCycle]}, ${formatCurrency(subscription.amount, subscription.currency)}, ${CATEGORY_LABELS[subscription.category]}`}
+        onPress={onOpen}
+        style={styles.content}
+      >
       <View style={styles.avatar}>
         <MaterialIcons name="archive" size={sizes.iconButtonSize - spacing.xxs} color={colors.onSurfaceVariant} />
       </View>
       <View style={styles.middle}>
-        <Text style={textStyle('titleSmall')}>{subscription.name}</Text>
+        <Text style={textStyle('bodyStrong')}>{subscription.name}</Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{BILLING_CYCLE_LABELS[subscription.billingCycle]}</Text>
       </View>
       <View style={styles.trailing}>
-        <Text style={textStyle('bodyMediumStrong', { textAlign: 'right' })}>{formatCurrency(subscription.amount, subscription.currency)}</Text>
+        <Text style={textStyle('label', { textAlign: 'right' })}>{formatCurrency(subscription.amount, subscription.currency)}</Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right' })}>{CATEGORY_LABELS[subscription.category]}</Text>
       </View>
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="Aktif yap" onPress={onRestore} style={styles.restore}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${subscription.name} aboneliğini aktif yap`} accessibilityState={{ disabled: restorePending }} disabled={restorePending} onPress={onRestore} style={[styles.restore, restorePending && styles.disabled]}>
         <MaterialIcons name="unarchive" size={sizes.iconButtonSize} color={colors.primary} />
+        <Text style={textStyle('caption', { color: colors.primary })}>Geri al</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="Kalıcı olarak sil" onPress={onDelete} style={styles.restore}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${subscription.name} aboneliğini yanlış kayıt olarak sil`} accessibilityState={{ disabled: deletePending }} disabled={deletePending} onPress={onDelete} style={[styles.restore, styles.remove, deletePending && styles.disabled]}>
         <MaterialIcons name="delete-forever" size={sizes.iconButtonSize} color={colors.error} />
+        <Text style={textStyle('caption', { color: colors.error })}>Sil</Text>
       </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -201,9 +221,18 @@ const styles = StyleSheet.create({
     marginRight: spacing.xs,
   },
   restore: {
-    width: sizes.minTouchTarget,
-    height: sizes.minTouchTarget,
+    minWidth: sizes.minTouchTarget + spacing.xs,
+    minHeight: sizes.minTouchTarget + spacing.sm,
+    marginLeft: spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: radius.medium,
   },
-});
+  remove: {
+    marginLeft: spacing.sm,
+    backgroundColor: withAlpha(colors.error, 0.1),
+  },
+  disabled: {
+    opacity: 0.55,
+  },
+}));

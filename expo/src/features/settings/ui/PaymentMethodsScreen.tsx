@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -23,6 +25,7 @@ import { PaymentMethodDialog } from './PaymentMethodDialog';
  * Kart numarası alınmaz.
  */
 export function PaymentMethodsScreen() {
+  useThemeRevision();
   const { user } = useAuth();
   const query = useQuery({
     queryKey: ['payment-methods', user?.id ?? ''],
@@ -50,6 +53,7 @@ export function PaymentMethodsScreen() {
 type DialogState = { mode: 'add' } | { mode: 'edit'; name: string } | null;
 
 function MethodsEditor({ initial, userId }: { initial: string[]; userId: string }) {
+  useThemeRevision();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
   const [methods, setMethods] = useState(initial);
@@ -90,7 +94,7 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
           <View style={styles.empty}>
             <MaterialIcons name="credit-card-off" size={sizes.emptyStateIcon} color={colors.onSurfaceVariant} />
             <Spacer size={spacing.sm} />
-            <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'center' })}>Henüz bir ödeme yöntemi eklemedin.</Text>
+            <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'center' })}>Henüz ödeme yöntemi eklemedin.</Text>
             <Spacer size={spacing.md} />
             <PrimaryButton label="Ödeme yöntemi ekle" icon="add" tall={false} disabled={save.isPending} onPress={() => setDialog({ mode: 'add' })} />
           </View>
@@ -114,8 +118,12 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
           </>
         )}
 
-        <Spacer size={spacing.lg} />
-        <PrimaryButton label="Kaydet" loading={save.isPending} disabled={!dirty} onPress={() => save.mutate()} />
+        {dirty ? (
+          <>
+            <Spacer size={spacing.lg} />
+            <PrimaryButton label="Kaydet" loading={save.isPending} onPress={() => save.mutate()} />
+          </>
+        ) : null}
         <ScreenBottomInset />
       </ScrollView>
 
@@ -135,12 +143,13 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
 
 /** Flutter `_MethodCard`: 40 px kart ikonu, kalın ad ve düzenle/sil düğmeleri. */
 function MethodCard({ name, onEdit, onDelete }: { name: string; onEdit: () => void; onDelete: () => void }) {
+  useThemeRevision();
   return (
     <View style={styles.card}>
       <View style={styles.cardIcon}>
         <MaterialIcons name="credit-card" size={sizes.iconButtonSize} color={colors.primary} />
       </View>
-      <Text numberOfLines={1} style={textStyle('titleSmall', { flex: 1, marginLeft: spacing.sm })}>
+      <Text numberOfLines={1} style={textStyle('bodyStrong', { flex: 1, marginLeft: spacing.sm })}>
         {name}
       </Text>
       <Pressable accessibilityRole="button" accessibilityLabel={`${name} düzenle`} onPress={onEdit} style={styles.iconButton}>
@@ -153,7 +162,7 @@ function MethodCard({ name, onEdit, onDelete }: { name: string; onEdit: () => vo
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -175,7 +184,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderRadius: radius.medium,
     borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.border,
     backgroundColor: colors.surface,
   },
   cardIcon: {
@@ -192,4 +201,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

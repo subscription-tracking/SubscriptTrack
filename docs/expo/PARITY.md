@@ -160,6 +160,8 @@ Not: Bu Expo kararları kullanıcı tarafından verildi. Ürün kuralı sahibi f
 
 ## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
 
+Ek (13 Ekim 2026, tasarım): Expo tasarım sistemi bilinçli olarak Flutter'dan ayrışır: statik Hanken Grotesk ağırlıkları, 12 rollük yazı ölçeği (en küçük 12, Flutter'daki 9–11 pt yok), beş köşe kademesi, kontrastlı bileşen sınırı (controlBorder) ile ≥3:1 bileşen sınırı ve açık tema için koyulaştırılmış grafik paleti. Düğme hiyerarşisi Primary/Tonal/Text olarak tekleştirildi.
+
 Ek (13 Ekim 2026): Kilit ekranı ve PIN kaydı kullanıcıya bağlıdır; çıkışta yerel abonelik verisi temizlenir. Bu davranış Flutter'de yoktur ve Expo'ya özgüdür; parite için Flutter karşılığı ayrıca kararlaştırılmalıdır.
 
 **Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

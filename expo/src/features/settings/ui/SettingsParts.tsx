@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -9,8 +11,9 @@ type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 /** Flutter `SettingsSectionLabel`: 13 px, w600, bölüm başlığı (ekran okuyucuda başlık). */
 export function SectionLabel({ label }: { label: string }) {
+  useThemeRevision();
   return (
-    <Text accessibilityRole="header" style={[textStyle('sectionLabel'), styles.sectionLabel]}>
+    <Text accessibilityRole="header" style={[textStyle('label', { color: colors.onSurfaceVariant }), styles.sectionLabel]}>
       {label}
     </Text>
   );
@@ -28,6 +31,7 @@ export function SettingsTile({
   value?: string;
   onPress: () => void;
 }) {
+  useThemeRevision();
   return (
     <Pressable
       accessibilityRole="button"
@@ -36,11 +40,11 @@ export function SettingsTile({
       style={({ pressed }) => [styles.tile, pressed ? styles.pressed : null]}
     >
       <MaterialIcons name={icon} size={sizes.tileIcon} color={colors.onSurface} />
-      <Text style={[textStyle('tileLabel'), styles.tileLabel]} numberOfLines={2}>
+      <Text style={[textStyle('label'), styles.tileLabel]} numberOfLines={2}>
         {label}
       </Text>
       {value ? (
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right', flexShrink: 1 })} numberOfLines={2}>
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right', flexShrink: 1, maxWidth: '45%' })} numberOfLines={1} ellipsizeMode="tail">
           {value}
         </Text>
       ) : null}
@@ -61,6 +65,7 @@ export function AccountSummaryCard({
   email: string;
   onPress: () => void;
 }) {
+  useThemeRevision();
   return (
     <Pressable
       accessibilityRole="button"
@@ -69,11 +74,11 @@ export function AccountSummaryCard({
       style={({ pressed }) => [styles.account, pressed ? styles.pressed : null]}
     >
       <View style={styles.avatar}>
-        <Text style={textStyle('topBarTitle', { color: colors.primary })}>{initials}</Text>
+        <Text style={textStyle('heading', { color: colors.primary })}>{initials}</Text>
       </View>
       <View style={styles.accountText}>
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Hesap bilgileri</Text>
-        <Text style={textStyle('cardTitle', { marginTop: spacing.xxs / 2 })} numberOfLines={1}>
+        <Text style={textStyle('bodyStrong', { marginTop: spacing.xxs / 2 })} numberOfLines={1}>
           {name}
         </Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })} numberOfLines={1}>
@@ -87,15 +92,16 @@ export function AccountSummaryCard({
 
 /** Flutter `SignOutButton`: hata renginde kenarlıklı, 12 köşeli düğme; ikon ve kalın yazı. */
 export function SignOutButton({ onPress }: { onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.signOut, pressed ? styles.pressed : null]}>
       <MaterialIcons name="logout" size={sizes.signOutIcon} color={colors.error} />
-      <Text style={[textStyle('bodyMediumStrong', { color: colors.error }), styles.signOutLabel]}>Çıkış Yap</Text>
+      <Text style={[textStyle('label', { color: colors.error }), styles.signOutLabel]}>Çıkış yap</Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   sectionLabel: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
@@ -121,7 +127,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.medium,
     borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.border,
     backgroundColor: colors.surfaceHigh,
   },
   avatar: {
@@ -153,4 +159,4 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.85,
   },
-});
+}));

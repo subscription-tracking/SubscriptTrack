@@ -1,9 +1,10 @@
-import { type ComponentProps, useRef } from 'react';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { type ComponentProps, useState } from 'react';
 import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { formatLongDate } from '../../../core/format/date';
-import { civilDate } from '../../../core/time/calendar';
+import { formatTimestampDate } from '../../../core/format/date';
 import { borderWidth, colors, gaps, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { type CenterNotification } from '../data/notificationRepository';
@@ -49,17 +50,23 @@ export function NotificationRow({
   read,
   onOpen,
   onDismiss,
+  timeZone,
+  amountText,
 }: {
   item: CenterNotification;
   read: boolean;
   onOpen: () => void;
   onDismiss: () => void;
+  timeZone: string;
+  /** Aboneliğin tutarı biliniyorsa satırda gösterilir. */
+  amountText?: string;
 }) {
-  const translateX = useRef(new Animated.Value(0)).current;
+  useThemeRevision();
+  const [translateX] = useState(() => new Animated.Value(0));
   const text = notificationText(item.kind, { name: item.name, days: item.days });
-  const created = new Date(item.createdAt);
+  const createdDate = formatTimestampDate(item.createdAt, timeZone);
 
-  const responder = useRef(
+  const [responder] = useState(() =>
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gesture) => gesture.dx < -8 && Math.abs(gesture.dy) < 12,
       onPanResponderMove: (_, gesture) => translateX.setValue(Math.min(0, gesture.dx)),
@@ -72,7 +79,7 @@ export function NotificationRow({
       },
       onPanResponderTerminate: () => Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start(),
     }),
-  ).current;
+  );
 
   return (
     <View style={styles.wrap}>
@@ -80,18 +87,26 @@ export function NotificationRow({
         <MaterialIcons name="delete-outline" size={sizes.iconButtonSize} color={colors.onErrorContainer} />
       </View>
       <Animated.View style={{ transform: [{ translateX }] }} {...responder.panHandlers}>
-        <Pressable accessibilityRole="button" onPress={onOpen} style={styles.row}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={[text.title, text.body, amountText, createdDate, read ? 'Okundu' : 'Okunmadı'].filter(Boolean).join(', ')}
+          accessibilityHint={item.subscriptionId ? 'Okunmuş işaretler ve abonelik ayrıntılarını açar.' : 'Okunmuş işaretler.'}
+          accessibilityActions={[{ name: 'dismiss', label: 'Bildirimi kapat' }]}
+          onAccessibilityAction={({ nativeEvent }) => {
+            if (nativeEvent.actionName === 'dismiss') onDismiss();
+          }}
+          onPress={onOpen}
+          style={styles.row}
+        >
           <View style={[styles.avatar, { backgroundColor: avatarColor(item.kind, read) }]}>
             <MaterialIcons name={KIND_ICON[item.kind]} size={sizes.iconButtonSize} color={kindTone(item.kind)} />
           </View>
           <View style={styles.texts}>
-            <Text style={textStyle(read ? 'body' : 'bodyLargeStrong', { color: read ? colors.onSurfaceVariant : colors.onSurface })}>
+            <Text style={textStyle(read ? 'body' : 'bodyStrong', { color: read ? colors.onSurfaceVariant : colors.onSurface })}>
               {text.title}
             </Text>
             <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{text.body}</Text>
-            <Text style={textStyle('caption')}>
-              {formatLongDate(civilDate(created.getFullYear(), created.getMonth() + 1, created.getDate()))}
-            </Text>
+            <Text style={textStyle('caption')}>{amountText ? `${amountText} · ${createdDate}` : createdDate}</Text>
           </View>
           {read ? null : <View style={styles.unreadDot} />}
         </Pressable>
@@ -100,7 +115,7 @@ export function NotificationRow({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   wrap: {
     overflow: 'hidden',
   },
@@ -138,4 +153,4 @@ const styles = StyleSheet.create({
     borderRadius: sizes.unreadDot / 2,
     backgroundColor: colors.primary,
   },
-});
+}));

@@ -1,14 +1,16 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useState } from 'react';
 import { Share, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 
-import { borderWidth, colors, radius, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { OutlinedButton } from '../../../shared/widgets/OutlinedButton';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
+import { TonalButton } from '../../../shared/widgets/TonalButton';
 import { SelectField, type SelectOption } from '../../../shared/widgets/SelectField';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { TextField } from '../../../shared/widgets/TextField';
@@ -23,6 +25,7 @@ const CATEGORY_OPTIONS: SelectOption<FeedbackCategory>[] = FEEDBACK_CATEGORIES.m
  * Paylaşım mesajı tür bilgisiyle birlikte seçilen uygulamaya gider; destek kaydı doğrudan destek ekibine ulaşır.
  */
 export function FeedbackScreen() {
+  useThemeRevision();
   const snackbar = useSnackbar();
   const [category, setCategory] = useState<FeedbackCategory>(FEEDBACK_CATEGORIES[0]);
   const [message, setMessage] = useState('');
@@ -59,9 +62,9 @@ export function FeedbackScreen() {
       <ScreenTopBar title="Geri bildirim" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
-          <Text style={textStyle('cardTitle')}>Nasıl gönderilir?</Text>
+          <Text style={textStyle('bodyStrong')}>Nasıl gönderilir?</Text>
           <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>
-            Mesajını paylaşabilir veya doğrudan destek kaydı oluşturabilirsin.
+            Destek kaydı mesajını doğrudan ekibe iletir ve cevap alırsın. Paylaşım ekranı ise mesajını seçtiğin uygulamayla göndermeni sağlar.
           </Text>
         </View>
 
@@ -84,21 +87,22 @@ export function FeedbackScreen() {
         </Text>
 
         <Spacer size={spacing.lg} />
-        <PrimaryButton label="Paylaşım ekranını aç" icon="share" onPress={() => void share()} disabled={!hasMessage || ticket.isPending} />
-        <Spacer size={spacing.sm} />
-        <OutlinedButton
-          label={ticket.isPending ? 'Gönderiliyor…' : 'Destek kaydı oluştur'}
+        <PrimaryButton
+          label="Destek kaydı oluştur"
+          loading={ticket.isPending}
           onPress={() => {
             if (validate()) ticket.mutate();
           }}
         />
+        <Spacer size={spacing.sm} />
+        <TonalButton label="Paylaşım ekranını aç" onPress={() => void share()} disabled={!hasMessage || ticket.isPending} />
         <ScreenBottomInset />
       </ScrollView>
     </KeyboardScreen>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -110,7 +114,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.medium,
     borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-});
+}));

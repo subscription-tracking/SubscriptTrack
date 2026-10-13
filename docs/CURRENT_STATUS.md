@@ -2,6 +2,8 @@
 
 Son güncelleme: 13 Ekim 2026 (Expo senaryo kapatmaları; Flutter durum satırları önceki doğrulama düzeyindedir)
 
+**13 Ekim Expo tasarım sistemi sadeleştirme:** Statik Hanken Grotesk ağırlıkları, 12 rollük yazı ölçeği (en küçük 12), beş köşe kademesi, kontrastlı bileşen sınırı ve açık tema grafik paleti, düğme hiyerarşisi (Primary/Tonal/Text) ve metin düzeltmeleri uygulandı; kontrast kuralları otomatik teste bağlandı. Ayrıntı: [tasarım incelemesi](quality/expo-design-review-2026-10-13.md#uygulanan-düzeltmeler-aynı-gün). Ekran yeniden tasarımı, iOS ve TalkBack denemesi açık.
+
 **13 Ekim Expo senaryo kapatmaları:** Excel senaryolarının cihaz gerektirmeyen bölümü kodla kapatıldı: atomik SecureStore yazımı ve kuyruk karantinası, geçici hata sınıflaması ve zaman aşımı, kilitte modal/erişilebilirlik gizleme, çıkışta yerel veri temizliği ve kullanıcıya bağlı PIN, düzenlemede gizli hata ve deneme durumu, aynı isim uyarısı, yıllık toplam ve para birimi gruplu fiyat sıralaması, expired çipi, bugün/gecikmiş yedek bildirim ve izin uyarısı. Bunlar kod ve otomatik test düzeyindedir; Android/iOS cihaz kabulü, canlı 038/039 ve bayraklar açık kalır. Ayrıntı: [senaryo incelemesi](quality/expo-scenario-review-2026-10-13.md).
 
 **12 Ekim mimari iyileştirme:** Abonelik oluşturma koordinasyonu, eşitleme depo/oturum sınırları, PIN seri doğrulama ve güvenli hata ekranı, yenileme RPC adaptörü, ödeme hook'u ve CSV adaptör/domain ayrımı uygulandı. Mimari kontroller AST ve tüm dosyalarda döngü denetimine genişletildi. Uygulama ve kanıt kaydı `docs/quality/expo-architecture-remediation-2026-10-12.md` içindedir. Native kabul ve canlı özellik anahtarları bu çalışmada değişmedi.

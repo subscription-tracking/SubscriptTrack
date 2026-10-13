@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +15,7 @@ import { fetchPaymentMethods } from '../data/paymentMethodsRepository';
 import { messageForError } from '../../auth/domain/authErrors';
 import { AccountSummaryCard, SectionLabel, SettingsTile, SignOutButton } from './SettingsParts';
 import { useActiveCurrency } from '../data/useActiveCurrency';
+import { useThemePreference } from '../../../shared/design/ThemeProvider';
 
 /** Uygulama sürümü (Flutter ayarlar ekranındaki sabit metin). */
 const APP_VERSION = 'v1.0.0';
@@ -31,10 +34,13 @@ export function initialsFor(source: string): string {
  * çıkış. Her satır ilgili alt ekrana gider.
  */
 export function SettingsHome() {
+  useThemeRevision();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const snackbar = useSnackbar();
   const currency = useActiveCurrency();
+  const theme = useThemePreference();
+  const themeValue = theme.preference === 'system' ? 'Sistem' : theme.preference === 'light' ? 'Açık' : 'Koyu';
   const { user, signOut } = useAuth();
   const prefs = useNotifyPrefs();
   const methods = useQuery({
@@ -91,25 +97,26 @@ export function SettingsHome() {
       <SettingsTile
         icon="label-outline"
         label="Ödeme yöntemi seçenekleri"
-        value={`${methodCount} kayıtlı yöntem`}
+        value={`${methodCount} yöntem`}
         onPress={() => router.push('/settings/payment-methods')}
       />
+      <SettingsTile icon="dark-mode" label="Tema" value={themeValue} onPress={() => router.push('/settings/appearance')} />
       <SettingsTile icon="tune" label="Para birimi ve saat dilimi" value={currency} onPress={() => router.push('/settings/appearance')} />
 
       <SectionLabel label="Uygulama" />
-      <SettingsTile icon="replay" label="Tanıtım turunu yeniden başlat" value="Onboarding ekranlarını tekrar göster" onPress={() => void restartOnboarding()} />
+      <SettingsTile icon="replay" label="Tanıtımı yeniden göster" value="Tanıtım ekranlarını tekrar aç" onPress={() => void restartOnboarding()} />
 
       <SectionLabel label="Veri ve gizlilik" />
       <SettingsTile icon="lock-outline" label="Uygulama kilidi" value="PIN ve biyometri" onPress={() => router.push('/settings/app-lock')} />
       <SettingsTile
         icon="privacy-tip"
         label="Gizlilik ve veri merkezi"
-        value="Veri, yasal metinler, silme"
+        value="Veri ve yasal metinler"
         onPress={() => router.push('/settings/privacy')}
       />
 
       <SectionLabel label="Destek" />
-      <SettingsTile icon="feedback" label="Geri bildirim gönder" value="Hata veya öneri paylaş" onPress={() => router.push('/settings/feedback')} />
+      <SettingsTile icon="feedback" label="Geri bildirim gönder" value="Hata veya öneri" onPress={() => router.push('/settings/feedback')} />
 
       <View style={styles.signOutGap} />
       <SignOutButton onPress={confirmSignOut} />
@@ -119,7 +126,7 @@ export function SettingsHome() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -135,4 +142,4 @@ const styles = StyleSheet.create({
   versionGap: {
     height: gaps.cardInset,
   },
-});
+}));

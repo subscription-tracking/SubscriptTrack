@@ -1,10 +1,12 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Money } from '../../../../core/domain/money';
 import { formatCurrency } from '../../../../core/format/money';
 import { colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
-import { chartColors } from '../../../../shared/design/palette';
+import { chartColors } from '../../../../shared/design/chartTheme';
 import { textStyle } from '../../../../shared/design/typography';
 import { StatsCardSurface } from './StatsCardSurface';
 
@@ -27,6 +29,7 @@ export function HeroSpendingCard({
   trend: number[];
   hasPaymentHistory: boolean;
 }) {
+  useThemeRevision();
   const hasComparison = trend.length >= 2 && trend[trend.length - 2] > 0;
   // Değişim, ödeme geçmişinin bu ay ile geçen ay toplamı arasındaki farktır (ana sayfadaki yüzdeyle aynı kaynak).
   const change = trend.length >= 2 ? trend[trend.length - 1] - trend[trend.length - 2] : 0;
@@ -37,10 +40,10 @@ export function HeroSpendingCard({
           TAHMİNİ AYLIK ABONELİK GİDERİ
         </Text>
         <View style={styles.activePill}>
-          <Text style={textStyle('badge', { color: colors.primary })}>{`${activeCount} Aktif`}</Text>
+          <Text style={textStyle('captionStrong', { color: colors.primary })}>{`${activeCount} Aktif`}</Text>
         </View>
       </View>
-      <Text style={textStyle('heroAmount', { marginTop: spacing.sm + spacing.xxs / 2 })}>{formatCurrency(monthly, currency)}</Text>
+      <Text style={textStyle('display', { marginTop: spacing.sm + spacing.xxs / 2 })}>{formatCurrency(monthly, currency)}</Text>
       <View style={styles.changeRow}>
         <ChangeBadge change={change} currency={currency} hasPaymentHistory={hasPaymentHistory && hasComparison} />
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginLeft: gaps.chip - 1, flex: 1 })} numberOfLines={1}>
@@ -53,11 +56,12 @@ export function HeroSpendingCard({
 
 /** Değişim rozeti: azalış, artış, aynı seviye ya da geçmiş yoksa tahmin etiketi (Flutter `_ChangeBadge`). */
 function ChangeBadge({ change, currency, hasPaymentHistory }: { change: number; currency: string; hasPaymentHistory: boolean }) {
+  useThemeRevision();
   const look = badgeLook(change, currency, hasPaymentHistory);
   return (
     <View style={[styles.badge, { backgroundColor: look.background }]}>
       <MaterialIcons name={look.icon} size={sizes.badgeIcon} color={look.color} />
-      <Text style={textStyle('badge', { color: look.color, marginLeft: spacing.xxs })}>{look.label}</Text>
+      <Text style={textStyle('captionStrong', { color: look.color, marginLeft: spacing.xxs })}>{look.label}</Text>
     </View>
   );
 }
@@ -80,7 +84,7 @@ function badgeLook(change: number, currency: string, hasPaymentHistory: boolean)
   };
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -103,5 +107,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxs + 1,
     borderRadius: radius.field - 4,
   },
-});
+}));
 

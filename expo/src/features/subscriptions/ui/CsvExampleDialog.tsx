@@ -26,7 +26,7 @@ export function CsvExampleDialog({ visible, onClose }: { visible: boolean; onClo
             </View>
             <View style={styles.dialogActions}>
               <Pressable accessibilityRole="button" onPress={onClose} style={styles.dialogButton}>
-                <Text style={textStyle('button', { color: colors.onPrimary })}>Kapat</Text>
+                <Text style={textStyle('bodyStrong', { color: colors.onPrimary })}>Kapat</Text>
               </Pressable>
             </View>
           </View>

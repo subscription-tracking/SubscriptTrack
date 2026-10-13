@@ -8,8 +8,8 @@ import { join, relative, resolve } from 'path';
 
 const ROOT = resolve(__dirname, '..');
 
-/** Doküman §5 yazı boyutları: display 36, headline 28, title 22, body 16, label/bodySmall 14, caption 12; Flutter birebirliği için labelSmall 11. */
-const ALLOWED_FONT_SIZES = new Set([11, 12, 14, 15, 16, 22, 28, 36]);
+/** Doküman §5 yazı boyutları: en küçük 12; caption 12, label/bodySmall 14, body 16, heading 18, title 22, headline 28, display 36. */
+const ALLOWED_FONT_SIZES = new Set([12, 14, 16, 18, 22, 28, 36]);
 
 function listSources(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
@@ -58,6 +58,10 @@ describe('yazı', () => {
 
   it('ekranlar fontSize ve fontWeight yazmaz, yazı rolü kullanır', () => {
     expect(findLines(/fontWeight:\s*'\d+'/)).toEqual([]);
+  });
+
+  it('ekranlar Hanken aile adını literal yazmaz; aileler yalnızca tipografi katmanından gelir', () => {
+    expect(findLines(/fontFamily:\s*'HankenGrotesk/)).toEqual([]);
   });
 });
 

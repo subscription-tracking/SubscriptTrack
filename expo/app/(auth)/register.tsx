@@ -1,5 +1,7 @@
+import { useThemeRevision } from '../../src/shared/design/useThemeRevision';
+import { themedStyles } from '../../src/shared/design/themeRuntime';
 import { useState } from 'react';
-import { spacing } from '../../src/shared/design/tokens';
+import { spacing , colors } from '../../src/shared/design/tokens';
 import { type Href, useRouter } from 'expo-router';
 import { StyleSheet, Text } from 'react-native';
 
@@ -7,7 +9,6 @@ import { useAuth } from '../../src/features/auth/AuthProvider';
 import { messageForError } from '../../src/features/auth/domain/authErrors';
 import { PASSWORD_MISMATCH_REGISTER, validateAuthEmail, validateNewPassword, validatePasswordConfirmation } from '../../src/features/auth/domain/authRules';
 import { AuthHeader, AuthScaffold } from '../../src/features/auth/ui/AuthScaffold';
-import { colors } from '../../src/shared/design/tokens';
 import { textStyle } from '../../src/shared/design/typography';
 import { CheckboxRow } from '../../src/shared/widgets/CheckboxRow';
 import { PasswordField } from '../../src/shared/widgets/PasswordField';
@@ -18,6 +19,7 @@ import { TextLink } from '../../src/shared/widgets/TextLink';
 import { useSnackbar } from '../../src/shared/widgets/AppSnackbar';
 
 export default function RegisterScreen() {
+  useThemeRevision();
   const { signUp } = useAuth();
   const snackbar = useSnackbar();
   const router = useRouter();
@@ -45,7 +47,7 @@ export default function RegisterScreen() {
     try {
       const result = await signUp(email.trim(), password);
       if (result.requiresEmailConfirmation) {
-        snackbar.show('Kayıt tamamlandı. Devam etmek için e-postanı doğrula.', 'primary');
+        snackbar.show('E-posta uygunsa doğrulama bağlantısı gönderildi.', 'primary');
         router.replace('/login');
       }
       // Oturum açıldıysa yönlendirme AuthGate tarafından yapılır.
@@ -102,7 +104,7 @@ export default function RegisterScreen() {
       <CheckboxRow checked={agreed} onChange={setAgreed}>
         <Text style={textStyle('body')}>
           <Text style={styles.link} onPress={() => router.push('/legal/terms' as Href)}>
-            kullanım şartlarını
+            Kullanım şartlarını
           </Text>
           <Text> ve </Text>
           <Text style={styles.link} onPress={() => router.push('/legal/privacy' as Href)}>
@@ -119,6 +121,6 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  link: textStyle('bodyLargeStrong', { color: colors.primary, textDecorationLine: 'underline' }),
-});
+const styles = themedStyles(() => StyleSheet.create({
+  link: textStyle('bodyStrong', { color: colors.primary, textDecorationLine: 'underline' }),
+}));

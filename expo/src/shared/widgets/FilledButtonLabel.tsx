@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, opacity, radius, sizes, spacing, withAlpha } from '../design/tokens';
@@ -19,6 +21,7 @@ export function FilledButtonLabel({
   tone?: 'primary' | 'danger';
   onPress: () => void;
 }) {
+  useThemeRevision();
   const inactive = busy || disabled;
   const background = tone === 'danger' ? colors.error : colors.primary;
   const foreground = tone === 'danger' ? colors.white : colors.onPrimary;
@@ -37,13 +40,13 @@ export function FilledButtonLabel({
       {busy ? (
         <ActivityIndicator size="small" color={colors.white} />
       ) : (
-        <Text style={textStyle('button', { color: inactive ? withAlpha(colors.onBackground, opacity.disabled) : foreground })}>{label}</Text>
+        <Text style={textStyle('bodyStrong', { color: inactive ? withAlpha(colors.onBackground, opacity.disabled) : foreground })}>{label}</Text>
       )}
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   button: {
     minHeight: sizes.primaryButtonHeight,
     borderRadius: radius.field + 2,
@@ -54,4 +57,4 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.88,
   },
-});
+}));

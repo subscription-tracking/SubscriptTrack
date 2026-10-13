@@ -42,3 +42,14 @@ describe('SubscriptionTile süresi dolan kayıt', () => {
     expect(onPress).toHaveBeenCalledWith('sub-1');
   });
 });
+
+describe('SubscriptionTile gecikmiş vade', () => {
+  it('gecikmiş vadeyi sağda, tahmini döngüyü tek satır açıklama olarak gösterir', () => {
+    const overdue = { ...trial, status: 'active' as const, nextRenewalDate: civilDate(2026, 10, 6) };
+    render(<SubscriptionTile subscription={overdue} today={civilDate(2026, 10, 9)} onPress={jest.fn()} />);
+
+    expect(screen.getByText('Gecikmiş vade: 6 Ekim 2026')).toBeTruthy();
+    const note = screen.getByText('Sonraki döngü (tahmini): 6 Kasım 2026');
+    expect(note.props.numberOfLines).toBe(1);
+  });
+});

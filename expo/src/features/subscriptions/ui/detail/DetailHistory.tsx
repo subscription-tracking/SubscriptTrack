@@ -6,15 +6,15 @@ import { LockAwareModal } from '../../../../shared/widgets/LockAwareModal';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { formatAmount } from '../../../../core/format/money';
-import { formatLongDate, formatRelativeDate } from '../../../../core/format/date';
-import { type CivilDate } from '../../../../core/time/calendar';
+import { formatLongDate } from '../../../../core/format/date';
 import { borderWidth, colors, radius, sizes, spacing, statusColors, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { localCivilDate, type PaymentEvent } from '../../../stats/domain/paymentEvents';
+import { paymentStatusLabel } from '../../../stats/domain/paymentStatusLabel';
 import { Card, Section } from './DetailSections';
 
 /** Flutter `DetailPaymentHistorySection`: en son iki ödeme, "Tümünü gör" ile tüm liste. */
-export function PaymentHistorySection({ payments, today, timeZone }: { payments: PaymentEvent[]; today: CivilDate; timeZone: string }) {
+export function PaymentHistorySection({ payments, timeZone }: { payments: PaymentEvent[]; timeZone: string }) {
   useThemeRevision();
   const [showAll, setShowAll] = useState(false);
   const recent = payments.slice(0, 2);
@@ -24,7 +24,7 @@ export function PaymentHistorySection({ payments, today, timeZone }: { payments:
       action={
         payments.length > 0 ? (
           <Pressable accessibilityRole="button" onPress={() => setShowAll(true)} style={styles.seeAll}>
-            <Text style={textStyle('caption12Strong', { color: colors.primary })}>Tümünü gör</Text>
+            <Text style={textStyle('captionStrong', { color: colors.primary })}>Tümünü gör</Text>
           </Pressable>
         ) : null
       }
@@ -36,7 +36,7 @@ export function PaymentHistorySection({ payments, today, timeZone }: { payments:
           recent.map((event, index) => (
             <View key={event.id}>
               {index > 0 ? <View style={styles.divider} /> : null}
-              <HistoryRow event={event} today={today} timeZone={timeZone} />
+              <HistoryRow event={event} timeZone={timeZone} />
             </View>
           ))
         )}
@@ -44,10 +44,10 @@ export function PaymentHistorySection({ payments, today, timeZone }: { payments:
       <LockAwareModal visible={showAll} transparent animationType="fade" onRequestClose={() => setShowAll(false)}>
         <Pressable style={styles.dialogBackdrop} onPress={() => setShowAll(false)}>
           <View style={styles.dialog}>
-            <Text style={textStyle('titleSmall')}>Geçmiş ödemeler</Text>
+            <Text style={textStyle('bodyStrong')}>Geçmiş ödemeler</Text>
             <ScrollView style={styles.dialogList}>
               {payments.map((event) => (
-                <HistoryRow key={event.id} event={event} today={today} timeZone={timeZone} />
+                <HistoryRow key={event.id} event={event} timeZone={timeZone} />
               ))}
             </ScrollView>
           </View>
@@ -57,7 +57,7 @@ export function PaymentHistorySection({ payments, today, timeZone }: { payments:
   );
 }
 
-function HistoryRow({ event, today, timeZone }: { event: PaymentEvent; today: CivilDate; timeZone: string }) {
+function HistoryRow({ event, timeZone }: { event: PaymentEvent; timeZone: string }) {
   useThemeRevision();
   return (
     <View style={styles.historyRow}>
@@ -65,12 +65,12 @@ function HistoryRow({ event, today, timeZone }: { event: PaymentEvent; today: Ci
         <MaterialIcons name="check" size={sizes.detailCardIcon} color={statusColors.success} />
       </View>
       <View style={styles.historyDate}>
-        <Text style={textStyle('bodySmallStrong')}>{formatLongDate(localCivilDate(event.paidAt, timeZone))}</Text>
+        <Text style={textStyle('label')}>{formatLongDate(localCivilDate(event.paidAt, timeZone))}</Text>
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
-          {formatRelativeDate(localCivilDate(event.paidAt, timeZone), today)}
+          {paymentStatusLabel(event.status)}
         </Text>
       </View>
-      <Text style={textStyle('bodySmallStrong')}>{formatAmount(event.amount.amount, event.currency)}</Text>
+      <Text style={textStyle('label')}>{formatAmount(event.amount.amount, event.currency)}</Text>
     </View>
   );
 }

@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
@@ -12,13 +14,14 @@ import { HeaderShell } from './HeaderShell';
  * negatif sol boşlukla yerleşir.
  */
 export function ScreenTopBar({ title, action }: { title: string; action?: { label: string; onPress: () => void } }) {
+  useThemeRevision();
   const router = useRouter();
   return (
     <HeaderShell style={styles.topBar}>
       <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
         <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
       </Pressable>
-      <Text style={[textStyle('topBarTitle'), styles.title]}>{title}</Text>
+      <Text style={[textStyle('heading'), styles.title]}>{title}</Text>
       {action ? (
         <Pressable accessibilityRole="button" onPress={action.onPress} style={styles.action}>
           <Text style={textStyle('label', { color: colors.primary })}>{action.label}</Text>
@@ -28,7 +31,7 @@ export function ScreenTopBar({ title, action }: { title: string; action?: { labe
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   title: {
     flex: 1,
   },
@@ -49,4 +52,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

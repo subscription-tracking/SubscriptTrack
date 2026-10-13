@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { StyleSheet, Text, View } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -20,6 +22,7 @@ export function ServiceIdentity({
   category: SubscriptionCategory;
   size?: number;
 }) {
+  useThemeRevision();
   const mark = serviceMark(name, category);
   const color = resolveColor(mark, category);
   return (
@@ -45,7 +48,7 @@ export function ServiceIdentity({
       ) : mark.kind === 'material' ? (
         <MaterialIcons name={mark.icon} size={size * 0.52} color={color} />
       ) : (
-        <Text style={[textStyle('topBarTitle', { color, fontSize: size * 0.42, letterSpacing: -0.5 })]}>{mark.initial}</Text>
+        <Text style={[textStyle('heading', { color, fontSize: size * 0.42, letterSpacing: -0.5 })]}>{mark.initial}</Text>
       )}
     </View>
   );
@@ -64,7 +67,7 @@ function resolveColor(mark: ReturnType<typeof serviceMark>, category: Subscripti
   return mark.color;
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   box: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -73,4 +76,4 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 2,
   },
-});
+}));

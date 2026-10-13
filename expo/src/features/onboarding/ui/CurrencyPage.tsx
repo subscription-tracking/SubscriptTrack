@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -15,6 +17,7 @@ import { Bob } from './OnboardingMotion';
  * üst ekrana iletilir; kalıcı kayıt üst ekranda yapılır.
  */
 export function CurrencyPage({ selected, onSelect }: { selected: ActiveCurrency; onSelect: (code: ActiveCurrency) => void }) {
+  useThemeRevision();
   return (
     <View style={styles.page}>
       <EntranceFade>
@@ -22,7 +25,7 @@ export function CurrencyPage({ selected, onSelect }: { selected: ActiveCurrency;
       </EntranceFade>
       <View style={styles.gapTitle} />
       <EntranceFade delay={80}>
-        <Text style={textStyle('headlineSmallStrong', { textAlign: 'center' })}>Para birimi seç</Text>
+        <Text style={textStyle('title', { textAlign: 'center' })}>Para birimi seç</Text>
       </EntranceFade>
       <View style={styles.gapSmall} />
       <EntranceFade delay={120}>
@@ -50,6 +53,7 @@ export function CurrencyPage({ selected, onSelect }: { selected: ActiveCurrency;
 }
 
 function FloatingChips() {
+  useThemeRevision();
   return (
     <View style={styles.chipsBox}>
       <View style={styles.chipsCenter}>
@@ -70,9 +74,10 @@ function FloatingChips() {
 }
 
 function CurrencyChip({ symbol }: { symbol: string }) {
+  useThemeRevision();
   return (
     <View style={styles.chip}>
-      <Text style={textStyle('bodyMediumStrong')}>{symbol}</Text>
+      <Text style={textStyle('label')}>{symbol}</Text>
     </View>
   );
 }
@@ -90,6 +95,7 @@ function CurrencyOption({
   selected: boolean;
   onPress: () => void;
 }) {
+  useThemeRevision();
   return (
     <Pressable
       accessibilityRole="radio"
@@ -105,18 +111,18 @@ function CurrencyOption({
       ]}
     >
       <View style={[styles.badge, { backgroundColor: selected ? withAlpha(colors.primary, 0.14) : colors.surfaceContainerHighest }]}>
-        <Text style={textStyle('symbolLarge', { color: selected ? colors.primary : colors.onSurfaceVariant })}>{symbol}</Text>
+        <Text style={textStyle('heading', { color: selected ? colors.primary : colors.onSurfaceVariant })}>{symbol}</Text>
       </View>
       <View style={styles.labels}>
-        <Text style={textStyle('bodySmallStrong', { color: selected ? colors.onSurface : colors.onSurfaceVariant })}>{name}</Text>
-        <Text style={textStyle('labelSmall')}>{code}</Text>
+        <Text style={textStyle('label', { color: selected ? colors.onSurface : colors.onSurfaceVariant })}>{name}</Text>
+        <Text style={textStyle('caption')}>{code}</Text>
       </View>
       {selected ? <MaterialIcons name="check-circle" size={sizes.checkIcon} color={colors.primary} /> : null}
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   page: {
     flex: 1,
     justifyContent: 'center',
@@ -177,4 +183,4 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: spacing.sm,
   },
-});
+}));

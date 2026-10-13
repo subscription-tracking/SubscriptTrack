@@ -44,6 +44,8 @@ export const SubscriptionTile = memo(function SubscriptionTile({
       ? subscription.nextRenewalDate ? `Yenileme ${formatLongDate(subscription.nextRenewalDate)}` : 'Yenileme tarihi yok'
       : '';
 
+  const upcoming = days !== null && days < 0 ? advancedRenewalDate(subscription, today) : null;
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -51,41 +53,48 @@ export const SubscriptionTile = memo(function SubscriptionTile({
       onPress={() => onPress(subscription.id)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={{ opacity: dimmed ? 0.55 : 1 }}>
-        <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.listAvatar} />
-      </View>
-
-      <View style={styles.middle}>
-        <Text
-          numberOfLines={1}
-          style={textStyle('bodySmallStrong', {
-            textDecorationLine: status === 'cancelled' ? 'line-through' : 'none',
-          })}
-        >
-          {subscription.name}
-        </Text>
-        <View style={styles.subtitleRow}>
-          <Text numberOfLines={1} style={textStyle('caption12', { flexShrink: 1, color: withAlpha(colors.onSurfaceVariant, 0.9) })}>
-            {`${CATEGORY_LABELS[subscription.category]} · ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
-          </Text>
-          {chipVisible ? (
-            <View style={styles.chipGap}>
-              <SubscriptionStatusChip
-                status={status}
-                isNotStarted={isNotStarted(subscription, today)}
-                daysUntilRenewal={days}
-              />
-            </View>
-          ) : null}
+      <View style={styles.row}>
+        <View style={{ opacity: dimmed ? 0.55 : 1 }}>
+          <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.listAvatar} />
         </View>
-      </View>
 
-      <Trailing subscription={subscription} days={days} today={today} />
+        <View style={styles.middle}>
+          <Text
+            numberOfLines={1}
+            style={textStyle('label', {
+              textDecorationLine: status === 'cancelled' ? 'line-through' : 'none',
+            })}
+          >
+            {subscription.name}
+          </Text>
+          <View style={styles.subtitleRow}>
+            <Text numberOfLines={1} style={textStyle('caption', { flexShrink: 1 })}>
+              {`${CATEGORY_LABELS[subscription.category]} · ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
+            </Text>
+            {chipVisible ? (
+              <View style={styles.chipGap}>
+                <SubscriptionStatusChip
+                  status={status}
+                  isNotStarted={isNotStarted(subscription, today)}
+                  daysUntilRenewal={days}
+                />
+              </View>
+            ) : null}
+          </View>
+        </View>
+
+        <Trailing subscription={subscription} days={days} today={today} overdue={upcoming !== null} />
+      </View>
+      {upcoming ? (
+        <Text numberOfLines={1} style={[textStyle('caption'), styles.note]}>
+          {`Sonraki döngü (tahmini): ${formatLongDate(upcoming)}`}
+        </Text>
+      ) : null}
     </Pressable>
   );
 });
 
-function Trailing({ subscription, days, today }: { subscription: Subscription; days: number | null; today: CivilDate }) {
+function Trailing({ subscription, days, today, overdue }: { subscription: Subscription; days: number | null; today: CivilDate; overdue: boolean }) {
   useThemeRevision();
   const status = subscription.status;
   const isPaused = status === 'paused';
@@ -98,19 +107,17 @@ function Trailing({ subscription, days, today }: { subscription: Subscription; d
       ? statusColors.success
       : urgent
         ? colors.error
-        : withAlpha(colors.onSurfaceVariant, 0.85);
+        : colors.onSurfaceVariant;
   const label = isPaused ? 'Duraklatıldı' : isCancelled ? 'İptal edildi' : isExpired ? 'Süresi doldu' : isNotStarted(subscription, today) ? 'Henüz başlamadı' : days === null ? '—' : days < 0 ? 'Gecikmiş vade' : renewalLabel(days);
-  const upcoming = days !== null && days < 0 ? advancedRenewalDate(subscription, today) : null;
   return (
     <View style={styles.trailing}>
-      {upcoming ? <Text style={textStyle('caption')}>{`Sonraki döngü (tahmini): ${formatLongDate(upcoming)}`}</Text> : null}
-      <Text style={textStyle('topBarTitle', { color: isCancelled || isPaused || isExpired ? colors.onSurfaceVariant : colors.onSurface })}>
+      <Text style={textStyle('heading', { color: isCancelled || isPaused || isExpired ? colors.onSurfaceVariant : colors.onSurface })}>
         {formatCurrency(subscription.amount, subscription.currency)}
       </Text>
       <Text
-        style={textStyle(urgent ? 'labelSmallStrong' : 'labelSmall', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
+        style={textStyle(urgent ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
       >
-        {upcoming && subscription.nextRenewalDate ? `${label}: ${formatLongDate(subscription.nextRenewalDate)}` : label}
+        {overdue && subscription.nextRenewalDate ? `${label}: ${formatLongDate(subscription.nextRenewalDate)}` : label}
       </Text>
     </View>
   );
@@ -118,14 +125,20 @@ function Trailing({ subscription, days, today }: { subscription: Subscription; d
 
 const styles = themedStyles(() => StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md - 1,
     borderRadius: radius.medium,
     borderWidth: borderWidth.hairline,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  note: {
+    marginTop: spacing.xs,
+    marginLeft: sizes.listAvatar + gaps.rowLoose - 2,
   },
   pressed: {
     opacity: 0.85,

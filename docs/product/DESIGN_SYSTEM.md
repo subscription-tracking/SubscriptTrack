@@ -1,5 +1,7 @@
 # Design System
 
+> **Kapsam notu (13 Ekim 2026):** Bu belge Flutter uygulamasının hedef sistemini anlatır. Expo uygulaması için geçerli sistem [../expo/DESIGN_SYSTEM.md](../expo/DESIGN_SYSTEM.md) belgesindedir (yazı ölçeği, köşe kademeleri, kontrast kuralları, düğme hiyerarşisi).
+
 > **Durum: Kısmi.** Bu belge hedeflenen tasarım sistemini anlatır. Kodda bugün uygulanan: tokenlar `mobile/lib/shared/design/app_tokens.dart` (`AppSpacing`, `AppRadius`, `AppSizes`), renkler `app/theme/app_colors.dart` (`AppColors`), tema `app/theme/app_theme.dart` (yalnızca koyu) ve ortak bileşenler `mobile/lib/shared/widgets/` (`AppSurface`, `AppEmptyState`, `AsyncStateView`, `AppOfflineBanner`, `AppConfirmDialog`, `AppShimmer`, `LoadingFilledButton`, `SubscriptionStatusChip` …). **Uygulanmayanlar (Planlı):** noktalı semantic token adları (`action.primary` gibi; kodda düz sabitler kullanılır), Figma yapısı ve Figma–kod isim eşleşmesi, açık tema, tam primitive bileşen kataloğu ve durum matrisi. Aşağıdaki bölümler bu hedef için başvuru olarak okunmalıdır.
 
 ## 1. Amaç
@@ -330,3 +332,7 @@ Code: SubscriptionCardVariant.renewingSoon
 - Token kaldırılmadan önce deprecated edilir.
 - Ekran içinde tek seferlik stil eklemek yerine sistem ihtiyacı değerlendirilir.
 - Tasarım ve mobil ekip ortak component review yapar.
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

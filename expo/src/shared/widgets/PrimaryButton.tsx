@@ -1,8 +1,10 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { colors, gaps, opacity, radius, sizes, spacing, withAlpha } from '../design/tokens';
+import { colors, gaps, radius, sizes, spacing } from '../design/tokens';
 import { buttonText } from '../design/typography';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -16,17 +18,21 @@ interface PrimaryButtonProps {
   tall?: boolean;
   /** Flutter `FilledButton.icon`: etiketin solundaki 18 px ikon. */
   icon?: MaterialIconName;
+  /** `danger`: yıkıcı eylemin dolu düğmesi (hata rengi). */
+  tone?: 'primary' | 'danger';
 }
 
 /**
  * Flutter `LoadingFilledButton` karşılığı: FilledButton, 14 köşe, yükleme sırasında
  * 20 px beyaz gösterge ve devre dışıyken basılmaz.
  */
-export function PrimaryButton({ label, onPress, loading = false, disabled = false, tall = true, icon }: PrimaryButtonProps) {
+export function PrimaryButton({ label, onPress, loading = false, disabled = false, tall = true, icon, tone = 'primary' }: PrimaryButtonProps) {
+  useThemeRevision();
   const inactive = loading || disabled;
-  const foreground = inactive ? withAlpha(colors.onBackground, opacity.disabled) : colors.onPrimary;
+  const foreground = inactive ? colors.disabledText : colors.onPrimary;
   return (
     <Pressable
+      accessible
       accessibilityRole="button"
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
@@ -34,12 +40,13 @@ export function PrimaryButton({ label, onPress, loading = false, disabled = fals
       style={({ pressed }) => [
         styles.button,
         { minHeight: tall ? sizes.tallButtonHeight : sizes.primaryButtonHeight },
+        tone === 'danger' && styles.buttonDanger,
         inactive && styles.buttonInactive,
         pressed && !inactive && styles.buttonPressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={colors.white} />
+        <ActivityIndicator size="small" color={colors.onPrimary} />
       ) : (
         <View style={styles.content}>
           {icon ? <MaterialIcons name={icon} size={sizes.buttonIcon} color={foreground} /> : null}
@@ -50,7 +57,7 @@ export function PrimaryButton({ label, onPress, loading = false, disabled = fals
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   button: {
     borderRadius: radius.small,
     paddingHorizontal: spacing.lg,
@@ -59,8 +66,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.primary,
   },
+  buttonDanger: {
+    backgroundColor: colors.error,
+  },
   buttonInactive: {
-    backgroundColor: withAlpha(colors.onBackground, opacity.disabledContainer),
+    backgroundColor: colors.disabledSurface,
   },
   buttonPressed: {
     opacity: 0.88,
@@ -73,4 +83,4 @@ const styles = StyleSheet.create({
   labelWithIcon: {
     marginLeft: gaps.hint,
   },
-});
+}));

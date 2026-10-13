@@ -1,10 +1,12 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Money } from '../../../../core/domain/money';
 import { formatCurrency } from '../../../../core/format/money';
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
-import { chartColors } from '../../../../shared/design/palette';
+import { chartColors } from '../../../../shared/design/chartTheme';
 import { textStyle } from '../../../../shared/design/typography';
 import { monthlyEquivalent, type Subscription } from '../../../subscriptions/domain/subscription';
 import { StatsCardSurface } from './StatsCardSurface';
@@ -26,34 +28,35 @@ export function InsightsCard({
   dueSoon: Subscription[];
   onReviewDue: () => void;
 }) {
+  useThemeRevision();
   const sharePct = highest && total.minorUnits > 0 ? Math.round((monthlyEquivalent(highest).minorUnits / total.minorUnits) * 100) : 0;
   return (
     <StatsCardSurface>
-      <Text style={textStyle('cardTitle')}>Öne çıkanlar</Text>
+      <Text style={textStyle('bodyStrong')}>Öne çıkanlar</Text>
       <View style={styles.gap} />
       {highest ? (
         <View style={styles.highest}>
           <View style={styles.avatar}>
-            <Text style={textStyle('topBarTitle', { color: colors.primary })}>{highest.name.length > 0 ? highest.name[0].toUpperCase() : '?'}</Text>
+            <Text style={textStyle('heading', { color: colors.primary })}>{highest.name.length > 0 ? highest.name[0].toUpperCase() : '?'}</Text>
           </View>
           <View style={styles.highestText}>
-            <Text style={textStyle('bodySmallStrong')} numberOfLines={1}>{`En Yüksek Gider: ${highest.name}`}</Text>
-            <Text style={textStyle('caption12', { marginTop: spacing.xxs / 2 })}>{`Aylık abonelik giderlerinin %${sharePct}’ini oluşturuyor.`}</Text>
+            <Text style={textStyle('label')} numberOfLines={1}>{`En Yüksek Gider: ${highest.name}`}</Text>
+            <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>{`Aylık abonelik giderlerinin %${sharePct}’ini oluşturuyor.`}</Text>
           </View>
-          <Text style={textStyle('bodySmallStrong', { marginLeft: spacing.xs })}>{formatCurrency(monthlyEquivalent(highest), currency)}</Text>
+          <Text style={textStyle('label', { marginLeft: spacing.xs })}>{formatCurrency(monthlyEquivalent(highest), currency)}</Text>
         </View>
       ) : null}
       {dueSoon.length > 0 ? (
         <View style={[styles.banner, { marginTop: gaps.sectionInner }]}>
           <MaterialIcons name="warning-amber" size={sizes.warningIcon} color={chartColors.amber} />
           <View style={styles.bannerText}>
-            <Text style={textStyle('bodySmallStrong')}>{`${dueSoon.length} abonelik 7 gün içinde yenilenecek`}</Text>
-            <Text style={textStyle('caption12', { marginTop: spacing.xxs / 2 })} numberOfLines={1}>
+            <Text style={textStyle('label')}>{`${dueSoon.length} abonelik 7 gün içinde yenilenecek`}</Text>
+            <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })} numberOfLines={1}>
               {dueSoon.map((subscription) => subscription.name).join(', ')}
             </Text>
           </View>
           <Pressable accessibilityRole="button" onPress={onReviewDue} style={styles.review}>
-            <Text style={textStyle('badge', { color: colors.secondary })}>İncele</Text>
+            <Text style={textStyle('captionStrong', { color: colors.secondary })}>İncele</Text>
           </Pressable>
         </View>
       ) : null}
@@ -61,7 +64,7 @@ export function InsightsCard({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   gap: {
     height: gaps.cardInset,
   },
@@ -107,4 +110,4 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.secondaryContainer,
   },
-});
+}));

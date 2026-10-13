@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 
 import { Money } from '../../../../core/domain/money';
@@ -22,6 +24,7 @@ export interface CategoryEntry {
  * ilk girişte büyür; ekran okuyucu her kategori için yüzdeyi ve kartın özetini okur.
  */
 export function CategoryBreakdownCard({ entries, total, currency }: { entries: CategoryEntry[]; total: Money; currency: string }) {
+  useThemeRevision();
   const shares = percentShares(
     entries.map((entry) => entry.monthly.minorUnits),
     total.minorUnits,
@@ -38,10 +41,10 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
   return (
     <StatsCardSurface>
       <View style={styles.header} accessible accessibilityLabel={summary}>
-        <Text style={textStyle('cardTitle', { flex: 1 })} numberOfLines={1}>
+        <Text style={textStyle('bodyStrong', { flex: 1 })} numberOfLines={1}>
           Kategori Dağılımı
         </Text>
-        <Text style={textStyle('bodySmallStrong', { color: colors.onSurfaceVariant, marginLeft: spacing.xs })}>{`${entries.length} Kategori`}</Text>
+        <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginLeft: spacing.xs })}>{`${entries.length} Kategori`}</Text>
       </View>
       <View style={styles.gap} />
       {entries.map((entry, index) => {
@@ -52,10 +55,10 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
           <View key={entry.category} style={styles.row}>
             <View style={styles.line}>
               <View style={[styles.dot, { backgroundColor: color }]} />
-              <Text style={textStyle('bodySmallStrong', { flex: 1, marginLeft: spacing.sm })} numberOfLines={1}>
+              <Text style={textStyle('label', { flex: 1, marginLeft: spacing.sm })} numberOfLines={1}>
                 {CATEGORY_LABELS[entry.category]}
               </Text>
-              <Text style={textStyle('bodySmallStrong')}>{formatCurrency(entry.monthly, currency)}</Text>
+              <Text style={textStyle('label')}>{formatCurrency(entry.monthly, currency)}</Text>
               <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, width: sizes.percentWidth, textAlign: 'right', marginLeft: spacing.xs })}>
                 {`%${share}`}
               </Text>
@@ -75,7 +78,7 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -106,4 +109,4 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: radius.pill,
   },
-});
+}));

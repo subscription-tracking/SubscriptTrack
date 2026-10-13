@@ -1,7 +1,9 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type CivilDate } from '../../../../core/time/calendar';
-import { borderWidth, colors, radius, spacing, withAlpha } from '../../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { DateField } from '../../../../shared/widgets/DateField';
 import { REMINDER_PRESET_DAYS, toggleReminderDay } from '../../domain/reminderRules';
@@ -24,16 +26,21 @@ export function RenewalSection({
   errors,
   today,
   onChange,
+  scheduleMode,
+  onAutomatic,
 }: {
   values: SubscriptionFormValues;
   errors: FormErrors;
   today: CivilDate;
   onChange: <K extends keyof SubscriptionFormValues>(key: K, value: SubscriptionFormValues[K]) => void;
+  scheduleMode?: 'automatic' | 'manual';
+  onAutomatic?: () => void;
 }) {
+  useThemeRevision();
   return (
     <FormSection>
       <View style={styles.header}>
-        <Text style={textStyle('titleSmall')}>Yenileme</Text>
+        <Text style={textStyle('bodyStrong')}>Yenileme</Text>
       </View>
       <DateField
         label="Sonraki ödeme"
@@ -42,6 +49,12 @@ export function RenewalSection({
         error={errors.nextRenewalDate}
         onChange={(next) => onChange('nextRenewalDate', next)}
       />
+      {scheduleMode === 'automatic' ? <Text style={textStyle('caption')}>Tarih otomatik hesaplanıyor · Elle seç</Text> : null}
+      {scheduleMode === 'manual' && onAutomatic ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Elle seçildi, otomatik hesapla" onPress={onAutomatic} style={styles.scheduleLink}>
+          <Text style={textStyle('caption', { color: colors.primary })}>Elle seçildi · Otomatik hesapla</Text>
+        </Pressable>
+      ) : null}
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.md })}>Hatırlat</Text>
       <View style={styles.chips}>
         {REMINDER_PRESET_DAYS.map((day) => {
@@ -54,7 +67,7 @@ export function RenewalSection({
               onPress={() => onChange('reminderDays', toggleReminderDay(values.reminderDays, day))}
               style={[styles.chip, selected ? styles.chipSelected : null]}
             >
-              <Text style={textStyle('caption12Strong', { color: selected ? colors.primary : colors.onSurfaceVariant })}>{REMINDER_LABEL[day]}</Text>
+              <Text style={textStyle('captionStrong', { color: selected ? colors.onPrimary : colors.onSurfaceVariant })}>{REMINDER_LABEL[day]}</Text>
             </Pressable>
           );
         })}
@@ -64,7 +77,7 @@ export function RenewalSection({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   header: {
     marginBottom: spacing.xxs,
   },
@@ -79,11 +92,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     borderRadius: radius.choice,
     borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.controlBorder,
     backgroundColor: colors.surfaceHigh,
   },
   chipSelected: {
     borderColor: colors.primary,
-    backgroundColor: withAlpha(colors.primary, 0.16),
+    backgroundColor: colors.primary,
   },
-});
+  scheduleLink: {
+    minHeight: sizes.minTouchTarget,
+    justifyContent: 'center',
+  },
+}));

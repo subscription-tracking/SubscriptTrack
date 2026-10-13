@@ -273,7 +273,7 @@ export function createSubscriptionSync(dependencies: SubscriptionSyncDependencie
       const remaining = queue.flatMap((entry) => {
         if (!pending.includes(`pending:${entry.id}`) || entry.op.kind !== 'create') return [entry];
         if (entry.op.attempted === false) return [];
-        if (dependencies.softDeleteAllowed && !dependencies.softDeleteAllowed()) throw new DataWriteError('Silme özelliği sunucu güncellemesini bekliyor.', { retryable: false });
+        if (dependencies.softDeleteAllowed && !dependencies.softDeleteAllowed()) throw new DataWriteError('Silme şu an kullanılamıyor. Daha sonra tekrar dene.', { retryable: false });
         return [{ ...entry, op: { ...entry.op, deleteAfterCreate: `${key}:${entry.id}` } }];
       });
       const serverIds = ids.filter((id) => !id.startsWith('pending:'));

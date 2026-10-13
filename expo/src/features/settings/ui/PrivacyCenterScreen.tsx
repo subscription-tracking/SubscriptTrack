@@ -1,7 +1,9 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { borderWidth, colors, radius, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
@@ -12,20 +14,21 @@ import { ListRow } from './SettingsControls';
  * sayfalar, dışa aktarma ve hesap silme satırları. Hesap silme kırmızı tonla gösterilir.
  */
 export function PrivacyCenterScreen() {
+  useThemeRevision();
   const router = useRouter();
   return (
     <View style={styles.screen}>
       <ScreenTopBar title="Gizlilik ve veri merkezi" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
-          <Text style={textStyle('cardTitle')}>Verilerin kontrolü sende</Text>
+          <Text style={textStyle('bodyStrong')}>Verilerin kontrolü sende</Text>
           <Text style={textStyle('bodySmall', { marginTop: spacing.sm })}>
             Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Bu bilgilere yalnızca sen erişebilirsin.
           </Text>
         </View>
         <View style={styles.gap} />
         <ListRow icon="policy" label="Gizlilik Politikası" onPress={() => router.push('/legal/privacy')} />
-        <ListRow icon="gavel" label="Kullanım Şartları" onPress={() => router.push('/legal/terms')} />
+        <ListRow icon="gavel" label="Kullanım şartları" onPress={() => router.push('/legal/terms')} />
         <ListRow
           icon="download"
           label="Verilerimi dışa aktar"
@@ -45,7 +48,7 @@ export function PrivacyCenterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -57,7 +60,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.medium,
     borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.5),
+    borderColor: colors.border,
     backgroundColor: colors.surface,
   },
   gap: {
@@ -66,4 +69,4 @@ const styles = StyleSheet.create({
   bottom: {
     height: spacing.lg,
   },
-});
+}));

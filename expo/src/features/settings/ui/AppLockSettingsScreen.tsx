@@ -8,7 +8,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { createPinRecord, verifyPinRecord } from '../../../core/security/pinRecord';
 import { borderWidth, colors, gaps, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { FilledButtonLabel } from '../../../shared/widgets/FilledButtonLabel';
+import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
@@ -127,7 +127,7 @@ export function AppLockSettingsScreen() {
         {lock.enabled ? (
           <>
             <View style={styles.divider} />
-            <Text style={textStyle('sectionLabel', { paddingHorizontal: spacing.lg, paddingTop: spacing.md })}>Kilit süresi</Text>
+            <Text style={textStyle('label', { color: colors.onSurfaceVariant, paddingHorizontal: spacing.lg, paddingTop: spacing.md })}>Kilit süresi</Text>
             {TIMEOUT_OPTIONS.map((option) => (
               <RadioRow
                 key={option.minutes}
@@ -170,7 +170,7 @@ function SetupSection({ busy, onSetup }: { busy: boolean; onSetup: (pin: string)
       <View style={styles.gap} />
       <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error} />
       <View style={styles.gap} />
-      <FilledButtonLabel label="PIN’i etkinleştir" busy={busy} onPress={submit} />
+      <PrimaryButton label="PIN’i etkinleştir" loading={busy} onPress={submit} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         PIN cihazında özetlenmiş olarak saklanır; sunucuya gönderilmez.
       </Text>
@@ -226,9 +226,9 @@ function EnabledSection({
       <View style={styles.gap} />
       <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error} />
       <View style={styles.gap} />
-      <FilledButtonLabel label="PIN’i değiştir" busy={busy} onPress={changePin} />
+      <PrimaryButton label="PIN’i değiştir" loading={busy} onPress={changePin} />
       <View style={styles.gap} />
-      <FilledButtonLabel label="Kilidi kapat" busy={busy} onPress={disable} tone="danger" />
+      <PrimaryButton label="Kilidi kapat" loading={busy} onPress={disable} tone="danger" />
     </View>
   );
 }

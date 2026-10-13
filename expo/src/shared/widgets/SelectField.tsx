@@ -50,7 +50,7 @@ export function SelectField<T extends string>({
         {prefix ? <View style={styles.prefix}>{prefix}</View> : null}
         <View style={styles.texts}>
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{label}</Text>
-          <Text numberOfLines={1} style={textStyle('bodyLargeStrong')}>
+          <Text numberOfLines={1} style={textStyle('bodyStrong')}>
             {selected?.label ?? ''}
           </Text>
         </View>
@@ -61,7 +61,7 @@ export function SelectField<T extends string>({
       <LockAwareModal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={styles.backdrop} onPress={() => setOpen(false)} />
         <View style={styles.sheet}>
-          <Text style={textStyle('titleSmall', { marginBottom: spacing.sm })}>{label}</Text>
+          <Text style={textStyle('bodyStrong', { marginBottom: spacing.sm })}>{label}</Text>
           <FlatList
             data={[...options]}
             keyExtractor={(item) => item.value}
@@ -95,8 +95,8 @@ const styles = themedStyles(() => StyleSheet.create({
     paddingRight: spacing.xs,
     paddingVertical: spacing.xs,
     borderRadius: radius.small,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.controlBorder,
     backgroundColor: colors.surfaceHigh,
   },
   fieldError: {

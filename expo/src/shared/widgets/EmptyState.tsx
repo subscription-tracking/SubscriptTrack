@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -27,6 +29,7 @@ export function EmptyState({
   onAction?: () => void;
   compact?: boolean;
 }) {
+  useThemeRevision();
   const iconSize = compact ? sizes.emptyIconCompact : sizes.emptyIconLarge;
   const orbSize = compact ? sizes.emptyOrbCompact : sizes.emptyOrbLarge;
   return (
@@ -45,7 +48,7 @@ export function EmptyState({
       >
         <MaterialIcons name={icon} size={iconSize} color={colors.primary} />
       </View>
-      <Text style={[textStyle('bodyLargeStrong'), styles.centered, styles.title]}>{title}</Text>
+      <Text style={[textStyle('bodyStrong'), styles.centered, styles.title]}>{title}</Text>
       <Text style={[textStyle('bodySmall'), styles.centered, styles.description]}>{description}</Text>
       {actionLabel && onAction ? (
         <View style={styles.action}>
@@ -56,7 +59,7 @@ export function EmptyState({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   card: {
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
@@ -83,4 +86,4 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     alignSelf: 'stretch',
   },
-});
+}));

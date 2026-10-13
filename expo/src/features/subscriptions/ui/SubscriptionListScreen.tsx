@@ -7,6 +7,7 @@ import { FlatList, type ListRenderItemInfo, Pressable, RefreshControl, ScrollVie
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
+import { type CivilDate } from '../../../core/time/calendar';
 import { colors, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
@@ -14,7 +15,7 @@ import { EmptyState } from '../../../shared/widgets/EmptyState';
 import { useSubscriptionsQuery } from '../data/queries';
 import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { useDeletionAction } from './useDeletionAction';
-import { countsByTab, LIST_TABS, type ListTab, visibleSubscriptions } from '../domain/subscriptionList';
+import { countsByTab, LIST_TABS, type ListTab, splitAttention, visibleSubscriptions } from '../domain/subscriptionList';
 import { DEFAULT_FILTER, applyFilter, type SubscriptionFilter } from '../domain/subscriptionFilter';
 import { type Subscription, type SubscriptionCategory } from '../domain/subscription';
 import { ListTabBar } from './ListTabBar';
@@ -32,9 +33,22 @@ const EMPTY_BY_TAB: Record<ListTab, { message: string; detail: string }> = {
   },
 };
 
-/** Satır ayırıcı; bileşen referansı render dışında sabit tutulur (FlatList yeniden oluşturmasın). */
-function keyOf(row: Subscription): string {
-  return row.id;
+/** Liste satırı: abonelik ya da küçük bölüm başlığı ("Dikkat gerektirenler"). */
+type ListRow = { kind: 'header'; key: string; title: string } | { kind: 'item'; key: string; subscription: Subscription };
+
+/** Gecikmiş ve bugün vadeli kayıtlar üstte ayrı bir bölümde; başka kayıt yoksa başlık gösterilmez. */
+function withAttentionGroup(items: Subscription[], today: CivilDate): ListRow[] {
+  const { attention, rest } = splitAttention(items, today);
+  const asRows = (list: Subscription[]): ListRow[] => list.map((subscription) => ({ kind: 'item', key: subscription.id, subscription }));
+  if (attention.length === 0) return asRows(items);
+  const rows: ListRow[] = [{ kind: 'header', key: 'h-attention', title: 'Dikkat gerektirenler' }, ...asRows(attention)];
+  if (rest.length > 0) rows.push({ kind: 'header', key: 'h-rest', title: 'Diğer abonelikler' }, ...asRows(rest));
+  return rows;
+}
+
+/** Satır anahtarı; bileşen referansı render dışında sabit tutulur (FlatList yeniden oluşturmasın). */
+function keyOf(row: ListRow): string {
+  return row.key;
 }
 
 function ItemSeparator() {
@@ -96,7 +110,7 @@ export function SubscriptionListScreen() {
       LIST_TABS.map((item) => ({
         key: item.key,
         total: visibleSubscriptions(all, item.key, '').length,
-        items: applyFilter(visibleSubscriptions(all, item.key, search), filter, today),
+        items: withAttentionGroup(applyFilter(visibleSubscriptions(all, item.key, search), filter, today), today),
       })),
     [all, search, filter, today],
   );
@@ -107,16 +121,20 @@ export function SubscriptionListScreen() {
     [],
   );
   const renderRow = useCallback(
-    ({ item: row }: ListRenderItemInfo<Subscription>) => (
+    ({ item: entry }: ListRenderItemInfo<ListRow>) => {
+      if (entry.kind === 'header') return <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{entry.title}</Text>;
+      const row = entry.subscription;
+      return (
       <View>
         {selected !== null ? (
           <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected.includes(row.id) }} accessibilityLabel={`${row.name} seç`} onPress={() => toggleSelected(row.id)}>
-            <Text style={textStyle('button')}>{selected.includes(row.id) ? '☑ Seçili' : '□ Seç'}</Text>
+            <Text style={textStyle('bodyStrong')}>{selected.includes(row.id) ? '☑ Seçili' : '□ Seç'}</Text>
           </Pressable>
         ) : null}
         <SubscriptionTile subscription={row} today={today} onPress={openSubscription} />
       </View>
-    ),
+      );
+    },
     [selected, today, openSubscription, toggleSelected],
   );
 
@@ -144,8 +162,8 @@ export function SubscriptionListScreen() {
       />
       <ListTabBar active={tab} counts={counts} onChange={selectTab} />
       <View style={{ flexDirection: 'row', padding: spacing.sm, gap: spacing.md }}>
-        <Pressable accessibilityRole="button" onPress={() => setSelected(selected === null ? [] : null)}><Text style={textStyle('button')}>{selected === null ? 'Çoklu seçim' : 'Seçimden çık'}</Text></Pressable>
-        {selected !== null ? <Pressable accessibilityRole="button" disabled={deletion.busy || !selected.length} onPress={() => deletion.confirm(selected)}><Text style={textStyle('button', { color: colors.error })}>{`${selected.length} kayıt sil`}</Text></Pressable> : null}
+        <Pressable accessibilityRole="button" onPress={() => setSelected(selected === null ? [] : null)}><Text style={textStyle('bodyStrong')}>{selected === null ? 'Çoklu seçim' : 'Seçimden çık'}</Text></Pressable>
+        {selected !== null ? <Pressable accessibilityRole="button" disabled={deletion.busy || !selected.length} onPress={() => deletion.confirm(selected)}><Text style={textStyle('bodyStrong', { color: colors.error })}>{`${selected.length} kayıt sil`}</Text></Pressable> : null}
       </View>
       <View style={styles.pagerWrap}>
         <AsyncStateView state={state}>

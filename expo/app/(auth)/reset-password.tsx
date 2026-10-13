@@ -1,5 +1,7 @@
+import { useThemeRevision } from '../../src/shared/design/useThemeRevision';
+import { themedStyles } from '../../src/shared/design/themeRuntime';
 import { useState } from 'react';
-import { spacing } from '../../src/shared/design/tokens';
+import { spacing , colors } from '../../src/shared/design/tokens';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View } from 'react-native';
@@ -8,7 +10,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useAuth } from '../../src/features/auth/AuthProvider';
 import { messageForError } from '../../src/features/auth/domain/authErrors';
 import { PASSWORD_REQUIREMENT, validateNewPassword, validatePasswordConfirmation } from '../../src/features/auth/domain/authRules';
-import { colors } from '../../src/shared/design/tokens';
+
 import { textStyle } from '../../src/shared/design/typography';
 import { PasswordField } from '../../src/shared/widgets/PasswordField';
 import { PrimaryButton } from '../../src/shared/widgets/PrimaryButton';
@@ -20,6 +22,7 @@ import { useSnackbar } from '../../src/shared/widgets/AppSnackbar';
  * Başarıda snackbar gösterilir; kurtarma modu kapanınca AuthGate ana sayfaya yönlendirir.
  */
 export default function ResetPasswordScreen() {
+  useThemeRevision();
   const { updatePassword } = useAuth();
   const snackbar = useSnackbar();
   const [password, setPassword] = useState('');
@@ -55,7 +58,7 @@ export default function ResetPasswordScreen() {
         <MaterialIcons name="lock-reset" size={64} color={colors.primary} />
       </View>
       <Spacer size={spacing.xl} />
-      <Text style={[textStyle('headlineSmall'), styles.text]}>Yeni şifreni belirle</Text>
+      <Text style={[textStyle('title'), styles.text]}>Yeni şifreni belirle</Text>
       <Spacer size={spacing.xs} />
       <Text style={[textStyle('bodySmall'), styles.text]}>
         {`${PASSWORD_REQUIREMENT} uzunluğunda güçlü bir şifre seç.`}
@@ -89,7 +92,7 @@ export default function ResetPasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -106,4 +109,4 @@ const styles = StyleSheet.create({
   topGap: {
     marginTop: spacing.sm,
   },
-});
+}));

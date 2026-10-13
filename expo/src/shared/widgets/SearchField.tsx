@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -18,6 +20,7 @@ export function SearchField({
   onChangeText: (next: string) => void;
   placeholder: string;
 }) {
+  useThemeRevision();
   const [focused, setFocused] = useState(false);
   return (
     <View style={[styles.field, focused && styles.focused]}>
@@ -43,7 +46,7 @@ export function SearchField({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   field: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -51,8 +54,8 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.md,
     paddingRight: spacing.xxs,
     borderRadius: radius.small,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.controlBorder,
     backgroundColor: colors.surfaceHigh,
   },
   focused: {
@@ -73,5 +76,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));
 

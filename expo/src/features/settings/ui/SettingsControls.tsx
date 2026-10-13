@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -23,11 +25,12 @@ export function SwitchTile({
   icon?: MaterialIconName;
   onValueChange: (next: boolean) => void;
 }) {
+  useThemeRevision();
   return (
     <View style={styles.row}>
       {icon ? <MaterialIcons name={icon} size={sizes.tileIcon} color={colors.onSurface} /> : null}
       <View style={[styles.texts, icon ? styles.textsWithIcon : null]}>
-        <Text style={textStyle('tileLabel')}>{label}</Text>
+        <Text style={textStyle('label')}>{label}</Text>
         {subtitle ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>{subtitle}</Text> : null}
       </View>
       <Switch
@@ -43,6 +46,7 @@ export function SwitchTile({
 
 /** Flutter `RadioListTile`: solda radyo, sağda etiket. Seçili olan dolu noktayla gösterilir. */
 export function RadioRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  useThemeRevision();
   return (
     <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={onPress} style={styles.radio}>
       <View style={[styles.radioOuter, { borderColor: selected ? colors.primary : colors.onSurfaceVariant }]}>
@@ -67,12 +71,13 @@ export function ListRow({
   tone?: string;
   onPress: () => void;
 }) {
+  useThemeRevision();
   const color = tone ?? colors.onSurface;
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, pressed ? styles.pressed : null]}>
       <MaterialIcons name={icon} size={sizes.tileIcon} color={color} />
       <View style={[styles.texts, styles.textsWithIcon]}>
-        <Text style={textStyle('tileLabel', { color })}>{label}</Text>
+        <Text style={textStyle('label', { color })}>{label}</Text>
         {subtitle ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>{subtitle}</Text> : null}
       </View>
       <MaterialIcons name="chevron-right" size={sizes.tileIcon} color={colors.onSurfaceVariant} />
@@ -80,7 +85,7 @@ export function ListRow({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -118,4 +123,4 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.85,
   },
-});
+}));

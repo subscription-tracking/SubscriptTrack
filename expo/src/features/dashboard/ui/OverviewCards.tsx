@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -29,6 +31,7 @@ function groupColor(group: CategoryGroup): string {
 
 /** Flutter `DashboardCategoryDonutCard`: bu ayın kategori dağılımı; en fazla üç lejant satırı. */
 export function CategoryDonutCard({ totals, onAll }: { totals: CategoryTotal[]; onAll: () => void }) {
+  useThemeRevision();
   if (totals.length === 0) return null;
   const { primaryCurrency, entries, total } = donutEntries(totals);
   const shares = percentShares(
@@ -52,10 +55,10 @@ export function CategoryDonutCard({ totals, onAll }: { totals: CategoryTotal[]; 
       <View style={styles.donutCard}>
         <DonutChart size={sizes.donutSize} slices={slices} trackColor={colors.outline} accessibilityLabel={summary}>
           <View style={styles.donutCenter}>
-            <Text style={textStyle('donutTotal')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+            <Text style={textStyle('captionStrong')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
               {formatAmount(total, primaryCurrency)}
             </Text>
-            <Text style={textStyle('donutLabel', { color: withAlpha(colors.onSurfaceVariant, 0.9), marginTop: spacing.xxs / 2 })}>toplam</Text>
+            <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>toplam</Text>
           </View>
         </DonutChart>
         <View style={styles.legend}>
@@ -65,7 +68,7 @@ export function CategoryDonutCard({ totals, onAll }: { totals: CategoryTotal[]; 
               <Text style={textStyle('bodySmall', { flex: 1, marginLeft: spacing.xs })} numberOfLines={1}>
                 {entry.group}
               </Text>
-              <Text style={textStyle('bodySmallStrong')}>{`%${shares[index] ?? 0}`}</Text>
+              <Text style={textStyle('label')}>{`%${shares[index] ?? 0}`}</Text>
             </View>
           ))}
         </View>
@@ -83,9 +86,10 @@ export interface QuickAction {
 
 /** Flutter `DashboardQuickActionsRow`: üç eşit düğme, aralarında 10 px. */
 export function QuickActions({ actions }: { actions: QuickAction[] }) {
+  useThemeRevision();
   return (
     <View>
-      <Text style={textStyle('bodyLargeStrong', { color: withAlpha(colors.onSurfaceVariant, 0.9), marginLeft: spacing.xxs, marginBottom: gaps.sectionInner })}>
+      <Text style={textStyle('bodyStrong', { color: colors.onSurfaceVariant, marginLeft: spacing.xxs, marginBottom: gaps.sectionInner })}>
         Hızlı işlemler
       </Text>
       <View style={styles.actionsRow}>
@@ -100,7 +104,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
             <View style={[styles.actionCircle, { backgroundColor: withAlpha(action.color, 0.12) }]}>
               <MaterialIcons name={action.icon} size={sizes.quickActionIcon} color={action.color} />
             </View>
-            <Text numberOfLines={1} style={textStyle('chipStrong', { marginTop: gaps.hint })}>
+            <Text numberOfLines={1} style={textStyle('captionStrong', { marginTop: gaps.hint })}>
               {action.label}
             </Text>
           </Pressable>
@@ -110,7 +114,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   gapBelowHeader: {
     height: gaps.sectionInner,
   },
@@ -165,4 +169,4 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.85,
   },
-});
+}));

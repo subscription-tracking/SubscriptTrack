@@ -17,7 +17,7 @@ export function StatChips({ items }: { items: { icon: MaterialIconName; label: s
       {items.map((item) => (
         <View key={item.label} style={styles.chip}>
           <MaterialIcons name={item.icon} size={sizes.chipIcon} color={colors.primary} />
-          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} style={[textStyle('chip'), styles.chipLabel]}>
+          <Text numberOfLines={2} style={[textStyle('caption', { color: colors.onSurface }), styles.chipLabel]}>
             {item.label}
           </Text>
         </View>
@@ -31,10 +31,10 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
   useThemeRevision();
   return (
     <View style={styles.header}>
-      <Text style={[textStyle('sectionTitle'), styles.headerTitle]}>{title}</Text>
+      <Text style={[textStyle('heading'), styles.headerTitle]}>{title}</Text>
       {action && onAction ? (
         <Pressable accessibilityRole="button" onPress={onAction}>
-          <Text style={textStyle('bodySmallStrong', { color: colors.primary })}>{action}</Text>
+          <Text style={textStyle('label', { color: colors.primary })}>{action}</Text>
         </Pressable>
       ) : null}
     </View>

@@ -1,9 +1,12 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { deviceTimeZone, zoneToday, type CivilDate } from '../../../core/time/calendar';
 import { colors, sizes, spacing } from '../../../shared/design/tokens';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { Spacer } from '../../../shared/widgets/Spacer';
@@ -16,6 +19,7 @@ import { DetailHero, type DetailMenuAction } from './detail/DetailHero';
 import { InfoGrid, NextPaymentPanel, PaymentMethodSection, ReminderSection } from './detail/DetailSections';
 import { PaymentHistorySection } from './detail/DetailHistory';
 import { useDetailMutations } from './detail/useDetailMutations';
+import { useDeletionAction } from './useDeletionAction';
 
 /**
  * Abonelik detayı (Flutter `SubscriptionDetailScreen`): renkli hero (durum menüsü ve düzenleme), sonraki
@@ -23,6 +27,7 @@ import { useDetailMutations } from './detail/useDetailMutations';
  * Kayıt bulunamazsa "artık mevcut değil" gösterilir.
  */
 export function SubscriptionDetailScreen({ id }: { id: string }) {
+  useThemeRevision();
   const router = useRouter();
   const { user } = useAuth();
   const query = useSubscriptionQuery(user?.id, id);
@@ -69,18 +74,32 @@ function Details({
   onEdit: () => void;
   onCancel: () => void;
 }) {
+  useThemeRevision();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const payments = usePaymentsQuery(user?.id);
   const { change, renew, busy } = useDetailMutations(subscription);
-  const today: CivilDate = zoneToday(deviceTimeZone());
+  const deletion = useDeletionAction(onBack);
+  const timeZone = useUserTimeZone();
+  const today = useCivilToday(timeZone);
   const subscriptionPayments = (payments.data ?? []).filter((event) => event.subscriptionId === subscription.id);
+
+  function changeWithConfirmation(to: Subscription['status']) {
+    if (subscription.status === 'cancelled' && to === 'active') {
+      Alert.alert('Aboneliği yeniden etkinleştir', 'Yenileme takibi yeniden başlasın mı? Geçmiş tasarruf kaydı korunur.', [
+        { text: 'Vazgeç', style: 'cancel' },
+        { text: 'Yeniden etkinleştir', onPress: () => change.mutate(to) },
+      ]);
+      return;
+    }
+    change.mutate(to);
+  }
 
   function onMenuAction(action: DetailMenuAction) {
     if (action === 'cancel') onCancel();
-    else if (action === 'pause') change.mutate('paused');
-    else if (action === 'resume') change.mutate('active');
-    else change.mutate('archived');
+    else if (action === 'pause') changeWithConfirmation('paused');
+    else if (action === 'resume') changeWithConfirmation('active');
+    else changeWithConfirmation('archived');
   }
 
   return (
@@ -92,21 +111,23 @@ function Details({
         <InfoGrid subscription={subscription} />
         <PaymentMethodSection method={subscription.paymentMethod} onChange={onEdit} />
         <ReminderSection rules={subscription.notificationRules} onEdit={onEdit} />
-        <PaymentHistorySection payments={subscriptionPayments} today={today} />
+        <PaymentHistorySection payments={subscriptionPayments} timeZone={timeZone} />
         <Spacer size={spacing.xl + spacing.xs} />
         <DetailActions
           subscription={subscription}
           busy={busy}
-          onChange={(to) => change.mutate(to)}
+          onChange={changeWithConfirmation}
           onRenew={() => renew.mutate()}
           onCancel={onCancel}
         />
+        <Spacer size={spacing.md} />
+        <TextLink tone="danger" label={deletion.busy ? 'Siliniyor…' : 'Aboneliği sil'} onPress={() => { if (!deletion.busy) deletion.confirm([subscription.id]); }} />
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -115,4 +136,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
   },
-});
+}));
