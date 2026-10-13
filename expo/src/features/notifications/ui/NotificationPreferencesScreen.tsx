@@ -1,12 +1,12 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useEffect, useState } from 'react';
-import { AppState, Linking, Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { AppState, Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
@@ -15,6 +15,7 @@ import { SectionLabel, SettingsTile } from '../../settings/ui/SettingsParts';
 import { cancelAllReminders, sendTestReminder } from '../data/notificationScheduler';
 import { DEFAULT_DAYS_OPTIONS, type NotifyPrefs, useNotifyPrefs, useSetNotifyPrefs } from '../data/notificationPrefs';
 import { useRequestPermission, usePermissionQuery } from '../data/notificationPermission';
+import { PermissionBanner } from './PermissionBanner';
 
 const DAY_LABELS: Record<number, string> = { 1: '1 gün önce', 3: '3 gün önce', 7: '7 gün önce' };
 
@@ -58,10 +59,6 @@ function Preferences({ value }: { value: NotifyPrefs }) {
     });
     return () => subscription.remove();
   }, [refetchPermission]);
-
-  function openSettings() {
-    void Linking.openSettings().catch(() => snackbar.show('Cihaz ayarları açılamadı.', 'error'));
-  }
 
   async function toggleEnabled(next: boolean) {
     try {
@@ -118,13 +115,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
         />
       </View>
       {denied ? (
-        <View style={styles.deniedBand} accessibilityRole="alert">
-          <MaterialIcons name="notifications-off" size={sizes.tileIcon} color={colors.error} />
-          <Text style={[textStyle('bodySmall', { color: colors.onSurface }), styles.deniedText]}>Bildirim izni kapalı; hatırlatmalar gelmeyecek.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Ayarları aç" onPress={openSettings} style={styles.deniedAction}>
-            <Text style={textStyle('label', { color: colors.primary })}>Ayarları aç</Text>
-          </Pressable>
-        </View>
+        <PermissionBanner />
       ) : null}
       {unsupported ? (
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
@@ -190,24 +181,6 @@ const styles = themedStyles(() => StyleSheet.create({
     flex: 1,
     marginLeft: gaps.rowLoose - 2,
     marginRight: spacing.xs,
-  },
-  deniedBand: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.xs,
-    padding: spacing.sm,
-    borderRadius: radius.tile,
-    backgroundColor: withAlpha(colors.error, 0.12),
-  },
-  deniedText: {
-    flex: 1,
-    marginHorizontal: spacing.xs,
-  },
-  deniedAction: {
-    minHeight: sizes.minTouchTarget,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xs,
   },
   divider: {
     height: borderWidth.hairline,

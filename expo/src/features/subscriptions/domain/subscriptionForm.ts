@@ -1,7 +1,7 @@
 import { Money } from '../../../core/domain/money';
 import { ACTIVE_CURRENCIES } from '../../../core/domain/activeCurrency';
 import { type BillingCycle, type CivilDate, formatCivilDate } from '../../../core/time/calendar';
-import { SUBSCRIPTION_LIMITS, type SubscriptionCategory } from './subscription';
+import { SUBSCRIPTION_LIMITS, annualAmount, monthlyAmount, type SubscriptionCategory } from './subscription';
 
 /**
  * Abonelik formu: doğrulama ve RPC yükü. Flutter `SubscriptionFormValidators` ve
@@ -148,4 +148,21 @@ export function hasDuplicateName(name: string, subscriptions: readonly { name: s
 /** Hatalı alanlardan biri kapalı "Ayrıntılar" bölümünde mi? */
 export function hasDetailsErrors(errors: FormErrors): boolean {
   return Boolean(errors.notes || errors.paymentMethod || errors.trialEndDate || errors.trialPrice);
+}
+
+/** Kaydet düğmesi üstündeki maliyet özeti için aylık ve yıllık eşdeğer; tutar geçersizse `null`. */
+export interface CostPreview {
+  monthly: Money;
+  annual: Money;
+  currency: string;
+}
+
+export function costPreview(values: Pick<SubscriptionFormValues, 'amount' | 'currency' | 'billingCycle'>): CostPreview | null {
+  const amount = positiveMoney(values.amount);
+  if (!amount || amount.minorUnits > LIMITS.amountMaxMinorUnits) return null;
+  return {
+    monthly: monthlyAmount(amount, values.billingCycle),
+    annual: annualAmount(amount, values.billingCycle),
+    currency: values.currency,
+  };
 }

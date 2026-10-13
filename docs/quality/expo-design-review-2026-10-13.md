@@ -158,3 +158,21 @@ Taslaklar sohbette onaylandı; karar: hero "Bu ay kalan ödemeler", ana sayfada 
 - Hero'nun üst bandında iki tonlu arka plan (dairesel parıltı + alt bant) cihazda gözle değerlendirilmeli.
 - Detayda duraklatılmış, iptal, arşiv ve süresi dolmuş kayıt durum açıklamaları yeni yazıldı; ürün onayı bekler.
 - Gecikmiş vadede "Sonraki döngü (tahmini)" ve "…sonraki tarih … olur" aynı tarihi iki kez gösterir.
+
+## Abonelik formu ve bildirim merkezi yeniden tasarımı (aynı gün)
+
+Taslaklar sohbette onaylandı; kararlar: yenileme sıklığı dörtlü segment, ek alanlar gruplu satırlar ve deneme anahtarı, bildirim merkezinde satır içi onaylı "Ödendi", ×N tekrar gruplama, Tümü/Okunmamış filtresi ve izin bandı. Görüntüler: `docs/operations/evidence/design-2026-10-13/form-notifications/`.
+
+**Form:** tutar satırı (para birimi çipi + büyük tutar), `SegmentedControl` ile yenileme sıklığı, tek yenileme kartı (tarih, otomatik/elle açıklaması, hatırlat çipleri), kategori/ödeme yöntemi/deneme için gruplu satırlar, "Daha fazla seçenek" (başlangıç, ilk ödeme, not), alt çubukta maliyet özeti ("₺761,12 / ay · Yılda ₺9.133,44"). Değerler, doğrulama ve kayıt akışı değişmedi.
+
+**Bildirim merkezi:** servis logolu satırlar, tutar, ×N tekrar gruplama, filtre, üst çubukta okundu/ayarlar ikonları, vadesi gelmiş kayıtta onaylı "Ödendi" ve "Aboneliği aç", erişilebilirlik eylemleri (Kapat, Okundu say), izin kapalı bandı, iki boş durum. `notificationLocalState.dismiss` artık tek kimlik ya da kimlik listesi alır (grup kapatma için).
+
+**Emülatör doğrulaması:** koyu ve açık tema, yazı 1,5, maliyet özeti, filtre ve gruplama. Gerçek "Kaydet" ve "Ödendi" dokunuşları canlı hesaba yazacağı için denenmedi.
+
+**Puan tahmini (kendi değerlendirmem):** form 75 → ≈85, bildirim merkezi ≈72 → ≈84; ekran ortalaması ≈76.
+
+**Açık noktalar**
+- "Okunmamış (N)" okunmamış grup sayısıdır; ana sayfadaki zil rozeti kayıt sayar, iki sayı farklı çıkabilir.
+- Satırdaki tarih etiketi kalktı, gün bilgisi yalnız bölüm başlığından gelir.
+- Hataya kaydırma gerçek cihazda ayrıca doğrulanmalı; hata mesajı "Ayrıntılarda düzeltilecek alan var" bölüm adı değiştiği için gözden geçirilmeli.
+- Ödeme yöntemi alanı hata varken kendiliğinden açılır ve kullanıcı kapatamaz.

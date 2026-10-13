@@ -261,3 +261,35 @@ Detay
 ```
 
 - Yaşam döngüsü eylemleri yalnızca ⋯ menüsündedir; sayfa sonunda eylem yığını yoktur. Yıkıcı eylem ("Yanlış kaydı sil") menünün en altında, hata renginde ve mevcut kalıcı silme/arşiv kurallarına (ADR 0006) bağlıdır; silme kullanılamıyorsa kullanıcıya "Silme şu an kullanılamıyor" mesajı gösterilir.
+
+## 19. Abonelik formu ve bildirim merkezi (Expo, 13 Ekim 2026 yeniden tasarım)
+
+**Form (ekleme ve düzenleme)** tek ekranda, yukarıdan aşağıya:
+
+```text
+Hızlı seç (yalnız ekleme) → Servis adı
+→ Para birimi çipi + büyük Tutar alanı
+→ Ne sıklıkla yenileniyor? (Haftalık / Aylık / 3 aylık / Yıllık segmenti)
+→ Yenileme kartı: Sonraki ödeme tarihi (otomatik ya da elle), Hatırlat çipleri
+→ Ek alanlar: Kategori, Ödeme yöntemi, Ücretsiz deneme anahtarı (açılınca bitiş tarihi ve deneme sonrası fiyat)
+→ Daha fazla seçenek: Başlangıç tarihi, İlk ödeme (yalnız ekleme), Notlar
+→ Alt çubuk: "₺761,12 / ay · Yılda ₺9.133,44" özeti + Kaydet
+```
+
+- Değerler, doğrulama ve kayıt akışı değişmez; yalnız sunum yeniden düzenlendi. Doğrulama hatası ilk hatalı bölüme kaydırır; kapalı "Daha fazla seçenek" içindeki hata bölümü açar.
+- Maliyet özeti yalnız geçerli tutarda görünür; yıllık ve aylık eşdeğer ortak tam sayı hesabıyla (`annualAmount`/`monthlyAmount`) üretilir, kur dönüşümü yoktur.
+
+**Bildirim merkezi**
+
+```text
+Bildirimler
+→ Üst çubuk: Tümünü okundu say, Bildirim ayarları
+→ Filtre: Tümü / Okunmamış (N)
+→ Gün grupları (Bugün, Dün, Bu hafta, Daha eski); tekrar eden bildirimler "×N" ile tek satır
+   → Satır: servis logosu, ad, kısa metin · tutar
+   → Vadesi gelmiş abonelikte: "Ödendi" (onaylı) ve "Aboneliği aç"
+→ Bildirim izni kapalıysa: uyarı bandı + Ayarları aç
+```
+
+- "Ödendi" ana sayfadaki "Dikkat gerektirenler" ile aynı onaylı yenileme akışını kullanır (§18). Vadesi gelmemiş ya da silinmiş aboneliklerde eylem satırı çıkmaz.
+- Okundu ve kapatma eylemleri grubun tüm bildirimlerine uygulanır. Kaydırarak kapatma erişilebilirlik eylemleriyle ("Kapat", "Okundu say") de yapılabilir.

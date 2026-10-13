@@ -160,6 +160,8 @@ Not: Bu Expo kararları kullanıcı tarafından verildi. Ürün kuralı sahibi f
 
 ## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
 
+Ek (13 Ekim 2026, form ve bildirim merkezi): Expo formu yenileme sıklığını dörtlü segmentle seçtirir, tutar ve para birimini tek satırda toplar, ek alanları gruplu satırlarda sunar ve alt çubukta maliyet özeti gösterir. Bildirim merkezi tekrarları gruplar, Tümü/Okunmamış filtresi sunar ve vadesi gelmiş kayıtlarda onaylı "Ödendi" eylemi içerir; bunlar Flutter'da yoktur.
+
 Ek (13 Ekim 2026, ana sayfa ve detay): Expo ana sayfası Flutter'dan bilinçli ayrışır. Hero "Bu ay kalan ödemeler" gösterir, gecikmiş/bugün vadeli kayıtlar ana sayfada satır içi "Ödendi" eylemiyle çözülür, hızlı işlemler ve tasarruf kartı kalkmıştır. Detayda yaşam döngüsü eylemleri yalnız ⋯ alt sayfasındadır; sayfa sonunda yalnız "Nasıl iptal edilir?" bulunur.
 
 Ek (13 Ekim 2026, tasarım): Expo tasarım sistemi bilinçli olarak Flutter'dan ayrışır: statik Hanken Grotesk ağırlıkları, 12 rollük yazı ölçeği (en küçük 12, Flutter'daki 9–11 pt yok), beş köşe kademesi, kontrastlı bileşen sınırı (controlBorder) ile ≥3:1 bileşen sınırı ve açık tema için koyulaştırılmış grafik paleti. Düğme hiyerarşisi Primary/Tonal/Text olarak tekleştirildi.

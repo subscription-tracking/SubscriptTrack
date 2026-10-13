@@ -204,3 +204,7 @@ Unsubscribe işlemi pazarlama e-postasından ayrı değerlendirilmelidir; işlem
 ## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
 
 **Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.
+
+### Uygulama içi bildirim merkezi davranışı (13 Ekim 2026)
+
+Merkez, aynı abonelik ve türdeki tekrarları tek satırda toplar (×N); okundu ve kapatma grubun tüm bildirimlerine uygulanır. Filtre Tümü/Okunmamış'tır. Vadesi gelmiş yenileme bildirimlerinde onaylı "Ödendi" ve "Aboneliği aç" satır içi eylemleri çıkar; deneme türlerinde yalnız "Aboneliği aç". Bildirim izni reddedilmişse merkez uyarı bandı gösterir. Yerel zamanlama ve sunucu üretim kuralları değişmedi.

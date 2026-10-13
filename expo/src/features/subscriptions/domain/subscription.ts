@@ -142,15 +142,20 @@ export function subscriptionFromRow(row: SubscriptionRow): Subscription {
  * Görüntü ve toplamlar için; kalıcı veride kullanılmaz.
  */
 export function monthlyEquivalent(subscription: Subscription): Money {
-  switch (subscription.billingCycle) {
+  return monthlyAmount(subscription.amount, subscription.billingCycle);
+}
+
+/** Tutarın aylık eşdeğeri (haftalık ×52/12, üç aylık ÷3, yıllık ÷12). Form önizlemesi ve toplamlar ortak kullanır. */
+export function monthlyAmount(amount: Money, cycle: BillingCycle): Money {
+  switch (cycle) {
     case 'weekly':
-      return subscription.amount.multiply(52 / 12);
+      return amount.multiply(52 / 12);
     case 'quarterly':
-      return subscription.amount.divide(3);
+      return amount.divide(3);
     case 'yearly':
-      return subscription.amount.divide(12);
+      return amount.divide(12);
     default:
-      return subscription.amount;
+      return amount;
   }
 }
 
@@ -159,15 +164,20 @@ export function monthlyEquivalent(subscription: Subscription): Money {
  * çarpımıdır; aylık eşdeğerin yuvarlanmış halinin ×12'si değildir (yıllık 100,00 → 100,00).
  */
 export function annualEquivalent(subscription: Subscription): Money {
-  switch (subscription.billingCycle) {
+  return annualAmount(subscription.amount, subscription.billingCycle);
+}
+
+/** Tutarın yıllık eşdeğeri. */
+export function annualAmount(amount: Money, cycle: BillingCycle): Money {
+  switch (cycle) {
     case 'weekly':
-      return subscription.amount.multiply(52);
+      return amount.multiply(52);
     case 'quarterly':
-      return subscription.amount.multiply(4);
+      return amount.multiply(4);
     case 'yearly':
-      return subscription.amount;
+      return amount;
     default:
-      return subscription.amount.multiply(12);
+      return amount.multiply(12);
   }
 }
 

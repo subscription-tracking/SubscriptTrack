@@ -98,6 +98,9 @@ Beş kademe dışında değer yazılmaz. `small`, `medium`, `tile`, `sheet` gibi
 - `GroupedList` / `ListRow`: etiket solda, değer sağda; dokunulabilir satırda sağ ok ve `accessibilityHint`.
 - `ProgressBar` ve `StackedBar`: ince çubuklar; `ProgressBar` yüzdeyi `accessibilityValue` ile bildirir, `StackedBar` dilimleri `categoryPalette()` renkleriyle çizer.
 - `useRenewAction`: "Ödendi ve yenilendi" eylemi; detay ve ana sayfadaki satır içi "Ödendi" aynı kancayı kullanır.
+- `SegmentedControl` (`shared/widgets`): 2–4 seçenekli tek seçim; `radiogroup`/`radio`; seçili dilim dolgulu, sınır `controlBorder`, ≥48 px. Formda yenileme sıklığı ve ilk ödeme durumu için kullanılır.
+- `PermissionBanner` (`notifications/ui`): bildirim izni kapalıyken uyarı bandı ve "Ayarları aç"; tercih ekranı ve bildirim merkezi ortak kullanır.
+- `useConfirmedRenew`: onaylı "Ödendi" eylemi (ana sayfa ve bildirim merkezi).
 
 ## 8. Dokunma alanı
 

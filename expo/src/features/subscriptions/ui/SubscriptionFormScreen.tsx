@@ -5,13 +5,11 @@ import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { type CivilDate, parseCivilDate } from '../../../core/time/calendar';
 import { colors, gaps, spacing } from '../../../shared/design/tokens';
 import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
-import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { saveSubscriptionEdit } from '../data/subscriptionMutations';
@@ -33,23 +31,27 @@ import {
 import { resolveServicePresets } from '../domain/servicePresets';
 import { type Subscription } from '../domain/subscription';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
-import { ServiceSection } from './form/ServiceSection';
-import { RenewalSection } from './form/RenewalSection';
-import { DetailsSection } from './form/DetailsSection';
+import { ServiceField } from './form/ServiceField';
+import { AmountRow, BillingCycleRow } from './form/AmountRow';
+import { RenewalCard } from './form/RenewalCard';
+import { ExtrasCard } from './form/ExtrasCard';
+import { MoreOptions } from './form/MoreOptions';
+import { FormFooter } from './form/FormFooter';
+import { useErrorScroll } from './form/useErrorScroll';
 import { useCivilToday } from '../../../core/clock/useCivilToday';
 import { automaticFormDate, changeFormField, type ScheduleMode } from '../domain/formSchedule';
 
 /**
- * Abonelik formu (Flutter `AddSubscriptionScreen` / `EditSubscriptionScreen` ve `SubscriptionFormScaffold`):
- * ekleme ve düzenleme için ortak ekran. Gövde kaydırılabilir; eylem düğmesi altta sabittir.
- * Kaydetme ve doğrulama kuralları değişmedi; yalnızca düzen Flutter'a göre yeniden kuruldu.
+ * Abonelik formu (Flutter `AddSubscriptionScreen` / `EditSubscriptionScreen`): ekleme ve düzenleme için ortak
+ * ekran. Sıra: hızlı seç ve servis adı, tutar, yenileme sıklığı, yenileme kartı, ek alanlar kartı, "Daha fazla
+ * seçenek". Gövde kaydırılabilir; maliyet özeti ve kaydet düğmesi altta sabittir.
+ * Kaydetme ve doğrulama kuralları değişmedi; yalnızca sunum yeniden kuruldu.
  */
 export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Subscription; initialStart?: string }) {
   useThemeRevision();
   const router = useRouter();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
-  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
@@ -84,6 +86,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
   const [detailsOpen, setDetailsOpen] = useState(false);
   const submitting = useRef(false);
   const requestKeys = useRef<string[]>([]);
+  const { scrollRef, onLayoutFor, scrollToFirstError } = useErrorScroll();
   const catalog = useServiceCatalogQuery();
   // Mevcut liste önbellekten gelir (yeni ağ çağrısı yok); yalnızca ekleme formunda uyarı gösterilir.
   const existing = useSubscriptionsQuery(user?.id);
@@ -128,11 +131,12 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
     setSubmitted(true);
     const found = validateSubscriptionForm(resolvedValues);
     if (hasErrors(found)) {
-      // Kapalı "Ayrıntılar" bölümündeki hata görünmez kalmasın.
+      // Kapalı "Daha fazla seçenek" bölümündeki hata görünmez kalmasın.
       if (hasDetailsErrors(found)) {
         setDetailsOpen(true);
         snackbar.show('Ayrıntılarda düzeltilecek alan var', 'error');
       }
+      scrollToFirstError(found);
       return;
     }
     submitting.current = true;
@@ -146,33 +150,60 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
       <ScreenTopBar title={editing ? 'Aboneliği düzenle' : 'Yeni abonelik'} />
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <ServiceSection
-          values={resolvedValues}
-          errors={errors}
-          presets={resolveServicePresets(catalog.data)}
-          showPresets={!editing}
-          disabled={busy}
-          nameNotice={duplicateName ? 'Aynı isimde bir abonelik zaten var; yine de kaydedebilirsin.' : undefined}
-          onChange={update}
-        />
-        <View style={styles.gapSection} />
-        <RenewalSection values={resolvedValues} errors={errors} today={today} onChange={update}
-          scheduleMode={scheduleMode} onAutomatic={() => {
-            setScheduleMode('automatic');
-            setValues((current) => ({ ...current, nextRenewalDate: automaticFormDate(current, today) }));
-          }} />
-        <View style={styles.gapDetails} />
-        <DetailsSection values={resolvedValues} errors={errors} today={today} disabled={busy} showInitialPayment={!editing}
-          expanded={detailsOpen} onExpandedChange={setDetailsOpen} onChange={update} />
+        <View onLayout={onLayoutFor('service')}>
+          <ServiceField
+            values={resolvedValues}
+            errors={errors}
+            presets={resolveServicePresets(catalog.data)}
+            showPresets={!editing}
+            disabled={busy}
+            nameNotice={duplicateName ? 'Aynı isimde bir abonelik zaten var; yine de kaydedebilirsin.' : undefined}
+            onChange={update}
+          />
+        </View>
+        <View onLayout={onLayoutFor('amount')} style={styles.amountBlock}>
+          <AmountRow values={resolvedValues} errors={errors} disabled={busy} onChange={update} />
+          <BillingCycleRow value={resolvedValues.billingCycle} disabled={busy} onChange={update} />
+        </View>
+        <View onLayout={onLayoutFor('renewal')}>
+          <RenewalCard
+            values={resolvedValues}
+            errors={errors}
+            today={today}
+            scheduleMode={scheduleMode}
+            onChange={update}
+            onAutomatic={() => {
+              setScheduleMode('automatic');
+              setValues((current) => ({ ...current, nextRenewalDate: automaticFormDate(current, today) }));
+            }}
+          />
+        </View>
+        <View onLayout={onLayoutFor('extras')} style={styles.extrasBlock}>
+          <ExtrasCard values={resolvedValues} errors={errors} today={today} disabled={busy} onChange={update} />
+          <MoreOptions
+            values={resolvedValues}
+            errors={errors}
+            today={today}
+            disabled={busy}
+            showInitialPayment={!editing}
+            expanded={detailsOpen}
+            onExpandedChange={setDetailsOpen}
+            onChange={update}
+          />
+        </View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
-        <PrimaryButton label={editing ? 'Değişiklikleri kaydet' : 'Aboneliği kaydet'} onPress={submit} loading={busy} />
-      </View>
+      <FormFooter
+        values={resolvedValues}
+        label={editing ? 'Değişiklikleri kaydet' : 'Aboneliği kaydet'}
+        loading={busy}
+        onSubmit={submit}
+      />
     </KeyboardScreen>
   );
 }
@@ -190,16 +221,13 @@ const styles = themedStyles(() => StyleSheet.create({
   content: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
-    paddingBottom: gaps.sectionTop * 5,
+    paddingBottom: gaps.sectionTop * 2,
+    gap: spacing.lg,
   },
-  gapSection: {
-    height: spacing.md,
+  amountBlock: {
+    gap: spacing.md,
   },
-  gapDetails: {
-    height: spacing.xs,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm + spacing.xxs / 2,
+  extrasBlock: {
+    gap: spacing.xs,
   },
 }));

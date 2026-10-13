@@ -56,9 +56,9 @@ export function useNotificationLocalState(userId: string | undefined) {
   );
 
   const dismiss = useCallback(
-    (id: string) => {
+    (ids: string | readonly string[]) => {
       if (!userId || !ready) return;
-      const next = new Set([...dismissed, id]);
+      const next = new Set([...dismissed, ...(typeof ids === 'string' ? [ids] : ids)]);
       setState((current) => current?.userId === userId ? { ...current, dismissed: next } : current);
       void writeJson(dismissedKey(userId), [...next]).catch(() => undefined);
     },

@@ -49,7 +49,7 @@ describe('SubscriptionFormScreen', () => {
     expect(screen.getByLabelText('Servis')).toBeTruthy();
     expect(screen.getByLabelText('Tutar')).toBeTruthy();
     expect(screen.getByText('TRY')).toBeTruthy();
-    expect(screen.getByText('Yenileme sıklığı')).toBeTruthy();
+    expect(screen.getByText('Ne sıklıkla yenileniyor?')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Aboneliği kaydet' })).toBeTruthy();
   });
 
@@ -115,13 +115,13 @@ describe('düzenlemeyi kaydetmeden çıkma (senaryo 17)', () => {
     expect(mockMutate).not.toHaveBeenCalled();
     expect(mockBack).toHaveBeenCalled();
   });
-  it('kapalı Ayrıntılar bölümündeki hatada bölümü açar ve özet gösterir', () => {
+  it('kapalı "Daha fazla seçenek" bölümündeki hatada bölümü açar ve özet gösterir', () => {
     render(<SubscriptionFormScreen />);
     fireEvent.changeText(screen.getByLabelText('Servis'), 'Acme');
     fireEvent.changeText(screen.getByLabelText('Tutar'), '12.50');
-    fireEvent.press(screen.getByLabelText('Diğer ayrıntılar'));
+    fireEvent.press(screen.getByText('Daha fazla seçenek'));
     fireEvent.changeText(screen.getByLabelText('Notlar (isteğe bağlı)'), 'x'.repeat(2001));
-    fireEvent.press(screen.getByLabelText('Diğer ayrıntılar'));
+    fireEvent.press(screen.getByText('Daha az seçenek'));
     expect(screen.queryByLabelText('Notlar (isteğe bağlı)')).toBeNull();
 
     fireEvent.press(screen.getByRole('button', { name: 'Aboneliği kaydet' }));
