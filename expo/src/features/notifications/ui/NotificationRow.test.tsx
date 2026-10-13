@@ -23,7 +23,7 @@ describe('NotificationRow', () => {
     render(<NotificationRow item={item} read={false} amountText="₺99,90" {...handlers()} />);
 
     const row = screen.getByRole('button', { name: 'Video Plus, Bugün yenileniyor, ₺99,90, okunmamış' });
-    expect(row.props.accessibilityHint).toBe('Okundu işaretler ve abonelik ayrıntılarını açar.');
+    expect(row.props.accessibilityHint).toBe('Okundu olarak işaretler ve abonelik ayrıntılarını açar.');
     expect(screen.getByText('Bugün yenileniyor · ₺99,90')).toBeTruthy();
   });
 

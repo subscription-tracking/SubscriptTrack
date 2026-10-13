@@ -18,7 +18,7 @@ export interface OnboardingSlide {
 export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
   {
     title: 'Aboneliklerini takip et',
-    body: 'Netflix, Spotify, iCloud... Tüm aboneliklerini tek bir yerde topla ve ne kadar harcadığını gör.',
+    body: 'Netflix, Spotify, iCloud… Tüm aboneliklerini tek yerde topla, ne kadar harcadığını gör.',
     accent: onboardingColors.indigo,
     wash: onboardingColors.indigoWash,
     illustration: 'subscriptions',
@@ -32,7 +32,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
   },
   {
     title: 'Harcamalarını analiz et',
-    body: 'Kategoriye göre ne kadar harcadığını gör, gereksiz abonelikleri tespit et ve tasarruf et.',
+    body: 'Kategoriye göre ne kadar harcadığını gör, gereksiz abonelikleri bul, tasarruf et.',
     accent: onboardingColors.amber,
     wash: onboardingColors.amberWash,
     illustration: 'analytics',

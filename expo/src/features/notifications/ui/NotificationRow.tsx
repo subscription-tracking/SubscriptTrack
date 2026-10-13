@@ -112,7 +112,7 @@ export function NotificationRow({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={label}
-          accessibilityHint={item.subscriptionId ? 'Okundu işaretler ve abonelik ayrıntılarını açar.' : 'Okundu işaretler.'}
+          accessibilityHint={item.subscriptionId ? 'Okundu olarak işaretler ve abonelik ayrıntılarını açar.' : 'Okundu olarak işaretler.'}
           accessibilityActions={accessibilityActions}
           onAccessibilityAction={({ nativeEvent }) => {
             if (nativeEvent.actionName === 'dismiss') onDismiss();

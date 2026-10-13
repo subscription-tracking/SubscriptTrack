@@ -40,7 +40,7 @@ export function HeroCard({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Bu ay özetini aç, İstatistikler"
+      accessibilityLabel="Bu ayın özeti, istatistikleri aç"
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

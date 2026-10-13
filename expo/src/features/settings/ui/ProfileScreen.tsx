@@ -72,7 +72,7 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
     onSuccess: () => {
       setPasswords({ current: '', next: '', confirm: '' });
       setSubmitted(false);
-      snackbar.show('Şifren başarıyla güncellendi.', 'primary');
+      snackbar.show('Şifren güncellendi.', 'primary');
     },
     onError: (error: unknown) => snackbar.show(messageForError(error), 'error'),
   });

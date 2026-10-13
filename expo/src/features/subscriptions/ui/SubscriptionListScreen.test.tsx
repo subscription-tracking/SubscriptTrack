@@ -171,7 +171,7 @@ describe('SubscriptionListScreen', () => {
     render(<SubscriptionListScreen />);
     fireEvent.changeText(screen.getByLabelText('Aboneliklerinde ara'), 'netflix');
 
-    expect(screen.getByRole('button', { name: /Netflix, Video & Dizi/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Netflix, Video ve dizi/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Design Suite/ })).toBeNull();
   });
 

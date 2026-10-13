@@ -136,7 +136,7 @@ describe('NotificationCenterScreen', () => {
     setNotices([notice, { ...notice, id: 'notice-2', subscriptionId: 'subscription-2', readAt: '2026-10-12T08:00:00.000Z' }]);
 
     render(<NotificationCenterScreen />);
-    fireEvent.press(screen.getByRole('button', { name: 'Tümünü okundu say' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Tümünü okundu işaretle' }));
 
     expect(mockMarkRead).toHaveBeenCalledWith(['notice-1']);
     expect(mockPush).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('NotificationCenterScreen', () => {
 
     render(<NotificationCenterScreen />);
 
-    expect(screen.getByRole('button', { name: 'Tümünü okundu say' }).props.accessibilityState).toMatchObject({ disabled: true });
+    expect(screen.getByRole('button', { name: 'Tümünü okundu işaretle' }).props.accessibilityState).toMatchObject({ disabled: true });
     fireEvent.press(screen.getByRole('button', { name: 'Bildirim ayarları' }));
     expect(mockPush).toHaveBeenCalledWith('/settings/notifications');
   });

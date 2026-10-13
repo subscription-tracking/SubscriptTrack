@@ -26,7 +26,7 @@ describe('SubscriptionTile accessibility', () => {
     render(<SubscriptionTile subscription={trial} today={civilDate(2026, 10, 1)} onPress={jest.fn()} />);
 
     expect(screen.getByRole('button', {
-      name: 'Video Plus, Video & Dizi, Aylık, ₺129,90, Deneme, Deneme bitişi 5 Ekim 2026',
+      name: 'Video Plus, Video ve dizi, Aylık, ₺129,90, Deneme, Deneme bitişi 5 Ekim 2026',
     })).toBeTruthy();
   });
 });

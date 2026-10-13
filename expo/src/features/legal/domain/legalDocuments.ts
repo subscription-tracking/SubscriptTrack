@@ -24,7 +24,7 @@ export const PRIVACY_POLICY: LegalDocument = {
   summary: [
     'Yalnızca abonelik takibi için gerekli verileri saklarız.',
     'Verilerini reklam veya pazarlama amacıyla satmayız.',
-    'Verini dışa aktarabilir veya hesabını kalıcı olarak silebilirsin.',
+    'Verilerini dışa aktarabilir veya hesabını kalıcı olarak silebilirsin.',
   ],
   sections: [
     {
@@ -55,7 +55,7 @@ export const PRIVACY_POLICY: LegalDocument = {
 };
 
 export const TERMS_OF_SERVICE: LegalDocument = {
-  title: 'Kullanım Şartları',
+  title: 'Kullanım şartları',
   version: '1.0',
   lastUpdated: '20 Eylül 2026',
   summary: [
@@ -74,7 +74,7 @@ export const TERMS_OF_SERVICE: LegalDocument = {
     },
     {
       title: 'Girdiğin veriler',
-      body: 'Uygulamaya girdiğin abonelik bilgilerinin (tutar, tarih, servis adı vb.) doğruluğundan sen sorumlusun. Uygulama bu bilgilere dayanarak hesaplama ve hatırlatma yapar; üçüncü taraf servis sağlayıcılarının (Netflix, Spotify vb.) gerçek fatura/faturalama bilgisiyle otomatik senkronize olmaz.',
+      body: 'Uygulamaya girdiğin abonelik bilgilerinin (tutar, tarih, servis adı vb.) doğruluğundan sen sorumlusun. Uygulama bu bilgilere dayanarak hesaplama ve hatırlatma yapar; üçüncü taraf servis sağlayıcılarının (Netflix, Spotify vb.) gerçek fatura bilgisiyle otomatik senkronize olmaz.',
     },
     {
       title: 'Sorumluluk sınırı',

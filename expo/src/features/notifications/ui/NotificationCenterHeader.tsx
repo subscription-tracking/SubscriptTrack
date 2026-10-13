@@ -10,7 +10,7 @@ import { HeaderShell } from '../../../shared/widgets/HeaderShell';
 
 /**
  * Bildirim merkezi üst çubuğu: geri, başlık ve iki etiketli ikon düğmesi (tümünü okundu say, bildirim ayarları).
- * "Tümünü okundu say" yalnızca okunmamış bildirim varken etkindir.
+ * "Tümünü okundu işaretle" yalnızca okunmamış bildirim varken etkindir.
  */
 export function NotificationCenterHeader({ canMarkAll, onMarkAll }: { canMarkAll: boolean; onMarkAll: () => void }) {
   useThemeRevision();
@@ -23,7 +23,7 @@ export function NotificationCenterHeader({ canMarkAll, onMarkAll }: { canMarkAll
       <Text accessibilityRole="header" style={[textStyle('heading'), styles.title]}>Bildirimler</Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Tümünü okundu say"
+        accessibilityLabel="Tümünü okundu işaretle"
         accessibilityState={{ disabled: !canMarkAll }}
         disabled={!canMarkAll}
         onPress={onMarkAll}

@@ -136,7 +136,7 @@ export function AppLockProvider({ children }: { children: ReactNode }) {
     <AppLockContext.Provider value={value}>
       {hasUser && (!state.ready || storageError || hydratedUser !== user?.id) ? (
         <View style={{ flex: 1, backgroundColor: colors.background, padding: spacing.lg, justifyContent: 'center' }}>
-          <Text style={{ color: colors.onSurface }}>{storageError ? 'Güvenli kilit verisi okunamadı.' : 'Güvenli kilit yükleniyor...'}</Text>
+          <Text style={{ color: colors.onSurface }}>{storageError ? 'Güvenli kilit verisi okunamadı.' : 'Güvenli kilit yükleniyor…'}</Text>
           {storageError ? <Pressable accessibilityRole="button" accessibilityLabel="Kilidi tekrar yükle" onPress={() => void refresh()}><Text style={{ color: colors.primary }}>Tekrar dene</Text></Pressable> : null}
         </View>
       ) : (

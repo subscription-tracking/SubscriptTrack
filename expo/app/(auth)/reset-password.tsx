@@ -42,7 +42,7 @@ export default function ResetPasswordScreen() {
     setSubmitting(true);
     try {
       await updatePassword(password);
-      snackbar.show('Şifren başarıyla güncellendi!');
+      snackbar.show('Şifren güncellendi.');
     } catch (error) {
       setServerError(messageForError(error));
     } finally {

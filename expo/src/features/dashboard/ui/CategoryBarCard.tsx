@@ -21,7 +21,7 @@ export function CategoryBarCard({ totals, onPress }: { totals: CategoryTotal[]; 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Bu ayın dağılımını aç, İstatistikler"
+      accessibilityLabel="Bu ayın dağılımı, istatistikleri aç"
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

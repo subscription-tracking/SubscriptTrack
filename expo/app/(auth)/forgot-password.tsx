@@ -59,7 +59,7 @@ export default function ForgotPasswordScreen() {
           <Text style={[textStyle('title'), styles.center]}>E-posta gönderildi</Text>
           <Spacer size={spacing.sm} />
           <Text style={[textStyle('bodySmall'), styles.center]}>
-            {`${sentTo} adresine şifre sıfırlama bağlantısı gönderildi.\nSpam klasörünü de kontrol et.`}
+            {`${sentTo} adresine şifre sıfırlama bağlantısı gönderildi.\nGereksiz (spam) klasörünü de kontrol et.`}
           </Text>
           <Spacer size={spacing.xxl} />
           <TonalButton label="Giriş ekranına dön" onPress={() => router.back()} />

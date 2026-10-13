@@ -44,7 +44,7 @@ export function CsvImportPreview({ parsed, busy, online, onPick, onImport }: { p
             ))}
             <View style={styles.gapRows} />
             <PrimaryButton
-              label={busy ? 'İçe aktarılıyor...' : 'Geçerli kayıtları içe aktar'}
+              label={busy ? 'İçe aktarılıyor…' : 'Geçerli kayıtları içe aktar'}
               tall={false}
               loading={busy}
               disabled={!online || busy || parsed.rows.length === 0}

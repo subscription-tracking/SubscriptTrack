@@ -29,13 +29,13 @@ export const SUBSCRIPTION_CATEGORIES = [
 export type SubscriptionCategory = (typeof SUBSCRIPTION_CATEGORIES)[number];
 
 export const CATEGORY_LABELS: Record<SubscriptionCategory, string> = {
-  streaming: 'Video & Dizi',
+  streaming: 'Video ve dizi',
   music: 'Müzik',
   gaming: 'Oyun',
   software: 'Yazılım',
   cloud: 'Bulut depolama',
-  fitness: 'Spor & Sağlık',
-  news: 'Haber & Dergi',
+  fitness: 'Spor ve sağlık',
+  news: 'Haber ve dergi',
   food: 'Yemek',
   education: 'Eğitim',
   other: 'Diğer',

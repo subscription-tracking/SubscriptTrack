@@ -53,7 +53,7 @@ describe('CalendarScreen', () => {
     render(<CalendarScreen />);
 
     expect(screen.getByText('Ekim 2026')).toBeTruthy();
-    expect(screen.getByText('Bu gün yenileme yok')).toBeTruthy();
+    expect(screen.getByText('Bu günde yenileme yok')).toBeTruthy();
 
     fireEvent.press(screen.getByRole('button', { name: 'Sonraki ay' }));
     expect(screen.getByText('Kasım 2026')).toBeTruthy();

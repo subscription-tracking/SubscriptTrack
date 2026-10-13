@@ -81,7 +81,7 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
   }
 
   function confirmRemove(name: string) {
-    Alert.alert('Ödeme yöntemini sil', `"${name}" ödeme yöntemini silmek istediğine emin misin?`, [
+    Alert.alert('Ödeme yöntemini sil', `"${name}" ödeme yöntemini silmek istediğinden emin misin?`, [
       { text: 'İptal', style: 'cancel' },
       { text: 'Sil', style: 'destructive', onPress: () => setMethods((current) => removePaymentMethod(current, name)) },
     ]);

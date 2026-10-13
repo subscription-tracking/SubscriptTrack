@@ -47,7 +47,7 @@ export default function RegisterScreen() {
     try {
       const result = await signUp(email.trim(), password);
       if (result.requiresEmailConfirmation) {
-        snackbar.show('E-posta uygunsa doğrulama bağlantısı gönderildi.', 'primary');
+        snackbar.show('Doğrulama bağlantısını e-postana gönderdik. Gelen kutunu kontrol et.', 'primary');
         router.replace('/login');
       }
       // Oturum açıldıysa yönlendirme AuthGate tarafından yapılır.

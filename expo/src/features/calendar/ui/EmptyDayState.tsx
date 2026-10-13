@@ -7,7 +7,7 @@ import { borderWidth, colors, gaps, sizes, spacing, withAlpha } from '../../../s
 import { textButtonText, textStyle } from '../../../shared/design/typography';
 
 /**
- * Flutter `EmptyDayState`: gün seçilmediyse "Bir gün seç", seçili günde yenileme yoksa "Bu gün yenileme yok".
+ * Flutter `EmptyDayState`: gün seçilmediyse "Bir gün seç", seçili günde yenileme yoksa "Bu günde yenileme yok".
  * Seçili günde ekleme bağlantısı, o tarihte başlayan yeni abonelik formunu açar.
  */
 export function EmptyDayState({ hasSelection, onAddForDay }: { hasSelection: boolean; onAddForDay?: () => void }) {
@@ -22,7 +22,7 @@ export function EmptyDayState({ hasSelection, onAddForDay }: { hasSelection: boo
         />
       </View>
       <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginTop: gaps.rowLoose - 2 })}>
-        {hasSelection ? 'Bu gün yenileme yok' : 'Bir gün seç'}
+        {hasSelection ? 'Bu günde yenileme yok' : 'Bir gün seç'}
       </Text>
       {onAddForDay ? (
         <Pressable accessibilityRole="button" onPress={onAddForDay} style={styles.link}>

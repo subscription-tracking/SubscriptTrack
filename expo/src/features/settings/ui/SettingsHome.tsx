@@ -96,7 +96,7 @@ export function SettingsHome() {
       <SettingsTile icon="notifications-none" label="Bildirim ayarları" value={notificationsValue} onPress={() => router.push('/settings/notifications')} />
       <SettingsTile
         icon="label-outline"
-        label="Ödeme yöntemi seçenekleri"
+        label="Ödeme yöntemleri"
         value={`${methodCount} yöntem`}
         onPress={() => router.push('/settings/payment-methods')}
       />

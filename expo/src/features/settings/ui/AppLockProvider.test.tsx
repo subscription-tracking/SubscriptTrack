@@ -107,6 +107,6 @@ describe('AppLockProvider PIN yükseltmesi', () => {
     mockReadAppLock.mockReturnValueOnce(new Promise(() => undefined));
     view.rerender(<AppLockProvider><UnlockProbe /></AppLockProvider>);
     expect(screen.queryByText('unlocked', { includeHiddenElements: true })).toBeNull();
-    expect(screen.getByText('Güvenli kilit yükleniyor...')).toBeTruthy();
+    expect(screen.getByText('Güvenli kilit yükleniyor…')).toBeTruthy();
   });
 });

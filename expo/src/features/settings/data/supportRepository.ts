@@ -10,6 +10,6 @@ export async function createSupportTicket(input: { message: string; category: st
     method: 'POST',
     body: { message: input.message.trim(), category: input.category },
   });
-  if (error || !data?.id) throw new Error('Destek kaydı oluşturulamadı. Lütfen tekrar dene.');
+  if (error || !data?.id) throw new Error('Destek kaydı oluşturulamadı. Tekrar dene.');
   return data.id;
 }

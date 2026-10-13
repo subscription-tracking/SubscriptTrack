@@ -92,7 +92,7 @@ it('hero kalan tutarı, ödenen ve toplamı gösterir', () => {
 it('hero kartı basılabilir ve İstatistikler ekranını açar', () => {
   render(<DashboardScreen />);
 
-  fireEvent.press(screen.getByRole('button', { name: 'Bu ay özetini aç, İstatistikler' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Bu ayın özeti, istatistikleri aç' }));
   expect(mockNavigate).toHaveBeenCalledWith('/stats');
 });
 
@@ -154,7 +154,7 @@ it('hatırlatma kısayolu tek satırda görünür', () => {
 it('kategori dağılımı kartı İstatistikler ekranını açar', () => {
   render(<DashboardScreen />);
 
-  fireEvent.press(screen.getByRole('button', { name: 'Bu ayın dağılımını aç, İstatistikler' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Bu ayın dağılımı, istatistikleri aç' }));
   expect(mockNavigate).toHaveBeenCalledWith('/stats');
 });
 
