@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -9,6 +11,7 @@ import { Bob } from '../OnboardingMotion';
 
 /** Flutter `SubscriptionsIllustration`: cüzdan halosu ve dört sallanan hizmet rozeti. 220 × 220 kutu. */
 export function SubscriptionsIllustration() {
+  useThemeRevision();
   return (
     <View style={styles.box}>
       <View style={styles.center}>
@@ -31,6 +34,7 @@ export function SubscriptionsIllustration() {
 }
 
 function Badge({ style, phase, children }: { style: { top?: number; bottom?: number; left?: number; right?: number }; phase: number; children: ReactNode }) {
+  useThemeRevision();
   return (
     <View style={[styles.badge, style]}>
       <Bob phase={phase}>{children}</Bob>
@@ -38,7 +42,7 @@ function Badge({ style, phase, children }: { style: { top?: number; bottom?: num
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   box: {
     width: 220,
     height: 220,
@@ -51,4 +55,4 @@ const styles = StyleSheet.create({
   badge: {
     position: 'absolute',
   },
-});
+}));

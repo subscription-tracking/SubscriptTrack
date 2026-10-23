@@ -1,4 +1,5 @@
 import { supabase } from '../../../core/supabase/client';
+import { env } from '../../../core/config/env';
 import { type SubscriptionRow } from '../domain/subscription';
 
 /**
@@ -21,8 +22,8 @@ export async function fetchSubscriptionRows(): Promise<SubscriptionRow[]> {
   // Arşiv filtrelemesi istemcide yapılır (subscriptionFromRow): hem is_archived hem status 'archived' arşivdir.
   const { data, error } = await supabase
     .from('subscriptions')
-    .select(COLUMNS)
+    .select(env.softDeletionEnabled ? `${COLUMNS}, deleted_at` : COLUMNS)
     .order('next_renewal_date', { ascending: true, nullsFirst: false });
   if (error) throw new SubscriptionReadError('Abonelikler yüklenemedi. Bağlantını kontrol edip tekrar dene.');
-  return data as SubscriptionRow[];
+  return data as unknown as SubscriptionRow[];
 }

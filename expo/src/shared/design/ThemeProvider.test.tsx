@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { Pressable, Text } from 'react-native';
+import * as ReactNative from 'react-native';
 import { readJsonStrict, writeJson } from '../../core/storage/secureJsonStore';
 import { ThemeProvider, useThemePreference } from './ThemeProvider';
 import { setEffectiveTheme, themeSnapshot } from './themeRuntime';
@@ -33,7 +34,7 @@ it('does not overwrite corrupted stored preferences', async () => {
   expect(writeJson).not.toHaveBeenCalled();
 });
 it('uses the system scheme before the stored preference is read', async () => {
-  const scheme = jest.spyOn(require('react-native'), 'useColorScheme').mockReturnValue('light');
+  const scheme = jest.spyOn(ReactNative, 'useColorScheme').mockReturnValue('light');
   jest.mocked(readJsonStrict).mockImplementation(() => new Promise(() => undefined));
   setEffectiveTheme('dark');
   render(<ThemeProvider><Probe /></ThemeProvider>);

@@ -1,5 +1,6 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
+import type { ReactNode } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -8,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNotifyPrefs } from '../../notifications/data/notificationPrefs';
 import { resetOnboardingDone } from '../../onboarding/data/onboardingFlag';
-import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { fetchPaymentMethods } from '../data/paymentMethodsRepository';
@@ -92,37 +93,58 @@ export function SettingsHome() {
         />
       </View>
 
-      <SectionLabel label="Tercihler" />
-      <SettingsTile icon="notifications-none" label="Bildirim ayarları" value={notificationsValue} onPress={() => router.push('/settings/notifications')} />
-      <SettingsTile
-        icon="label-outline"
-        label="Ödeme yöntemleri"
-        value={`${methodCount} yöntem`}
-        onPress={() => router.push('/settings/payment-methods')}
-      />
-      <SettingsTile icon="dark-mode" label="Tema" value={themeValue} onPress={() => router.push('/settings/appearance')} />
-      <SettingsTile icon="tune" label="Para birimi ve saat dilimi" value={currency} onPress={() => router.push('/settings/appearance')} />
+      <SettingsSection label="Tercihler">
+        <SettingsTile icon="notifications-none" label="Bildirim ayarları" value={notificationsValue} onPress={() => router.push('/settings/notifications')} />
+        <SettingsTile
+          icon="label-outline"
+          label="Ödeme yöntemleri"
+          value={`${methodCount} yöntem`}
+          onPress={() => router.push('/settings/payment-methods')}
+        />
+        <SettingsTile icon="dark-mode" label="Tema" value={themeValue} onPress={() => router.push('/settings/appearance')} />
+        <SettingsTile icon="tune" label="Para birimi ve saat dilimi" value={currency} onPress={() => router.push('/settings/appearance')} last />
+      </SettingsSection>
 
-      <SectionLabel label="Uygulama" />
-      <SettingsTile icon="replay" label="Tanıtımı yeniden göster" value="Tanıtım ekranlarını tekrar aç" onPress={() => void restartOnboarding()} />
+      <SettingsSection label="Uygulama">
+        <SettingsTile
+          icon="replay"
+          label="Tanıtımı yeniden göster"
+          value="Tanıtım ekranlarını tekrar aç"
+          valueBelow
+          onPress={() => void restartOnboarding()}
+          last
+        />
+      </SettingsSection>
 
-      <SectionLabel label="Veri ve gizlilik" />
-      <SettingsTile icon="lock-outline" label="Uygulama kilidi" value="PIN ve biyometri" onPress={() => router.push('/settings/app-lock')} />
-      <SettingsTile
-        icon="privacy-tip"
-        label="Gizlilik ve veri merkezi"
-        value="Veri ve yasal metinler"
-        onPress={() => router.push('/settings/privacy')}
-      />
+      <SettingsSection label="Veri ve gizlilik">
+        <SettingsTile icon="lock-outline" label="Uygulama kilidi" value="PIN ve biyometri" onPress={() => router.push('/settings/app-lock')} />
+        <SettingsTile
+          icon="privacy-tip"
+          label="Gizlilik ve veri merkezi"
+          value="Veri ve yasal metinler"
+          onPress={() => router.push('/settings/privacy')}
+          last
+        />
+      </SettingsSection>
 
-      <SectionLabel label="Destek" />
-      <SettingsTile icon="feedback" label="Geri bildirim gönder" value="Hata veya öneri" onPress={() => router.push('/settings/feedback')} />
+      <SettingsSection label="Destek">
+        <SettingsTile icon="feedback" label="Geri bildirim gönder" value="Hata veya öneri" onPress={() => router.push('/settings/feedback')} last />
+      </SettingsSection>
 
       <View style={styles.signOutGap} />
       <SignOutButton onPress={confirmSignOut} />
       <View style={styles.versionGap} />
       <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'center' })}>{APP_VERSION}</Text>
     </ScrollView>
+  );
+}
+
+function SettingsSection({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.section}>
+      <SectionLabel label={label} />
+      <View style={styles.group}>{children}</View>
+    </View>
   );
 }
 
@@ -135,6 +157,17 @@ const styles = themedStyles(() => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xs,
+  },
+  section: {
+    marginBottom: spacing.xs,
+  },
+  group: {
+    marginHorizontal: spacing.lg,
+    overflow: 'hidden',
+    borderRadius: radius.medium,
+    borderWidth: borderWidth.hairline,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceHigh,
   },
   signOutGap: {
     height: gaps.sectionTop - 4,

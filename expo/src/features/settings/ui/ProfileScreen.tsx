@@ -8,7 +8,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { messageForError } from '../../auth/domain/authErrors';
 import { PASSWORD_REQUIREMENT, validateLoginPassword, validateNewPassword } from '../../auth/domain/authRules';
 import { formatTimestampDate } from '../../../core/format/date';
-import { borderWidth, colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
+import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { PasswordField } from '../../../shared/widgets/PasswordField';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
@@ -18,6 +18,7 @@ import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { useUserTimeZone } from '../data/useActiveCurrency';
+import { SettingsPanel } from './SettingsControls';
 
 /** Flutter `ProfileScreen`: başlık (avatar, e-posta, üyelik tarihi), görünen ad, e-posta ve şifre değiştirme. */
 export function ProfileScreen() {
@@ -90,15 +91,16 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
 
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-      <View style={styles.header}>
+      <SettingsPanel style={styles.header}>
         <View style={styles.avatar}>
           <Text style={textStyle('headline', { color: colors.onPrimaryContainer })}>{initial}</Text>
         </View>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>{email}</Text>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xxs / 2 })}>{`Üyelik tarihi: ${memberSince}`}</Text>
-      </View>
+      </SettingsPanel>
 
       <View style={styles.gap28} />
+      <SettingsPanel style={styles.formPanel}>
       <Text style={textStyle('bodyStrong')}>İsim</Text>
       <View style={styles.gap8} />
       <TextField label="Adın" prefixIcon="person-outline" value={name} onChangeText={setName} placeholder="Adını gir" editable={!nameSave.isPending} />
@@ -108,8 +110,10 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <PrimaryButton label="Adı kaydet" tall={false} loading={nameSave.isPending} onPress={() => nameSave.mutate()} />
         </>
       ) : null}
+      </SettingsPanel>
 
       <View style={styles.gap28} />
+      <SettingsPanel style={styles.formPanel}>
       <Text style={textStyle('bodyStrong')}>E-posta</Text>
       <View style={styles.gap8} />
       <TextField label="E-posta" prefixIcon="email" value={newEmail} onChangeText={setNewEmail} keyboardType="email-address" autoComplete="email" editable={!emailSave.isPending} />
@@ -122,10 +126,10 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <PrimaryButton label="E-postayı güncelle" tall={false} loading={emailSave.isPending} onPress={() => emailSave.mutate()} />
         </>
       ) : null}
+      </SettingsPanel>
 
       <View style={styles.gap32} />
-      <View style={styles.divider} />
-      <View style={styles.gap20} />
+      <SettingsPanel style={styles.formPanel}>
       <Text style={textStyle('bodyStrong')}>Şifre değiştir</Text>
       <View style={styles.gap12} />
       <PasswordField
@@ -157,6 +161,7 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <PrimaryButton label="Şifreyi güncelle" tall={false} loading={passwordSave.isPending} disabled={!passwordReady} onPress={submitPassword} />
         </>
       ) : null}
+      </SettingsPanel>
       <ScreenBottomInset />
     </ScrollView>
   );
@@ -172,6 +177,10 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    padding: spacing.lg,
+  },
+  formPanel: {
+    padding: spacing.md,
   },
   avatar: {
     width: sizes.profileAvatar,
@@ -180,10 +189,6 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.primaryContainer,
-  },
-  divider: {
-    height: borderWidth.hairline,
-    backgroundColor: colors.border,
   },
   gap8: {
     height: spacing.xs,

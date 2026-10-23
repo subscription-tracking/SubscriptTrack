@@ -1,0 +1,113 @@
+{
+  "money": [
+    { "input": "12.50", "minorUnits": 1250, "decimal": "12.50" },
+    { "input": "12,50", "minorUnits": 1250, "decimal": "12.50" },
+    { "input": "-0.05", "minorUnits": -5, "decimal": "-0.05" },
+    { "input": "0.10", "minorUnits": 10, "decimal": "0.10" }
+  ],
+  "multiplication": [
+    { "input": "0.05", "factor": 0.5, "decimal": "0.03" },
+    { "input": "-0.05", "factor": 0.5, "decimal": "-0.03" },
+    { "input": "9.99", "factor": 12, "decimal": "119.88" }
+  ],
+  "savings": [
+    { "amount": "0.01", "billingCycle": "weekly", "currency": "USD", "monthly": "0.04", "annual": "0.48" },
+    { "amount": "100.00", "billingCycle": "monthly", "currency": "TRY", "monthly": "100.00", "annual": "1200.00" },
+    { "amount": "10.00", "billingCycle": "quarterly", "currency": "EUR", "monthly": "3.33", "annual": "39.96" },
+    { "amount": "120.00", "billingCycle": "yearly", "currency": "GBP", "monthly": "10.00", "annual": "120.00" }
+  ],
+  "subscriptionAmountLimits": {
+    "max": "1000000000.00",
+    "maxMinorUnits": 100000000000,
+    "overByOneCent": "1000000000.01"
+  },
+  "occurrences": [
+    {
+      "anchor": "2027-01-31",
+      "cycle": "monthly",
+      "reference": "2027-02-01",
+      "anchorDay": 31,
+      "expected": "2027-02-28"
+    },
+    {
+      "anchor": "2027-01-31",
+      "cycle": "monthly",
+      "reference": "2027-03-01",
+      "anchorDay": 31,
+      "expected": "2027-03-31"
+    },
+    {
+      "anchor": "2028-01-31",
+      "cycle": "monthly",
+      "reference": "2028-02-01",
+      "anchorDay": 31,
+      "expected": "2028-02-29"
+    },
+    {
+      "anchor": "2026-10-28",
+      "cycle": "weekly",
+      "reference": "2026-11-01",
+      "anchorDay": 28,
+      "expected": "2026-11-04"
+    },
+    {
+      "anchor": "2026-10-09",
+      "cycle": "quarterly",
+      "reference": "2026-10-10",
+      "anchorDay": 9,
+      "expected": "2027-01-09"
+    }
+  ],
+  "timezoneSchedules": [
+    {
+      "day": "2026-10-09",
+      "hour": 9,
+      "timeZone": "Europe/Istanbul",
+      "expectedUtc": "2026-10-09T06:00:00.000Z"
+    },
+    {
+      "day": "2026-10-09",
+      "hour": 9,
+      "timeZone": "America/New_York",
+      "expectedUtc": "2026-10-09T13:00:00.000Z"
+    },
+    {
+      "day": "2026-03-07",
+      "hour": 9,
+      "timeZone": "America/New_York",
+      "expectedUtc": "2026-03-07T14:00:00.000Z"
+    },
+    {
+      "day": "2026-03-08",
+      "hour": 9,
+      "timeZone": "America/New_York",
+      "expectedUtc": "2026-03-08T13:00:00.000Z"
+    }
+  ],
+  "renewalConfirmations": [
+    { "start": "2026-01-31", "due": "2026-09-30", "today": "2026-10-09", "billingCycle": "monthly", "expected": "2026-10-31" },
+    { "start": "2026-01-09", "due": "2026-09-09", "today": "2026-10-09", "billingCycle": "monthly", "expected": "2026-11-09" },
+    { "start": "2025-06-01", "due": "2025-06-01", "today": "2026-10-09", "billingCycle": "yearly", "expected": "2027-06-01" },
+    { "start": "2026-09-25", "due": "2026-10-02", "today": "2026-10-09", "billingCycle": "weekly", "expected": "2026-10-16" }
+  ],
+  "pinCompatibility": {
+    "pin": "1234",
+    "legacySha256": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "pbkdf2V2": "v2:2:AAAAAAAAAAAAAAAAAAAAAA==:vWMEc1SnrugwEIB5FjIaQHfrEoNOV5Jz4vI7mLM0bo4="
+  },
+  "statuses": ["trial", "active", "paused", "cancelled", "expired", "archived"],
+  "allowedTransitions": {
+    "trial": ["active", "cancelled", "expired", "archived"],
+    "active": ["paused", "cancelled", "archived"],
+    "paused": ["active", "cancelled", "archived"],
+    "cancelled": ["active", "expired", "archived"],
+    "expired": ["active", "archived"],
+    "archived": ["active"]
+  },
+  "knownBoundaryDifference": {
+    "input": "90071992547409.92",
+    "flutterMinorUnits": "9007199254740992",
+    "expoAccepts": false,
+    "reason": "General Money arithmetic is not bounded by the subscription-field API limit"
+  }
+}

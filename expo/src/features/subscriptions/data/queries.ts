@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { env } from '../../../core/config/env';
 
 import { fetchServiceCatalog } from './serviceCatalogRepository';
 import { loadQueue, resolveRows } from './subscriptionSync';
@@ -27,6 +28,9 @@ export function useSubscriptionsQuery(userId: string | undefined) {
       return rows.map(subscriptionFromRow);
     },
     enabled: Boolean(userId),
+    // Restrictive soft-delete RLS can suppress the final realtime UPDATE event.
+    // Foreground polling is the fallback; native/live latency remains an acceptance gate.
+    refetchInterval: env.softDeletionEnabled ? 4000 : false,
     networkMode: 'always',
     retry: 1,
   });

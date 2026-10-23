@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../src/shared/design/useThemeRevision';
+import { themedStyles } from '../../src/shared/design/themeRuntime';
 import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
@@ -11,6 +13,7 @@ import { NotificationSync } from '../../src/features/notifications/ui/Notificati
  * diğer tüm ekranlar Flutter'daki gibi alt gezinmesiz, yığında açılır.
  */
 export default function AppLayout() {
+  useThemeRevision();
   return (
     <View style={styles.shell}>
       <SubscriptionRealtimeSync />
@@ -22,8 +25,8 @@ export default function AppLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   shell: {
     flex: 1,
   },
-});
+}));

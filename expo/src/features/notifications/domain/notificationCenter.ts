@@ -51,6 +51,13 @@ export function notificationText(kind: NotificationKind, params: NotificationPar
 }
 
 /** Okunmamış sayısı: `read_at` boş olanlar. */
-export function unreadCount(rows: readonly { readAt: string | null }[]): number {
-  return rows.filter((row) => row.readAt === null).length;
+const EMPTY_IDS: ReadonlySet<string> = new Set();
+
+/** Okunmamış sayısı: sunucu okunması ve bu cihazın yerel okunma/kapatma durumu birlikte değerlendirilir. */
+export function unreadCount(
+  rows: readonly { id: string; readAt: string | null }[],
+  localRead: ReadonlySet<string> = EMPTY_IDS,
+  dismissed: ReadonlySet<string> = EMPTY_IDS,
+): number {
+  return rows.filter((row) => row.readAt === null && !localRead.has(row.id) && !dismissed.has(row.id)).length;
 }

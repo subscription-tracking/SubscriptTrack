@@ -1,7 +1,65 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:subscript_track/core/domain/money.dart';
+import 'package:subscript_track/core/utils/date_time_utils.dart';
 
 void main() {
+  final migrationGoldens = jsonDecode(
+    File('../testdata/flutter_expo_domain_goldens.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+
+  group('Ortak Flutter–Expo altın senaryoları', () {
+    for (final testCase in migrationGoldens['money'] as List<dynamic>) {
+      final item = testCase as Map<String, dynamic>;
+      test('${item['input']} tutarını ortak wire biçiminde çözer', () {
+        final value = Money.parse(item['input'] as String);
+        expect(value.minorUnits, item['minorUnits'] as int);
+        expect(value.decimalString, item['decimal'] as String);
+      });
+    }
+
+    for (final testCase
+        in migrationGoldens['multiplication'] as List<dynamic>) {
+      final item = testCase as Map<String, dynamic>;
+      test('${item['input']} × ${item['factor']} ortak yuvarlamayı korur', () {
+        final result =
+            Money.parse(item['input'] as String) * (item['factor'] as num);
+        expect(result.decimalString, item['decimal'] as String);
+      });
+    }
+
+    for (final testCase in migrationGoldens['occurrences'] as List<dynamic>) {
+      final item = testCase as Map<String, dynamic>;
+      test(
+          '${item['anchor']} / ${item['cycle']} / ${item['reference']} → fatura günü',
+          () {
+        final anchor = DateTime.parse(item['anchor'] as String);
+        final reference = DateTime.parse(item['reference'] as String);
+        final next = DateTimeUtils.nextOccurrenceOnOrAfter(
+          anchor,
+          item['cycle'] as String,
+          reference,
+          originalAnchor:
+              DateTime(anchor.year, anchor.month, item['anchorDay'] as int),
+        );
+        final actual =
+            '${next.year.toString().padLeft(4, '0')}-${next.month.toString().padLeft(2, '0')}-${next.day.toString().padLeft(2, '0')}';
+        expect(actual, item['expected'] as String);
+      });
+    }
+
+    test(
+        'fixture sınırındaki Flutter kabulü bilinen parite farkı olarak görünür',
+        () {
+      final boundary =
+          migrationGoldens['knownBoundaryDifference'] as Map<String, dynamic>;
+      expect(Money.parse(boundary['input'] as String).minorUnits.toString(),
+          boundary['flutterMinorUnits'] as String);
+    });
+  });
+
   group('Money.parse', () {
     test('noktalı ondalık', () {
       expect(Money.parse('12.50').minorUnits, 1250);

@@ -226,7 +226,8 @@ describe('boş liste durumu (senaryo 23)', () => {
   it('kayıt yokken aktif sekmede boş durum mesajını ve ekleme eylemini sunar', () => {
     mockUseSubscriptionsQuery.mockReturnValue({ data: [], isPending: false, isError: false, isRefetching: false, refetch: mockRefetch });
     render(<SubscriptionListScreen />);
-    expect(screen.getByText('Aktif abonelik yok')).toBeTruthy();
-    expect(screen.getAllByText('Abonelik ekle').length).toBeGreaterThan(0);
+    expect(screen.getByText('Henüz abonelik yok')).toBeTruthy();
+    fireEvent.press(screen.getByRole('button', { name: 'İlk aboneliğini ekle' }));
+    expect(mockPush).toHaveBeenCalledWith('/subscriptions/add');
   });
 });

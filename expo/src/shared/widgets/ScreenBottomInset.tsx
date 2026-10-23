@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../design/useThemeRevision';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,6 +9,7 @@ import { spacing } from '../design/tokens';
  * ekranlar sabit `bottomNavHeight` yerine bunu kullanır.
  */
 export function ScreenBottomInset() {
+  useThemeRevision();
   const insets = useSafeAreaInsets();
   return <View style={{ height: insets.bottom + spacing.xl }} />;
 }

@@ -1,4 +1,50 @@
 import { Money } from './money';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { formatCivilDate, nextOccurrenceOnOrAfter, parseCivilDate } from '../time/calendar';
+
+const migrationGoldens = JSON.parse(
+  readFileSync(resolve(process.cwd(), '../testdata/flutter_expo_domain_goldens.json'), 'utf8'),
+) as {
+  money: { input: string; minorUnits: number; decimal: string }[];
+  multiplication: { input: string; factor: number; decimal: string }[];
+  occurrences: {
+    anchor: string;
+    cycle: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+    reference: string;
+    anchorDay: number;
+    expected: string;
+  }[];
+  knownBoundaryDifference: { input: string; expoAccepts: boolean };
+};
+
+describe('Ortak Flutter–Expo altın senaryoları', () => {
+  it.each(migrationGoldens.money)('$input tutarını ortak wire biçiminde çözer', (testCase) => {
+    const value = Money.parse(testCase.input);
+    expect(value.minorUnits).toBe(testCase.minorUnits);
+    expect(value.decimalString).toBe(testCase.decimal);
+  });
+
+  it.each(migrationGoldens.multiplication)('$input × $factor ortak yuvarlamayı korur', (testCase) => {
+    expect(Money.parse(testCase.input).multiply(testCase.factor).decimalString).toBe(testCase.decimal);
+  });
+
+  it.each(migrationGoldens.occurrences)(
+    '$anchor / $cycle / $reference → $expected fatura günü',
+    (testCase) => {
+      const anchor = parseCivilDate(testCase.anchor)!;
+      const reference = parseCivilDate(testCase.reference)!;
+      const next = nextOccurrenceOnOrAfter(anchor, testCase.cycle, reference, testCase.anchorDay);
+      expect(formatCivilDate(next)).toBe(testCase.expected);
+    },
+  );
+
+  it('fixture içindeki karara bağlanmamış sınır farkını açık tutar', () => {
+    expect(Boolean(Money.tryParse(migrationGoldens.knownBoundaryDifference.input))).toBe(
+      migrationGoldens.knownBoundaryDifference.expoAccepts,
+    );
+  });
+});
 
 describe('Money.parse', () => {
   it.each([
@@ -20,6 +66,16 @@ describe('Money.parse', () => {
   it('tryParse geçersiz girdide null döner', () => {
     expect(Money.tryParse('abc')).toBeNull();
     expect(Money.tryParse('1.234')).toBeNull();
+  });
+
+  it('güvenli tam sayı sınırını aşan metni hata fırlatmadan reddeder', () => {
+    expect(() => Money.tryParse('90071992547409.92')).not.toThrow();
+    expect(Money.tryParse('90071992547409.92')).toBeNull();
+    expect(Money.parse('90071992547409.92').equals(Money.zero)).toBe(true);
+  });
+
+  it('güvenli tam sayı sınırındaki son minör birimi kabul eder', () => {
+    expect(Money.tryParse('90071992547409.91')?.minorUnits).toBe(Number.MAX_SAFE_INTEGER);
   });
 
   it('kuruş sınırında 0,1 + 0,2 hatası üretmez', () => {

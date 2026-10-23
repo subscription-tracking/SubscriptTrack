@@ -1,12 +1,29 @@
 import { SUBSCRIPTION_STATUSES, type SubscriptionStatus } from './subscription';
 import { actionsFor, canTransition } from './statusTransitions';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const sharedTransitions = JSON.parse(
+  readFileSync(resolve(process.cwd(), '../testdata/flutter_expo_domain_goldens.json'), 'utf8'),
+) as {
+  statuses: SubscriptionStatus[];
+  allowedTransitions: Record<SubscriptionStatus, SubscriptionStatus[]>;
+};
 
 describe('canTransition', () => {
+  it('ortak Flutter–Expo fixture durum tablosunun tamamıyla eşleşir', () => {
+    for (const from of sharedTransitions.statuses) {
+      for (const to of sharedTransitions.statuses) {
+        expect(canTransition(from, to)).toBe(sharedTransitions.allowedTransitions[from].includes(to));
+      }
+    }
+  });
+
   it('Flutter ve DOMAIN §3 izin tablosunu uygular', () => {
     expect(canTransition('active', 'paused')).toBe(true);
     expect(canTransition('paused', 'active')).toBe(true);
     expect(canTransition('archived', 'active')).toBe(true);
-    expect(canTransition('cancelled', 'active')).toBe(false);
+    expect(canTransition('cancelled', 'active')).toBe(true);
     expect(canTransition('trial', 'paused')).toBe(false);
     expect(canTransition('expired', 'paused')).toBe(false);
     expect(canTransition('archived', 'paused')).toBe(false);
@@ -48,8 +65,8 @@ describe('actionsFor', () => {
     expect(active.find((spec) => spec.action === 'archive')?.destructive).toBe(true);
   });
 
-  it('iptal edilmiş kayıtta yalnızca arşiv sunulur', () => {
+  it('iptal edilmiş kayıtta yeniden etkinleştirme ve arşiv sunulur', () => {
     const from: SubscriptionStatus = 'cancelled';
-    expect(actionsFor(from).map((spec) => spec.action)).toEqual(['archive']);
+    expect(actionsFor(from).map((spec) => spec.action)).toEqual(['activate', 'archive']);
   });
 });

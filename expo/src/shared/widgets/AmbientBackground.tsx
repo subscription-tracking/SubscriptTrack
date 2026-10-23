@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ReactNode } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
@@ -23,6 +25,7 @@ export function AmbientBackground({
   /** Radyal yıkama rengi (tanıtım sayfaları kendi rengini verir). */
   wash?: string;
 }) {
+  const theme = useThemeRevision();
   const { width, height } = useWindowDimensions();
   const shortest = Math.min(width, height);
   // Flutter RadialGradient(center: (0, -0.6), radius: 1.1): merkez yüzdesi ve yarıçap en kısa kenara göre.
@@ -41,7 +44,7 @@ export function AmbientBackground({
             r={washR * shortest}
             gradientUnits="userSpaceOnUse"
           >
-            <Stop offset="0" stopColor={wash} />
+            <Stop offset="0" stopColor={theme === 'light' ? colors.ambientWash : wash} />
             <Stop offset="1" stopColor={colors.surface} />
           </RadialGradient>
           <RadialGradient id="blobRight" cx="0.5" cy="0.5" r="0.5">
@@ -72,7 +75,7 @@ export function AmbientBackground({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.surface,
@@ -81,4 +84,4 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-});
+}));

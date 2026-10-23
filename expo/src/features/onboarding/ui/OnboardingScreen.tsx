@@ -1,226 +1,114 @@
-import { useThemeRevision } from '../../../shared/design/useThemeRevision';
-import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useEffect, useRef, useState } from 'react';
 import { type Href, useRouter } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions, type ListRenderItemInfo } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { colors, opacity, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
-import { textButtonText, textStyle } from '../../../shared/design/typography';
-import { AmbientBackground } from '../../../shared/widgets/AmbientBackground';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { colors, radius, sizes, spacing } from '../../../shared/design/tokens';
+import { textStyle } from '../../../shared/design/typography';
+import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { EntranceFade } from '../../../shared/widgets/EntranceFade';
-import { CURRENCY_PAGE, ONBOARDING_PAGE_COUNT, ONBOARDING_SLIDES, isCurrencyPage, isLastPage, type OnboardingSlide } from '../domain/slides';
-import { readDeviceCurrency, writeDeviceCurrency } from '../data/currencyPreference';
 import { DEFAULT_ACTIVE_CURRENCY, type ActiveCurrency } from '../../../core/domain/activeCurrency';
+import { ONBOARDING_PAGE_COUNT, ONBOARDING_SLIDES, isLastPage } from '../domain/slides';
+import { readDeviceCurrency, writeDeviceCurrency } from '../data/currencyPreference';
 import { useOnboardingFlag } from '../data/onboardingFlag';
 import { CurrencyPage } from './CurrencyPage';
-import { AnalyticsIllustration } from './illustrations/AnalyticsIllustration';
-import { CalendarIllustration } from './illustrations/CalendarIllustration';
-import { SubscriptionsIllustration } from './illustrations/SubscriptionsIllustration';
+import { OnboardingPreview } from './OnboardingPreview';
 
-type Page = { kind: 'info'; slide: OnboardingSlide } | { kind: 'currency' };
-
-const PAGES: Page[] = [
-  ...ONBOARDING_SLIDES.map((slide): Page => ({ kind: 'info', slide })),
-  { kind: 'currency' },
-];
-
-/**
- * Tanıtım (Flutter `OnboardingScreen`): üç bilgi sayfası ve para birimi sayfası. Her sayfanın kendi vurgu
- * ve arka plan rengi vardır. "Atla" ve son sayfadaki "Başla" tanıtımı tamamlar: para birimi kaydedilir,
- * bayrak yazılır ve giriş ekranına gidilir. Bildirim izni burada istenmez.
- */
+/** Three feature previews and currency selection, with a shared calm layout. */
 export function OnboardingScreen() {
   useThemeRevision();
   const router = useRouter();
   const { markDone } = useOnboardingFlag();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const listRef = useRef<FlatList<Page>>(null);
+  const list = useRef<FlatList<number>>(null);
+  const finishing = useRef(false);
   const [index, setIndex] = useState(0);
   const [currency, setCurrency] = useState<ActiveCurrency>(DEFAULT_ACTIVE_CURRENCY);
-
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    void readDeviceCurrency().then((stored) => {
-      if (stored) setCurrency(stored);
-    });
+    let active = true;
+    void readDeviceCurrency().then(value => { if (active && value) setCurrency(value); }).catch(() => undefined);
+    return () => { active = false; };
   }, []);
-
-  const accent = isCurrencyPage(index) ? CURRENCY_PAGE.accent : ONBOARDING_SLIDES[index].accent;
-  const wash = isCurrencyPage(index) ? CURRENCY_PAGE.wash : ONBOARDING_SLIDES[index].wash;
-
   async function finish() {
-    await writeDeviceCurrency(currency);
-    await markDone();
-    router.replace('/login' as Href);
+    if (finishing.current) return;
+    finishing.current = true;
+    setBusy(true);
+    setError(null);
+    try {
+      await writeDeviceCurrency(currency);
+      await markDone();
+      router.replace('/login' as Href);
+    } catch {
+      setError('Tercihin kaydedilemedi. Tekrar deneyebilirsin.');
+    } finally { finishing.current = false; setBusy(false); }
   }
-
   function next() {
-    if (isLastPage(index)) {
-      void finish();
-      return;
-    }
-    listRef.current?.scrollToIndex({ index: index + 1, animated: true });
+    if (isLastPage(index)) { void finish(); return; }
+    const target = index + 1;
+    setIndex(target);
+    list.current?.scrollToIndex({ index: target, animated: true });
   }
-
-  function renderPage({ item }: ListRenderItemInfo<Page>) {
-    return (
-      <View style={[styles.page, { width }]}>
-        {item.kind === 'info' ? <InfoPage slide={item.slide} /> : <CurrencyPage selected={currency} onSelect={setCurrency} />}
-      </View>
-    );
-  }
-
   return (
-    <AmbientBackground accent={accent} wash={wash}>
-      <View style={styles.screen}>
-        <View style={[styles.topBar, { paddingTop: insets.top + spacing.xxs }]}>
-          <View style={[styles.brandDot, { backgroundColor: accent }]} />
-          <Text style={textStyle('label', { color: withAlpha(colors.onSurface, opacity.muted), marginLeft: spacing.xs, letterSpacing: -0.2 })}>
-            SubscriptTrack
-          </Text>
-          <View style={styles.spacer} />
-          <Pressable accessibilityRole="button" onPress={() => void finish()} style={styles.skip}>
-            <Text style={[textButtonText, { color: withAlpha(accent, 0.72) }]}>Atla</Text>
-          </Pressable>
-        </View>
-
-        <FlatList
-          ref={listRef}
-          data={PAGES}
-          keyExtractor={(_, pageIndex) => `page-${pageIndex}`}
-          renderItem={renderPage}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(event) => setIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
-          style={styles.pager}
-        />
-
-        <View style={styles.dots}>
-          {Array.from({ length: ONBOARDING_PAGE_COUNT }, (_, dot) => (
-            <View
-              key={dot}
-              style={[
-                styles.dot,
-                { width: dot === index ? sizes.dotActive : sizes.dotInactive, backgroundColor: dot === index ? accent : withAlpha(colors.onSurface, opacity.dot) },
-              ]}
-            />
-          ))}
-        </View>
-
-        <View style={styles.footer}>
-          <View style={[styles.buttonShadow, { shadowColor: accent }]}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={next}
-              style={({ pressed }) => [styles.button, { backgroundColor: accent }, pressed && styles.pressed]}
-            >
-              <Text style={textStyle('bodyStrong', { color: colors.white })}>{isLastPage(index) ? 'Başla' : 'İleri'}</Text>
-            </Pressable>
-          </View>
-        </View>
+    <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + spacing.md }]}>
+      <View style={styles.topBar}>
+        <View style={styles.brandDot} />
+        <Text style={textStyle('label')}>SubscriptTrack</Text>
+        <View style={styles.spacer} />
+        <Pressable accessibilityRole="button" disabled={busy} onPress={() => void finish()} style={styles.skip}>
+          <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>Atla</Text>
+        </Pressable>
       </View>
-    </AmbientBackground>
-  );
-}
-
-function InfoPage({ slide }: { slide: OnboardingSlide }) {
-  useThemeRevision();
-  return (
-    <View style={styles.info}>
-      <EntranceFade>
-        {slide.illustration === 'subscriptions' ? (
-          <SubscriptionsIllustration />
-        ) : slide.illustration === 'calendar' ? (
-          <CalendarIllustration />
-        ) : (
-          <AnalyticsIllustration />
+      <FlatList
+        ref={list}
+        data={[0, 1, 2, 3]}
+        keyExtractor={value => String(value)}
+        horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+        getItemLayout={(_, page) => ({ length: width, offset: page * width, index: page })}
+        onMomentumScrollEnd={event => setIndex(Math.max(0, Math.min(ONBOARDING_PAGE_COUNT - 1, Math.round(event.nativeEvent.contentOffset.x / width))))}
+        extraData={currency}
+        renderItem={({ item }) => (
+          <ScrollView style={{ width }} contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
+            {item === ONBOARDING_SLIDES.length ? <CurrencyPage selected={currency} onSelect={setCurrency} /> : (
+              <>
+                <View style={styles.preview}><OnboardingPreview kind={ONBOARDING_SLIDES[item].illustration} /></View>
+                <View style={styles.copy}><EntranceFade>
+                  <Text accessibilityRole="header" style={textStyle('headline')}>{ONBOARDING_SLIDES[item].title}</Text>
+                  <Text style={[textStyle('body', { color: colors.onSurfaceVariant }), styles.body]}>{ONBOARDING_SLIDES[item].body}</Text>
+                </EntranceFade></View>
+              </>
+            )}
+          </ScrollView>
         )}
-      </EntranceFade>
-      <View style={styles.gapTitle} />
-      <EntranceFade delay={80}>
-        <Text style={textStyle('title', { textAlign: 'center' })}>{slide.title}</Text>
-      </EntranceFade>
-      <View style={styles.gapBody} />
-      <EntranceFade delay={140}>
-        <Text style={textStyle('body', { color: colors.onSurfaceVariant, textAlign: 'center', lineHeight: sizes.bodyLine })}>{slide.body}</Text>
-      </EntranceFade>
+      />
+      <View style={styles.footer}>
+        <View accessibilityLabel={`Adım ${index + 1} / ${ONBOARDING_PAGE_COUNT}`} style={styles.progress}>
+          {Array.from({ length: ONBOARDING_PAGE_COUNT }, (_, step) => <View key={step} style={[styles.dot, step === index && styles.activeDot]} />)}
+          <Text style={[textStyle('caption'), styles.counter]}>{index + 1} / {ONBOARDING_PAGE_COUNT}</Text>
+        </View>
+        {error ? <Text accessibilityRole="alert" style={textStyle('bodySmall', { color: colors.error })}>{error}</Text> : null}
+        <PrimaryButton label={isLastPage(index) ? 'Başlayalım' : 'Devam et'} loading={busy} onPress={next} />
+      </View>
     </View>
   );
 }
 
 const styles = themedStyles(() => StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingBottom: spacing.xl,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: spacing.lg,
-    paddingRight: spacing.xs,
-  },
-  brandDot: {
-    width: sizes.brandDot,
-    height: sizes.brandDot,
-    borderRadius: sizes.brandDot / 2,
-  },
-  spacer: {
-    flex: 1,
-  },
-  skip: {
-    minHeight: sizes.minTouchTarget,
-    paddingHorizontal: spacing.sm,
-    justifyContent: 'center',
-  },
-  pager: {
-    flex: 1,
-  },
-  page: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  info: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: sizes.infoGutter,
-  },
-  gapTitle: {
-    height: sizes.illustrationGap,
-  },
-  gapBody: {
-    height: spacing.md,
-  },
-  dots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xs - spacing.xxs / 2,
-  },
-  dot: {
-    height: spacing.xs - spacing.xxs / 2,
-    borderRadius: spacing.xxs / 2 + 1,
-  },
-  footer: {
-    paddingHorizontal: spacing.xl,
-    marginTop: spacing.xxl,
-  },
-  buttonShadow: {
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 6,
-  },
-  button: {
-    minHeight: sizes.tallButtonHeight,
-    borderRadius: sizes.onboardingButtonRadius,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pressed: {
-    opacity: 0.88,
-  },
+  screen: { flex: 1, backgroundColor: colors.background },
+  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl, gap: spacing.xs },
+  brandDot: { width: sizes.brandDot, height: sizes.brandDot, borderRadius: radius.pill, backgroundColor: colors.primary },
+  spacer: { flex: 1 },
+  skip: { minHeight: sizes.minTouchTarget, justifyContent: 'center', paddingHorizontal: spacing.xs },
+  page: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxl },
+  preview: { minHeight: spacing.huge * 5, justifyContent: 'center', marginBottom: spacing.xxxl },
+  body: { marginTop: spacing.md, lineHeight: sizes.bodyLine },
+  copy: { minHeight: spacing.huge * 3 },
+  footer: { paddingHorizontal: spacing.xl, gap: spacing.md },
+  progress: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.xs },
+  dot: { height: spacing.xxs, width: spacing.sm, borderRadius: radius.pill, backgroundColor: colors.border },
+  activeDot: { width: spacing.xl, backgroundColor: colors.primary },
+  counter: { marginLeft: 'auto' },
 }));
-

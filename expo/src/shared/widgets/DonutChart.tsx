@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
@@ -31,6 +33,7 @@ export function DonutChart({
   /** Ekran okuyucu özeti (ör. "3 grup, toplam 1.200 ₺, en büyük Eğlence %60"). */
   accessibilityLabel?: string;
 }) {
+  useThemeRevision();
   const stroke = size * 0.13;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -38,10 +41,8 @@ export function DonutChart({
 
   // Tek dilimde boşluk yok: halka tam kapanır. Birden çok dilimde dilimler arası boşluk bırakılır.
   const gap = slices.length > 1 ? SLICE_GAP : 0;
-  let cumulative = 0;
-  const arcs = slices.map((slice) => {
-    const start = cumulative;
-    cumulative += slice.fraction;
+  const arcs = slices.map((slice, index) => {
+    const start = slices.slice(0, index).reduce((sum, prior) => sum + prior.fraction, 0);
     const turn = slice.fraction > 0 ? Math.min(1, Math.max(MIN_SLICE_TURN, slice.fraction - gap)) : 0;
     return { ...slice, length: turn * circumference, offset: -start * circumference };
   });
@@ -73,9 +74,9 @@ export function DonutChart({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   box: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

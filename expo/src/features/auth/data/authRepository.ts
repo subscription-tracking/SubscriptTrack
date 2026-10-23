@@ -43,7 +43,6 @@ export async function signIn(email: string, password: string): Promise<AppUser> 
 }
 
 export interface SignUpResult {
-  user: AppUser;
   /** Oturum açılmadıysa kullanıcının e-postasını doğrulaması gerekir. */
   requiresEmailConfirmation: boolean;
 }
@@ -54,13 +53,16 @@ export async function signUp(email: string, password: string): Promise<SignUpRes
     password,
     options: { emailRedirectTo: AUTH_REDIRECT_URL },
   });
-  if (error) throw toFailure(error);
+  if (error) {
+    if (/already registered|already been registered|already exists/i.test(error.message)) {
+      return { requiresEmailConfirmation: true };
+    }
+    throw toFailure(error);
+  }
   if (!data.user) throw new AuthFailure('Kayıt başarısız.');
-  // Supabase, kayıtlı bir e-postayla kayıtta hata yerine boş kimlik listesi döner
-  // (hesap varlığını sızdırmamak için). Bu durumda kullanıcıya açıkça söylenir.
-  if (data.user.identities?.length === 0) throw new AuthFailure('Bu e-posta zaten kayıtlı.');
+  // Kayıtlı adres için Supabase sahte kullanıcı dönebilir; hesap varlığını sızdırma.
+  if (data.user.identities?.length === 0) return { requiresEmailConfirmation: true };
   return {
-    user: toAppUser(data.user),
     requiresEmailConfirmation: data.session === null,
   };
 }

@@ -1,0 +1,9 @@
+{
+  "name": "decode-uri-component",
+  "version": "0.2.2",
+  "description": "Local security backport source for the CommonJS API used by query-string 7",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "private": true
+}

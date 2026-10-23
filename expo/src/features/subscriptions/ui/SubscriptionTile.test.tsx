@@ -48,7 +48,7 @@ describe('SubscriptionTile gecikmiş vade', () => {
     const overdue = { ...trial, status: 'active' as const, nextRenewalDate: civilDate(2026, 10, 6) };
     render(<SubscriptionTile subscription={overdue} today={civilDate(2026, 10, 9)} onPress={jest.fn()} />);
 
-    expect(screen.getByText('3 gün gecikti')).toBeTruthy();
+    expect(screen.getByText('3 gün gecikti · 6 Eki')).toBeTruthy();
     const note = screen.getByText('Sonraki döngü (tahmini): 6 Kasım 2026');
     expect(note.props.numberOfLines).toBe(1);
   });

@@ -8,7 +8,7 @@ import { themedStyles } from '../../../shared/design/themeRuntime';
 import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { useAuth } from '../../auth/AuthProvider';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
@@ -22,7 +22,6 @@ import { attentionItems, monthPaymentSummary, upcomingByDay } from '../domain/ho
 import { AttentionSection } from './AttentionSection';
 import { CategoryBarCard } from './CategoryBarCard';
 import { HeroCard } from './HeroCard';
-import { EmptyIntro } from './NextPaymentCards';
 import { UpcomingTimeline } from './UpcomingTimeline';
 
 /**
@@ -54,6 +53,7 @@ export function DashboardScreen() {
         <Summary
           subscriptions={subscriptions}
           payments={payments.data ?? []}
+          paymentsUnavailable={payments.data === undefined}
           today={today}
           timeZone={timeZone}
           bottomInset={sizes.bottomNavHeight + insets.bottom + spacing.xl}
@@ -68,6 +68,7 @@ export function DashboardScreen() {
 function Summary({
   subscriptions,
   payments,
+  paymentsUnavailable,
   today,
   timeZone,
   bottomInset,
@@ -76,6 +77,7 @@ function Summary({
 }: {
   subscriptions: Subscription[];
   payments: PaymentEvent[];
+  paymentsUnavailable: boolean;
   today: CivilDate;
   timeZone: string;
   bottomInset: number;
@@ -94,23 +96,31 @@ function Summary({
   const toStats = () => router.navigate('/stats');
   const toAdd = () => router.push('/subscriptions/add');
   const openSubscription = (id: string) => router.push(`/subscriptions/${id}`);
+  const showEmptyState = active.length === 0 && summaries.length === 0;
 
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: bottomInset }]}
+      contentContainerStyle={[
+        styles.content,
+        showEmptyState ? styles.emptyContent : { paddingBottom: bottomInset },
+      ]}
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
-      {active.length === 0 && summaries.length === 0 ? (
-        <>
-          <EmptyIntro />
-          <Spacer size={gaps.sectionInner} />
-          <PrimaryButton label="İlk aboneliğini ekle" icon="add" onPress={toAdd} />
-        </>
+      {showEmptyState ? (
+        <EmptyStateLayout>
+          <EmptyState
+            icon="subscriptions"
+            title="Aboneliklerin tek yerde"
+            description="İlk aboneliğini ekle; ücretleri, yenileme tarihlerini ve denemeleri kolayca takip et."
+            actionLabel="İlk aboneliğini ekle"
+            onAction={toAdd}
+          />
+        </EmptyStateLayout>
       ) : (
         <>
-          <HeroCard summaries={summaries} fallbackCurrency={currency} onPress={toStats} />
+          <HeroCard summaries={summaries} fallbackCurrency={currency} unavailable={paymentsUnavailable} onPress={toStats} />
           {attention.length > 0 ? (
             <>
               <Spacer size={gaps.sectionTop} />
@@ -143,7 +153,14 @@ const styles = themedStyles(() => StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
+    flexGrow: 1,
     paddingTop: spacing.md,
     paddingHorizontal: spacing.lg,
+  },
+  emptyContent: {
+    flexGrow: 1,
+    paddingTop: spacing.none,
+    paddingHorizontal: spacing.none,
+    paddingBottom: spacing.none,
   },
 }));

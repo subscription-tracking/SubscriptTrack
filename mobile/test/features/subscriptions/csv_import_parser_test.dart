@@ -12,6 +12,16 @@ void main() {
     expect(result.rows.single.amount.decimalString, '199.99');
   });
 
+  test('API üst sınırını aşan tutarlı satırı içe almaz', () {
+    final result = CsvImportParser.parse(
+      'name,amount,currency,billing_cycle,next_renewal_date,category\n'
+      'Max,1000000000.00,TRY,monthly,2026-10-01,other\n'
+      'Over,1000000000.01,TRY,monthly,2026-10-01,other',
+    );
+    expect(result.rows.map((row) => row.name), ['Max']);
+    expect(result.errors, hasLength(1));
+  });
+
   test('tırnaklı virgül ve duplicate satırları yönetir', () {
     final result = CsvImportParser.parse(
       'name,amount,currency,billing_cycle,next_renewal_date,category\n'

@@ -1,5 +1,5 @@
 import { Linking } from 'react-native';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { type SubscriptionRow, subscriptionFromRow } from '../../subscriptions/domain/subscription';
 import { NotificationCenterScreen } from './NotificationCenterScreen';
@@ -120,8 +120,10 @@ describe('NotificationCenterScreen', () => {
 
     expect(mockMarkRead).toHaveBeenCalledWith(['notice-1']);
     expect(mockPush).toHaveBeenCalledWith('/subscriptions/subscription-1');
-    view.rerender(<NotificationCenterScreen />);
-    await waitFor(() => expect(mockMarkServerRead).toHaveBeenCalledWith(['notice-1']));
+    // Flush the read-sync effect explicitly; polling a synchronous mock needlessly
+    // depended on the wall-clock budget of a full-suite cold transform.
+    await act(async () => { view.rerender(<NotificationCenterScreen />); });
+    expect(mockMarkServerRead).toHaveBeenCalledWith(['notice-1']);
   });
 
   it('bildirimleri güne göre bölümlere ayırır', () => {

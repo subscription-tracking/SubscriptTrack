@@ -9,7 +9,7 @@ const ALLOWED: Record<SubscriptionStatus, readonly SubscriptionStatus[]> = {
   trial: ['active', 'cancelled', 'expired', 'archived'],
   active: ['paused', 'cancelled', 'archived'],
   paused: ['active', 'cancelled', 'archived'],
-  cancelled: ['expired', 'archived'],
+  cancelled: ['active', 'expired', 'archived'],
   expired: ['active', 'archived'],
   archived: ['active'],
 };
@@ -80,7 +80,7 @@ const ACTIONS_BY_STATUS: Record<SubscriptionStatus, readonly StatusAction[]> = {
   trial: ['activate', 'cancel', 'archive'],
   active: ['pause', 'cancel', 'archive'],
   paused: ['resume', 'cancel', 'archive'],
-  cancelled: ['archive'],
+  cancelled: ['activate', 'archive'],
   expired: ['activate', 'archive'],
   archived: ['restore'],
 };

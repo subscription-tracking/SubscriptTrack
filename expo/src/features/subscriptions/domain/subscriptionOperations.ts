@@ -21,7 +21,9 @@ export interface SavingsDraft {
 }
 
 export type SubscriptionOperation =
-  | { kind: 'create'; payload: CreateSubscriptionPayload }
+  | { kind: 'delete'; payload: { p_idempotency_key: string; p_subscription_ids: string[] } }
+  | { kind: 'create'; payload: CreateSubscriptionPayload; attempted?: boolean; createdId?: string; deleteAfterCreate?: string;
+      reminderRules?: { enabled: boolean; daysBefore: number }[] }
   | {
       kind: 'update';
       payload: UpdatePayload;
@@ -83,7 +85,11 @@ export function applyUpdateToRow(row: SubscriptionRow, payload: UpdatePayload): 
 
 /** Tek bir işlemi satır listesine uygular. Girdi değiştirilmez. */
 export function applyOperation(rows: readonly SubscriptionRow[], operation: SubscriptionOperation): SubscriptionRow[] {
-  if (operation.kind === 'create') return [rowFromCreate(operation.payload), ...rows];
+  if (operation.kind === 'delete') return rows.filter((row) => !operation.payload.p_subscription_ids.includes(row.id));
+  if (operation.kind === 'create') {
+    if (operation.deleteAfterCreate) return rows.filter((row) => row.id !== operation.createdId);
+    return [{ ...rowFromCreate(operation.payload), ...(operation.reminderRules ? { notification_rules: operation.reminderRules } : {}) }, ...rows];
+  }
   return rows.map((row) => (row.id === operation.payload.p_subscription_id ? applyUpdateToRow(row, operation.payload) : row));
 }
 

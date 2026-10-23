@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../../../src/shared/design/useThemeRevision';
 import { useLocalSearchParams } from 'expo-router';
 
 import { SubscriptionFormScreen } from '../../../src/features/subscriptions/ui/SubscriptionFormScreen';
@@ -7,6 +8,7 @@ import { SubscriptionFormScreen } from '../../../src/features/subscriptions/ui/S
  * geçersiz ya da eksik değer bugünü kullanır (Flutter `AppRoutes.addSubscriptionOn`).
  */
 export default function AddSubscriptionRoute() {
+  useThemeRevision();
   const { start } = useLocalSearchParams<{ start?: string }>();
   return <SubscriptionFormScreen initialStart={typeof start === 'string' ? start : undefined} />;
 }

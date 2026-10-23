@@ -28,7 +28,8 @@ interface NotificationRow {
 export async function markNotificationsRead(ids: readonly string[]): Promise<void> {
   if (ids.length === 0) return;
   try {
-    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).in('id', [...ids]).is('read_at', null);
+    const { error } = await supabase.from('notifications').update({ read_at: new Date().toISOString() }).in('id', [...ids]).is('read_at', null);
+    if (error) throw error;
   } catch {
     // Yerel durum kaynak olarak kalır; bir sonraki yüklemede sunucu geri bildirimi yeniden denenebilir.
   }

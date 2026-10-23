@@ -32,6 +32,7 @@ import { resolveServicePresets } from '../domain/servicePresets';
 import { type Subscription } from '../domain/subscription';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { ServiceField } from './form/ServiceField';
+import { FormSection } from './form/FormSection';
 import { AmountRow, BillingCycleRow } from './form/AmountRow';
 import { RenewalCard } from './form/RenewalCard';
 import { ExtrasCard } from './form/ExtrasCard';
@@ -156,19 +157,23 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
         showsVerticalScrollIndicator={false}
       >
         <View onLayout={onLayoutFor('service')}>
-          <ServiceField
-            values={resolvedValues}
-            errors={errors}
-            presets={resolveServicePresets(catalog.data)}
-            showPresets={!editing}
-            disabled={busy}
-            nameNotice={duplicateName ? 'Aynı isimde bir abonelik zaten var; yine de kaydedebilirsin.' : undefined}
-            onChange={update}
-          />
+          <FormSection>
+            <ServiceField
+              values={resolvedValues}
+              errors={errors}
+              presets={resolveServicePresets(catalog.data)}
+              showPresets={!editing}
+              disabled={busy}
+              nameNotice={duplicateName ? 'Aynı isimde bir abonelik zaten var; yine de kaydedebilirsin.' : undefined}
+              onChange={update}
+            />
+          </FormSection>
         </View>
         <View onLayout={onLayoutFor('amount')} style={styles.amountBlock}>
-          <AmountRow values={resolvedValues} errors={errors} disabled={busy} onChange={update} />
-          <BillingCycleRow value={resolvedValues.billingCycle} disabled={busy} onChange={update} />
+          <FormSection title="Fiyat ve dönem">
+            <AmountRow values={resolvedValues} errors={errors} disabled={busy} onChange={update} />
+            <BillingCycleRow value={resolvedValues.billingCycle} disabled={busy} onChange={update} />
+          </FormSection>
         </View>
         <View onLayout={onLayoutFor('renewal')}>
           <RenewalCard
@@ -220,12 +225,12 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   content: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xs,
     paddingBottom: gaps.sectionTop * 2,
-    gap: spacing.lg,
+    gap: spacing.md,
   },
   amountBlock: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   extrasBlock: {
     gap: spacing.xs,

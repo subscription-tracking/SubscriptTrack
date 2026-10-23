@@ -22,7 +22,8 @@ export function activeForTotals(subscriptions: readonly Subscription[], today: C
 export function compareByRenewal(a: Subscription, b: Subscription): number {
   const dayA = a.nextRenewalDate ? dayNumber(a.nextRenewalDate) : Number.POSITIVE_INFINITY;
   const dayB = b.nextRenewalDate ? dayNumber(b.nextRenewalDate) : Number.POSITIVE_INFINITY;
-  return dayA - dayB;
+  const byDate = dayA === dayB ? 0 : dayA - dayB;
+  return byDate || a.name.localeCompare(b.name, 'tr-TR') || a.id.localeCompare(b.id);
 }
 
 /** Önümüzdeki `days` gün içinde (bugün dahil) yenilenecek aktif kayıtlar. */

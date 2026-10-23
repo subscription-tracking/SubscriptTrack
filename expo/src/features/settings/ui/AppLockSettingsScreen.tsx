@@ -15,7 +15,7 @@ import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { useAppLock } from './appLockContext';
-import { RadioRow, SwitchTile } from './SettingsControls';
+import { RadioRow, SettingsPanel, SwitchTile } from './SettingsControls';
 import { biometricsAvailable } from '../data/biometrics';
 import { readAppLock, writeBiometric, writePinRecord, writeTimeoutMinutes } from '../data/appLockStore';
 import { isValidPin, PIN_MAX_LENGTH, PIN_MIN_LENGTH } from '../domain/appLockRules';
@@ -91,6 +91,7 @@ export function AppLockSettingsScreen() {
     <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Uygulama kilidi" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <SettingsPanel style={styles.panel}>
         <SwitchTile
           label="PIN kilidi"
           subtitle={lock.enabled ? 'Arka plandan dönünce sorulur' : 'Kapalı'}
@@ -138,6 +139,7 @@ export function AppLockSettingsScreen() {
             ))}
           </>
         ) : null}
+        </SettingsPanel>
         <ScreenBottomInset />
       </ScrollView>
     </KeyboardScreen>
@@ -240,8 +242,12 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   content: {
   },
+  panel: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+  },
   block: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   gap: {

@@ -1,3 +1,6 @@
+import '../../../../core/domain/money.dart';
+import '../../domain/subscription_models.dart';
+
 /// [SubscriptionForm] alan doğrulayıcıları. Saf fonksiyonlar; hata yoksa
 /// `null`, varsa kullanıcıya gösterilecek metni döner. Yalnızca doğrulama
 /// yapar — para hesabı için `Money.parse` kullanılır.
@@ -7,7 +10,12 @@ abstract final class SubscriptionFormValidators {
 
   static String? amount(String? value) {
     if (value == null || value.trim().isEmpty) return 'Tutar gir';
-    return _isPositive(value) ? null : 'Geçerli tutar gir';
+    final amount = Money.parse(value.trim());
+    if (amount.minorUnits <= 0) return 'Geçerli tutar gir';
+    if (amount.minorUnits > SubscriptionLimits.maxAmountMinorUnits) {
+      return 'Tutar çok yüksek';
+    }
+    return null;
   }
 
   static String? trialPrice(
@@ -23,7 +31,6 @@ abstract final class SubscriptionFormValidators {
   }
 
   static bool _isPositive(String value) {
-    final n = double.tryParse(value.replaceAll(',', '.'));
-    return n != null && n > 0;
+    return Money.parse(value.trim()).minorUnits > 0;
   }
 }

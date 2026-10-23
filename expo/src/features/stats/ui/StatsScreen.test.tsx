@@ -62,7 +62,7 @@ describe('StatsScreen', () => {
   it('aktif abonelik yokken ilk kaydı eklemeye yönlendirir', () => {
     render(<StatsScreen />);
     expect(screen.getByText('Henüz analiz yok')).toBeTruthy();
-    fireEvent.press(screen.getByRole('button', { name: 'Abonelik ekle' }));
+    fireEvent.press(screen.getByRole('button', { name: 'İlk aboneliğini ekle' }));
     expect(mockPush).toHaveBeenCalledWith('/subscriptions/add');
   });
 

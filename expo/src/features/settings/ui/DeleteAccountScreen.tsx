@@ -20,6 +20,7 @@ import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { DeleteAccountError, requestAccountDeletion } from '../data/accountRepository';
 import { CONFIRM_WORD, hasDeleteErrors, type DeleteAccountErrors, validateDeleteAccount } from '../domain/deleteAccountRules';
+import { SettingsPanel } from './SettingsControls';
 
 const OFFLINE_MESSAGE = 'Hesabını silmek için internet bağlantısı gerekir.';
 
@@ -82,6 +83,7 @@ export function DeleteAccountScreen() {
         </View>
 
         <View style={styles.gapLarge} />
+        <SettingsPanel style={styles.formPanel}>
         <Text style={textStyle('bodySmall')}>Devam etmek için şifreni gir:</Text>
         <View style={styles.gap} />
         <PasswordField
@@ -118,6 +120,7 @@ export function DeleteAccountScreen() {
           disabled={!online}
           onPress={submit}
         />
+        </SettingsPanel>
         <ScreenBottomInset />
       </ScrollView>
     </KeyboardScreen>
@@ -140,6 +143,9 @@ const styles = themedStyles(() => StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: withAlpha(colors.error, 0.4),
     backgroundColor: colors.errorContainer,
+  },
+  formPanel: {
+    padding: spacing.md,
   },
   gap: {
     height: spacing.xs,

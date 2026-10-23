@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { formatCurrency } from '../../../../core/format/money';
-import { spacing } from '../../../../shared/design/tokens';
+import { borderWidth, colors, radius, spacing } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { PrimaryButton } from '../../../../shared/widgets/PrimaryButton';
 import { costPreview, type SubscriptionFormValues } from '../../domain/subscriptionForm';
@@ -27,10 +27,19 @@ export function FormFooter({
   return (
     <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
       {preview ? (
-        <Text accessibilityRole="text" style={textStyle('bodySmall', { textAlign: 'center' })}>
-          {`${formatCurrency(preview.monthly, preview.currency)} / ay · Yılda ${formatCurrency(preview.annual, preview.currency)}`}
-        </Text>
-      ) : null}
+        <View accessibilityRole="text" accessibilityLabel={`Aylık tahmin ${formatCurrency(preview.monthly, preview.currency)}, yıllık tahmin ${formatCurrency(preview.annual, preview.currency)}`} style={styles.summary}>
+          <View>
+            <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Aylık tahmin</Text>
+            <Text style={textStyle('bodyStrong')}>{formatCurrency(preview.monthly, preview.currency)}</Text>
+          </View>
+          <View style={styles.annual}>
+            <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Yıllık tahmin</Text>
+            <Text style={textStyle('bodyStrong')}>{formatCurrency(preview.annual, preview.currency)}</Text>
+          </View>
+        </View>
+      ) : (
+        <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Maliyet özeti, tutar girdiğinde burada görünür.</Text>
+      )}
       <PrimaryButton label={label} onPress={onSubmit} loading={loading} />
     </View>
   );
@@ -39,7 +48,20 @@ export function FormFooter({
 const styles = themedStyles(() => StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.xs,
+    paddingTop: spacing.md,
+    gap: spacing.md,
+    backgroundColor: colors.surfaceHigh,
+    borderTopWidth: borderWidth.hairline,
+    borderTopColor: colors.border,
+    borderTopLeftRadius: radius.medium,
+    borderTopRightRadius: radius.medium,
+  },
+  summary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  annual: {
+    alignItems: 'flex-end',
   },
 }));

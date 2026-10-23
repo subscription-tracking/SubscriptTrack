@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { formatCurrency } from '../../../core/format/money';
-import { formatLongDate } from '../../../core/format/date';
+import { formatLongDate, monthShort } from '../../../core/format/date';
 import { type CivilDate } from '../../../core/time/calendar';
 import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
@@ -43,6 +43,8 @@ export const SubscriptionTile = memo(function SubscriptionTile({
     : status === 'active'
       ? subscription.nextRenewalDate ? `Yenileme ${formatLongDate(subscription.nextRenewalDate)}` : 'Yenileme tarihi yok'
       : '';
+  const dueDate = status === 'trial' ? subscription.trialEndDate : status === 'active' ? subscription.nextRenewalDate : null;
+  const dueDateShort = dueDate ? `${dueDate.day} ${monthShort(dueDate.month)}${dueDate.year !== today.year ? ` ${dueDate.year}` : ''}` : '';
 
   const upcoming = days !== null && days < 0 ? advancedRenewalDate(subscription, today) : null;
 
@@ -83,7 +85,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
           </View>
         </View>
 
-        <Trailing subscription={subscription} days={days} today={today} />
+        <Trailing subscription={subscription} days={days} today={today} dueDateShort={dueDateShort} />
       </View>
       {upcoming ? (
         <Text numberOfLines={1} style={[textStyle('caption'), styles.note]}>
@@ -94,7 +96,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
   );
 });
 
-function Trailing({ subscription, days, today }: { subscription: Subscription; days: number | null; today: CivilDate }) {
+function Trailing({ subscription, days, today, dueDateShort }: { subscription: Subscription; days: number | null; today: CivilDate; dueDateShort: string }) {
   useThemeRevision();
   const status = subscription.status;
   const isPaused = status === 'paused';
@@ -115,9 +117,11 @@ function Trailing({ subscription, days, today }: { subscription: Subscription; d
         {formatCurrency(subscription.amount, subscription.currency)}
       </Text>
       <Text
+        numberOfLines={1}
+        ellipsizeMode="tail"
         style={textStyle(urgent ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
       >
-        {label}
+        {dueDateShort ? `${label} · ${dueDateShort}` : label}
       </Text>
     </View>
   );

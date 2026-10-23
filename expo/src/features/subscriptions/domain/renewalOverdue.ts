@@ -1,8 +1,8 @@
-import { type CivilDate, daysInMonth, dayNumber, nextOccurrenceOnOrAfter } from '../../../core/time/calendar';
+import { addDays, type CivilDate, daysInMonth, dayNumber, nextOccurrenceOnOrAfter } from '../../../core/time/calendar';
 import { type Subscription } from './subscription';
 
 /**
- * Gecikmiş yenileme: aktif veya deneme kaydının yenileme tarihi bugünden önce kaldı.
+ * Vadesi gelen yenileme: aktif veya deneme kaydının yenileme tarihi bugün veya daha önce.
  * Otomatik ilerletme yapılmaz ([PARITY §4](../../../../../docs/expo/PARITY.md));
  * kullanıcı "yenilendi" diye onaylayınca tarih ilerletilir. I/O yoktur.
  */
@@ -10,20 +10,25 @@ import { type Subscription } from './subscription';
 /** Gecikmiş yenileme için kullanıcıya gösterilen metin. */
 export const OVERDUE_LABEL = 'Yenileme tarihi geçti';
 
-export function isOverdueRenewal(subscription: Subscription, today: CivilDate): boolean {
+export function isRenewalDue(subscription: Subscription, today: CivilDate): boolean {
   if (subscription.status !== 'active' && subscription.status !== 'trial') return false;
   if (!subscription.nextRenewalDate) return false;
-  return dayNumber(subscription.nextRenewalDate) < dayNumber(today);
+  return dayNumber(subscription.nextRenewalDate) <= dayNumber(today);
 }
 
 /**
- * Onaylanınca yazılacak yeni yenileme tarihi: bugün veya sonrasındaki ilk döngü tarihi.
+ * Onaylanınca yazılacak yeni yenileme tarihi: bugünden sonraki ilk döngü tarihi.
  * Faturalama günü korunur; başlangıç günü varsa ay sonu kırpması (ör. 31 → 30) bu günden
- * yeniden hesaplanır. Gecikmiş değilse null.
+ * yeniden hesaplanır. Vadesi gelmemişse null.
  */
 export function advancedRenewalDate(subscription: Subscription, today: CivilDate): CivilDate | null {
-  if (!isOverdueRenewal(subscription, today) || !subscription.nextRenewalDate) return null;
-  return nextOccurrenceOnOrAfter(subscription.nextRenewalDate, subscription.billingCycle, today, billingDay(subscription));
+  if (!isRenewalDue(subscription, today) || !subscription.nextRenewalDate) return null;
+  return nextOccurrenceOnOrAfter(
+    subscription.nextRenewalDate,
+    subscription.billingCycle,
+    addDays(today, 1),
+    billingDay(subscription),
+  );
 }
 
 /**

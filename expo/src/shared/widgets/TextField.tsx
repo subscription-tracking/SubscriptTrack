@@ -6,13 +6,15 @@ import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } fro
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
-import { fontFamily } from '../design/typography';
+import { fontFamily, textStyle } from '../design/typography';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   /** Flutter `labelText`. Alan boş ve odakta değilken içeride, aksi halde üstte görünür. */
   label: string;
+  /** Static labels for compact auth forms; floating labels remain the default. */
+  labelPlacement?: 'floating' | 'above';
   /** Flutter `prefixIcon`. */
   prefixIcon?: MaterialIconName;
   /** Özel önek (Flutter `prefixIcon` widget'ı); verilirse `prefixIcon` yerine kullanılır. */
@@ -27,13 +29,15 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
  * Flutter `InputDecoration` (filled, outline) karşılığı: surfaceHigh dolgu,
  * 14 köşe, 0.5 kenarlık, odakta 1.5 primary kenarlık, etiket içeride → üstte.
  */
-export function TextField({ label, prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, placeholder, ...inputProps }: TextFieldProps) {
+export function TextField({ label, labelPlacement = 'floating', prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, placeholder, ...inputProps }: TextFieldProps) {
   useThemeRevision();
   const [focused, setFocused] = useState(false);
-  const floating = focused || (value ?? '').length > 0;
+  const above = labelPlacement === 'above';
+  const floating = !above && (focused || (value ?? '').length > 0);
 
   return (
     <View style={styles.wrapper}>
+      {above ? <Text style={textStyle('label', { color: error ? colors.error : colors.onSurface })}>{label}</Text> : null}
       <View
         style={[
           styles.field,
@@ -46,7 +50,7 @@ export function TextField({ label, prefixIcon, prefix, suffix, error, editable =
           <MaterialIcons name={prefixIcon} size={sizes.iconButtonSize} color={colors.onSurfaceVariant} style={styles.prefix} />
         ) : null}
         <View style={styles.inputArea}>
-          <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.labelLayer, floating && styles.labelLayerFloating]}>
+          {!above ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.labelLayer, floating && styles.labelLayerFloating]}>
             <Text
               style={[
                 styles.label,
@@ -57,7 +61,7 @@ export function TextField({ label, prefixIcon, prefix, suffix, error, editable =
             >
               {label}
             </Text>
-          </View>
+          </View> : null}
           <TextInput
             accessibilityLabel={label}
             accessibilityState={{ disabled: !editable }}
@@ -76,7 +80,7 @@ export function TextField({ label, prefixIcon, prefix, suffix, error, editable =
             }}
             style={[styles.input, floating && styles.inputFloating]}
             {...inputProps}
-            placeholder={focused ? placeholder : undefined}
+            placeholder={above || focused ? placeholder : undefined}
           />
         </View>
         {suffix ? <View style={styles.suffix}>{suffix}</View> : null}

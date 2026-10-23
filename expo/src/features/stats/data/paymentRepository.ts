@@ -21,21 +21,36 @@ interface PaymentRow {
 const PAGE_SIZE = 500;
 
 /**
- * Tüm ödeme geçmişini sayfalayarak çeker. `id` ikincil sıralama olarak kullanılır; aynı `paid_at`
- * değerine sahip kayıtlar sayfa sınırında kaybolmaz ya da tekrarlanmaz. Eksik veriyle toplam hesaplanmaz.
+ * Tüm ödeme geçmişini (paid_at,id) cursor'ıyla çeker. Önceki sayfaya eklenen veya
+ * önceki sayfadan silinen kayıtlar sonraki sayfanın sınırını kaydırmaz.
+ * Eşzamanlı tarih düzenlemesinde snapshot garantisi yoktur; sonraki yenileme uzlaştırır.
  */
 export async function fetchPayments(): Promise<PaymentEvent[]> {
   const rows: PaymentRow[] = [];
-  for (let from = 0; ; from += PAGE_SIZE) {
-    const { data, error } = await supabase
+  let cursor: PaymentRow | undefined;
+  const seen = new Set<string>();
+  for (;;) {
+    let query = supabase
       .from('payment_events')
       .select('id, subscription_id, amount, currency, paid_at, status')
       .order('paid_at', { ascending: false })
       .order('id', { ascending: false })
-      .range(from, from + PAGE_SIZE - 1);
+      .limit(PAGE_SIZE);
+    if (cursor) {
+      query = query.or(`paid_at.lt.${cursor.paid_at},and(paid_at.eq.${cursor.paid_at},id.lt.${cursor.id})`);
+    }
+    const { data, error } = await query;
     if (error || !Array.isArray(data)) throw new DataWriteError('Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip tekrar dene.');
-    rows.push(...(data as PaymentRow[]));
+    const page = data as PaymentRow[];
+    for (const row of page) {
+      if (!seen.has(row.id)) { seen.add(row.id); rows.push(row); }
+    }
     if (data.length < PAGE_SIZE) break;
+    const next = page[page.length - 1];
+    if (cursor && next.id === cursor.id && next.paid_at === cursor.paid_at) {
+      throw new DataWriteError('Ödeme geçmişi yüklenemedi. Listeyi yenileyip tekrar dene.');
+    }
+    cursor = next;
   }
   return rows.map(paymentFromRow);
 }

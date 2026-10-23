@@ -6,7 +6,7 @@ import { PASSWORD_TOO_SHORT } from './authRules';
  * Eşleşmeyen metin olduğu gibi döner; boş metin genel mesaja düşer.
  */
 
-const RULES: ReadonlyArray<{ patterns: readonly string[]; message: string }> = [
+const RULES: readonly { patterns: readonly string[]; message: string }[] = [
   {
     patterns: ['invalid login credentials', 'invalid email or password'],
     message: 'E-posta veya şifre hatalı.',

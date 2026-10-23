@@ -148,6 +148,27 @@ export function zoneToday(timeZone: string, instant: Date = new Date()): CivilDa
   return civilDate(read('year'), read('month'), read('day'));
 }
 
+/** Kullanıcının IANA bölgesindeki takvim günü ve saati UTC anına çevirir. */
+export function zonedHourToUtc(day: CivilDate, hour: number, timeZone: string): Date {
+  if (!isValidTimeZone(timeZone)) throw new RangeError(`Geçersiz saat dilimi: ${timeZone}`);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) throw new RangeError(`Geçersiz saat: ${hour}`);
+  const target = Date.UTC(day.year, day.month - 1, day.day, hour);
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit',
+    minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+  });
+  let guess = target;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const parts = formatter.formatToParts(new Date(guess));
+    const value = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((part) => part.type === type)?.value);
+    const rendered = Date.UTC(value('year'), value('month') - 1, value('day'), value('hour'), value('minute'), value('second'));
+    const delta = target - rendered;
+    guess += delta;
+    if (delta === 0) break;
+  }
+  return new Date(guess);
+}
+
 /** Cihazın IANA saat dilimi. Belirlenemezse UTC. */
 export function deviceTimeZone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';

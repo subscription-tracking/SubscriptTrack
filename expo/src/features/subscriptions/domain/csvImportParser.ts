@@ -1,9 +1,9 @@
 import { Money } from '../../../core/domain/money';
 import { type BillingCycle, type CivilDate, parseCivilDate } from '../../../core/time/calendar';
-import { SUBSCRIPTION_CATEGORIES, SUBSCRIPTION_STATUSES, type SubscriptionCategory, type SubscriptionStatus } from './subscription';
+import { SUBSCRIPTION_CATEGORIES, SUBSCRIPTION_LIMITS, SUBSCRIPTION_STATUSES, type SubscriptionCategory, type SubscriptionStatus } from './subscription';
 
 /**
- * CSV içe aktarma ayrıştırıcısı ([Flutter csv_import_parser](../../../../../mobile/lib/features/subscriptions/data/csv_import_parser.dart) ile aynı kurallar).
+ * CSV içe aktarma ayrıştırıcısı. Şema ve doğrulamalar Flutter ile eşleşir; Expo ayrıca tırnak içi çok satırlı alanları destekler.
  * Zorunlu başlıklar: name, amount, currency, billing_cycle, next_renewal_date, category.
  * Başlıklar büyük/küçük harf ve Türkçe karakterden bağımsızdır. Dışa aktarmanın formül koruması (`'`)
  * geri alınır, böylece dışa aktarılan dosya değişmeden geri içe aktarılır. I/O yoktur.
@@ -54,27 +54,42 @@ export function restoreFormula(value: string): string {
 
 /** Tırnaklı CSV alanlarını ayırır (`""` kaçışı destekli). */
 export function splitCsvLine(line: string): string[] {
-  const fields: string[] = [];
+  return parseCsvRecords(line)[0] ?? [''];
+}
+
+/** CSV kayıtlarını CRLF/LF satır sonları ve tırnak içindeki satır sonlarını koruyarak okur. */
+export function parseCsvRecords(input: string): string[][] {
+  const records: string[][] = [];
+  let fields: string[] = [];
   let current = '';
   let quoted = false;
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
+  for (let index = 0; index < input.length; index += 1) {
+    const char = input[index];
     if (char === '"') {
-      if (quoted && line[index + 1] === '"') {
+      if (quoted && input[index + 1] === '"') {
         current += '"';
         index += 1;
       } else {
         quoted = !quoted;
       }
-    } else if (char === ',' && !quoted) {
+    } else if (!quoted && char === ',') {
       fields.push(current);
       current = '';
+    } else if (!quoted && (char === '\r' || char === '\n')) {
+      fields.push(current);
+      records.push(fields);
+      fields = [];
+      current = '';
+      if (char === '\r' && input[index + 1] === '\n') index += 1;
     } else {
       current += char;
     }
   }
   fields.push(current);
-  return fields;
+  if (fields.some((field) => field.length > 0) || records.length === 0 || input.length === 0 || !/[\r\n]$/.test(input)) {
+    records.push(fields);
+  }
+  return records;
 }
 
 function cycleFrom(value: string): BillingCycle {
@@ -111,10 +126,7 @@ function positiveMoney(value: string): Money | null {
 }
 
 export function parseSubscriptionCsv(input: string): ParseResult {
-  const records = input
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0)
-    .map(splitCsvLine);
+  const records = parseCsvRecords(input).filter((values) => values.some((field) => field.trim().length > 0));
   if (records.length === 0) return { rows: [], errors: ['CSV dosyası boş.'] };
 
   const headers = records[0].map(normalizeHeader);
@@ -146,7 +158,7 @@ export function parseSubscriptionCsv(input: string): ParseResult {
     const trialPriceAfter = trialPriceRaw ? positiveMoney(trialPriceRaw) : null;
     const currency = (cell(values, 'currency') || 'TRY').toLocaleUpperCase('tr-TR');
 
-    if (!name || !amount || !nextRenewalDate || (trialRaw !== '' && !trialEndDate) || (trialPriceRaw !== '' && !trialPriceAfter)) {
+    if (!name || !amount || amount.minorUnits > SUBSCRIPTION_LIMITS.amountMaxMinorUnits || !nextRenewalDate || (trialRaw !== '' && !trialEndDate) || (trialPriceRaw !== '' && !trialPriceAfter)) {
       errors.push(`Satır ${line}: ad, tutar veya tarih geçersiz.`);
       return;
     }

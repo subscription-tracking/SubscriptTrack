@@ -129,6 +129,31 @@ void main() {
     expect(c.active.single.id, '1');
   });
 
+  testWidgets('iptal edilmiş abonelikte yalnız geçerli düğmeler görünür ve yeniden etkinleştirme onay ister',
+      (tester) async {
+    final c = await _open(tester, [testSubscription('1')]);
+    await c.cancel('1');
+    await c.load();
+    await tester.pumpAndSettle();
+    expect(c.savingsEvents, hasLength(1));
+    expect(find.text('Duraklat'), findsNothing);
+    expect(find.text('Aboneliği İptal Et'), findsNothing);
+    expect(find.text('Yeniden Etkinleştir'), findsOneWidget);
+    await tester.tap(find.text('Yeniden Etkinleştir'));
+    await tester.pumpAndSettle();
+    expect(find.text('Aboneliği yeniden etkinleştir'), findsOneWidget);
+    await tester.tap(find.text('Vazgeç'));
+    await tester.pumpAndSettle();
+    expect(c.cancelled.single.id, '1');
+    await tester.tap(find.text('Yeniden Etkinleştir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yeniden etkinleştir'));
+    await tester.pumpAndSettle();
+    await c.load();
+    expect(c.active.single.id, '1');
+    expect(c.savingsEvents, hasLength(1));
+  });
+
   testWidgets('İptal Et ve Arşivle durumu değiştirir', (tester) async {
     final c = await _open(tester, [testSubscription('1')]);
     await tester.tap(find.textContaining('İptal'));

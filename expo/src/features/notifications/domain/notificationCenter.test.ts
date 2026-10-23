@@ -39,6 +39,21 @@ describe('parseKind', () => {
 
 describe('unreadCount', () => {
   it('okunmamış (readAt boş) kayıtları sayar', () => {
-    expect(unreadCount([{ readAt: null }, { readAt: '2026-10-09T10:00:00Z' }, { readAt: null }])).toBe(2);
+    expect(unreadCount([
+      { id: 'one', readAt: null },
+      { id: 'two', readAt: '2026-10-09T10:00:00Z' },
+      { id: 'three', readAt: null },
+    ])).toBe(2);
+  });
+
+  it('yerelde okunan ve kapatılanları sunucu yanıtını beklemeden rozetten çıkarır', () => {
+    const rows = [
+      { id: 'read-here', readAt: null },
+      { id: 'dismissed-here', readAt: null },
+      { id: 'unread', readAt: null },
+      { id: 'read-on-server', readAt: '2026-10-09T10:00:00Z' },
+    ];
+
+    expect(unreadCount(rows, new Set(['read-here']), new Set(['dismissed-here']))).toBe(1);
   });
 });

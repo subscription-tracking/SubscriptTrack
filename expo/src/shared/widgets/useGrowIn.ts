@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing } from 'react-native';
 
 /**
@@ -7,15 +7,14 @@ import { AccessibilityInfo, Animated, Easing } from 'react-native';
  * hareket azaltma açıksa hiç oynatılmaz. Değerler `interpolate` ile yükseklik ya da genişliğe bağlanır.
  */
 export function useGrowIn(count: number, duration = 400, stagger = 40): Animated.Value[] {
-  const started = useRef(false);
-  const values = useRef<Animated.Value[]>([]);
-  if (values.current.length !== count) {
-    values.current = Array.from({ length: count }, () => new Animated.Value(started.current ? 1 : 0));
-  }
+  const [initialCount] = useState(count);
+  const values = useMemo(
+    () => Array.from({ length: count }, () => new Animated.Value(count === initialCount ? 0 : 1)),
+    [count, initialCount],
+  );
 
   useEffect(() => {
-    const items = values.current;
-    started.current = true;
+    const items = values;
     let cancelled = false;
     AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
       if (cancelled) return;
@@ -33,9 +32,7 @@ export function useGrowIn(count: number, duration = 400, stagger = 40): Animated
     return () => {
       cancelled = true;
     };
-    // Yalnızca ilk mount'ta çalışır; sonraki güncellemeler animasyonu tekrarlamaz.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [values, duration, stagger]);
 
-  return values.current;
+  return values;
 }

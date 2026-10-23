@@ -103,6 +103,7 @@ class CsvImportParser {
     final trialEndGiven = value('trial_end_date').trim().isNotEmpty;
     final invalid = name.isEmpty ||
         amount == Money.zero ||
+        amount.minorUnits > SubscriptionLimits.maxAmountMinorUnits ||
         date == null ||
         (trialEndGiven && trialEndDate == null);
     if (invalid) return null;

@@ -58,11 +58,11 @@ describe('abonelik formu yeni düzen', () => {
 
   it('maliyet özeti geçerli tutarda görünür, geçersizde gizlenir', () => {
     render(<SubscriptionFormScreen />);
-    expect(screen.queryByText(/ \/ ay · Yılda /)).toBeNull();
+    expect(screen.queryByLabelText(/^Aylık tahmin .*yıllık tahmin /)).toBeNull();
     fireEvent.changeText(screen.getByLabelText('Tutar'), '100');
-    expect(screen.getByText('₺100,00 / ay · Yılda ₺1.200,00')).toBeTruthy();
+    expect(screen.getByLabelText('Aylık tahmin ₺100,00, yıllık tahmin ₺1.200,00')).toBeTruthy();
     fireEvent.changeText(screen.getByLabelText('Tutar'), 'abc');
-    expect(screen.queryByText(/ \/ ay · Yılda /)).toBeNull();
+    expect(screen.queryByLabelText(/^Aylık tahmin .*yıllık tahmin /)).toBeNull();
   });
 
   it('kategori ActionSheet ile değişir', () => {

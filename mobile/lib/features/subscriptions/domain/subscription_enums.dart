@@ -34,6 +34,7 @@ extension SubscriptionStatusExt on SubscriptionStatus {
       SubscriptionStatus.archived,
     },
     SubscriptionStatus.cancelled: {
+      SubscriptionStatus.active,
       SubscriptionStatus.expired,
       SubscriptionStatus.archived,
     },

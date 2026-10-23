@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { StyleSheet, View } from 'react-native';
 
 import { colors, spacing, screenGutter } from '../design/tokens';
@@ -8,6 +10,7 @@ import { AsyncStateView } from './AsyncStateView';
  * ilgili sekme bu bileşenin yerine kendi ekranını koyar.
  */
 export function PlaceholderScreen({ title, description }: { title: string; description: string }) {
+  useThemeRevision();
   return (
     <View style={styles.screen}>
       <AsyncStateView<null> state={{ status: 'empty', title, description }}>{() => null}</AsyncStateView>
@@ -15,11 +18,11 @@ export function PlaceholderScreen({ title, description }: { title: string; descr
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: screenGutter,
     paddingTop: spacing.xl,
   },
-});
+}));

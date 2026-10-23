@@ -15,6 +15,12 @@ export async function readJson(key: string): Promise<unknown> {
   }
 }
 
+/** Kritik kayıtlar: bulunmayan anahtar null, okuma/JSON hatası ayrı bir reddir. */
+export async function readJsonStrict(key: string): Promise<unknown> {
+  const raw = await secureSessionStorage.getItem(key, true);
+  return raw === null ? null : JSON.parse(raw) as unknown;
+}
+
 export async function writeJson(key: string, value: unknown): Promise<void> {
   await secureSessionStorage.setItem(key, JSON.stringify(value));
 }

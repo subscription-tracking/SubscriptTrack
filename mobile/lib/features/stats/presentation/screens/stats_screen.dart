@@ -174,7 +174,7 @@ class _StateMessage extends StatelessWidget {
         child: Padding(
           padding: AppSpacing.screen,
           child: AppEmptyState(
-            icon: Icons.insights_outlined,
+            icon: Icons.bar_chart_outlined,
             title: 'Henüz analiz yok',
             description:
                 'Aylık abonelik giderlerini görmek için ilk aboneliğini ekle.',

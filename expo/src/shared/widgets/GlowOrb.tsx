@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ComponentProps } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -19,6 +21,7 @@ export function GlowOrb({
   color?: string;
   size?: number;
 }) {
+  useThemeRevision();
   return (
     <View
       style={[
@@ -38,7 +41,7 @@ export function GlowOrb({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   orb: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -49,4 +52,4 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 8,
   },
-});
+}));

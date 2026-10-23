@@ -21,10 +21,10 @@ beforeEach(() => {
 });
 
 it('loads ordered payments and maps decimal amounts and deferred status', async () => {
-  const range = jest.fn().mockResolvedValue({ data: [{
+  const limit = jest.fn().mockResolvedValue({ data: [{
     id: 'p1', subscription_id: 's1', amount: '49.90', currency: 'TRY', paid_at: paidAt.toISOString(), status: 'DEFERRED',
   }], error: null });
-  const secondOrder = jest.fn().mockReturnValue({ range });
+  const secondOrder = jest.fn().mockReturnValue({ limit });
   const order = jest.fn().mockReturnValue({ order: secondOrder });
   const select = jest.fn().mockReturnValue({ order });
   mockFrom.mockReturnValue({ select });
@@ -33,13 +33,13 @@ it('loads ordered payments and maps decimal amounts and deferred status', async 
   expect(select).toHaveBeenCalledWith('id, subscription_id, amount, currency, paid_at, status');
   expect(order).toHaveBeenCalledWith('paid_at', { ascending: false });
   expect(secondOrder).toHaveBeenCalledWith('id', { ascending: false });
-  expect(range).toHaveBeenCalledWith(0, 499);
+  expect(limit).toHaveBeenCalledWith(500);
   expect(result[0]).toMatchObject({ id: 'p1', status: 'DEFERRED' });
   expect(result[0].amount.minorUnits).toBe(4990);
 });
 
 it('reports a payment history read failure', async () => {
-  mockFrom.mockReturnValue({ select: () => ({ order: () => ({ order: () => ({ range: async () => ({ data: null, error: { code: '42501' } }) }) }) }) });
+  mockFrom.mockReturnValue({ select: () => ({ order: () => ({ order: () => ({ limit: async () => ({ data: null, error: { code: '42501' } }) }) }) }) });
   await expect(fetchPayments()).rejects.toBeInstanceOf(DataWriteError);
 });
 
@@ -115,12 +115,40 @@ it('pages through the full payment history instead of stopping at one page', asy
   const row = (i: number) => ({ id: `p${i}`, subscription_id: 's1', amount: '1.00', currency: 'TRY', paid_at: paidAt.toISOString(), status: 'PAID' });
   const firstPage = Array.from({ length: 500 }, (_, i) => row(i));
   const secondPage = [row(500), row(501)];
-  const range = jest.fn()
-    .mockResolvedValueOnce({ data: firstPage, error: null })
-    .mockResolvedValueOnce({ data: secondPage, error: null });
-  const order = jest.fn().mockReturnValue({ order: jest.fn().mockReturnValue({ range }) });
+  const or = jest.fn().mockResolvedValue({ data: secondPage, error: null });
+  const limit = jest.fn()
+    .mockReturnValueOnce(Promise.resolve({ data: firstPage, error: null }))
+    .mockReturnValueOnce({ or });
+  const order = jest.fn().mockReturnValue({ order: jest.fn().mockReturnValue({ limit }) });
   mockFrom.mockReturnValue({ select: jest.fn().mockReturnValue({ order }) });
   const result = await fetchPayments();
-  expect(range.mock.calls).toEqual([[0, 499], [500, 999]]);
+  expect(limit.mock.calls).toEqual([[500], [500]]);
+  expect(or).toHaveBeenCalledWith(`paid_at.lt.${paidAt.toISOString()},and(paid_at.eq.${paidAt.toISOString()},id.lt.p499)`);
   expect(result).toHaveLength(502);
+});
+
+it('does not skip older rows when an earlier page is deleted and a newer payment arrives', async () => {
+  const original = Array.from({ length: 700 }, (_, i) => ({
+    id: `p${String(700 - i).padStart(4, '0')}`, subscription_id: 's1', amount: '1.00',
+    currency: 'TRY', paid_at: paidAt.toISOString(), status: 'PAID',
+  }));
+  let database = [...original];
+  let calls = 0;
+  mockFrom.mockImplementation(() => {
+    let filter: string | undefined;
+    const query = {
+      select: () => query, order: () => query, limit: () => query,
+      or: (value: string) => { filter = value; return query; },
+      then: (resolve: (value: unknown) => unknown) => {
+        const boundary = filter?.match(/id\.lt\.([^)]*)/)?.[1];
+        const page = database.filter(row => !boundary || row.id < boundary).slice(0, 500);
+        if (calls++ === 0) database = [{ ...original[0], id: 'p0800' }, ...database.slice(20)];
+        return Promise.resolve({ data: page, error: null }).then(resolve);
+      },
+    };
+    return query;
+  });
+  const result = await fetchPayments();
+  expect(result.map(row => row.id)).toEqual(original.map(row => row.id));
+  expect(calls).toBe(2);
 });

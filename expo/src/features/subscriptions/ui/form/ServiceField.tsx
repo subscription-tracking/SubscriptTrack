@@ -1,6 +1,7 @@
 import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { borderWidth, colors, gaps, radius, spacing } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
@@ -50,7 +51,13 @@ export function ServiceField({
     <View style={styles.block}>
       {showPresets && presets.length > 0 ? (
         <View style={styles.presetsBlock}>
-          <Text style={textStyle('overline')}>Hızlı seç</Text>
+          <View style={styles.presetsHeading}>
+            <Text style={textStyle('overline')}>Hızlı seç</Text>
+            <View style={styles.scrollHint}>
+              <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Yana kaydır</Text>
+              <MaterialIcons name="arrow-forward" size={16} color={colors.onSurfaceVariant} />
+            </View>
+          </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.presetRow}>
             {presets.map((preset) => {
               const selected = currentName === preset.name.trim().toLowerCase();
@@ -94,6 +101,16 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   presetsBlock: {
     gap: spacing.xs,
+  },
+  presetsHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  scrollHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xxs,
   },
   presetRow: {
     gap: gaps.hint,

@@ -3,11 +3,11 @@ import { themedStyles } from '../../../shared/design/themeRuntime';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { borderWidth, colors, radius, spacing } from '../../../shared/design/tokens';
+import { colors, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
-import { ListRow } from './SettingsControls';
+import { ListRow, SettingsPanel } from './SettingsControls';
 
 /**
  * Gizlilik ve veri merkezi (Flutter `PrivacyCenterScreen`): "Verilerin kontrolü sende" açıklaması ve yasal
@@ -20,13 +20,14 @@ export function PrivacyCenterScreen() {
     <View style={styles.screen}>
       <ScreenTopBar title="Gizlilik ve veri merkezi" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.card}>
+        <SettingsPanel style={styles.card}>
           <Text style={textStyle('bodyStrong')}>Verilerin kontrolü sende</Text>
           <Text style={textStyle('bodySmall', { marginTop: spacing.sm })}>
             Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Bu bilgilere yalnızca sen erişebilirsin.
           </Text>
-        </View>
+        </SettingsPanel>
         <View style={styles.gap} />
+        <SettingsPanel style={styles.rows}>
         <ListRow icon="policy" label="Gizlilik politikası" onPress={() => router.push('/legal/privacy')} />
         <ListRow icon="gavel" label="Kullanım şartları" onPress={() => router.push('/legal/terms')} />
         <ListRow
@@ -40,8 +41,10 @@ export function PrivacyCenterScreen() {
           label="Hesabımı ve verilerimi sil"
           subtitle="Bu işlem geri alınamaz"
           tone={colors.error}
+          last
           onPress={() => router.push('/settings/delete-account')}
         />
+        </SettingsPanel>
         <ScreenBottomInset />
       </ScrollView>
     </View>
@@ -58,10 +61,10 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   card: {
     padding: spacing.md,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    marginBottom: spacing.xs,
+  },
+  rows: {
+    marginBottom: spacing.md,
   },
   gap: {
     height: spacing.xs,

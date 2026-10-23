@@ -64,6 +64,8 @@ export default function RegisterScreen() {
       <Spacer size={spacing.xxl} />
       <TextField
         label="E-posta"
+        labelPlacement="above"
+        placeholder="ornek@eposta.com"
         prefixIcon="email"
         value={email}
         onChangeText={setEmail}
@@ -77,6 +79,8 @@ export default function RegisterScreen() {
       <Spacer size={spacing.md} />
       <PasswordField
         label="Şifre"
+        labelPlacement="above"
+        placeholder="Şifre oluştur"
         value={password}
         onChangeText={setPassword}
         error={passwordError}
@@ -90,6 +94,8 @@ export default function RegisterScreen() {
       <Spacer size={spacing.md} />
       <TextField
         label="Şifre tekrar"
+        labelPlacement="above"
+        placeholder="Şifreni tekrar gir"
         prefixIcon="lock-outline"
         value={confirm}
         onChangeText={setConfirm}
@@ -102,7 +108,7 @@ export default function RegisterScreen() {
       />
       <Spacer size={spacing.sm} />
       <CheckboxRow checked={agreed} onChange={setAgreed}>
-        <Text style={textStyle('body')}>
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
           <Text style={styles.link} onPress={() => router.push('/legal/terms' as Href)}>
             Kullanım şartlarını
           </Text>
@@ -114,13 +120,13 @@ export default function RegisterScreen() {
         </Text>
       </CheckboxRow>
       <Spacer size={spacing.md} />
-      <PrimaryButton label="Kayıt ol" onPress={submit} loading={submitting} disabled={!agreed} tall={false} />
+      <PrimaryButton label="Kayıt ol" onPress={submit} loading={submitting} disabled={!agreed} />
       <Spacer size={spacing.sm} />
-      <TextLink label="Zaten hesabın var mı? Giriş yap" onPress={() => router.replace('/login')} />
+      <TextLink label="Zaten hesabın var mı? Giriş yap" align="center" onPress={() => router.replace('/login')} />
     </AuthScaffold>
   );
 }
 
 const styles = themedStyles(() => StyleSheet.create({
-  link: textStyle('bodyStrong', { color: colors.primary, textDecorationLine: 'underline' }),
+  link: textStyle('label', { color: colors.primary }),
 }));

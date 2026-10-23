@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, Easing, View } from 'react-native';
 
 /**
@@ -11,7 +12,8 @@ const BOB_PERIOD = 2600;
 
 /** Sürekli yukarı-aşağı hareket eden sarmalayıcı. */
 export function Bob({ children, phase = 0 }: { children: ReactNode; phase?: number }) {
-  const value = useRef(new Animated.Value(0)).current;
+  useThemeRevision();
+  const [value] = useState(() => new Animated.Value(0));
   useEffect(() => {
     const half = BOB_PERIOD / 2;
     const loop = Animated.loop(
@@ -35,7 +37,7 @@ export function Bob({ children, phase = 0 }: { children: ReactNode; phase?: numb
 
 /** Nabız: ölçek 1 → 1.18 ve geri, 1100 ms yarım döngü (Flutter `CalendarIllustration`). */
 export function usePulse(): Animated.Value {
-  const value = useRef(new Animated.Value(0)).current;
+  const [value] = useState(() => new Animated.Value(0));
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
@@ -51,7 +53,7 @@ export function usePulse(): Animated.Value {
 
 /** Tek seferlik ilerleme: 150 ms gecikme, 1100 ms, easeOutCubic (Flutter `AnalyticsIllustration`). */
 export function useSweep(): { value: Animated.Value; progress: number } {
-  const value = useRef(new Animated.Value(0)).current;
+  const [value] = useState(() => new Animated.Value(0));
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     const id = value.addListener(({ value: next }) => setProgress(next));
@@ -73,5 +75,6 @@ export function useSweep(): { value: Animated.Value; progress: number } {
 
 /** Tanıtım sayfasının kendi içeriği; sayfa ortalanır. */
 export function Centered({ children }: { children: ReactNode }) {
+  useThemeRevision();
   return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>{children}</View>;
 }

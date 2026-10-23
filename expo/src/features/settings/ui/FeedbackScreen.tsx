@@ -1,10 +1,10 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useState } from 'react';
-import { Share, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Share, ScrollView, StyleSheet, Text } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 
-import { borderWidth, colors, radius, spacing } from '../../../shared/design/tokens';
+import { colors, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { KeyboardScreen } from '../../../shared/widgets/KeyboardScreen';
@@ -17,6 +17,7 @@ import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { createSupportTicket } from '../data/supportRepository';
 import { FEEDBACK_CATEGORIES, feedbackShareText, type FeedbackCategory, validateFeedbackMessage } from '../domain/feedbackRules';
+import { SettingsPanel } from './SettingsControls';
 
 const CATEGORY_OPTIONS: SelectOption<FeedbackCategory>[] = FEEDBACK_CATEGORIES.map((value) => ({ value, label: value }));
 
@@ -61,14 +62,15 @@ export function FeedbackScreen() {
     <KeyboardScreen style={styles.screen}>
       <ScreenTopBar title="Geri bildirim" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View style={styles.card}>
+        <SettingsPanel style={styles.card}>
           <Text style={textStyle('bodyStrong')}>Nasıl gönderilir?</Text>
           <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>
             Destek kaydı mesajını doğrudan ekibe iletir ve cevap alırsın. Paylaşım ekranı ise mesajını seçtiğin uygulamayla göndermeni sağlar.
           </Text>
-        </View>
+        </SettingsPanel>
 
         <Spacer size={spacing.md} />
+        <SettingsPanel style={styles.formPanel}>
         <SelectField label="Tür" value={category} options={CATEGORY_OPTIONS} onChange={setCategory} disabled={ticket.isPending} />
 
         <Spacer size={spacing.md} />
@@ -96,6 +98,7 @@ export function FeedbackScreen() {
         />
         <Spacer size={spacing.sm} />
         <TonalButton label="Paylaşım ekranını aç" onPress={() => void share()} disabled={!hasMessage || ticket.isPending} />
+        </SettingsPanel>
         <ScreenBottomInset />
       </ScrollView>
     </KeyboardScreen>
@@ -112,9 +115,8 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   card: {
     padding: spacing.md,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+  },
+  formPanel: {
+    padding: spacing.md,
   },
 }));

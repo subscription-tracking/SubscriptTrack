@@ -1,41 +1,40 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps, ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
-import { spacing , colors, extraSpacing as authSpacing } from '../../../shared/design/tokens';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { spacing, colors, sizes, radius, withAlpha } from '../../../shared/design/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { AmbientBackground } from '../../../shared/widgets/AmbientBackground';
-import { BrandMark } from '../../../shared/widgets/BrandMark';
 import { EntranceFade } from '../../../shared/widgets/EntranceFade';
-import { GlowOrb } from '../../../shared/widgets/GlowOrb';
 import { textStyle } from '../../../shared/design/typography';
 import { Spacer } from '../../../shared/widgets/Spacer';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 /**
- * Flutter `AuthPageScaffold` karşılığı: ambient arka plan, güvenli alan, yatay ve
- * dikey 24 px kaydırılabilir form. Giriş, kayıt ve yeni şifre ekranları bunu kullanır.
+ * Auth form shell: plain theme surface, compact brand row and scrollable form.
  */
 export function AuthScaffold({ children }: { children: ReactNode }) {
   useThemeRevision();
   return (
-    <AmbientBackground>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom', 'left', 'right']}>
-        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.brand}>
+          <View style={styles.brandDot} />
+          <Text style={textStyle('label')}>SubscriptTrack</Text>
+        </View>
+        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <ScrollView
             style={styles.flex}
             contentContainerStyle={styles.content}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
             showsVerticalScrollIndicator={false}
           >
             {children}
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </AmbientBackground>
   );
 }
 
@@ -46,16 +45,14 @@ export function AuthHeader({ icon, title, subtitle }: { icon: MaterialIconName; 
   useThemeRevision();
   return (
     <>
-      <BrandMark />
-      <Spacer size={authSpacing.brandToOrb} />
       <EntranceFade>
-        <GlowOrb icon={icon} color={colors.primary} />
+        <View style={styles.icon}><MaterialIcons name={icon} size={sizes.tileIcon} color={colors.primary} /></View>
       </EntranceFade>
       <Spacer size={spacing.xl} />
       <EntranceFade>
-        <Text style={textStyle('headline')}>{title}</Text>
+        <Text accessibilityRole="header" style={textStyle('headline')}>{title}</Text>
       </EntranceFade>
-      <Spacer size={authSpacing.titleToSubtitle} />
+      <Spacer size={spacing.sm} />
       <EntranceFade delay={60}>
         <Text style={textStyle('body', { color: colors.onSurfaceVariant })}>{subtitle}</Text>
       </EntranceFade>
@@ -66,11 +63,15 @@ export function AuthHeader({ icon, title, subtitle }: { icon: MaterialIconName; 
 const styles = themedStyles(() => StyleSheet.create({
   flex: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   content: {
     flexGrow: 1,
-    // Flutter AuthPageScaffold: yatay ve dikey 24 (uygulama ekranlarındaki 20 değil).
+    justifyContent: 'center',
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
   },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
+  brandDot: { width: sizes.brandDot, height: sizes.brandDot, borderRadius: radius.pill, backgroundColor: colors.primary },
+  icon: { width: spacing.huge, height: spacing.huge, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: withAlpha(colors.primary, 0.1) },
 }));

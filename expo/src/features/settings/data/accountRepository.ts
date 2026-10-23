@@ -1,3 +1,5 @@
+import { FunctionsHttpError } from '@supabase/supabase-js';
+
 import { supabase } from '../../../core/supabase/client';
 
 /**
@@ -17,10 +19,11 @@ export class DeleteAccountError extends Error {
 }
 
 export async function requestAccountDeletion(): Promise<void> {
-  const { error } = await supabase.functions.invoke<{ success?: boolean }>('delete-account', { method: 'POST' });
-  if (!error) return;
-  const status = (error as { context?: { status?: number } }).context?.status;
-  if (status === 403) {
+  const { data, error } = await supabase.functions.invoke<{ success?: boolean }>('delete-account', { method: 'POST' });
+  if (!error && data?.success === true) return;
+  if (!error) throw new DeleteAccountError('Hesap silinemedi. Bağlantını kontrol edip tekrar dene.', false);
+  // Sunucunun HTTP durumu yalnız FunctionsHttpError bağlamındadır; diğer hatalar genel mesaja düşer.
+  if (error instanceof FunctionsHttpError && error.context.status === 403) {
     throw new DeleteAccountError('Güvenlik için yeniden giriş yapman gerekiyor. Şifreni tekrar girip dene.', true);
   }
   throw new DeleteAccountError('Hesap silinemedi. Bağlantını kontrol edip tekrar dene.', false);

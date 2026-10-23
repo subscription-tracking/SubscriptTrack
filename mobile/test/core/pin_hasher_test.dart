@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +57,24 @@ void main() {
       expect(await hasher.verify('1234', legacy), isTrue);
       expect(await hasher.verify('9999', legacy), isFalse);
       expect(hasher.needsUpgrade(legacy), isTrue);
+    });
+
+    test('paylaşılan Flutter–Expo legacy SHA-256 ve PBKDF2 v2 vektörleri',
+        () async {
+      final fixture = jsonDecode(
+        File('../testdata/flutter_expo_domain_goldens.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final golden = fixture['pinCompatibility'] as Map<String, dynamic>;
+      const crossRuntimeHasher = Pbkdf2PinHasher(iterations: 2, useIsolate: false);
+      final pin = golden['pin'] as String;
+      final legacy = golden['legacySha256'] as String;
+      final pbkdf2 = golden['pbkdf2V2'] as String;
+
+      expect(await crossRuntimeHasher.verify(pin, legacy), isTrue);
+      expect(await crossRuntimeHasher.verify('9999', legacy), isFalse);
+      expect(await crossRuntimeHasher.verify(pin, pbkdf2), isTrue);
+      expect(await crossRuntimeHasher.verify('9999', pbkdf2), isFalse);
+      expect(crossRuntimeHasher.needsUpgrade(legacy), isTrue);
     });
 
     test('daha az turlu özet yükseltilmeli, eşit/fazla turlu yükseltilmez',

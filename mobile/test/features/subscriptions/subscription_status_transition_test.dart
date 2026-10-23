@@ -64,11 +64,11 @@ void main() {
                 .canTransitionTo(SubscriptionStatus.archived),
             isTrue));
     test(
-        'cancelled → active geçmez',
+        'cancelled → active geçer',
         () => expect(
             SubscriptionStatus.cancelled
                 .canTransitionTo(SubscriptionStatus.active),
-            isFalse));
+            isTrue));
     test(
         'cancelled → paused geçmez',
         () => expect(

@@ -16,6 +16,7 @@ import { cancelAllReminders, sendTestReminder } from '../data/notificationSchedu
 import { DEFAULT_DAYS_OPTIONS, type NotifyPrefs, useNotifyPrefs, useSetNotifyPrefs } from '../data/notificationPrefs';
 import { useRequestPermission, usePermissionQuery } from '../data/notificationPermission';
 import { PermissionBanner } from './PermissionBanner';
+import { SettingsPanel } from '../../settings/ui/SettingsControls';
 
 const DAY_LABELS: Record<number, string> = { 1: '1 gün önce', 3: '3 gün önce', 7: '7 gün önce' };
 
@@ -100,6 +101,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.body, { paddingBottom: insets.bottom + spacing.xl }]}>
+      <SettingsPanel style={styles.panel}>
       <View style={styles.switchRow}>
         <MaterialIcons name="notifications-none" size={sizes.tileIcon} color={colors.onSurface} />
         <View style={styles.switchText}>
@@ -119,7 +121,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
       ) : null}
       {unsupported ? (
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
-          Bu Android Expo Go oturumunda yerel bildirim modülü başlatılamıyor. Geliştirme derlemesinde kullanılabilir.
+          Bu ortamda yerel bildirim modülü kullanılamıyor. Uygulamayı yeniden açmayı veya geliştirme derlemesini deneyebilirsin.
         </Text>
       ) : null}
 
@@ -150,6 +152,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
           <SettingsTile icon="send" label="Test bildirimi gönder" value="Bildirimlerin çalıştığını doğrula" onPress={() => void sendTest()} />
         </>
       ) : null}
+      </SettingsPanel>
 
       {pickingHour ? (
         <DateTimePicker
@@ -170,6 +173,10 @@ const styles = themedStyles(() => StyleSheet.create({
     backgroundColor: colors.background,
   },
   body: {},
+  panel: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+  },
   switchRow: {
     flexDirection: 'row',
     alignItems: 'center',

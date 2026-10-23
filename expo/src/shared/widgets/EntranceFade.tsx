@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useThemeRevision } from '../design/useThemeRevision';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, Easing, type LayoutChangeEvent } from 'react-native';
 
 /**
@@ -7,7 +8,8 @@ import { Animated, Easing, type LayoutChangeEvent } from 'react-native';
  * [delay] milisaniye cinsindendir.
  */
 export function EntranceFade({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
-  const progress = useRef(new Animated.Value(0)).current;
+  useThemeRevision();
+  const [progress] = useState(() => new Animated.Value(0));
   const [height, setHeight] = useState(0);
 
   useEffect(() => {

@@ -66,7 +66,7 @@ export function reduceSession(
 export type RouteGroup = '(auth)' | '(app)' | 'auth-callback' | 'legal' | string | undefined;
 
 /** Oturum durumundan bağımsız, herkese açık rota grupları (yasal metinler). */
-const PUBLIC_GROUPS: ReadonlyArray<string> = ['legal'];
+const PUBLIC_GROUPS: readonly string[] = ['legal'];
 
 /**
  * Oturum durumuna göre hedef rotayı döner; yönlendirme gerekmiyorsa `null`.

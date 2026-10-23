@@ -1,0 +1,85 @@
+name: Expo quality gate
+
+on:
+  pull_request:
+    paths:
+      - 'expo/**'
+      - 'backend/migrations/**'
+      - 'backend/scripts/**'
+      - 'backend/schema/**'
+      - 'backend/test/**'
+      - 'backend/package.json'
+      - 'supabase/**'
+      - 'testdata/**'
+      - 'docs/**'
+      - 'tools/docs/**'
+      - '.github/workflows/expo-quality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'expo/**'
+      - 'backend/migrations/**'
+      - 'backend/scripts/**'
+      - 'backend/schema/**'
+      - 'backend/test/**'
+      - 'backend/package.json'
+      - 'supabase/**'
+      - 'testdata/**'
+      - 'docs/**'
+      - 'tools/docs/**'
+      - '.github/workflows/expo-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - run: python tools/docs/check_docs.py
+
+  expo-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPO_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-publishable-key
+    defaults:
+      run:
+        working-directory: expo
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22.13.1
+          cache: npm
+          cache-dependency-path: expo/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npm run typecheck
+      - run: npm test -- --runInBand --silent
+      - run: npm run lint
+      - run: npx expo-doctor
+      - run: npx expo export --platform android
+      - run: npx expo export --platform ios
+
+  backend-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22.13.1
+      - run: npm test
+      - run: node --check scripts/renewal-confirmation-smoke.mjs
+      - name: Discover bundled PostgreSQL binaries
+        run: echo "LOCAL_PG_BIN=$(pg_config --bindir)" >> "$GITHUB_ENV"
+      - run: npm run test:postgres
+      - run: npm run test:schema

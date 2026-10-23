@@ -6,7 +6,14 @@ import { createContext, useContext } from 'react';
  * birbirini içe aktarır ve döngü oluşurdu.
  */
 
-export type UnlockResult = 'ok' | 'wrong' | 'locked_out';
+export type UnlockResult = 'ok' | 'wrong' | 'locked_out' | 'storage_error';
+
+/** PIN denemesinin sonucu ve denemeden SONRAKİ güncel hak/bekleme değerleri. */
+export interface UnlockOutcome {
+  result: UnlockResult;
+  attemptsLeft: number;
+  lockoutRemainingMs: number;
+}
 
 export interface AppLockValue {
   ready: boolean;
@@ -17,7 +24,7 @@ export interface AppLockValue {
   /** Bekleme sürüyorsa kalan süre (ms). */
   lockoutRemainingMs: number;
   attemptsLeft: number;
-  unlockWithPin: (pin: string) => Promise<UnlockResult>;
+  unlockWithPin: (pin: string) => Promise<UnlockOutcome>;
   unlockWithBiometrics: () => Promise<boolean>;
   /** Ayarlar değiştiğinde durumu yeniden okur. */
   refresh: () => Promise<void>;

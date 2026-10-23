@@ -96,11 +96,13 @@ it('hero kartı basılabilir ve İstatistikler ekranını açar', () => {
   expect(mockNavigate).toHaveBeenCalledWith('/stats');
 });
 
-it('ödemeler sorgusu hata verse de hero abonelik verisiyle çizilir', () => {
+it('ödeme geçmişi yokken sıfır tutar yerine eksik veri durumunu gösterir', () => {
   mockPayments.mockReturnValue({ data: undefined, isError: true });
   render(<DashboardScreen />);
 
-  expect(screen.getByText(/Ödenen.*0/)).toBeTruthy();
+  expect(screen.getByText('Ödeme özeti kullanılamıyor')).toBeTruthy();
+  expect(screen.queryByText(/Ödenen.*0/)).toBeNull();
+  expect(screen.getByText('Geciken ödemeler')).toBeTruthy();
 });
 
 it('gecikmiş satır ve Ödendi onayı yenileme eylemini çalıştırır', () => {
@@ -181,7 +183,7 @@ it('hiç abonelik yokken başlangıç açıklamasını ve ekleme eylemini göste
 
   render(<DashboardScreen />);
 
-  expect(screen.getByText('Ana sayfanı doldur')).toBeTruthy();
+  expect(screen.getByText('Aboneliklerin tek yerde')).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'İlk aboneliğini ekle' }));
   expect(mockPush).toHaveBeenCalledWith('/subscriptions/add');
 });

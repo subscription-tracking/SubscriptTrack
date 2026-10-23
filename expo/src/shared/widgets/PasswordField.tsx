@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../design/useThemeRevision';
 import { useState } from 'react';
 import type { ComponentProps } from 'react';
 
@@ -18,6 +19,7 @@ export function PasswordField({
   obscure?: boolean;
   onToggleObscure?: (next: boolean) => void;
 }) {
+  useThemeRevision();
   const [ownObscure, setOwnObscure] = useState(true);
   const isObscured = obscure ?? ownObscure;
   const toggle = () => (onToggleObscure ?? setOwnObscure)(!isObscured);

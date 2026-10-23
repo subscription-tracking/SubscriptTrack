@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../auth/AuthProvider';
 import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { EmptyState } from '../../../shared/widgets/EmptyState';
+import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { activeForTotals } from '../../subscriptions/domain/activeSelectors';
 import { type Subscription } from '../../subscriptions/domain/subscription';
@@ -60,15 +60,15 @@ export function StatsScreen() {
       {(data) => {
         if (activeForTotals(data.subscriptions, today).length === 0) {
           return (
-            <View style={styles.emptyWrap}>
+            <EmptyStateLayout>
               <EmptyState
                 icon="bar-chart"
                 title="Henüz analiz yok"
                 description="Aylık abonelik giderlerini görmek için ilk aboneliğini ekle."
-                actionLabel="Abonelik ekle"
+                actionLabel="İlk aboneliğini ekle"
                 onAction={() => router.push('/subscriptions/add')}
               />
-            </View>
+            </EmptyStateLayout>
           );
         }
         const now = new Date();
@@ -83,7 +83,7 @@ export function StatsScreen() {
         });
         if (!summary) {
           return (
-            <View style={styles.emptyWrap}>
+            <EmptyStateLayout>
               <EmptyState
                 icon="bar-chart"
                 title="Bu para biriminde analiz yok"
@@ -91,7 +91,7 @@ export function StatsScreen() {
                 actionLabel="Abonelik ekle"
                 onAction={() => router.push('/subscriptions/add')}
               />
-            </View>
+            </EmptyStateLayout>
           );
         }
         return (
@@ -200,11 +200,6 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   content: {
     paddingTop: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  emptyWrap: {
-    flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: spacing.lg,
   },
   gap16: {

@@ -11,12 +11,12 @@ import { type CivilDate } from '../../../core/time/calendar';
 import { colors, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { EmptyState } from '../../../shared/widgets/EmptyState';
+import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
 import { useSubscriptionsQuery } from '../data/queries';
 import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { useDeletionAction } from './useDeletionAction';
 import { countsByTab, LIST_TABS, type ListTab, splitAttention, visibleSubscriptions } from '../domain/subscriptionList';
-import { DEFAULT_FILTER, applyFilter, type SubscriptionFilter } from '../domain/subscriptionFilter';
+import { DEFAULT_FILTER, activeFilterCount, applyFilter, type SubscriptionFilter } from '../domain/subscriptionFilter';
 import { type Subscription, type SubscriptionCategory } from '../domain/subscription';
 import { ListTabBar } from './ListTabBar';
 import { SubscriptionFilterSheet } from './SubscriptionFilterSheet';
@@ -114,6 +114,17 @@ export function SubscriptionListScreen() {
       })),
     [all, search, filter, today],
   );
+  const showGlobalEmpty = state.status === 'ready' && all.length === 0;
+  const currentPage = pages.find((page) => page.key === tab);
+  const filterCount = activeFilterCount(filter);
+  const selectionActions = (currentPage?.total ?? 0) > 0
+    ? selected === null
+      ? [{ label: 'Seç', icon: 'checklist' as const, onPress: () => setSelected([]), accessibilityLabel: 'Çoklu seçim başlat' }]
+      : [
+          { label: 'Bitti', icon: 'close' as const, onPress: () => setSelected(null), accessibilityLabel: 'Seçimden çık' },
+          { label: `Sil ${selected.length}`, icon: 'delete-outline' as const, onPress: () => deletion.confirm(selected), danger: true, disabled: deletion.busy || selected.length === 0, accessibilityLabel: `${selected.length} seçili aboneliği sil` },
+        ]
+    : [];
 
   const openSubscription = useCallback((id: string) => router.push(`/subscriptions/${id}`), [router]);
   const toggleSelected = useCallback(
@@ -154,71 +165,88 @@ export function SubscriptionListScreen() {
 
   return (
     <View style={styles.screen}>
-      <SubscriptionListHeader
-        search={search}
-        onSearchChange={setSearch}
-        onAdd={() => router.push('/subscriptions/add')}
-        onFilter={() => setSheetOpen(true)}
-      />
-      <ListTabBar active={tab} counts={counts} onChange={selectTab} />
-      <View style={{ flexDirection: 'row', padding: spacing.sm, gap: spacing.md }}>
-        <Pressable accessibilityRole="button" onPress={() => setSelected(selected === null ? [] : null)}><Text style={textStyle('bodyStrong')}>{selected === null ? 'Çoklu seçim' : 'Seçimden çık'}</Text></Pressable>
-        {selected !== null ? <Pressable accessibilityRole="button" disabled={deletion.busy || !selected.length} onPress={() => deletion.confirm(selected)}><Text style={textStyle('bodyStrong', { color: colors.error })}>{`${selected.length} kayıt sil`}</Text></Pressable> : null}
-      </View>
-      <View style={styles.pagerWrap}>
-        <AsyncStateView state={state}>
-          {(data) => (
-            <ScrollView
-              ref={pager}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              scrollEventThrottle={16}
-              onMomentumScrollEnd={(event) => onMomentumEnd(event.nativeEvent.contentOffset.x)}
-            >
-              {pages.map((page) => (
-                <View key={page.key} style={{ width }}>
-                  {page.total === 0 ? (
-                    <View style={styles.emptyWrap}>
-                      <EmptyState
-                        icon="grid-view"
-                        title={EMPTY_BY_TAB[page.key].message}
-                        description={EMPTY_BY_TAB[page.key].detail}
-                        actionLabel="Abonelik ekle"
-                        onAction={() => router.push('/subscriptions/add')}
-                      />
-                    </View>
-                  ) : page.items.length === 0 ? (
-                    <View style={styles.noResult}>
-                      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Sonuç bulunamadı.</Text>
-                    </View>
-                  ) : (
-                    <FlatList
-                      data={page.items}
-                      keyExtractor={keyOf}
-                      keyboardShouldPersistTaps="handled"
-                      initialNumToRender={INITIAL_ROWS}
-                      windowSize={WINDOW_SIZE}
-                      extraData={selected}
-                      contentContainerStyle={[styles.list, { paddingBottom: bottomInset }]}
-                      ItemSeparatorComponent={ItemSeparator}
-                      refreshControl={
-                        <RefreshControl
-                          refreshing={query.isRefetching}
-                          onRefresh={() => void query.refetch()}
-                          tintColor={colors.primary}
-                        />
-                      }
-                      renderItem={renderRow}
-                    />
-                  )}
-                </View>
-              ))}
-            </ScrollView>
+      {showGlobalEmpty ? (
+        <EmptyStateLayout
+          footer={(
+            <Pressable accessibilityRole="button" onPress={() => setSheetOpen(true)} style={styles.importAction}>
+              <Text style={textStyle('label', { color: colors.primary })}>CSV dosyasından içe aktar</Text>
+            </Pressable>
           )}
-        </AsyncStateView>
-      </View>
+        >
+          <EmptyState
+            icon="grid-view"
+            title="Henüz abonelik yok"
+            description="İlk aboneliğini ekle; ücretlerini ve yenileme tarihlerini buradan takip et."
+            actionLabel="İlk aboneliğini ekle"
+            onAction={() => router.push('/subscriptions/add')}
+          />
+        </EmptyStateLayout>
+      ) : (
+        <>
+          <SubscriptionListHeader
+            search={search}
+            onSearchChange={setSearch}
+            onAdd={() => router.push('/subscriptions/add')}
+            onFilter={() => setSheetOpen(true)}
+            activeFilterCount={filterCount}
+          />
+          <ListTabBar active={tab} counts={counts} onChange={selectTab} actions={selectionActions} />
+          <View style={styles.pagerWrap}>
+            <AsyncStateView state={state}>
+              {(data) => (
+                <ScrollView
+                  ref={pager}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                  scrollEventThrottle={16}
+                  onMomentumScrollEnd={(event) => onMomentumEnd(event.nativeEvent.contentOffset.x)}
+                >
+                  {pages.map((page) => (
+                    <View key={page.key} style={{ width }}>
+                      {page.total === 0 ? (
+                        <View style={styles.emptyWrap}>
+                          <EmptyState
+                            icon="grid-view"
+                            title={EMPTY_BY_TAB[page.key].message}
+                            description={EMPTY_BY_TAB[page.key].detail}
+                            actionLabel="Abonelik ekle"
+                            onAction={() => router.push('/subscriptions/add')}
+                          />
+                        </View>
+                      ) : page.items.length === 0 ? (
+                        <View style={styles.noResult}>
+                          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Sonuç bulunamadı.</Text>
+                        </View>
+                      ) : (
+                        <FlatList
+                          data={page.items}
+                          keyExtractor={keyOf}
+                          keyboardShouldPersistTaps="handled"
+                          initialNumToRender={INITIAL_ROWS}
+                          windowSize={WINDOW_SIZE}
+                          extraData={selected}
+                          contentContainerStyle={[styles.list, { paddingBottom: bottomInset }]}
+                          ItemSeparatorComponent={ItemSeparator}
+                          refreshControl={
+                            <RefreshControl
+                              refreshing={query.isRefetching}
+                              onRefresh={() => void query.refetch()}
+                              tintColor={colors.primary}
+                            />
+                          }
+                          renderItem={renderRow}
+                        />
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+            </AsyncStateView>
+          </View>
+        </>
+      )}
       <SubscriptionFilterSheet
         visible={sheetOpen}
         category={filter.category}
@@ -250,10 +278,14 @@ const styles = themedStyles(() => StyleSheet.create({
   pagerWrap: {
     flex: 1,
   },
-  emptyWrap: {
-    padding: spacing.xxl,
-    flex: 1,
+  importAction: {
+    minHeight: sizes.minTouchTarget,
+    alignItems: 'center',
     justifyContent: 'center',
+  },
+  emptyWrap: {
+    flex: 1,
+    padding: spacing.xxl,
   },
   noResult: {
     flex: 1,

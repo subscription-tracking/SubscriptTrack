@@ -20,6 +20,7 @@ import { shareCsvFile } from '../data/exportFile';
 import { requestCloudExport } from '../data/cloudExportRepository';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
 import { TonalButton } from '../../../shared/widgets/TonalButton';
+import { SettingsPanel } from './SettingsControls';
 
 /**
  * Verileri dışa aktar. Tüm abonelik durumları cihaz CSV'sine yazılır;
@@ -89,7 +90,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
 
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.card}>
+      <SettingsPanel style={styles.card}>
         <View style={styles.cardHeader}>
           <MaterialIcons name="table-chart" size={sizes.iconButtonSize} color={colors.primary} />
           <Text style={textStyle('bodyStrong', { marginLeft: spacing.sm, flex: 1 })}>Tekrar içe aktarılabilir CSV</Text>
@@ -97,25 +98,31 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
         <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>
           {`${total} abonelik; dışa aktarılan dosya tekrar içe aktarılabilir.`}
         </Text>
-      </View>
+      </SettingsPanel>
 
       <View style={styles.gap} />
+      <SettingsPanel style={styles.actionCard}>
       <PrimaryButton label="Dosya olarak paylaş" loading={busy} disabled={total === 0} onPress={() => void share()} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         Nasıl çalışır: Dosya cihazında oluşturulur, sunucuya yüklenmez.
       </Text>
+      </SettingsPanel>
 
       <View style={styles.gap} />
+      <SettingsPanel style={styles.actionCard}>
       <TonalButton label="Bulut bağlantısı oluştur" disabled={busy} onPress={() => void cloudShare()} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         Nasıl çalışır: Dosya sunucuya yüklenir ve 1 saat geçerli bir bağlantıyla paylaşılır.
       </Text>
+      </SettingsPanel>
 
       <View style={styles.gap} />
+      <SettingsPanel style={styles.actionCard}>
       <TonalButton label="Panoya kopyala" disabled={busy || total === 0} onPress={() => void copy()} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         Nasıl çalışır: CSV metni yalnızca bu cihazın panosuna kopyalanır, sunucuya yüklenmez.
       </Text>
+      </SettingsPanel>
       <ScreenBottomInset />
     </ScrollView>
   );
@@ -131,10 +138,9 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   card: {
     padding: spacing.md,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+  },
+  actionCard: {
+    padding: spacing.md,
   },
   cardHeader: {
     flexDirection: 'row',

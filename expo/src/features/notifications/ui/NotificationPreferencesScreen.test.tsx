@@ -83,7 +83,7 @@ describe('NotificationPreferencesScreen', () => {
 
     render(<NotificationPreferencesScreen />);
 
-    expect(screen.getByText('Bu Android Expo Go oturumunda yerel bildirim modülü başlatılamıyor. Geliştirme derlemesinde kullanılabilir.')).toBeTruthy();
+    expect(screen.getByText('Bu ortamda yerel bildirim modülü kullanılamıyor. Uygulamayı yeniden açmayı veya geliştirme derlemesini deneyebilirsin.')).toBeTruthy();
     expect(screen.getByRole('switch').props.disabled).toBe(true);
   });
 

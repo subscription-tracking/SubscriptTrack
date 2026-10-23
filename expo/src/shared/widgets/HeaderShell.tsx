@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,17 +21,18 @@ export function HeaderShell({
   style?: StyleProp<ViewStyle>;
   children: ReactNode;
 }) {
+  useThemeRevision();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.shell, { paddingTop: insets.top, minHeight: minHeight + insets.top }, style]}>{children}</View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   shell: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: screenGutter,
     backgroundColor: colors.background,
   },
-});
+}));

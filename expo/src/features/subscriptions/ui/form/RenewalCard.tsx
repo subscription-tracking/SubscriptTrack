@@ -39,7 +39,7 @@ export function RenewalCard({
 }) {
   useThemeRevision();
   return (
-    <FormSection>
+    <FormSection title="Yenileme ve hatırlatma">
       <View>
         <DateField
           label="Sonraki ödeme"

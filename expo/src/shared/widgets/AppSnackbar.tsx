@@ -1,8 +1,10 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { spacing, radius } from '../design/tokens';
+import { spacing, radius , colors } from '../design/tokens';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors } from '../design/tokens';
 import { fontFamily } from '../design/typography';
 
 /**
@@ -22,8 +24,9 @@ const SnackbarContext = createContext<SnackbarContextValue | null>(null);
 const DURATION_MS = 4000;
 
 export function AppSnackbarProvider({ children }: { children: ReactNode }) {
+  useThemeRevision();
   const [current, setCurrent] = useState<{ id: number; message: string; tone: SnackbarTone } | null>(null);
-  const opacity = useRef(new Animated.Value(0)).current;
+  const [opacity] = useState(() => new Animated.Value(0));
   const idRef = useRef(0);
 
   const hide = useCallback(() => {
@@ -56,13 +59,15 @@ export function AppSnackbarProvider({ children }: { children: ReactNode }) {
         {children}
         {current ? (
           <Animated.View pointerEvents="box-none" style={[styles.host, { opacity }]}>
-            <Pressable
-              accessibilityRole="alert"
-              onPress={hide}
-              style={[styles.snackbar, toneStyle[current.tone]]}
-            >
-              <Text style={styles.message}>{current.message}</Text>
-            </Pressable>
+            <SafeAreaView edges={['bottom', 'left', 'right']}>
+              <Pressable
+                accessibilityRole="alert"
+                onPress={hide}
+                style={[styles.snackbar, toneStyle[current.tone]]}
+              >
+                <Text style={styles.message}>{current.message}</Text>
+              </Pressable>
+            </SafeAreaView>
           </Animated.View>
         ) : null}
       </View>
@@ -76,13 +81,13 @@ export function useSnackbar(): SnackbarContextValue {
   return context;
 }
 
-const toneStyle = StyleSheet.create({
+const toneStyle = themedStyles(() => StyleSheet.create({
   default: { backgroundColor: colors.inverseSurface },
   error: { backgroundColor: colors.error },
   primary: { backgroundColor: colors.primary },
-});
+}));
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   root: {
     flex: 1,
   },
@@ -102,4 +107,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.onInverseSurface,
   },
-});
+}));

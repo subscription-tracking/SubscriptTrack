@@ -21,14 +21,26 @@ function fractionPaid(summary: MonthPaymentSummary): number {
 export function HeroCard({
   summaries,
   fallbackCurrency,
+  unavailable = false,
   onPress,
 }: {
   summaries: readonly MonthPaymentSummary[];
   /** Hiç özet yokken sıfırın gösterileceği para birimi (aktif para birimi). */
   fallbackCurrency: string;
+  unavailable?: boolean;
   onPress: () => void;
 }) {
   useThemeRevision();
+  if (unavailable) {
+    return (
+      <Pressable accessibilityRole="button" accessibilityLabel="Ödeme özeti kullanılamıyor, istatistikleri aç" onPress={onPress} style={styles.card}>
+        <Text style={textStyle('label')}>Ödeme özeti kullanılamıyor</Text>
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
+          Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip İstatistikler ekranından tekrar dene.
+        </Text>
+      </Pressable>
+    );
+  }
   const primary: MonthPaymentSummary = summaries[0] ?? {
     currency: fallbackCurrency,
     paid: Money.zero,

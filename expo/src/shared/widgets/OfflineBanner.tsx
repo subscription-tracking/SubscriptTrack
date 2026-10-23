@@ -1,4 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
+import { StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, spacing, statusColors } from '../design/tokens';
 
@@ -8,18 +11,25 @@ import { colors, spacing, statusColors } from '../design/tokens';
  * gösterir. Ağ durumunu kimin izleyeceği feature katmanında belirlenir; bileşen yalnızca props ile çalışır.
  */
 export function OfflineBanner({ visible, pendingCount = 0 }: { visible: boolean; pendingCount?: number }) {
+  useThemeRevision();
   if (!visible && pendingCount === 0) return null;
   return (
-    <View style={styles.banner} accessibilityRole="alert">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.banner}
+      accessibilityRole="alert"
+      accessibilityLabel="Çevrimdışı eşitleme durumu"
+      accessibilityLiveRegion="polite"
+    >
       {visible ? <Text style={styles.label}>Çevrimdışısın. Son kaydedilen veriler gösteriliyor.</Text> : null}
       {pendingCount > 0 ? (
         <Text style={styles.label}>{pendingCount} değişiklik bağlantı gelince gönderilecek.</Text>
       ) : null}
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   banner: {
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
@@ -33,4 +43,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
-});
+}));

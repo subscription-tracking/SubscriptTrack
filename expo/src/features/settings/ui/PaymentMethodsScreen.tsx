@@ -18,6 +18,7 @@ import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { fetchPaymentMethods, savePaymentMethods } from '../data/paymentMethodsRepository';
 import { addPaymentMethod, METHOD_MAX_COUNT, removePaymentMethod, renamePaymentMethod } from '../domain/paymentMethodRules';
 import { PaymentMethodDialog } from './PaymentMethodDialog';
+import { SettingsPanel } from './SettingsControls';
 
 /**
  * Ödeme yöntemleri (Flutter `PaymentMethodsScreen`): kart satırları, düzenle/sil, boş durum ve ekle diyaloğu.
@@ -91,13 +92,13 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
     <View style={styles.flex}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {methods.length === 0 ? (
-          <View style={styles.empty}>
+          <SettingsPanel style={styles.empty}>
             <MaterialIcons name="credit-card-off" size={sizes.emptyStateIcon} color={colors.onSurfaceVariant} />
             <Spacer size={spacing.sm} />
             <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'center' })}>Henüz ödeme yöntemi eklemedin.</Text>
             <Spacer size={spacing.md} />
             <PrimaryButton label="Ödeme yöntemi ekle" icon="add" tall={false} disabled={save.isPending} onPress={() => setDialog({ mode: 'add' })} />
-          </View>
+          </SettingsPanel>
         ) : (
           <>
             {methods.map((name) => (
@@ -175,7 +176,8 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   empty: {
     alignItems: 'center',
-    paddingVertical: spacing.xxl,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   card: {
     flexDirection: 'row',

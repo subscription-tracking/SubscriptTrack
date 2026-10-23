@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { Animated, StyleSheet, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -12,6 +14,7 @@ const COLUMNS = 7;
 
 /** Flutter `CalendarIllustration`: takvim kartı ve nabız atan "yenileme" rozeti. 220 × 200 kutu. */
 export function CalendarIllustration() {
+  useThemeRevision();
   const pulse = usePulse();
   const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.18] });
   return (
@@ -40,7 +43,7 @@ export function CalendarIllustration() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   box: {
     width: 220,
     height: 200,
@@ -101,5 +104,5 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 0 },
   },
-});
+}));
 

@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
@@ -18,19 +18,6 @@ export function ReminderHint({ onPress }: { onPress: () => void }) {
   );
 }
 
-/** Flutter `DashboardEmptyIntro`: hiç abonelik yokken açıklama kutusu. */
-export function EmptyIntro() {
-  useThemeRevision();
-  return (
-    <View style={styles.intro}>
-      <Text style={textStyle('bodyStrong')}>Ana sayfanı doldur</Text>
-      <Text style={[textStyle('bodySmall'), styles.introBody]}>
-        Aboneliklerini ekle; aylık giderlerini, yenileme tarihlerini ve ücretsiz denemelerini tek yerde takip et.
-      </Text>
-    </View>
-  );
-}
-
 const styles = themedStyles(() => StyleSheet.create({
   hint: {
     flexDirection: 'row',
@@ -42,15 +29,5 @@ const styles = themedStyles(() => StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: colors.border,
     backgroundColor: withAlpha(colors.surfaceContainerHighest, 0.5),
-  },
-  intro: {
-    padding: gaps.cardInset + spacing.xxs - 4,
-    borderRadius: radius.intro,
-    borderWidth: borderWidth.regular,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  introBody: {
-    marginTop: spacing.xxs,
   },
 }));

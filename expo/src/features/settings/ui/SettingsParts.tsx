@@ -24,11 +24,15 @@ export function SettingsTile({
   icon,
   label,
   value,
+  valueBelow = false,
+  last = false,
   onPress,
 }: {
   icon: MaterialIconName;
   label: string;
   value?: string;
+  valueBelow?: boolean;
+  last?: boolean;
   onPress: () => void;
 }) {
   useThemeRevision();
@@ -37,14 +41,19 @@ export function SettingsTile({
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
-      style={({ pressed }) => [styles.tile, pressed ? styles.pressed : null]}
+      style={({ pressed }) => [styles.tile, last ? styles.tileLast : null, pressed ? styles.pressed : null]}
     >
       <MaterialIcons name={icon} size={sizes.tileIcon} color={colors.onSurface} />
-      <Text style={[textStyle('label'), styles.tileLabel]} numberOfLines={2}>
-        {label}
-      </Text>
-      {value ? (
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right', flexShrink: 1, maxWidth: '45%' })} numberOfLines={1} ellipsizeMode="tail">
+      <View style={styles.tileText}>
+        <Text style={textStyle('label')} numberOfLines={2}>{label}</Text>
+        {value && valueBelow ? (
+          <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })} numberOfLines={2}>
+            {value}
+          </Text>
+        ) : null}
+      </View>
+      {value && !valueBelow ? (
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right', flexShrink: 1, maxWidth: '42%' })} numberOfLines={1} ellipsizeMode="tail">
           {value}
         </Text>
       ) : null}
@@ -111,12 +120,15 @@ const styles = themedStyles(() => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: sizes.minTouchTarget,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: gaps.rowLoose - 2 + spacing.xxs / 2,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderBottomWidth: borderWidth.hairline,
     borderBottomColor: colors.outlineHalf,
   },
-  tileLabel: {
+  tileLast: {
+    borderBottomWidth: 0,
+  },
+  tileText: {
     flex: 1,
     marginLeft: gaps.rowLoose - 2,
     marginRight: spacing.xs,

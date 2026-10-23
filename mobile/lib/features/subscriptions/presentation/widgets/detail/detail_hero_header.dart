@@ -151,16 +151,18 @@ class _TopControls extends StatelessWidget {
   List<PopupMenuEntry<DetailMenuAction>> _menuItems(BuildContext context) {
     final error = Theme.of(context).colorScheme.error;
     return [
-      if (status == SubscriptionStatus.active) ...[
+      if (status.canTransitionTo(SubscriptionStatus.paused))
         _item(DetailMenuAction.pause, Icons.pause_circle_outline, 'Duraklat'),
-        _item(DetailMenuAction.cancel, Icons.cancel_outlined, 'İptal Et'),
-        _item(DetailMenuAction.archive, Icons.archive_outlined, 'Arşivle'),
-      ],
-      if (status == SubscriptionStatus.paused) ...[
+      if (status.canTransitionTo(SubscriptionStatus.active))
         _item(
-            DetailMenuAction.resume, Icons.play_circle_outline, 'Devam Ettir'),
+            DetailMenuAction.resume, Icons.play_circle_outline,
+            status == SubscriptionStatus.cancelled ? 'Yeniden Etkinleştir' :
+            status == SubscriptionStatus.archived ? 'Arşivden Çıkar' :
+            status == SubscriptionStatus.trial || status == SubscriptionStatus.expired ? 'Aktif Yap' : 'Devam Ettir'),
+      if (status.canTransitionTo(SubscriptionStatus.cancelled))
+        _item(DetailMenuAction.cancel, Icons.cancel_outlined, 'İptal Et'),
+      if (status.canTransitionTo(SubscriptionStatus.archived))
         _item(DetailMenuAction.archive, Icons.archive_outlined, 'Arşivle'),
-      ],
       _item(DetailMenuAction.delete, Icons.delete_outline, 'Sil', color: error),
     ];
   }

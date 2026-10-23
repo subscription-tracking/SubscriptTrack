@@ -47,7 +47,7 @@ class DashboardAnalysisLink extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Icon(Icons.insights_rounded, size: 16, color: cs.primary),
+            Icon(Icons.bar_chart_outlined, size: 16, color: cs.primary),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -90,7 +90,7 @@ class AnalysisPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.insights_rounded, size: 16, color: cs.primary),
+              Icon(Icons.bar_chart_outlined, size: 16, color: cs.primary),
               const SizedBox(width: 6),
               Text(
                 'Analiz',

@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../../src/shared/design/useThemeRevision';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
@@ -6,8 +7,6 @@ import { messageForError } from '../../src/features/auth/domain/authErrors';
 import { validateAuthEmail, validateLoginPassword } from '../../src/features/auth/domain/authRules';
 import { AuthHeader, AuthScaffold } from '../../src/features/auth/ui/AuthScaffold';
 import { PasswordField } from '../../src/shared/widgets/PasswordField';
-import { devTestAccount } from '../../src/core/config/devTestAccount';
-import { OutlinedButton } from '../../src/shared/widgets/OutlinedButton';
 import { PrimaryButton } from '../../src/shared/widgets/PrimaryButton';
 import { Spacer } from '../../src/shared/widgets/Spacer';
 import { TextField } from '../../src/shared/widgets/TextField';
@@ -16,6 +15,7 @@ import { useSnackbar } from '../../src/shared/widgets/AppSnackbar';
 import { spacing } from '../../src/shared/design/tokens';
 
 export default function LoginScreen() {
+  useThemeRevision();
   const { signIn } = useAuth();
   const snackbar = useSnackbar();
   const router = useRouter();
@@ -27,18 +27,6 @@ export default function LoginScreen() {
   // Flutter gibi doğrulama yalnızca gönderimden sonra inline gösterilir.
   const emailError = submitted ? validateAuthEmail(email) : null;
   const passwordError = submitted ? validateLoginPassword(password) : null;
-
-  async function signInAsTestAccount() {
-    if (!devTestAccount) return;
-    setSubmitting(true);
-    try {
-      await signIn(devTestAccount.email, devTestAccount.password);
-    } catch (error) {
-      snackbar.show(messageForError(error), 'error');
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   async function submit() {
     setSubmitted(true);
@@ -65,6 +53,8 @@ export default function LoginScreen() {
       <Spacer size={spacing.xxl} />
       <TextField
         label="E-posta"
+        labelPlacement="above"
+        placeholder="ornek@eposta.com"
         prefixIcon="email"
         value={email}
         onChangeText={setEmail}
@@ -78,6 +68,8 @@ export default function LoginScreen() {
       <Spacer size={spacing.md} />
       <PasswordField
         label="Şifre"
+        labelPlacement="above"
+        placeholder="Şifreni gir"
         value={password}
         onChangeText={setPassword}
         error={passwordError}
@@ -91,14 +83,8 @@ export default function LoginScreen() {
       <TextLink label="Şifremi unuttum" align="end" onPress={() => router.push('/forgot-password')} />
       <Spacer size={spacing.md} />
       <PrimaryButton label="Giriş yap" onPress={submit} loading={submitting} />
-      {devTestAccount ? (
-        <>
-          <Spacer size={spacing.sm} />
-          <OutlinedButton label="Test hesabıyla gir" onPress={signInAsTestAccount} />
-        </>
-      ) : null}
       <Spacer size={spacing.sm} />
-      <TextLink label="Hesabın yok mu? Kayıt ol" onPress={() => router.push('/register')} />
+      <TextLink label="Hesabın yok mu? Kayıt ol" align="center" onPress={() => router.push('/register')} />
     </AuthScaffold>
   );
 }

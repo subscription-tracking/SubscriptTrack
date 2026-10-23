@@ -46,7 +46,7 @@ export interface DrainResult {
 
 function hasStep(stage: QueueStage, op: SubscriptionOperation): boolean {
   if (stage === 'write') return true;
-  if (op.kind === 'create') return false;
+  if (op.kind !== 'update') return false;
   return stage === 'event' ? op.event !== null : op.savings !== null;
 }
 

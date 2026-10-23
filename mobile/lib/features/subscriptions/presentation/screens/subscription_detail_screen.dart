@@ -134,6 +134,17 @@ class SubscriptionDetailScreen extends StatelessWidget {
   }
 
   Future<void> _handleAction(BuildContext ctx, DetailMenuAction action) async {
+    if (action == DetailMenuAction.resume &&
+        _latest().status == SubscriptionStatus.cancelled) {
+      final confirmed = await AppConfirmDialog.show(
+        context: ctx,
+        title: 'Aboneliği yeniden etkinleştir',
+        message: 'Yenileme takibi yeniden başlasın mı? Geçmiş tasarruf kaydı korunur.',
+        confirmLabel: 'Yeniden etkinleştir',
+        cancelLabel: 'Vazgeç',
+      );
+      if (confirmed != true || !ctx.mounted) return;
+    }
     final run = await _runnerFor(ctx, action);
     if (run == null || !ctx.mounted) return;
     final messenger = ScaffoldMessenger.of(ctx);

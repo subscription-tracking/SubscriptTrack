@@ -5,6 +5,12 @@ import 'subscription_enums.dart';
 
 export 'subscription_enums.dart';
 
+/// Live API constraint for `subscriptions.amount`, stored in minor units.
+/// Source: backend/migrations/033_subscriptions_constraints.sql.
+abstract final class SubscriptionLimits {
+  static const maxAmountMinorUnits = 100000000000; // 1,000,000,000.00
+}
+
 class Subscription {
   const Subscription({
     required this.id,

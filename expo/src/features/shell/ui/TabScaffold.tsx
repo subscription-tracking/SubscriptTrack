@@ -1,3 +1,7 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../shared/design/themeRuntime';
+import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import type { ComponentProps, ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
@@ -5,13 +9,14 @@ import type Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { useNotificationsQuery } from '../../notifications/data/queries';
+import { useNotificationLocalState } from '../../notifications/data/notificationLocalState';
 import { unreadCount } from '../../notifications/domain/notificationCenter';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { activeForTotals } from '../../dashboard/domain/dashboardSummary';
 import { colors } from '../../../shared/design/tokens';
 import { TopBar } from '../../../shared/widgets/TopBar';
 import { activeSubtitle, greetingFor, homeDateLabel } from '../domain/tabHeader';
-import { zoneToday, deviceTimeZone } from '../../../core/time/calendar';
+import { } from '../../../core/time/calendar';
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -22,12 +27,15 @@ export type TabKey = 'home' | 'subscriptions' | 'stats' | 'settings';
  * Flutter `AppShell._topBarFor` ile aynıdır.
  */
 export function TabScaffold({ tab, children }: { tab: TabKey; children: ReactNode }) {
+  useThemeRevision();
   const router = useRouter();
   const { user } = useAuth();
   const subscriptions = useSubscriptionsQuery(user?.id);
   const notifications = useNotificationsQuery(user?.id);
-  const today = zoneToday(deviceTimeZone());
-  const unread = unreadCount(notifications.data ?? []);
+  const notificationLocal = useNotificationLocalState(user?.id);
+  const timeZone = useUserTimeZone();
+  const today = useCivilToday(timeZone);
+  const unread = unreadCount(notifications.data ?? [], notificationLocal.read, notificationLocal.dismissed);
 
   const header = headerFor(tab, {
     now: new Date(),
@@ -66,9 +74,9 @@ function headerFor(
   }
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
   },
-});
+}));

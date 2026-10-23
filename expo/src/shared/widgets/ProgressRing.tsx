@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../design/useThemeRevision';
+import { themedStyles } from '../design/themeRuntime';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
@@ -19,6 +21,7 @@ export function ProgressRing({
   trackColor: string;
   children?: ReactNode;
 }) {
+  useThemeRevision();
   const stroke = size * 0.14;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -55,9 +58,9 @@ export function ProgressRing({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   box: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

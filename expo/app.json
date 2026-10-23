@@ -14,7 +14,9 @@
     "android": {
       "package": "com.subscripttrack.app",
       "permissions": [
-        "SCHEDULE_EXACT_ALARM"
+        "SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -59,6 +61,13 @@
     "scheme": "subscripttrack",
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c03f1989-6da2-482d-9b84-1e681531528c"
+      }
+    },
+    "owner": "mfurkant"
   }
 }

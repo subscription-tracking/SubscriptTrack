@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../design/useThemeRevision';
 import { themedStyles } from '../design/themeRuntime';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -9,6 +9,17 @@ import { textStyle } from '../design/typography';
 import { PrimaryButton } from './PrimaryButton';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+/** Boş ekran kartı için ortak yatay genişlik ve dikey merkez; isteğe bağlı alt eylem merkezi kaydırmaz. */
+export function EmptyStateLayout({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+  useThemeRevision();
+  return (
+    <View style={styles.stage}>
+      <View style={styles.center}>{children}</View>
+      {footer ? <View style={styles.footer}>{footer}</View> : null}
+    </View>
+  );
+}
 
 /**
  * Flutter `AppEmptyState`: yüzey kartı içinde tonlu daire, başlık, açıklama ve isteğe bağlı
@@ -60,6 +71,20 @@ export function EmptyState({
 }
 
 const styles = themedStyles(() => StyleSheet.create({
+  stage: {
+    flex: 1,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  footer: {
+    position: 'absolute',
+    right: spacing.lg,
+    bottom: spacing.md,
+    left: spacing.lg,
+  },
   card: {
     alignItems: 'center',
     paddingHorizontal: spacing.lg,

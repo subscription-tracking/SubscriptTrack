@@ -1,3 +1,5 @@
+import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
+import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -23,15 +25,14 @@ const RING_STROKE = RING_SIZE * 0.09;
  * Halka `progress` ile birlikte çizilir (strokeDasharray). 220 × 220 kutu.
  */
 export function AnalyticsIllustration() {
+  useThemeRevision();
   const { progress } = useSweep();
   const radius = RING_SIZE / 2 - RING_INSET;
   const circumference = 2 * Math.PI * radius;
   const center = RING_SIZE / 2;
 
-  let cumulative = 0;
-  const arcs = SEGMENTS.map((segment) => {
-    const start = cumulative;
-    cumulative += segment.fraction;
+  const arcs = SEGMENTS.map((segment, index) => {
+    const start = SEGMENTS.slice(0, index).reduce((sum, prior) => sum + prior.fraction, 0);
     return { ...segment, length: segment.fraction * circumference * progress, offset: -start * circumference };
   });
 
@@ -64,7 +65,7 @@ export function AnalyticsIllustration() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => StyleSheet.create({
   box: {
     width: 220,
     height: 220,
@@ -85,4 +86,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

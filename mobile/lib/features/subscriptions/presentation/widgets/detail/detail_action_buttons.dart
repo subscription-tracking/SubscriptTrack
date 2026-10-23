@@ -27,6 +27,10 @@ class DetailActionButtonsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDue = subscription.status == SubscriptionStatus.active &&
         subscription.daysUntilRenewal <= 0;
+    final canPause = subscription.status.canTransitionTo(SubscriptionStatus.paused);
+    final canActivate = subscription.status.canTransitionTo(SubscriptionStatus.active);
+    final canArchive = subscription.status.canTransitionTo(SubscriptionStatus.archived);
+    final canCancel = subscription.status.canTransitionTo(SubscriptionStatus.cancelled);
 
     return Column(
       children: [
@@ -42,15 +46,15 @@ class DetailActionButtonsSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        Row(
+        if (canPause || canActivate || canArchive) Row(
           children: [
-            Expanded(child: _pauseResumeButton(context)),
-            const SizedBox(width: 12),
-            Expanded(child: _archiveButton(context)),
+            if (canPause || canActivate) Expanded(child: _pauseResumeButton(context)),
+            if (canArchive && (canPause || canActivate)) const SizedBox(width: 12),
+            if (canArchive) Expanded(child: _archiveButton(context)),
           ],
         ),
-        const SizedBox(height: 12),
-        _cancelButton(context),
+        if (canCancel) const SizedBox(height: 12),
+        if (canCancel) _cancelButton(context),
       ],
     );
   }
@@ -62,14 +66,21 @@ class DetailActionButtonsSection extends StatelessWidget {
       );
 
   Widget _pauseResumeButton(BuildContext context) {
-    final isPaused = subscription.status == SubscriptionStatus.paused;
+    final canActivate = subscription.status.canTransitionTo(SubscriptionStatus.active);
     return OutlinedButton.icon(
       onPressed: onPauseResume,
       icon: Icon(
-        isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+        canActivate ? Icons.play_arrow_rounded : Icons.pause_rounded,
         size: 18,
       ),
-      label: Text(isPaused ? 'Devam Ettir' : 'Duraklat'),
+      label: Text(subscription.status == SubscriptionStatus.cancelled
+          ? 'Yeniden Etkinleştir'
+          : subscription.status == SubscriptionStatus.archived
+              ? 'Arşivden Çıkar'
+              : subscription.status == SubscriptionStatus.trial ||
+                      subscription.status == SubscriptionStatus.expired
+                  ? 'Aktif Yap'
+                  : canActivate ? 'Devam Ettir' : 'Duraklat'),
       style: _outlinedStyle(context),
     );
   }

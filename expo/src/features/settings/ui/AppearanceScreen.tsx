@@ -13,6 +13,7 @@ import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { type ActiveCurrency } from '../../../core/domain/activeCurrency';
 import { SectionLabel } from './SettingsParts';
+import { SettingsPanel } from './SettingsControls';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { useThemePreference } from '../../../shared/design/ThemeProvider';
 
@@ -63,13 +64,16 @@ export function AppearanceScreen() {
       <ScreenTopBar title="Görünüm ve bölge" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SectionLabel label="Tema" />
-        {theme.error ? <Text style={textStyle('bodySmall', { color: colors.error })}>{theme.error}</Text> : null}
-        {(['system', 'light', 'dark'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: theme.preference === value }} style={styles.row} onPress={() => { void theme.setPreference(value).catch((error: Error) => snackbar.show(error.message, 'error')); }}>
-          <Text style={textStyle('label', { flex: 1 })}>{value === 'system' ? 'Sistem teması' : value === 'light' ? 'Açık tema' : 'Koyu tema'}</Text>
-          {theme.preference === value ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
-        </Pressable>)}
+        <SettingsPanel style={styles.panel}>
+          {theme.error ? <Text style={textStyle('bodySmall', { color: colors.error, padding: spacing.md })}>{theme.error}</Text> : null}
+          {(['system', 'light', 'dark'] as const).map((value, index) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: theme.preference === value }} style={[styles.row, index < 2 && styles.rowDivider]} onPress={() => { void theme.setPreference(value).catch((error: Error) => snackbar.show(error.message, 'error')); }}>
+            <Text style={textStyle('label', { flex: 1 })}>{value === 'system' ? 'Sistem teması' : value === 'light' ? 'Açık tema' : 'Koyu tema'}</Text>
+            {theme.preference === value ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
+          </Pressable>)}
+        </SettingsPanel>
         <SectionLabel label="Para birimi" />
-        {CURRENCY_OPTIONS.map((option) => {
+        <SettingsPanel style={styles.panel}>
+        {CURRENCY_OPTIONS.map((option, index) => {
           const active = option.code === selected;
           return (
             <Pressable
@@ -77,23 +81,26 @@ export function AppearanceScreen() {
               accessibilityRole="radio"
               accessibilityState={{ selected: active }}
               onPress={() => choose(option.code)}
-              style={styles.row}
+              style={[styles.row, index < CURRENCY_OPTIONS.length - 1 && styles.rowDivider]}
             >
               <Text style={textStyle('label', { flex: 1 })}>{`${option.name} (${option.code})`}</Text>
               {active ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
             </Pressable>
           );
         })}
+        </SettingsPanel>
 
         <SectionLabel label="Saat dilimi" />
-        {(['device', 'fixed'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: mode === value }} disabled={setMode.isPending} style={styles.row} onPress={() => setMode.mutate(value, { onError: (error: Error) => snackbar.show(error.message, 'error') })}>
+        <SettingsPanel style={styles.panel}>
+        {(['device', 'fixed'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: mode === value }} disabled={setMode.isPending} style={[styles.row, styles.rowDivider]} onPress={() => setMode.mutate(value, { onError: (error: Error) => snackbar.show(error.message, 'error') })}>
           <Text style={textStyle('label')}>{value === 'device' ? 'Cihazı izle' : 'Sabit hesap bölgesi'}</Text>
+          {mode === value ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
         </Pressable>)}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Saat dilimi seç, mevcut ${timeZone}`}
           onPress={() => setShowTimeZones((visible) => !visible)}
-          style={styles.row}
+          style={[styles.row, showTimeZones && styles.rowDivider]}
         >
           <MaterialIcons name="schedule" size={sizes.tileIcon} color={colors.onSurface} />
           <View style={styles.timezoneText}>
@@ -106,18 +113,19 @@ export function AppearanceScreen() {
         </Pressable>
         {showTimeZones ? (
           <View>
-            <Pressable accessibilityRole="radio" accessibilityState={{ selected: timeZone === deviceTimeZone() }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(deviceTimeZone())} style={styles.row}>
+            <Pressable accessibilityRole="radio" accessibilityState={{ selected: timeZone === deviceTimeZone() }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(deviceTimeZone())} style={[styles.row, styles.rowDivider]}>
               <Text style={textStyle('label', { flex: 1 })}>{`Cihazın şu anki bölgesi (${deviceTimeZone()})`}</Text>
               {timeZone === deviceTimeZone() ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
             </Pressable>
             {TIME_ZONES.map(([label, zone]) => (
-              <Pressable key={zone} accessibilityRole="radio" accessibilityState={{ selected: timeZone === zone }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(zone)} style={styles.row}>
+              <Pressable key={zone} accessibilityRole="radio" accessibilityState={{ selected: timeZone === zone }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(zone)} style={[styles.row, styles.rowDivider]}>
                 <Text style={textStyle('label', { flex: 1 })}>{`${label} (${zone})`}</Text>
                 {timeZone === zone ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
               </Pressable>
             ))}
           </View>
         ) : null}
+        </SettingsPanel>
         <ScreenBottomInset />
       </ScrollView>
     </View>
@@ -130,6 +138,7 @@ const styles = themedStyles(() => StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
+    paddingBottom: spacing.xl,
   },
   row: {
     flexDirection: 'row',
@@ -138,6 +147,14 @@ const styles = themedStyles(() => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: gaps.rowLoose - 2 + spacing.xxs / 2,
     gap: spacing.md,
+  },
+  rowDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.outlineHalf,
+  },
+  panel: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
   },
   timezoneText: {
     flex: 1,

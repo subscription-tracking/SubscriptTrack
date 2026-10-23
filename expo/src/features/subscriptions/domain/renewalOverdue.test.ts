@@ -1,7 +1,9 @@
-import { civilDate } from '../../../core/time/calendar';
+import { civilDate, parseCivilDate } from '../../../core/time/calendar';
 import { renewalAdvancedEvent } from './subscriptionEdit';
-import { advancedRenewalDate, isOverdueRenewal } from './renewalOverdue';
+import { advancedRenewalDate, isRenewalDue } from './renewalOverdue';
 import { type SubscriptionRow, subscriptionFromRow } from './subscription';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const row = (overrides: Partial<SubscriptionRow>): SubscriptionRow => ({
   id: 'id',
@@ -22,29 +24,58 @@ const row = (overrides: Partial<SubscriptionRow>): SubscriptionRow => ({
 });
 
 const today = civilDate(2026, 10, 9);
+const renewalGoldens = (JSON.parse(
+  readFileSync(resolve(process.cwd(), '../testdata/flutter_expo_domain_goldens.json'), 'utf8'),
+) as {
+  renewalConfirmations: {
+    start: string;
+    due: string;
+    today: string;
+    billingCycle: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+    expected: string;
+  }[];
+}).renewalConfirmations;
 
-describe('isOverdueRenewal', () => {
+describe('isRenewalDue', () => {
   it('aktif kayıtta yenileme tarihi bugünden önceyse gecikmiştir', () => {
-    expect(isOverdueRenewal(subscriptionFromRow(row({})), today)).toBe(true);
+    expect(isRenewalDue(subscriptionFromRow(row({})), today)).toBe(true);
   });
 
-  it('bugün yenileme günüyse gecikmiş değildir', () => {
-    expect(isOverdueRenewal(subscriptionFromRow(row({ next_renewal_date: '2026-10-09' })), today)).toBe(false);
+  it('yenileme günü bugün de kullanıcı onayıyla ilerletilebilir', () => {
+    expect(isRenewalDue(subscriptionFromRow(row({ next_renewal_date: '2026-10-09' })), today)).toBe(true);
   });
 
-  it('deneme kaydı da gecikebilir; duraklatılmış ve iptal edilmiş kayıtlar gecikmez', () => {
-    expect(isOverdueRenewal(subscriptionFromRow(row({ status: 'trial' })), today)).toBe(true);
-    expect(isOverdueRenewal(subscriptionFromRow(row({ status: 'paused' })), today)).toBe(false);
-    expect(isOverdueRenewal(subscriptionFromRow(row({ status: 'cancelled' })), today)).toBe(false);
-    expect(isOverdueRenewal(subscriptionFromRow(row({ is_archived: true })), today)).toBe(false);
+  it('deneme kaydı da vadesinde ilerletilebilir; duraklatılmış ve iptal edilmiş kayıtlar ilerletilemez', () => {
+    expect(isRenewalDue(subscriptionFromRow(row({ status: 'trial' })), today)).toBe(true);
+    expect(isRenewalDue(subscriptionFromRow(row({ status: 'paused' })), today)).toBe(false);
+    expect(isRenewalDue(subscriptionFromRow(row({ status: 'cancelled' })), today)).toBe(false);
+    expect(isRenewalDue(subscriptionFromRow(row({ is_archived: true })), today)).toBe(false);
   });
 
   it('yenileme tarihi boşsa gecikmiş değildir', () => {
-    expect(isOverdueRenewal(subscriptionFromRow(row({ next_renewal_date: null })), today)).toBe(false);
+    expect(isRenewalDue(subscriptionFromRow(row({ next_renewal_date: null })), today)).toBe(false);
+  });
+
+  it('yenileme tarihi ilerideyse henüz vadesi gelmemiştir', () => {
+    expect(isRenewalDue(subscriptionFromRow(row({ next_renewal_date: '2026-10-10' })), today)).toBe(false);
   });
 });
 
 describe('advancedRenewalDate', () => {
+  it.each(renewalGoldens)(
+    'Flutter–Expo onay altın senaryosu: $due + $billingCycle → $expected',
+    ({ start, due, today: confirmationDay, billingCycle, expected }) => {
+      const subscription = subscriptionFromRow(row({
+        start_date: start,
+        next_renewal_date: due,
+        billing_cycle: billingCycle,
+      }));
+      expect(advancedRenewalDate(subscription, parseCivilDate(confirmationDay)!)).toEqual(
+        parseCivilDate(expected),
+      );
+    },
+  );
+
   it('bugün veya sonrasındaki ilk döngü tarihini verir (faturalama günü 31: 30 Eylül → 31 Ekim)', () => {
     // Başlangıç 31 Ocak: 30 Eylül kırpılmış bir 31'dir; faturalama günü 31 kabul edilir.
     expect(advancedRenewalDate(subscriptionFromRow(row({})), today)).toEqual(civilDate(2026, 10, 31));
@@ -64,6 +95,16 @@ describe('advancedRenewalDate', () => {
 
   it('gecikmiş değilse null döner', () => {
     expect(advancedRenewalDate(subscriptionFromRow(row({ next_renewal_date: '2026-10-20' })), today)).toBeNull();
+  });
+
+  it('yenileme günü bugün ve kullanıcı onaylarsa bir sonraki döngüyü yazar', () => {
+    const subscription = subscriptionFromRow(row({ next_renewal_date: '2026-10-09' }));
+    expect(advancedRenewalDate(subscription, today)).toEqual(civilDate(2026, 11, 9));
+  });
+
+  it('gecikmiş kayıt için bugüne denk gelen sonraki döngü yerine takip eden döngüyü yazar', () => {
+    const subscription = subscriptionFromRow(row({ next_renewal_date: '2026-09-09' }));
+    expect(advancedRenewalDate(subscription, today)).toEqual(civilDate(2026, 11, 9));
   });
 
   it('yıllık kayıt bir yıl ilerler', () => {

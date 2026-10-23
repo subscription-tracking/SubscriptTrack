@@ -24,6 +24,7 @@ export class Money {
     const whole = Number.parseInt(match[2], 10);
     const fraction = Number.parseInt((match[3] ?? '').padEnd(2, '0'), 10) || 0;
     const minor = whole * 100 + fraction;
+    if (!Number.isSafeInteger(minor)) return null;
     return new Money(match[1] === '-' ? -minor : minor);
   }
 

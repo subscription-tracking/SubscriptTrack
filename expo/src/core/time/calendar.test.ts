@@ -7,8 +7,17 @@ import {
   nextOccurrenceOnOrAfter,
   nextRenewalDate,
   parseCivilDate,
+  zonedHourToUtc,
   zoneToday,
 } from './calendar';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const timezoneGoldens = (JSON.parse(
+  readFileSync(resolve(process.cwd(), '../testdata/flutter_expo_domain_goldens.json'), 'utf8'),
+) as {
+  timezoneSchedules: { day: string; hour: number; timeZone: string; expectedUtc: string }[];
+}).timezoneSchedules;
 
 describe('parseCivilDate / formatCivilDate', () => {
   it('YYYY-MM-DD biçimini gidip gelerek korur', () => {
@@ -20,6 +29,13 @@ describe('parseCivilDate / formatCivilDate', () => {
   it('geçersiz takvim tarihini reddeder', () => {
     expect(parseCivilDate('2026-02-30')).toBeNull();
     expect(parseCivilDate('2026/02/28')).toBeNull();
+  });
+});
+
+describe('zonedHourToUtc', () => {
+  it.each(timezoneGoldens)('$day $timeZone $hour:00 → $expectedUtc', (testCase) => {
+    const day = parseCivilDate(testCase.day)!;
+    expect(zonedHourToUtc(day, testCase.hour, testCase.timeZone).toISOString()).toBe(testCase.expectedUtc);
   });
 });
 

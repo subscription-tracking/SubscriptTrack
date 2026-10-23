@@ -1,3 +1,4 @@
+import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '../../auth/AuthProvider';
@@ -12,6 +13,7 @@ import { SubscriptionFormScreen } from './SubscriptionFormScreen';
  * "artık mevcut değil" durumunu gösterir. Form yüklenen kayıtla başlar.
  */
 export function SubscriptionEditScreen({ id }: { id: string }) {
+  useThemeRevision();
   const router = useRouter();
   const { user } = useAuth();
   const query = useSubscriptionQuery(user?.id, id);
