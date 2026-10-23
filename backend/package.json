@@ -4,7 +4,12 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
+    "test:postgres:local": "node scripts/isolated-postgres-acceptance.mjs",
+    "test:postgres": "node scripts/with-local-postgres.mjs",
+    "test:schema": "node scripts/with-local-postgres.mjs clean-schema-acceptance.mjs",
     "smoke:authenticated": "node scripts/authenticated-subscription-smoke.mjs",
+    "smoke:renewal": "node scripts/renewal-confirmation-smoke.mjs",
+    "smoke:rls": "node scripts/rls-isolation-smoke.mjs",
     "smoke:supabase": "node scripts/supabase-smoke.mjs"
   },
   "engines": {

@@ -257,3 +257,34 @@ test('035 owner trigger is invoker-security and covers the three event tables', 
   for (const t of ['payment_events', 'subscription_events', 'notifications']) assert.match(code, new RegExp(`'${t}'`))
   assert.match(code, /s\.user_id = NEW\.user_id/)
 })
+
+test('036 renewal RPC defines one locked, idempotent transaction without replacing old RPCs', async () => {
+  const sql = await readFile(new URL('../migrations/036_confirm_subscription_renewal_idempotent.sql', import.meta.url), 'utf8');
+  const code = sql.replace(/^--.*$/gm, '');
+  assert.match(code, /CREATE OR REPLACE FUNCTION public\.confirm_subscription_renewal_idempotent/);
+  assert.match(code, /auth\.uid\(\)/);
+  assert.match(code, /WHERE id = p_subscription_id AND user_id = v_user FOR UPDATE/);
+  assert.match(code, /p_expected_old_date/);
+  assert.match(code, /SELECT timezone INTO v_timezone FROM public\.profiles WHERE user_id = v_user/);
+  assert.match(code, /p_today IS DISTINCT FROM \(now\(\) AT TIME ZONE v_timezone\)::date/);
+  assert.match(code, /v_row\.next_renewal_date IS DISTINCT FROM p_expected_old_date/);
+  assert.match(code, /v_existing\.request_hash IS DISTINCT FROM v_hash/);
+  assert.match(code, /INSERT INTO public\.payment_events[\s\S]*UPDATE public\.subscriptions[\s\S]*INSERT INTO public\.subscription_events[\s\S]*INSERT INTO public\.idempotency_keys/);
+  assert.match(code, /GRANT EXECUTE ON FUNCTION public\.confirm_subscription_renewal_idempotent[^;]* TO authenticated/);
+  assert.doesNotMatch(code, /CREATE OR REPLACE FUNCTION public\.(record_payment_idempotent|update_subscription_idempotent)/);
+});
+
+test('037 deferred payment RPC is idempotent, owner-checked and authenticated-only', async () => {
+  const migration = await readFile(
+    new URL('../migrations/037_record_deferred_payment_idempotent.sql', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(migration, /CREATE OR REPLACE FUNCTION public\.record_deferred_payment_idempotent\(/);
+  assert.match(migration, /WHERE id = p_subscription_id AND user_id = v_user/);
+  assert.match(migration, /v_hash := encode\(digest\(/);
+  assert.match(migration, /'DEFERRED', p_deferred_until/);
+  assert.match(migration, /REVOKE ALL ON FUNCTION public\.record_deferred_payment_idempotent\(text, uuid, numeric, text, timestamptz, date\) FROM PUBLIC, anon/);
+  assert.match(migration, /GRANT EXECUTE ON FUNCTION public\.record_deferred_payment_idempotent\(text, uuid, numeric, text, timestamptz, date\) TO authenticated/);
+  assert.doesNotMatch(migration, /CREATE OR REPLACE FUNCTION public\.record_payment_idempotent/);
+});

@@ -7,6 +7,7 @@ __pycache__/
 .env
 .env.*
 !mobile/.env.example
+!expo/.env.example
 *.egg-info/
 dist/
 build/
@@ -48,6 +49,7 @@ desktop.ini
 
 # Build/çıktı artefaktları (izlenmez)
 outputs/
+output/
 mobile/outputs/
 mobile/*.log
 mobile/screen*.png
@@ -55,6 +57,11 @@ node_modules/
 mobile/coverage/
 tools/quality/complexity/.dart_tool/
 tools/quality/__pycache__/
+
+# Local audit state and generated coverage
+.local/
+expo/coverage/
+expo/coverage-repository/
 
 # Yerel ajan/araç dosyaları (özel ekler ve MCP yapılandırması içerebilir)
 .codex-remote-attachments/

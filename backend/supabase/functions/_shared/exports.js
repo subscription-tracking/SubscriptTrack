@@ -17,12 +17,27 @@ export function exportPath(userId) {
  */
 export async function removeUserExports(admin, userId) {
   const bucket = admin.storage.from(EXPORT_BUCKET)
-  const { data, error } = await bucket.list(userId, { limit: 1000 })
-  if (error) throw error
-  const paths = (data ?? []).filter((o) => o?.name).map((o) => `${userId}/${o.name}`)
+  const paths = []
+  const prefixes = [userId]
+  // Enumerate before deleting: deleting while using an offset skips later objects.
+  for (const prefix of prefixes) {
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await bucket.list(prefix, { limit: 1000, offset, sortBy: { column: 'name', order: 'asc' } })
+      if (error) throw error
+      for (const object of data ?? []) {
+        if (!object?.name || object.name === '.' || object.name === '..' || object.name.includes('/')) throw new Error('Invalid export object name')
+        const path = `${prefix}/${object.name}`
+        if (object.id === null) prefixes.push(path)
+        else paths.push(path)
+      }
+      if ((data?.length ?? 0) < 1000) break
+    }
+  }
   if (paths.length === 0) return 0
-  const removed = await bucket.remove(paths)
-  if (removed.error) throw removed.error
+  for (let offset = 0; offset < paths.length; offset += 1000) {
+    const removed = await bucket.remove(paths.slice(offset, offset + 1000))
+    if (removed.error) throw removed.error
+  }
   return paths.length
 }
 

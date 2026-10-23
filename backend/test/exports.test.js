@@ -34,6 +34,24 @@ test('nesne yoksa remove çağrılmaz', async () => {
   assert.equal(admin.calls.remove.length, 0)
 })
 
+test('account cleanup enumerates all pages and nested folders before deleting', async () => {
+  const removed = []
+  const listed = []
+  const admin = { storage: { from: () => ({
+    list: async (prefix, { offset }) => {
+      listed.push([prefix, offset])
+      if (prefix === 'u1/older') return { data: [{ name: 'nested.csv', id: 'nested' }], error: null }
+      if (offset === 0) return { data: Array.from({ length: 1000 }, (_, i) => ({ name: `${i}.csv`, id: `id${i}` })), error: null }
+      return { data: [{ name: 'older', id: null }, { name: 'last.csv', id: 'last' }], error: null }
+    },
+    remove: async (paths) => { removed.push(...paths); return { error: null } },
+  }) } }
+  assert.equal(await removeUserExports(admin, 'u1'), 1002)
+  assert.deepEqual(listed, [['u1', 0], ['u1', 1000], ['u1/older', 0]])
+  assert.equal(new Set(removed).size, 1002)
+  assert.ok(removed.includes('u1/older/nested.csv'))
+})
+
 test('Storage hatası fırlatılır (hesap silme durmalı)', async () => {
   await assert.rejects(removeUserExports(fakeAdmin({ listError: new Error('x') }), 'u1'))
   await assert.rejects(removeUserExports(fakeAdmin({ files: [{ name: 'a' }], removeError: new Error('y') }), 'u1'))

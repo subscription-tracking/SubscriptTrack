@@ -22,10 +22,14 @@ Deno.serve(async (req: Request) => {
     const body = await req.json()
     const exportId = body?.export_id
     if (typeof exportId !== 'string') return new Response(JSON.stringify({ error: 'export_id gerekli' }), { status: 400, headers })
-    const { data: job, error: jobError } = await admin.from('exports').select('id,status').eq('id', exportId).eq('user_id', user.id).single()
+    const { data: job, error: jobError } = await admin.from('exports').select('*').eq('id', exportId).eq('user_id', user.id).single()
     if (jobError || !job) return new Response(JSON.stringify({ error: 'Export bulunamadı' }), { status: 404, headers })
-    if (job.status === 'READY') return new Response(JSON.stringify(job), { status: 200, headers })
-    const { data: rows, error } = await admin.from('subscriptions').select('*').eq('user_id', user.id).order('next_renewal_date')
+    // A retry must still return a usable download URL. Expired jobs are rebuilt
+    // through the same owner-filtered query rather than returning a stale link.
+    if (job.status === 'READY' && job.download_url && Date.parse(job.expires_at) > Date.now()) {
+      return new Response(JSON.stringify(job), { status: 200, headers })
+    }
+    const { data: rows, error } = await admin.from('subscriptions').select('*').eq('user_id', user.id).is('deleted_at', null).order('next_renewal_date')
     if (error) throw error
     const headersRow = ['name','amount','currency','billing_cycle','next_renewal_date','category','status','notes','payment_method','trial_end_date','trial_price_after']
     const moneyValue = (value: unknown) => {

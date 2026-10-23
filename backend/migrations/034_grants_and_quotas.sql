@@ -16,7 +16,7 @@
 --   GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon;   -- önerilmez
 --   DROP TRIGGER trg_quota_<tablo> ON public.<tablo>; DROP FUNCTION public.enforce_row_quota();
 --
--- Bu migration repoda yazılmıştır; canlıda UYGULANMAMIŞTIR.
+-- Bu migration repoda yazılmıştır; canlıya uygulanma durumu doğrulanmamıştır.
 
 -- ─── 1) Yetkiler ──────────────────────────────────────────────────
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER

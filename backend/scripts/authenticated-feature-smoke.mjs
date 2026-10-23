@@ -3,6 +3,7 @@
  * Requires SUPABASE_URL, SUPABASE_ANON_KEY, S31_TEST_EMAIL, S31_TEST_PASSWORD.
  * No credentials or response bodies are printed. Mutating checks require
  * S31_SMOKE_CONFIRM=run and restore the original payment labels afterwards.
+ * Sending a support ticket additionally requires S31_SUPPORT_TICKET_CONFIRM=run.
  */
 const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
 const anon = process.env.SUPABASE_ANON_KEY;
@@ -35,11 +36,13 @@ try {
   const catalog = await call('/functions/v1/support-catalog', { token });
   if (!Array.isArray(catalog.services)) throw new Error('Service catalog response is invalid.');
   console.log('PASS service-catalog-read');
-  const ticket = await call('/functions/v1/support-catalog', {
-    method: 'POST', token, body: { category: 'smoke', message: `Temporary smoke ticket ${marker}` }, expected: [201],
-  });
-  if (!ticket.id) throw new Error('Support ticket response did not include an id.');
-  console.log('PASS support-ticket-create');
+  if (process.env.S31_SUPPORT_TICKET_CONFIRM === 'run') {
+    const ticket = await call('/functions/v1/support-catalog', {
+      method: 'POST', token, body: { category: 'smoke', message: `Temporary smoke ticket ${marker}` }, expected: [201],
+    });
+    if (!ticket.id) throw new Error('Support ticket response did not include an id.');
+    console.log('PASS support-ticket-create');
+  }
 } finally {
   await call('/functions/v1/payment-methods', { method: 'PUT', token, body: { methods: original.methods ?? [] } });
   console.log('PASS payment-label-restore');

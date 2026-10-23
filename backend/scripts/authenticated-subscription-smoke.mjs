@@ -145,6 +145,13 @@ try {
     await request(`/rest/v1/subscriptions?id=eq.${encodeURIComponent(subscriptionId)}`, {
       method: 'DELETE', token, expected: [204],
     });
+    const remaining = await request(
+      `/rest/v1/subscriptions?id=eq.${encodeURIComponent(subscriptionId)}&select=id`,
+      { token },
+    );
+    if (!Array.isArray(remaining) || remaining.length !== 0) {
+      throw new Error('Temporary subscription remained after cleanup.');
+    }
     console.log('PASS cleanup');
   }
 }
