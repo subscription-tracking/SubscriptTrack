@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-22",
+  "device": "Samsung SM-S711B",
+  "variant": "release with local debug signing key",
+  "bytes": 43192354,
+  "sha256": "E6C0F623E95873D77A18F0726000D38DED613EFDAB783C003A53859D73936F68",
+  "standaloneColdStart": "PASS",
+  "offlineColdStart": "PASS",
+  "offlineMissingPayments": "PASS",
+  "notificationDeliveryAndTap": "PASS (development APK)",
+  "latestTargetedTests": 20,
+  "previousFullSuitePassed": 880,
+  "dataCleared": false,
+  "iosNative": "NOT TESTED"
+}

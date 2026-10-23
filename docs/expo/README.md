@@ -4,9 +4,11 @@
 
 ## Durum
 
-**Aşama 0 kod tamam.** `expo/` klasöründe Expo Router, Supabase istemcisi (aynı backend), para ve takvim modülleri, tema tokenları ve iki ortak UI bileşeni var. 74 birim ve bileşen testi geçiyor; typecheck ve Android bundle hatasız. Abonelik, auth, offline ve bildirim özellikleri henüz yazılmadı. Flutter sürümü ([mobile/](../../mobile/)) çalışan referanstır ve bu süreçte değiştirilmez.
+**Kod kapsamı genişledi; geçiş ve cihaz kabulü tamamlanmadı.** Auth, abonelikler, offline, bildirimler ve ayarlar için Expo kodu var. Flutter testleri D: üzerindeki geçici klasör kullanılarak yeniden çalıştırıldı ve geçti; `flutter analyze` temiz çıktı. Expo testleri, TypeScript, lint, Expo Doctor, Android/iOS JS paketleri ve backend testleri de geçti. Android 36 AVD'de güncel bundle rotaları ve development build yerel test bildirimi çalıştı. Expo Go SDK 57.0.9 AVD'de onboarding ve giriş ekranı açıldı; gerçek giriş gönderilmedi, bildirim modülü runtime hatası nedeniyle Go'da kapalı. Fiziksel telefon, çapraz hesap RLS, offline kabulü, iOS ve imzalı release kanıtı yok. Canlı test hesabında belirli RPC/Function akışları geçti; canlı migration envanteri ve cihaz kabulinin tümü kapanmadı. Ayrıntı ve bulgular: [Expo geçiş denetimi](../quality/expo-migration-audit.md) ve [S12–S18 planı](REMAINING_SPRINTS.md). Flutter sürümü ([mobile/](../../mobile/)) Expo iki platformda kabul edilene kadar korunur.
 
 Özellik durumunun tek kaynağı [CURRENT_STATUS.md](../CURRENT_STATUS.md)'dir. Burada yalnızca Expo tarafının durumu tutulur.
+
+Kalan düzeltme ve kabul işleri [S12–S18 sprint planında](REMAINING_SPRINTS.md) sıralanır; önceki kod sprintleri [SPRINTS.md](SPRINTS.md) içinde kalır.
 
 ## Neden paralel?
 

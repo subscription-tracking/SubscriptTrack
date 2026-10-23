@@ -32,12 +32,17 @@ cp .env.example .env
 |---|---|
 | `EXPO_PUBLIC_SUPABASE_URL` | Supabase proje URL'i |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Publishable (anon) anahtar |
+| `EXPO_PUBLIC_IDEMPOTENT_DEFERRED_ENABLED` | Varsayılan `false`. Yalnız migration 037 canlıya uygulandıktan sonra `true` yapılır; aksi halde ertelenmiş ilk ödeme eski doğrudan yazımla kaydedilir. |
+| `EXPO_PUBLIC_ATOMIC_RENEWAL_ENABLED` | Varsayılan `false`. Yalnız migration 036 canlıya uygulanıp işlem senaryoları doğrulandıktan sonra ayrı bir build'de `true` yapılır; eski yenileme düğmesi bu sırada çalışır. |
+
+`.env.example` içindeki `S31_TEST_EMAIL` ve `S31_TEST_PASSWORD` yalnız isteğe bağlı backend smoke testleri içindir; Expo ekranında otomatik giriş sağlamaz. Bu değerleri ekleyen geliştirici test hesabıyla normal giriş ekranını kullanır.
 
 Kurallar:
 
 - `.env` dosyası git'e girmez ([expo/.gitignore](../../expo/.gitignore)). Yalnızca `.env.example` izlenir.
 - `service_role` anahtarı istemciye **asla** konmaz ([API.md §1](../reference/API.md)).
 - `EXPO_PUBLIC_` önekli değişkenler uygulama paketine gömülür. Gizli olmayan değerler için kullanılır.
+- Test hesabı şifresi dahil hiçbir parola `EXPO_PUBLIC_` önekiyle verilmez. Geliştirme girişindeki otomatik test hesabı düğmesi kaldırıldı; normal giriş formu kullanılır.
 - Değişken eksikse uygulama, hangi değişkenin eksik olduğunu söyleyen bir hata ile durur ([env.ts](../../expo/src/core/config/env.ts)).
 
 Değişken değiştiğinde Expo'yu cache temizleyerek yeniden başlatın:
@@ -52,9 +57,19 @@ npx expo start --clear
 npm start            # geliştirme sunucusu (Expo Go veya development build)
 npm run android      # Android emulator/cihaz
 npm run ios          # iOS simulator (yalnızca macOS)
+npx expo start --go   # telefondaki Expo Go için QR (hesap/EAS projesi gerekmez)
 ```
 
-Gerçek iPhone için Expo Go ile QR kodu okutabilirsiniz. Yerel bildirim, biyometri ve secure storage gibi yerel modüller Expo Go'da sınırlı olabilir; bu durumda development build gerekir ([LIBRARIES.md](LIBRARIES.md)).
+Android emülatöründe hesaba bağlanmadan yerel development build üretmek için `npx expo run:android` kullanılır. Android'in yerel debug anahtarıyla kurulan bu paket yayın paketi değildir. Bu Windows makinesinde AVD'yi Expo CLI'nin tanıması için SDK değişkenlerini aynı PowerShell oturumunda ayarlayın:
+
+```powershell
+$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
+$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
+$env:Path = "$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\emulator;$env:Path"
+npx expo start --dev-client --host lan
+```
+
+Metro hazır olunca terminalde `a` tuşuna basın; CLI emülatörü development build bağlantısıyla açar. SDK yolu verilmezse Expo CLI bağlı AVD'yi bulamayabilir; geliştirme uygulamasını elle açınca beyaz bekleme ekranı oluşabilir. 10 Ekim 2026'da `SubscriptTrack_Expo_Test` Android 36 x86_64 AVD'sinde bu bağlantı yöntemiyle dashboard, dört sekme, gizlilik/export, CSV paylaşımı ve altı durumlu CSV içe aktarma doğrulandı; ayrıntı [cihaz kabulinde](../operations/DEVICE_ACCEPTANCE.md). Gerçek cihazda Expo Go ile QR kodu denenebilir; yerel bildirim, biyometri ve güvenli depolama gibi modüllerin tam kabulü için development build gerekir ([LIBRARIES.md](LIBRARIES.md)). EAS hesabı bağlanmamıştır ve iOS cihaz kabulü ertelenmiştir.
 
 ## Kalite komutları
 
@@ -66,7 +81,7 @@ npx expo-doctor      # Expo bağımlılık ve yapılandırma denetimi
 
 Bu makinede doğrulanan durum: `npm test` testler geçiyor, `npm run typecheck` hatasız, `npx expo-doctor` 21/21 kontrol geçiyor, Android bundle `npx expo export --platform android` ile üretiliyor.
 
-Lint için Expo'nun ESLint yapılandırması henüz eklenmedi (Aşama 0 kapsamı dışında bırakıldı; ARCHITECTURE.md'de not edildi).
+Lint `npm run lint` ile çalışır; GitHub Actions'taki `expo-quality.yml`, Expo kodu değişince typecheck, test, Doctor, lint ve Android/iOS JS export kapılarını çalıştırır. Yerel kontroller geçti; CI'da en az bir başarılı çalıştırma ayrıca kaydedilmelidir.
 
 ## E-posta bağlantıları ve Expo Go
 

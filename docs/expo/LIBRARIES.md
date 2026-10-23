@@ -4,6 +4,12 @@
 
 ## Kurulu (Aşama 0)
 
+**2026-10-10 güncellemesi:** `eslint` ve `eslint-config-expo` SDK 57 lint kapısı için geliştirici bağımlılığına; `expo-system-ui` koyu native görünüm için uygulama bağımlılığına eklendi. Güncel kurulumun tek sürüm kaynağı `expo/package.json` dosyasıdır. Aşağıdaki aşama başlığı tarihsel kurulum anını anlatır.
+
+SDK 57 kilitli bağımlılık ağacı `react-native-reanimated@4.5.1` ve `react-native-worklets@0.10.1` eşleşmesini Expo Router/Expo çekirdeği üzerinden getirir; `npx expo install --check` geçer. Uygulama kaynak kodu Reanimated API'sini doğrudan kullanmıyor; animasyonlar React Native `Animated` ile yazılmış. `@react-native/jest-preset`, uygulama çalışma zamanı paketi olmadığı için `devDependencies` altında tutulur. Bağımlılık ağacından tamamen çıkarma ve güvenli yükseltme SDK uyumluluk denetimi gerektirir.
+
+`expo-dev-client` fiziksel cihaz development build'i için, `@noble/hashes` Flutter ile uyumlu PBKDF2 PIN özetleri için eklendi. PIN hesabı 30.000 turda cihaz üzerinde süre ölçümü bekler; Node ölçümü cihaz performansı kanıtı değildir.
+
 | Paket | Amaç | Neden bu seçim | Flutter karşılığı |
 |---|---|---|---|
 | `expo`, `react-native` | Çalışma zamanı | Expo SDK 57 | Flutter SDK |

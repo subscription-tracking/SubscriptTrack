@@ -56,3 +56,7 @@ Her belge veya bölüm, anlattığı şeyin durumunu belirtir:
 - Önemli teknik karar ADR ile kaydedilir.
 - Belgeler yalnızca git'te izlenen dosyalara bağlanır; yerel, git dışı çıktı klasörü bağlanmaz.
 - `python tools/docs/check_docs.py` bağlantıları, sürüm ve sayı tutarlılığını denetler (CI'da çalışır).
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

@@ -1,5 +1,34 @@
 # Supabase Canlı Durumu
 
+## 22 Ekim 2026 — kapanış uygulaması ve canlı kabul
+
+Önceki salt okunur envanterin ardından kullanıcı planı uygulandı. `process-export` v4, `delete-account` v3, `payment-methods` v2, `support-catalog` v2 ACTIVE; JWT doğrulaması açık. Repodaki CSV/silme/Storage/yakın giriş/hız sınırı korumaları dağıtıldı. Kullanıcının ayrı onayıyla `20261022142258 deferred_payment_serialization` migration'ı uygulandı; aynı imza korunur, anon EXECUTE kapalıdır. Önceki Function eksiklerini anlatan aşağıdaki tarihli satırlar artık eski sürümlere aittir.
+
+Ayrılmış fixture hesaplarıyla A/B RPC/tablo/Storage izolasyonu, yenileme ve deferred tekrarları, export ve hesap temizliği kabul edildi; normal kullanıcı hesapları test verisi olarak kullanılmadı. Migration geçmişindeki gerçek eski SQL'ler sürüm adlarıyla repoya alındı; mevcut 038/039 nesneleri yeniden uygulanmadı. Public baseline temiz kurulumda doğrulanıyor; tam platform restore kanıtı değildir. Sonuçlar [uygulama raporunda](../quality/backend-expo-closure-2026-10-22.md).
+
+İkinci ayrı kullanıcı onayıyla `20261022150926_export_storage_active_owner` uygulandı. Exports Storage SELECT/INSERT politikaları sahiplik yanında aktif profil arar. Üç silinen fixture hesabında kalan JWT ile yükleme reddedildi; listeler boş, Auth/public/Storage kalıntıları sıfır.
+
+Leaked Password Protection, gerçek e-posta, restore ve cron'un kullanıcı IANA gün semantiği açık. Saatlik işin başarılı çalışması, semantik kabulün tamamlandığı anlamına gelmez.
+
+## 22 Ekim 2026 — bağlı Supabase üzerinden salt okunur tekrar
+
+`list_projects`, `list_migrations`, `list_edge_functions`, `get_edge_function`, güvenlik/performans advisor'ları ve katalog SELECT'leriyle doğrulandı. Aşağıdaki tarihli eski kayıtlar tarihçedir; bu bölümle çelişen durumlarda bu bölüm günceldir. Canlı DDL, Function dağıtımı veya kullanıcı verisi değişikliği yapılmadı.
+
+- Proje `SubscriptTrack` (`tdbljrojcmyjwchawfif`), `ACTIVE_HEALTHY`, PostgreSQL 17.
+- Migration geçmişinde hâlâ yalnız 033, 036 ve 037 var. 038/039 nesneleri katalogda mevcut: soft-delete ve timezone-aware renewal RPC'leri, silinmiş satır koruma trigger'ları, `subscriptions_visible` restrictive SELECT politikası ve advisory kilitli 1.000 silinmemiş abonelik kotası. 038/039'u körlemesine yeniden uygulamak doğru değil; önce geçmiş–nesne uzlaştırması gerekir.
+- `public` içindeki 15 tablonun tamamında RLS açık. Kullanıcı tablolarında sahiplik USING/WITH CHECK ifadeleri mevcut. Bu katalog incelemesi iki gerçek hesap arasında davranış kabulü değildir.
+- İncelenen 8 idempotent iş RPC'sinde `anon` EXECUTE yok, `authenticated` EXECUTE var; hepsi SECURITY DEFINER. Advisor'ın 8 uyarısı tek başına erişim açığı kanıtı değildir; fonksiyon içi sahiplik ve işlem testleri ayrıca gerekir.
+- `rate_limits` RLS açık, kullanıcı politikası yok; görülen doğrudan tablo grant'ları yalnız service_role içindir. Advisor bunu INFO olarak bildirir; sırf uyarıyı susturmak için kullanıcı politikası eklenmemelidir.
+- `notification-producer` saatlik (`0 * * * *`) aktif; bu varlık/ayar kanıtıdır, son çalışmanın başarısı değildir. Realtime publication yalnız `subscriptions` içerir. `exports` Storage bucket'ı özel; görülen nesne politikaları kullanıcı klasörüne SELECT/INSERT ile sınırlı.
+- Canlı Function kaynakları incelendi: `process-export` v2, `delete-account` v2, `payment-methods` v1, `support-catalog` v1. Dördü ACTIVE ve `verify_jwt=true`; kaynaklarında repodaki ortak rate-limit çağrısı yok.
+- **Yüksek öncelik — process-export v2:** service-role abonelik sorgusunda `deleted_at` süzgeci yok; CSV alanlarında formül etkisizleştirme yok; dosya yolu export kimliği başına üretiliyor, repodaki sabit latest yolu kullanılmıyor; catch ham hata metni döndürüyor. Bunlar bugün canlı kaynakta doğrulandı; bu tur yeni export üretilmedi.
+- **Yüksek öncelik — delete-account v2:** kullanıcı doğrulandıktan sonra doğrudan Auth deleteUser çağrılıyor; repodaki yakın giriş kontrolü ve Storage nesnesi temizliği kaynakta yok. Ham hata dönüşleri ve wildcard CORS mevcut. Hesap silinmedi; kalıntı davranışı uçtan uca denenmedi.
+- `record_deferred_payment_idempotent` canlı gövdesinde de anahtar okuması öncesi açık seri kilit ve unique çatışmasından sonra kayıtlı sonucu döndürme yolu yok. Önceki eşzamanlı tekrar bulgusu canlı kaynak için de geçerli; gerçek paralel çağrı yapılmadı.
+- Leaked Password Protection hâlâ kapalı. [Supabase düzeltme açıklaması](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+- Performans advisor'ı 12 kapsayıcı indeksi olmayan foreign key için INFO bildiriyor. Ölçüm yapılmadan performans arızası sayılmadı. [Advisor açıklaması](https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys).
+
+22 Ekim yerel testleri, puanlama ve açık kapılar: [Expo/backend değerlendirmesi](../quality/expo-backend-assessment-2026-10-22.md).
+
 **13 Ekim 2026 salt okunur kontrol (MCP `execute_sql`, `list_migrations`, `list_edge_functions`):** Migration geçmişi hâlâ yalnız 033, 036 ve 037'yi gösterir; ancak canlı şemada 038 ve 039 nesneleri mevcuttur: `subscriptions.deleted_at`, `profiles.timezone_mode`, `soft_delete_subscriptions_idempotent`, `confirm_subscription_renewal_in_timezone_idempotent`, `guard_deleted_subscription*` tetikleyicileri, `subscriptions_visible` politikası ve 1.000 kayıtlık `enforce_subscription_quota` (advisory lock, `deleted_at IS NULL` sayımı). Yeni fonksiyonlarda `anon` çalıştıramaz, `authenticated` çalıştırabilir. Bu nesneler geçmişe kayıtlı olmadan uygulandığı için 038/039 dosyalarını yeniden uygulamak gerekmez; 039'daki `ADD CONSTRAINT` idempotent değildir ve yeniden uygulama hata verir. `process-export` canlı sürümü (v2) hâlâ eski satır içi sürümdür: `deleted_at` süzgeci, ortak yardımcılar, hız sınırı ve CSV formül koruması yoktur; soft-delete edilmiş kayıtları dışa aktarabilir. Repodaki sürüm dağıtılana kadar `EXPO_PUBLIC_SOFT_DELETION_ENABLED` açılmamalıdır.
 
 **12 Ekim 2026 güncel doğrulama (MCP, salt okunur + yalnızca 036/037 uygulama):**

@@ -1,0 +1,3664 @@
+{
+  "date": "2026-10-12",
+  "success": true,
+  "suites": 111,
+  "tests": 671,
+  "failed": 0,
+  "instrumentedFiles": 199,
+  "coverage": {
+    "statements": {
+      "hit": 3225,
+      "total": 4069,
+      "percent": 79.26
+    },
+    "branches": {
+      "hit": 2119,
+      "total": 2984,
+      "percent": 71.01
+    },
+    "functions": {
+      "hit": 945,
+      "total": 1266,
+      "percent": 74.64
+    },
+    "lines": {
+      "hit": 2771,
+      "total": 3379,
+      "percent": 82.01
+    }
+  },
+  "testResults": [
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\architecture.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "katman sınırları sunum katmanı (app, shared, feature ui) Supabase istemcisini import etmez",
+          "status": "passed"
+        },
+        {
+          "name": "katman sınırları domain ve saf çekirdek (core/domain, core/time, feature domain) SDK, veri ve UI import etmez",
+          "status": "passed"
+        },
+        {
+          "name": "katman sınırları veri katmanı ui veya app katmanını import etmez",
+          "status": "passed"
+        },
+        {
+          "name": "katman sınırları koordinatörler SDK veya somut I/O implementasyonlarını import etmez",
+          "status": "passed"
+        },
+        {
+          "name": "katman sınırları core ve shared, feature veri veya UI katmanlarını import etmez",
+          "status": "passed"
+        },
+        {
+          "name": "feature bağımlılık grafiği katmanlar arasında döngü yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "dosya boyutu (god-file koruması) hiçbir kaynak dosyası 320 satırı aşmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\ui\\NotificationPreferencesScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "NotificationPreferencesScreen yükleme ve hata durumlarını gösterir, hata sonrası tercihleri yeniden alır",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationPreferencesScreen bildirim izni reddedilirse tercihi açmadan kullanıcıyı bilgilendirir",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationPreferencesScreen native permission and test scheduling failures are shown instead of rejecting unhandled",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationPreferencesScreen Expo Go bildirim modülü desteklenmiyorsa izni açma kontrolünü kapatıp açıklama gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationPreferencesScreen gün seçimini hesaba kaydeder ve bildirimler kapatılınca zamanlanmış hatırlatmaları siler",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationPreferencesScreen test bildirimi sonuç mesajını gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\subscriptionSync.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "subscription synchronization preserves malformed queue data without writing or sending it",
+          "status": "passed"
+        },
+        {
+          "name": "subscription synchronization does not treat a storage read failure as an empty queue",
+          "status": "passed"
+        },
+        {
+          "name": "subscription synchronization keeps a transient event failure queued and retries that stage without repeating the update",
+          "status": "passed"
+        },
+        {
+          "name": "subscription synchronization stops an old account queue when the signed-in user changes, leaving later writes untouched",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\CsvImportScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "CsvImportScreen örnek CSV şemasını gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "CsvImportScreen dosya seçimini iptal edince başlangıç ekranında kalır",
+          "status": "passed"
+        },
+        {
+          "name": "CsvImportScreen geçerli ve hatalı satırları önizler, çevrimdışıyken aktarımı kapatır",
+          "status": "passed"
+        },
+        {
+          "name": "CsvImportScreen dosya okumada hata olursa bildirir",
+          "status": "passed"
+        },
+        {
+          "name": "CsvImportScreen başarılı içe aktarmada önbelleği yeniler ve geri döner",
+          "status": "passed"
+        },
+        {
+          "name": "CsvImportScreen durum geçişi uygulanamayacak kaydı önceden ve aktarım sonucunda açıklar",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionArchivedScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionArchivedScreen loading/error/empty durumlarını gösterir ve hata sonrası yeniden dener",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionArchivedScreen arşiv boşken boş ekranı gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionArchivedScreen arşiv kaydını açar ve geri yükleme mutasyonuna aynı kaydı verir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionArchivedScreen kalıcı silme açıklamasını gösterir ve yalnızca yanlış kayıt onayıyla silme mutasyonunu çağırır",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionArchivedScreen çevrimdışıyken kalıcı silme isteğini API’ye göndermez",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionArchivedScreen geri yükleme ve silme sürerken iki eylemi de devre dışı bırakır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\form\\DetailsSection.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "DetailsSection accessibility accepts notes above the old 500 cap and shows explicit rejection above 2000",
+          "status": "passed"
+        },
+        {
+          "name": "DetailsSection accessibility labels the trial switch and reports its state when expanded",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\calendar\\ui\\CalendarScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "CalendarScreen abonelikler yüklenirken erişilebilir ilerleme durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarScreen yükleme hatasında takvimi yeniden yükleyebilir",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarScreen boş takvimde aylar arasında gezinir ve seçili güne abonelik eklemeyi açar",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarScreen hafta günlerinin kısa görsel etiketleri için tam ve tekil ekran okuyucu adları sunar",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarScreen takvim lejantı yenileme, deneme bitişi ve aciliyet işaretlerini birbirinden ayırır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\auth\\ui\\AuthForms.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "Auth form screens kayıtta kullanım şartı onayını zorunlu tutar ve alanları doğrular",
+          "status": "passed"
+        },
+        {
+          "name": "Auth form screens e-posta doğrulaması isteyen başarılı kaydı giriş ekranına yönlendirir",
+          "status": "passed"
+        },
+        {
+          "name": "Auth form screens parola sıfırlama adresini kırpar ve gönderildi durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "Auth form screens yeni parola uyuşmuyorsa güncellemez, geçerliyse Auth mutasyonunu çağırır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\clock\\useCivilToday.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "updates on the local midnight without remounting",
+          "status": "passed"
+        },
+        {
+          "name": "refreshes after resume and resubscribes when the IANA zone changes",
+          "status": "passed"
+        },
+        {
+          "name": "crosses the DST autumn midnight using the local civil day",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\ui\\PaymentDialogs.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "AddPaymentDialog abonelikler dialog açıldıktan sonra gelirse varsayılan tutarı doldurur",
+          "status": "passed"
+        },
+        {
+          "name": "AddPaymentDialog yeniden açıldığında önceki tutar girişini temizler",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionListScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionListScreen arşiv bağlantısını gösterir, kaydın para birimi etkin para biriminden farklı olsa da",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionListScreen yükleme hatasını gösterir ve yeniden denemeyi sorguya iletir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionListScreen aktif listedeki aşağı çekme yenilemesini sorguya iletir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionListScreen defaults to all currencies and combines currency, category, and search",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionListScreen aramayı etkin para birimi ve seçili durum sekmesindeki kayıtlara uygular",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionListScreen kategori filtresini uygular ve eşleşmeyen aramada boş sonuç gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionListScreen durum sekmelerinin sayaçlarını ve seçimini günceller, her durumda doğru kayıtları sunar",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\onboarding\\ui\\OnboardingScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "OnboardingScreen tanıtımı atlayınca varsayılan para birimini kaydedip tamamlandı işaretler ve girişe gider",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\data\\useActiveCurrency.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "useUserTimeZoneState çevrimdışıyken yalnız oturum sahibinin güvenli IANA kopyasını kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "useUserTimeZoneState çevrimiçi profil tercihi güvenli önbellekten üstündür",
+          "status": "passed"
+        },
+        {
+          "name": "useUserTimeZoneState profil ve güvenli kopya yüklenene kadar bildirim planı için hazır sayılmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\shared\\widgets\\LegalDocumentView.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "LegalDocumentView başlığı, sürümü, özet ve bölümleri erişilebilir metin olarak gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "LegalDocumentView yayın öncesi hukuki onay uyarısını gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\savings\\ui\\SavingsScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SavingsScreen abonelik ve tasarruf verileri yüklenirken yükleme göstergesini sunar",
+          "status": "passed"
+        },
+        {
+          "name": "SavingsScreen kaynaklardan biri hata verirse ikisini de yeniden yükler",
+          "status": "passed"
+        },
+        {
+          "name": "SavingsScreen aktif abonelik yoksa boş durumu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "SavingsScreen aktif TRY kayıtlarından en yüksek üç yıllık fırsatı ve aynı para biriminin geçmişini gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\dashboard\\ui\\DashboardScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "\"Takvimde gör\" ve hızlı işlem takvim eylemi takvim rotasını açar",
+          "status": "passed"
+        },
+        {
+          "name": "özet yüklenirken ilerleme durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "yükleme hatasında tekrar dene eylemini çalıştırır",
+          "status": "passed"
+        },
+        {
+          "name": "hiç abonelik yokken başlangıç açıklamasını ve ekleme eylemini gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionCancelScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionCancelScreen aboneliği yüklerken ve hata aldığında tekrar deneme sunar",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionCancelScreen sağlayıcı sayfası yoksa iptal seçeneklerini ve devam et yolunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionCancelScreen iptal formunda tarihi onaylar ve kayıt mutasyonunu başlatır",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionCancelScreen duraklatma isteği sürerken yinelenen basışı devre dışı bırakır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\FeedbackScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "FeedbackScreen boş mesajda paylaşımı kapatır ve destek gönderiminde alan doğrulamasını gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "FeedbackScreen destek kaydını seçilen kategori ve temizlenmiş mesajla gönderir",
+          "status": "passed"
+        },
+        {
+          "name": "FeedbackScreen destek servisi hata verirse hata mesajını gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "FeedbackScreen paylaşım metnine kategori ve mesajı ekler",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\shared\\design\\ThemeProvider.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "new default is system and explicit preference is persisted before changing",
+          "status": "passed"
+        },
+        {
+          "name": "preserves dark on existing installation and preserves it when storage rejects",
+          "status": "passed"
+        },
+        {
+          "name": "does not overwrite corrupted stored preferences",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionFormScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionFormScreen yeni abonelik için aktif para birimi ve temel alanları gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionFormScreen boş zorunlu alanları gösterir ve geçersiz formu kaydetmez",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionFormScreen geçerli servis ve tutar girilince kaydetme mutasyonunu başlatır",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionFormScreen double tap starts only one submission even before mutation state updates",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionFormScreen popüler servis seçimini servis alanına ve kategoriye uygular",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\auth\\ui\\LoginScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "LoginScreen başlık, alanlar ve bağlantılar Flutter metinleriyle görünür",
+          "status": "passed"
+        },
+        {
+          "name": "LoginScreen boş gönderimde Flutter doğrulama metinlerini gösterir ve giriş denemez",
+          "status": "passed"
+        },
+        {
+          "name": "LoginScreen geçerli girişte mockSignIn çağrılır",
+          "status": "passed"
+        },
+        {
+          "name": "LoginScreen giriş hatasında snackbar hata tonuyla mesajı gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\PaymentMethodsScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "PaymentMethodsScreen yüklenirken erişilebilir ilerleme durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "PaymentMethodsScreen yükleme hatasında tekrar deneme eylemini bağlar",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\ProfileScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "ProfileScreen hesap e-postasını, görünen adı ve üyelik tarihini gösterir; değişmemiş alanları kaydetmeye açmaz",
+          "status": "passed"
+        },
+        {
+          "name": "ProfileScreen isim ve e-posta değişikliklerini ayrı kaydetme mutasyonlarına yollar",
+          "status": "passed"
+        },
+        {
+          "name": "ProfileScreen yeni şifre kurala uymadan veya tekrar alanıyla eşleşmeden güncellemeyi açmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\AppLockSettingsScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "AppLockSettingsScreen PIN kilidi kapalıyken geçersiz PIN’i reddeder ve geçerli 4 haneli PIN’i etkinleştirmeye yollar",
+          "status": "passed"
+        },
+        {
+          "name": "AppLockSettingsScreen mevcut PIN doğrulanmadan değiştirmez/kapatmaz; PIN’ler eşleşince mevcut PIN’i taşır",
+          "status": "passed"
+        },
+        {
+          "name": "AppLockSettingsScreen kilit açıkken kilit süresini seçilen dakikayla kaydeder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\ui\\PaymentHistoryScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "PaymentHistoryScreen abonelik veya ödeme verisi yüklenirken yükleme durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "PaymentHistoryScreen iki veri kaynağından biri hata verirse her ikisini yeniden dener",
+          "status": "passed"
+        },
+        {
+          "name": "PaymentHistoryScreen ödeme yokken boş durumu ve ödeme ekleme eylemini gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "PaymentHistoryScreen ödeme kaydını abonelik adıyla gösterir; düzenleme ve silme eylemleri kaydın kimliğini taşır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\DeleteAccountScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "DeleteAccountScreen kalıcı silmenin kapsamını açıklar ve çevrimdışıyken silme eylemini kapatır",
+          "status": "passed"
+        },
+        {
+          "name": "DeleteAccountScreen parola, sil onayı ve veri onayı olmadan silme isteği göndermez",
+          "status": "passed"
+        },
+        {
+          "name": "DeleteAccountScreen gerekli üç onay tamamlanınca silme mutasyonunu başlatır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\ui\\NotificationCenterScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "NotificationCenterScreen yükleme ve hata durumlarını gösterir, hatada yeniden denemeyi sağlar",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationCenterScreen boş listeyi açıklar",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationCenterScreen satıra dokununca yerelde okundu sayar, sunucu eşitlemesini başlatır ve abonelik ayrıntısını açar",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationCenterScreen tümünü okundu say eyleminde yalnız okunmamış bildirim kimliklerini işaretler",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\ExportScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "ExportScreen yükleniyor ve tekrar denenebilir hata durumlarını gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "ExportScreen boş hesapta cihaz dosyası paylaşımını kapatır ve sıfır kayıt gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "ExportScreen cihaz CSV paylaşımına altı abonelik durumunun tümünü ve kullanıcı IANA bölgesini verir",
+          "status": "passed"
+        },
+        {
+          "name": "ExportScreen dosya paylaşımı başarısızsa kullanıcıya hatayı gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\AppLockProvider.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "AppLockProvider PIN yükseltmesi eski Flutter PIN kaydını kabul eder, yeni biçime yükseltir ve deneme sayacını sıfırlar",
+          "status": "passed"
+        },
+        {
+          "name": "AppLockProvider PIN yükseltmesi depo hatasında içeriği gizler ve tekrar denemeden sonra kilitli durumu yükler",
+          "status": "passed"
+        },
+        {
+          "name": "AppLockProvider PIN yükseltmesi doğru PIN sonrası deneme sayacı yazılamazsa içeriği açmaz",
+          "status": "passed"
+        },
+        {
+          "name": "AppLockProvider PIN yükseltmesi hides content immediately and relocks when the account changes",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\data\\notificationScheduler.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "notificationScheduler native module loading does not load expo-notifications in Expo Go where module initialization fails",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\AppearanceScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "AppearanceScreen seçili para birimini erişilebilir işaretler ve farklı seçimde tercihi günceller",
+          "status": "passed"
+        },
+        {
+          "name": "AppearanceScreen IANA saat dilimi seçicisini açar ve seçimi kaydetme mutasyonuna iletir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionTile.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionTile accessibility announces category, cycle, amount, status and trial end date",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionDetailScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionDetailScreen yükleniyor, yeniden denenebilir hata ve kayıt bulunamadı durumlarını işler",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionDetailScreen kayıt bulunamadığında listeye döner",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionDetailScreen detaydan düzenleme ve iptal rotalarına doğru abonelik kimliğiyle gider",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionDetailScreen iptalden yeniden etkinleştirme için onay almadan durumu değiştirmez",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\useDeletionAction.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "cancel confirmation causes no write or native cancellation",
+          "status": "passed"
+        },
+        {
+          "name": "confirmed offline deletion persists once, invalidates local view, and cancels reminders",
+          "status": "passed"
+        },
+        {
+          "name": "unsupported backend blocks before confirmation or local hiding",
+          "status": "passed"
+        },
+        {
+          "name": "native cancellation failure is visible after saved deletion",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\ui\\NotificationRow.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "NotificationRow accessibility announces full detail, unread state, and date in the user timezone",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationRow accessibility announces when the notification is already read and opens on press",
+          "status": "passed"
+        },
+        {
+          "name": "NotificationRow accessibility lets screen reader users dismiss a notification without a swipe gesture",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\ui\\StatsScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "StatsScreen iki veri kaynağından biri yüklenirken ilerleme durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "StatsScreen veri hatasında her iki sorguyu yeniden dener",
+          "status": "passed"
+        },
+        {
+          "name": "StatsScreen aktif abonelik yokken ilk kaydı eklemeye yönlendirir",
+          "status": "passed"
+        },
+        {
+          "name": "StatsScreen analiz kartlarından tasarruf ve ödeme geçmişine gider",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\security\\decodeUriComponent.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "hardened query decoder decodes valid UTF-8 and preserves malformed percent sequences",
+          "status": "passed"
+        },
+        {
+          "name": "hardened query decoder handles long malformed query values in bounded linear work",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\calendar\\ui\\CalendarEventItem.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "CalendarEventItem accessibility date, event kind, subscription and amount are in the screen reader label",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\ui\\PrivacyCenterScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "PrivacyCenterScreen veri kontrolü açıklamasını ve gizlilik/veri yönetimi seçeneklerini gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "PrivacyCenterScreen yasal, dışa aktarma ve hesap silme rotalarına yönlendirir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\SubscriptionEditScreen.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "SubscriptionEditScreen abonelik yüklenirken ilerleme durumunu gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionEditScreen yükleme hatasında yeniden deneme sunar",
+          "status": "passed"
+        },
+        {
+          "name": "SubscriptionEditScreen kayıt yoksa boş durumu ve listeye dönüş eylemini gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\subscriptionMutationCoordinator.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "selects the injected atomic path without separate payment or queue writes",
+          "status": "passed"
+        },
+        {
+          "name": "preserves the fallback ordering and operation key using injected dependencies",
+          "status": "passed"
+        },
+        {
+          "name": "rejects an invalid status transition before sending any operation",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\data\\accountRepository.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "confirms deletion only when the server explicitly reports success",
+          "status": "passed"
+        },
+        {
+          "name": "does not report an incomplete deletion as success",
+          "status": "passed"
+        },
+        {
+          "name": "does not report an incomplete deletion as success",
+          "status": "passed"
+        },
+        {
+          "name": "does not report an incomplete deletion as success",
+          "status": "passed"
+        },
+        {
+          "name": "distinguishes a recent-login failure from other service failures",
+          "status": "passed"
+        },
+        {
+          "name": "treats a non-HTTP failure with a status-like field as a generic failure",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\shared\\widgets\\OfflineBanner.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "OfflineBanner ağ açık ve bekleyen değişiklik yokken görünmez",
+          "status": "passed"
+        },
+        {
+          "name": "OfflineBanner çevrimdışı durumu ve bekleyen yazım sayısını bildirir",
+          "status": "passed"
+        },
+        {
+          "name": "OfflineBanner bağlantı varken de bekleyen yazımları gösterir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\shared\\widgets\\AsyncStateView.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "AsyncStateView yükleniyor durumunda ilerleme göstergesini ve erişilebilir etiketi gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "AsyncStateView hata durumunda mesajı gösterir ve tekrar dene aksiyonunu çağırır",
+          "status": "passed"
+        },
+        {
+          "name": "AsyncStateView onRetry yoksa tekrar dene düğmesini göstermez",
+          "status": "passed"
+        },
+        {
+          "name": "AsyncStateView boş durumda başlığı ve açıklamayı gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "AsyncStateView hazır durumda çocuk fonksiyonu veriyle çağırır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\subscriptionSyncCoordinator.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "serializes concurrent offline additions without losing an entry",
+          "status": "passed"
+        },
+        {
+          "name": "preserves unknown connection evidence while attempting the existing online fast path",
+          "status": "passed"
+        },
+        {
+          "name": "retains the queue when the session changes before sending",
+          "status": "passed"
+        },
+        {
+          "name": "keeps separate coordinator instances and queues independent",
+          "status": "passed"
+        },
+        {
+          "name": "cancels an unsent offline create and queues persisted deletions in FIFO order",
+          "status": "passed"
+        },
+        {
+          "name": "retains deletion on temporary error, retries once, and does not send across accounts",
+          "status": "passed"
+        },
+        {
+          "name": "reports permanent deletion rejection and preserves queue when persistence rejects",
+          "status": "passed"
+        },
+        {
+          "name": "persists before an online create and deletes an ambiguous committed create after resolving its ID",
+          "status": "passed"
+        },
+        {
+          "name": "keeps custom reminder days in offline creation and retries their update without creating twice",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\calendar\\ui\\CalendarDayCell.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "CalendarDayCell accessibility tam tarihi ve yenileme olayını duyurur",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarDayCell accessibility deneme bitişini yenilemeden ayrı duyurur",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarDayCell accessibility aynı günde yenileme ve deneme varsa iki ayrı görsel işaret üretir",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarDayCell accessibility seçili günde deneme işaretinin yenilemeden farklı rengi korur",
+          "status": "passed"
+        },
+        {
+          "name": "CalendarDayCell accessibility seçili durumu bildirir ve içinde bulunulan ay dışındaki hücreleri erişilebilirlikten çıkarır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\ui\\detail\\DetailActions.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "DetailActions yenileme onayı vade bugün olduğunda kullanıcı onayı düğmesini gösterir",
+          "status": "passed"
+        },
+        {
+          "name": "DetailActions yenileme onayı vade ilerideyse yenileme onayı düğmesini gizler",
+          "status": "passed"
+        },
+        {
+          "name": "DetailActions yenileme onayı iptal edilmiş kayıtta geçersiz duraklatma ve iptal düğmelerini gizler",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\shared\\widgets\\BottomNavigation.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "BottomNavigation accessibility exposes a tab list, selected tab state, and usable tab actions",
+          "status": "passed"
+        },
+        {
+          "name": "BottomNavigation accessibility preserves the safe area while keeping every tab at least the minimum touch height",
+          "status": "passed"
+        },
+        {
+          "name": "BottomNavigation accessibility keeps system font scaling enabled with a readable label floor",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\performanceDataset.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "provides two valid 500-row batches with distinct names for native capacity acceptance",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\design-system.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "renk ham hex ve rgba değeri yalnızca tokens.ts içinde tanımlanır",
+          "status": "passed"
+        },
+        {
+          "name": "yazı yalnızca tasarım belgesindeki yazı boyutları kullanılır",
+          "status": "passed"
+        },
+        {
+          "name": "yazı ekranlar kalınlık yazmaz; 800 hiçbir yerde kullanılmaz",
+          "status": "passed"
+        },
+        {
+          "name": "yazı ekranlar fontSize ve fontWeight yazmaz, yazı rolü kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "boşluk ve köşe Spacer yalnızca token alır, ham sayı kabul etmez",
+          "status": "passed"
+        },
+        {
+          "name": "boşluk ve köşe padding, margin ve gap değerleri ham sayı olamaz",
+          "status": "passed"
+        },
+        {
+          "name": "boşluk ve köşe köşe yarıçapı ham sayı olamaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\createSubscriptionWorkflow.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "returns each successful follow-up separately",
+          "status": "passed"
+        },
+        {
+          "name": "preserves creation success when both follow-up writes fail",
+          "status": "passed"
+        },
+        {
+          "name": "does not send follow-ups for queued creation",
+          "status": "passed"
+        },
+        {
+          "name": "propagates creation failure without executing follow-ups",
+          "status": "passed"
+        },
+        {
+          "name": "records deferred payment without using the paid payment path",
+          "status": "passed"
+        },
+        {
+          "name": "retains custom reminders in the durable offline creation contract",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\domain\\reminderPlanner.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "renewalDaysFor kural yoksa varsayılan gün sayısını kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "renewalDaysFor yalnızca etkin kuralları, tekil ve artan sırada döner",
+          "status": "passed"
+        },
+        {
+          "name": "renewalDaysFor kurallar varsa ama hiçbiri etkin değilse bildirim yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders yenileme bildirimini kayıt gününden önce, yerel 09:00 olarak planlar",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders kayıtta kural varsa varsayılanı yok sayar",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders deneme bitişinden 7, 3 ve 1 gün önce planlar",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders geçmişte kalan teslimleri eler",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders en fazla limit kadar bildirim tutar ve en yakınları korur",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders aynı girdi aynı kimlikleri üretir (tekrar planlamayı önler)",
+          "status": "passed"
+        },
+        {
+          "name": "planReminders kimlikler bildirim türünü ayırır: yenileme ve deneme çakışmaz",
+          "status": "passed"
+        },
+        {
+          "name": "kimlik sahipliği ve ertele yalnızca yenileme ve deneme kimliklerini planlayıcıya ait sayar; ertelenenleri değil",
+          "status": "passed"
+        },
+        {
+          "name": "kimlik sahipliği ve ertele ertele süresi 30 dakikadır",
+          "status": "passed"
+        },
+        {
+          "name": "saat dilimi değişikliği ilk kez (kayıt yok) ve farklı değerde değişmiş sayılır; aynıysa değil",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\data\\notificationScheduler.sync.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "removes both normal and snoozed notifications for a deleted subscription and persists retry intent",
+          "status": "passed"
+        },
+        {
+          "name": "keeps total planned capacity within 60 while preserving existing snoozes",
+          "status": "passed"
+        },
+        {
+          "name": "does not schedule over an unreadable deletion marker and retries native cancellation on reopen",
+          "status": "passed"
+        },
+        {
+          "name": "değişmeyen planı yeniden zamanlamaz ve erteleme/test kaydına dokunmaz",
+          "status": "passed"
+        },
+        {
+          "name": "saat değişince eski kaydı iptal edip yenisini planlar",
+          "status": "passed"
+        },
+        {
+          "name": "dilim aynı UTC anında bile değişince eski kaydı iptal edip yenisini planlar",
+          "status": "passed"
+        },
+        {
+          "name": "başlık değişince eski kaydı iptal edip yenisini planlar",
+          "status": "passed"
+        },
+        {
+          "name": "tutar içeriği değişince eski kaydı iptal edip yenisini planlar",
+          "status": "passed"
+        },
+        {
+          "name": "önceki sürümün parmak izi olmayan kaydını yeniler",
+          "status": "passed"
+        },
+        {
+          "name": "plandan çıkan eski kaydı kaldırır; erteleme kaydını korur",
+          "status": "passed"
+        },
+        {
+          "name": "planlama hatasını çağırana iletir; sonraki senkron yeniden dener",
+          "status": "passed"
+        },
+        {
+          "name": "yeni kayıt kurulamazsa değişmeden önceki kaydı geri yükler",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\data\\pinUnlockCoordinator.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "uses injected persistence and clock to enforce lockout after five wrong attempts",
+          "status": "passed"
+        },
+        {
+          "name": "upgrades a verified PIN before clearing attempts",
+          "status": "passed"
+        },
+        {
+          "name": "rejects failed persistence and allows a later retry on the same serial executor",
+          "status": "passed"
+        },
+        {
+          "name": "restored lockout persists across service instances until the stored deadline",
+          "status": "passed"
+        },
+        {
+          "name": "upgrade write failure does not clear attempts or return success",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\security\\pinRecord.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "PIN kaydı doğru PIN doğrulanır, yanlış PIN reddedilir",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı ham PIN kayıtta yer almaz ve her kayıt farklı tuz kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı bozuk veya bilinmeyen sürümdeki kayıt reddedilir",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı aşırı tur sayısı reddedilir",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı Flutter PBKDF2 biçimini bağımsız test vektörüyle doğrular",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı önceki Expo v1 özetini doğrular ve yükseltmeye işaretler",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı Flutter eski tek tur SHA-256 özetini doğrular",
+          "status": "passed"
+        },
+        {
+          "name": "PIN kaydı paylaşılan Flutter–Expo legacy SHA-256 ve PBKDF2 v2 vektörlerini doğrular",
+          "status": "passed"
+        },
+        {
+          "name": "constantTimeEquals eşit ve farklı dizgileri ayırt eder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\shared\\design\\themeRuntime.test.tsx",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "updates module-level styles, inline tokens, and typography in both directions",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\storedSubscriptions.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "reads legacy and versioned queues without changing operations",
+          "status": "passed"
+        },
+        {
+          "name": "rejects malformed or wrong-account queues",
+          "status": "passed"
+        },
+        {
+          "name": "rejects malformed or wrong-account queues",
+          "status": "passed"
+        },
+        {
+          "name": "rejects malformed or wrong-account queues",
+          "status": "passed"
+        },
+        {
+          "name": "rejects malformed or wrong-account queues",
+          "status": "passed"
+        },
+        {
+          "name": "rejects unknown versions and malformed cache rows",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid or out-of-contract subscription amount abc",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid or out-of-contract subscription amount -1.00",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid or out-of-contract subscription amount 0.001",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid or out-of-contract subscription amount 1000000000.01",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid or out-of-contract subscription amount 9007199254740992",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"next_renewal_date\":\"2026-02-30\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"start_date\":\"2026-13-01\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"trial_end_date\":\"not-a-date\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"currency\":\"invalid\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"billing_cycle\":\"sometimes\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"category\":\"invalid\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"status\":\"invalid\"}",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid cached dates, enums and trial amounts: {\"trial_price_after\":\"abc\"}",
+          "status": "passed"
+        },
+        {
+          "name": "preserves legacy numeric amounts, valid foreign currency, zero and the API maximum",
+          "status": "passed"
+        },
+        {
+          "name": "rejects invalid queued update dates and savings money without changing the entry",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\cancellation.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "validateCancellation bugünkü veya geçmiş iptal tarihi geçerlidir",
+          "status": "passed"
+        },
+        {
+          "name": "validateCancellation gelecek iptal tarihi reddedilir",
+          "status": "passed"
+        },
+        {
+          "name": "validateCancellation erişim bitişi iptal tarihinden önce olamaz; aynı gün veya sonrası geçerli",
+          "status": "passed"
+        },
+        {
+          "name": "cancellationPayload erişim bitişi yoksa yalnızca iptal tarihini yazar",
+          "status": "passed"
+        },
+        {
+          "name": "cancellationPayload erişim bitişi varsa onu da yazar",
+          "status": "passed"
+        },
+        {
+          "name": "cancellationPayload iptal olayına payload olarak eklenir",
+          "status": "passed"
+        },
+        {
+          "name": "providerCancelUrl web sitesi yoksa null",
+          "status": "passed"
+        },
+        {
+          "name": "providerCancelUrl şemasız adrese https ekler",
+          "status": "passed"
+        },
+        {
+          "name": "providerCancelUrl http ve https adreslerini korur",
+          "status": "passed"
+        },
+        {
+          "name": "providerCancelUrl http(s) dışındaki şemaları reddeder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\data\\notificationPrefs.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "uzaktaki üç hesap tercihini alır ve kullanıcıya ayrılmış cache yazdırır",
+          "status": "passed"
+        },
+        {
+          "name": "çevrimdışıyken yalnız aynı kullanıcıya ait son tercihleri kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "oturum başka kullanıcıya aitse yerel tercihleri döndürmez",
+          "status": "passed"
+        },
+        {
+          "name": "profil ve Auth meta verisine hesap tercihlerini yazar",
+          "status": "passed"
+        },
+        {
+          "name": "başka kullanıcı oturumu varsa hiçbir hesaba tercih yazmaz",
+          "status": "passed"
+        },
+        {
+          "name": "profil yazımından sonra hesap değişirse Auth tercihlerini yeni hesaba yazmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\data\\paymentRepository.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "loads ordered payments and maps decimal amounts and deferred status",
+          "status": "passed"
+        },
+        {
+          "name": "reports a payment history read failure",
+          "status": "passed"
+        },
+        {
+          "name": "sends the payment once through the idempotent RPC",
+          "status": "passed"
+        },
+        {
+          "name": "maps an RPC error P0002 without retrying a known permanent error",
+          "status": "passed"
+        },
+        {
+          "name": "maps an RPC error 42501 without retrying a known permanent error",
+          "status": "passed"
+        },
+        {
+          "name": "maps an RPC error undefined without retrying a known permanent error",
+          "status": "passed"
+        },
+        {
+          "name": "updates and deletes payment records by id; reports RLS/service failures",
+          "status": "passed"
+        },
+        {
+          "name": "writes a deferred payment through the idempotent RPC when the flag is on",
+          "status": "passed"
+        },
+        {
+          "name": "keeps the direct DEFERRED insert while the migration is not deployed",
+          "status": "passed"
+        },
+        {
+          "name": "pages through the full payment history instead of stopping at one page",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\csvImportParser.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "parseSubscriptionCsv dışa aktarılan tüm abonelik durumlarını geri okur",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv formül tetikleyicilerini ve tırnaklı çok satırlı notları gidiş-dönüşte korur",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv boş dosyayı ve eksik başlığı hata olarak bildirir",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv geçerli satırı alan modeline çevirir",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv API üst sınırını aşan tutarlı satırı içe almaz",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv Türkçe döngü değerini kabul eder; bilinmeyen kategori other olur",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv bozuk tarih, sıfır tutar ve boş ad satır hatası üretir",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv aynı adı (büyük/küçük harf farklı olsa da) tekrar eden satırı atlar",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv üç harfli olmayan para birimini reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv trial bitiş tarihi girilmişse geçerli olmalı",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv satır sayısı sınırı aşılınca fazlasını atlar ve uyarır",
+          "status": "passed"
+        },
+        {
+          "name": "parseSubscriptionCsv dışa aktarılan dosyayı formül önekiyle birlikte değişmeden geri içe aktarır",
+          "status": "passed"
+        },
+        {
+          "name": "yardımcılar başlık normalizasyonu Türkçe karakterleri çevirir",
+          "status": "passed"
+        },
+        {
+          "name": "yardımcılar formül önekini yalnızca tetikleyici karakterlerde geri alır",
+          "status": "passed"
+        },
+        {
+          "name": "yardımcılar tırnaklı alanları ayırır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\storage\\secureSessionStorage.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "secureSessionStorage kısa değeri tek kayıt olarak saklar ve geri okur",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage sınırı aşan oturum değerini parçalara bölüp birleştirerek okur",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage hiçbir kayıt güvenli depo sınırını (2048) aşmaz",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage değer kısaldığında eski parçaları temizler",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage silme parçaları da kaldırır",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage eksik parça varsa değeri bozuk sayıp null döner",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage kritik okumada eksik parça veya geçersiz parça sayısı hata verir",
+          "status": "passed"
+        },
+        {
+          "name": "secureSessionStorage desteklenmeyen karakterli anahtarı güvenli biçime çevirir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\chartSummary.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "trendSummary dönem, toplam ve en yüksek ayı tek cümlede verir",
+          "status": "passed"
+        },
+        {
+          "name": "trendSummary en yüksek ay yoksa onu atlar",
+          "status": "passed"
+        },
+        {
+          "name": "categorySummary kategori yoksa açıkça söyler",
+          "status": "passed"
+        },
+        {
+          "name": "categorySummary en büyük kategoriyi yüzdesiyle verir",
+          "status": "passed"
+        },
+        {
+          "name": "categorySummary tek kategoride de özet üretir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\subscriptionEdit.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "formValuesFromSubscription kayıtlı alanları form değerlerine taşır ve deneme alanlarını ayırır",
+          "status": "passed"
+        },
+        {
+          "name": "formValuesFromSubscription başlangıç tarihi yoksa bugünü kullanır; deneme yoksa isTrial false",
+          "status": "passed"
+        },
+        {
+          "name": "formValuesFromSubscription listede olmayan para birimini değiştirmeden taşır",
+          "status": "passed"
+        },
+        {
+          "name": "toUpdatePayload bildirim kurallarını olduğu gibi geri gönderir (RPC null için sıfırlar)",
+          "status": "passed"
+        },
+        {
+          "name": "toUpdatePayload düzenleme formu alanlarını ve mevcut durumu birlikte yazar",
+          "status": "passed"
+        },
+        {
+          "name": "toUpdatePayload boş tarihleri null bırakır (durum değişikliği doğrulama yapmaz)",
+          "status": "passed"
+        },
+        {
+          "name": "toUpdatePayload yenileme tarihini ISO gün biçiminde gönderir",
+          "status": "passed"
+        },
+        {
+          "name": "priceChangeEvent tutar ve para birimi aynıysa olay üretmez",
+          "status": "passed"
+        },
+        {
+          "name": "priceChangeEvent tutar değişince PRICE_CHANGED üretir ve eski/yeni değeri taşır",
+          "status": "passed"
+        },
+        {
+          "name": "priceChangeEvent yalnızca para birimi değişse de olay üretir",
+          "status": "passed"
+        },
+        {
+          "name": "statusChangeEvent durum değişmediyse olay yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "statusChangeEvent geçişi from/to olarak kaydeder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\auth\\domain\\sessionState.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "reduceSession INITIAL_SESSION oturum yoksa unauthenticated olur",
+          "status": "passed"
+        },
+        {
+          "name": "reduceSession SIGNED_IN oturumdan kullanıcıyı çıkarır",
+          "status": "passed"
+        },
+        {
+          "name": "reduceSession PASSWORD_RECOVERY kurtarma modunu açar",
+          "status": "passed"
+        },
+        {
+          "name": "reduceSession USER_UPDATED kurtarma modunu kapatır",
+          "status": "passed"
+        },
+        {
+          "name": "reduceSession SIGNED_OUT her şeyi sıfırlar",
+          "status": "passed"
+        },
+        {
+          "name": "reduceSession oturum yokken kurtarma modu kalmaz",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect tanıtım görülmediyse oturum yokken onboarding ekranına yönlendirir",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect onboarding ekranı ve yasal sayfalar tanıtım beklemez",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect tanıtım görüldüyse davranış değişmez",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect durum bilinmiyorsa yönlendirme yapmaz (yükleniyor)",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect oturum yokken uygulama ekranlarından giriş ekranına yönlendirir",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect oturum yokken auth ekranları ve callback açıktır",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect oturum açıkken auth ekranından ana sayfaya yönlendirir",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect yasal sayfalar oturum durumundan bağımsız açıktır",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect oturum açıkken uygulama ekranında kalır",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect kurtarma modunda reset-password dışındaki her ekran oraya gönderir",
+          "status": "passed"
+        },
+        {
+          "name": "resolveRedirect kurtarma modunda reset-password ekranında kalır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\subscriptionOperations.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "rowFromCreate geçici kimlik öneki taşır ve deneme varsa durum trial olur",
+          "status": "passed"
+        },
+        {
+          "name": "applyOperation güncelleme yalnızca hedef satırı değiştirir ve arşivi kaldırır",
+          "status": "passed"
+        },
+        {
+          "name": "applyOperation güncellenen satırın bildirim kuralı işlemle birlikte gelir",
+          "status": "passed"
+        },
+        {
+          "name": "applyOperation girdi dizisini değiştirmez",
+          "status": "passed"
+        },
+        {
+          "name": "applyOperation ekleme listenin başına geçici kayıt koyar",
+          "status": "passed"
+        },
+        {
+          "name": "overlayPendingOperations bekleyen işlemleri sırayla bindirir: önce ekleme, sonra güncelleme",
+          "status": "passed"
+        },
+        {
+          "name": "overlayPendingOperations bekleyen işlem yoksa sunucu satırları aynen döner",
+          "status": "passed"
+        },
+        {
+          "name": "overlayPendingOperations sunucu satırlarını değiştirmez (cache temiz kalır)",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\calendar\\domain\\calendarDays.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "monthGrid pazartesi başlar: 1 Ekim 2026 Perşembe, önünde 3 boşluk",
+          "status": "passed"
+        },
+        {
+          "name": "monthGrid her satır 7 hücredir ve tüm günler yer alır",
+          "status": "passed"
+        },
+        {
+          "name": "monthGrid artık yılda 29 Şubat yer alır",
+          "status": "passed"
+        },
+        {
+          "name": "gün olayları yenileme yalnızca aktif kayıtlar için gösterilir",
+          "status": "passed"
+        },
+        {
+          "name": "gün olayları shows future starting renewal in calendar but excludes it from current totals",
+          "status": "passed"
+        },
+        {
+          "name": "gün olayları deneme bitişi ayrı listelenir",
+          "status": "passed"
+        },
+        {
+          "name": "gün olayları ayın yenileme ve deneme günleri ayrı kümelerde döner",
+          "status": "passed"
+        },
+        {
+          "name": "monthTotalsByCurrency o ayın yenilemelerini para birimi başına toplar",
+          "status": "passed"
+        },
+        {
+          "name": "shiftMonth yıl sınırında taşar",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\renewalRepository.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "preserves old RPC or selects timezone-aware contract: false",
+          "status": "passed"
+        },
+        {
+          "name": "preserves old RPC or selects timezone-aware contract: true",
+          "status": "passed"
+        },
+        {
+          "name": "propagates rejection P0001 without payment fallback",
+          "status": "passed"
+        },
+        {
+          "name": "propagates rejection 23505 without payment fallback",
+          "status": "passed"
+        },
+        {
+          "name": "propagates rejection 42501 without payment fallback",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\data\\pinUnlockService.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "serializes concurrent wrong PIN attempts using the persisted counter",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\subscriptionMutations.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "confirmOverdueRenewal ödeme kaydını aynı idempotency anahtarıyla yazar ve sonra sonraki yenilemeyi günceller",
+          "status": "passed"
+        },
+        {
+          "name": "confirmOverdueRenewal ödeme kaydı başarısızsa abonelik yenilemesini ilerletmez",
+          "status": "passed"
+        },
+        {
+          "name": "confirmOverdueRenewal özellik açıldığında tek sunucu işlemini çağırır ve eski yazımları kullanmaz",
+          "status": "passed"
+        },
+        {
+          "name": "iptalden yeniden etkinleştirme geçmiş tasarrufu değiştirmez ve yeni tasarruf üretmez",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\data\\appLockStore.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "treats absent settings as disabled lock",
+          "status": "passed"
+        },
+        {
+          "name": "rejects malformed PIN data instead of treating it as disabled",
+          "status": "passed"
+        },
+        {
+          "name": "rejects negative attempt counts",
+          "status": "passed"
+        },
+        {
+          "name": "propagates storage failure",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\subscriptionForm.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "validateSubscriptionForm geçerli form hata üretmez",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm boş ad ve boş tutar için Flutter metinlerini döner",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm sıfır, negatif ve bozuk tutarı reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm kuruş hassasiyetini ve canlı API üst sınırını uygular",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm üç ondalık basamaklı tutarı reddeder (kuruş sınırı)",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm deneme açıkken bitiş tarihi ve deneme fiyatı zorunludur",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm deneme kapalıyken deneme alanları istenmez",
+          "status": "passed"
+        },
+        {
+          "name": "validateSubscriptionForm ad 160 karakteri aşarsa reddedilir",
+          "status": "passed"
+        },
+        {
+          "name": "toCreatePayload RPC parametrelerini sözleşmedeki adlarla ve doğru biçimde üretir",
+          "status": "passed"
+        },
+        {
+          "name": "toCreatePayload boş not ve ödeme yöntemini null gönderir",
+          "status": "passed"
+        },
+        {
+          "name": "toCreatePayload deneme açıksa deneme alanlarını doldurur",
+          "status": "passed"
+        },
+        {
+          "name": "toCreatePayload doğrulanmamış formla yük üretmeyi reddeder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\subscriptionDeleteRepository.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "does not write before deployment and never falls back to physical delete",
+          "status": "passed"
+        },
+        {
+          "name": "sends the same key and IDs to the idempotent RPC",
+          "status": "passed"
+        },
+        {
+          "name": "reports permanent rejection 42501",
+          "status": "passed"
+        },
+        {
+          "name": "reports permanent rejection PGRST202",
+          "status": "passed"
+        },
+        {
+          "name": "reports permanent rejection 23505",
+          "status": "passed"
+        },
+        {
+          "name": "retains retryable failure undefined",
+          "status": "passed"
+        },
+        {
+          "name": "retains retryable failure 40001",
+          "status": "passed"
+        },
+        {
+          "name": "retains retryable failure 40P01",
+          "status": "passed"
+        },
+        {
+          "name": "retains retryable failure PGRST000",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\ui\\cards\\categoryColor.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "categoryColor her kategori için bir renk döner",
+          "status": "passed"
+        },
+        {
+          "name": "categoryColor farklı kategoriler farklı renk alır",
+          "status": "passed"
+        },
+        {
+          "name": "categoryColor renk kategoriye bağlıdır; çağrı sırasına bağlı değildir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\subscription.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "subscriptionFromRow ondalık tutarı Money olarak okur ve tarihleri takvim gününe çevirir",
+          "status": "passed"
+        },
+        {
+          "name": "subscriptionFromRow bilinmeyen kategori, döngü ve durum için güvenli varsayılan kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "monthlyEquivalent yıllık tutarı 12 ile böler",
+          "status": "passed"
+        },
+        {
+          "name": "monthlyEquivalent üç aylık tutarı 3 ile böler",
+          "status": "passed"
+        },
+        {
+          "name": "monthlyEquivalent haftalık tutarı 52/12 ile çarpar",
+          "status": "passed"
+        },
+        {
+          "name": "monthlyEquivalent aylık tutarı olduğu gibi döner",
+          "status": "passed"
+        },
+        {
+          "name": "daysUntilRenewal bugünden yenileme gününe kalan tam günü verir",
+          "status": "passed"
+        },
+        {
+          "name": "daysUntilRenewal yenileme tarihi yoksa null döner",
+          "status": "passed"
+        },
+        {
+          "name": "liste sekmeleri ve arama aktif sekmesinde yalnızca aktif kayıtları yenileme tarihine göre sıralar",
+          "status": "passed"
+        },
+        {
+          "name": "liste sekmeleri ve arama tarihi olmayan kayıtlar listenin sonuna gider",
+          "status": "passed"
+        },
+        {
+          "name": "liste sekmeleri ve arama arama ad içinde büyük/küçük harf duyarsız eşleşir",
+          "status": "passed"
+        },
+        {
+          "name": "liste sekmeleri ve arama sekme sayıları her durumu ayrı sayar",
+          "status": "passed"
+        },
+        {
+          "name": "liste sekmeleri ve arama arşivlenmiş kayıt listelerde görünmez",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewingSoon 7 gün içinde yenilenen aktif kayıt vurgulanır",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewingSoon 8 gün sonrası vurgulanmaz",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewingSoon duraklatılmış kayıt, yakın olsa da vurgulanmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\domain\\money.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 12.50 tutarını ortak wire biçiminde çözer",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 12,50 tutarını ortak wire biçiminde çözer",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları -0.05 tutarını ortak wire biçiminde çözer",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 0.10 tutarını ortak wire biçiminde çözer",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 0.05 × 0.5 ortak yuvarlamayı korur",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları -0.05 × 0.5 ortak yuvarlamayı korur",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 9.99 × 12 ortak yuvarlamayı korur",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 2027-01-31 / monthly / 2027-02-01 → 2027-02-28 fatura günü",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 2027-01-31 / monthly / 2027-03-01 → 2027-03-31 fatura günü",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 2028-01-31 / monthly / 2028-02-01 → 2028-02-29 fatura günü",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 2026-10-28 / weekly / 2026-11-01 → 2026-11-04 fatura günü",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları 2026-10-09 / quarterly / 2026-10-10 → 2027-01-09 fatura günü",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo altın senaryoları fixture içindeki karara bağlanmamış sınır farkını açık tutar",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse 10 → 10.00",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse 10.5 → 10.50",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse 10,5 → 10.50",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse 0.01 → 0.01",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse -3.20 → -3.20",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse   99.99  → 99.99",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse geçersiz girdide sıfır döner",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse tryParse geçersiz girdide null döner",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse güvenli tam sayı sınırını aşan metni hata fırlatmadan reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse güvenli tam sayı sınırındaki son minör birimi kabul eder",
+          "status": "passed"
+        },
+        {
+          "name": "Money.parse kuruş sınırında 0,1 + 0,2 hatası üretmez",
+          "status": "passed"
+        },
+        {
+          "name": "Money aritmetiği toplama ve çıkarma tam minör birimde yapılır",
+          "status": "passed"
+        },
+        {
+          "name": "Money aritmetiği çarpmada yarım kuruş sıfırdan uzağa yuvarlanır",
+          "status": "passed"
+        },
+        {
+          "name": "Money aritmetiği bölmede yuvarlama tanımlı sınırda yapılır",
+          "status": "passed"
+        },
+        {
+          "name": "Money aritmetiği sıfıra bölme hata verir",
+          "status": "passed"
+        },
+        {
+          "name": "Money aritmetiği aylık tutardan yıllık tutar (×12) tam çıkar",
+          "status": "passed"
+        },
+        {
+          "name": "Money aritmetiği compareTo sıralama yapar",
+          "status": "passed"
+        },
+        {
+          "name": "Money serileştirme fromJson string ve sayıyı kabul eder",
+          "status": "passed"
+        },
+        {
+          "name": "Money serileştirme JSON gövdesi ondalık string olarak çıkar",
+          "status": "passed"
+        },
+        {
+          "name": "Money serileştirme güvenli tam sayı sınırını aşan değer reddedilir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\statsSummary.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "ödeme analizi ay toplamı yalnızca istenen para birimini sayar",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme analizi son 6 ay eskiden yeniye sıralanır",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme analizi yüzde değişim geçen ay 0 ise null",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme analizi yüzde değişim: (bu ay − geçen ay) / geçen ay",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme analizi ay sınırını cihaz yerine profil saat diliminde hesaplar",
+          "status": "passed"
+        },
+        {
+          "name": "buildStatsSummary aylık toplam aktif kayıtlardan, yıllık = aylık × 12",
+          "status": "passed"
+        },
+        {
+          "name": "buildStatsSummary aktif para birimi dışındaki kayıtlar hesaba katılmaz",
+          "status": "passed"
+        },
+        {
+          "name": "buildStatsSummary kategoriler aylık tutara göre büyükten küçüğe sıralanır",
+          "status": "passed"
+        },
+        {
+          "name": "buildStatsSummary aktif kayıt yoksa özet null",
+          "status": "passed"
+        },
+        {
+          "name": "buildStatsSummary ödeme geçmişi yoksa trend bayrağı false",
+          "status": "passed"
+        },
+        {
+          "name": "tasarruf duraklatma ve iptalde aylık eşdeğer kaydedilir; yıllık = aylık × 12",
+          "status": "passed"
+        },
+        {
+          "name": "tasarruf kaydedilen tasarruf para birimi başına toplanır",
+          "status": "passed"
+        },
+        {
+          "name": "tasarruf fırsatlar olası yıllık maliyete göre büyükten küçüğe",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\auth\\data\\authRepository.signup.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "gerçek kayıt ile boş kimlikli mevcut adres için aynı sonucu döner",
+          "status": "passed"
+        },
+        {
+          "name": "açık kayıtlı adres hatasını aynı genel sonuca çevirir",
+          "status": "passed"
+        },
+        {
+          "name": "başka kayıt hatalarını göstermeye devam eder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\domain\\themePreference.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "defaults new installations to system and keeps existing dark appearance",
+          "status": "passed"
+        },
+        {
+          "name": "rejects corrupted preference and resolves unspecified system to light",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\data\\biometrics.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "cancellation or native failure never unlocks and disables device PIN fallback",
+          "status": "passed"
+        },
+        {
+          "name": "requires both hardware and enrolled biometric",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\subscriptionFilter.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "applyFilter varsayılan süzgeç her kaydı sırasıyla döndürür",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter kategoriye göre süzer",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter para birimine göre süzer; karışık para birimlerini toplamaz",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter yaklaşan yenilemeler yalnızca 7 gün içindekileri tutar",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter fiyat sıralaması aylık eşdeğere göre yapılır",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter isme göre sıralar",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter does not compare different currencies by amount and sorts date ties by name and id",
+          "status": "passed"
+        },
+        {
+          "name": "applyFilter girdi dizisini değiştirmez",
+          "status": "passed"
+        },
+        {
+          "name": "activeFilterCount sıralama süzgeç sayılmaz",
+          "status": "passed"
+        },
+        {
+          "name": "availableCurrencies benzersiz ve sıralı para birimleri döner",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\trendState.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "trendState hiç ödeme yoksa empty",
+          "status": "passed"
+        },
+        {
+          "name": "trendState yalnızca bir ayda ödeme varsa single",
+          "status": "passed"
+        },
+        {
+          "name": "trendState en az iki ayda ödeme varsa ready",
+          "status": "passed"
+        },
+        {
+          "name": "trendState boş dizi empty",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\calendar\\domain\\calendarGrid.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "calendarGrid artık yıl şubatını tam haftalarla ve komşu aylarla oluşturur",
+          "status": "passed"
+        },
+        {
+          "name": "calendarGrid ocak başında önceki yılın günlerini taşır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\domain\\timeZonePreference.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "preserves legacy fixed IANA preferences",
+          "status": "passed"
+        },
+        {
+          "name": "device mode follows each device while fixed mode survives device changes",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\csvImport.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "importSubscriptionRows kaydeder ve mevcut kuralın izin vermediği CSV durumunu uyarıda bildirir",
+          "status": "passed"
+        },
+        {
+          "name": "importSubscriptionRows izin verilen CSV durumunu oluşturma sonrasında uygular",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\paymentEdit.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "parsePaymentAmount pozitif tutarı kabul eder",
+          "status": "passed"
+        },
+        {
+          "name": "parsePaymentAmount sıfır, negatif ve geçersiz girdiyi reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "paidAtFromCivil ve localCivilDate seçilen günü öğlen olarak kaydeder ve aynı yerel güne geri döner",
+          "status": "passed"
+        },
+        {
+          "name": "paidAtFromCivil ve localCivilDate ay sonu ve artık gün kayıpsız gider",
+          "status": "passed"
+        },
+        {
+          "name": "profil saat diliminde ödeme tarihi aynı anı profildeki bölgeye göre farklı aylara ayırır",
+          "status": "passed"
+        },
+        {
+          "name": "profil saat diliminde ödeme tarihi seçilen günü profil bölgesinde öğle olarak kaydeder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\mutationQueue.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "drainQueue boş kuyrukta hiçbir şey yapmaz",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue FIFO sırasıyla yazar; olay ve tasarruf aşamalarını sırayla işler",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue olay ve tasarruf yoksa yalnızca yazım yapılır",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue geçici hatada durur, sırayı korur ve kalan kuyruğu döner",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue yazım tamam, olay geçici hatayla durursa aşama olay olarak kalır ve yazım tekrarlanmaz",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue olay tamam, tasarruf geçici hatayla durursa yalnızca tasarruf yeniden denenir",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue kalıcı reddedilen yazımı atlar, raporlar ve sonrakilere devam eder",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue olay veya tasarruf kalıcı reddedilirse değişiklik geçerli sayılır, eksik kayıt sayılır",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue her adımdan sonra kalıcılaştırır ve son kalıcılaştırma boş kuyruktur",
+          "status": "passed"
+        },
+        {
+          "name": "drainQueue ekleme işleminde olay ve tasarruf aşaması yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "pendingWrites olay ve tasarruf aşamasındaki girişler yazılmamış sayılmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\shell\\domain\\tabHeader.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "greetingFor görünen ad varsa adla selamlar",
+          "status": "passed"
+        },
+        {
+          "name": "greetingFor görünen ad boşsa e-posta öneki kullanılmaz; yalnızca Merhaba",
+          "status": "passed"
+        },
+        {
+          "name": "greetingFor oturum yoksa Merhaba",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\domain\\activeCurrency.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "resolveActiveCurrency profildeki geçerli tercih önceliklidir",
+          "status": "passed"
+        },
+        {
+          "name": "resolveActiveCurrency profil yoksa cihazdaki seçim kullanılır",
+          "status": "passed"
+        },
+        {
+          "name": "resolveActiveCurrency ikisi de yoksa TRY",
+          "status": "passed"
+        },
+        {
+          "name": "resolveActiveCurrency desteklenmeyen (eski GBP) değer yok sayılır",
+          "status": "passed"
+        },
+        {
+          "name": "isActiveCurrency yalnızca üç desteklenen kodu kabul eder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\currencyFilter.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "inCurrency yalnızca seçili para birimindeki kayıtları döner",
+          "status": "passed"
+        },
+        {
+          "name": "inCurrency eşleşme yoksa boş liste",
+          "status": "passed"
+        },
+        {
+          "name": "hiddenCount gizlenen kayıt sayısını verir",
+          "status": "passed"
+        },
+        {
+          "name": "hiddenCount hepsi aynı para birimindeyse sıfır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\dashboard\\domain\\dashboardSummary.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "isNotStarted başlangıç günü gelmemiş aktif kayıt henüz başlamamıştır",
+          "status": "passed"
+        },
+        {
+          "name": "isNotStarted duraklatılmış kayıt başlamamış sayılmaz",
+          "status": "passed"
+        },
+        {
+          "name": "toplamlar toplamlar yalnızca aktif ve başlamış kayıtları alır",
+          "status": "passed"
+        },
+        {
+          "name": "toplamlar aylık toplam para birimi başına ayrı tutulur",
+          "status": "passed"
+        },
+        {
+          "name": "toplamlar yıllık toplam aylık toplamın 12 katıdır",
+          "status": "passed"
+        },
+        {
+          "name": "yaklaşan ödemeler ve denemeler 7 günlük pencerede yalnızca aktif kayıtlar sayılır",
+          "status": "passed"
+        },
+        {
+          "name": "yaklaşan ödemeler ve denemeler sıradaki ödeme 30 gün içindeki en yakın aktif yenilemedir",
+          "status": "passed"
+        },
+        {
+          "name": "yaklaşan ödemeler ve denemeler denemeler bitiş tarihine göre sıralanır",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\data\\notificationNativeErrors.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "propagates category/channel/permission rejection to the caller",
+          "status": "passed"
+        },
+        {
+          "name": "snoozes for 30 minutes, avoids deleted records, and reports native errors",
+          "status": "passed"
+        },
+        {
+          "name": "makes room for snooze within 60 and preserves other snoozes",
+          "status": "passed"
+        },
+        {
+          "name": "routes taps and clears cold-start response, while cold snooze does not route",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\auth\\domain\\authRules.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "parola kuralı (yeni parola) minimum uzunluk Flutter ile aynı: 10",
+          "status": "passed"
+        },
+        {
+          "name": "parola kuralı (yeni parola) 9 karakter reddedilir, 10 karakter kabul edilir",
+          "status": "passed"
+        },
+        {
+          "name": "parola kuralı (yeni parola) boş ve kısa parola için doğru mesajları döner",
+          "status": "passed"
+        },
+        {
+          "name": "giriş parolası giriş ekranında uzunluk dayatılmaz (eski kısa parolalı kullanıcılar girebilir)",
+          "status": "passed"
+        },
+        {
+          "name": "parola tekrarı eşleşmezse hata döner",
+          "status": "passed"
+        },
+        {
+          "name": "e-posta doğrulaması ve normalizasyon boş ve \"@\" içermeyen girdiyi reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "e-posta doğrulaması ve normalizasyon e-posta kırpılır ve küçük harfe çevrilir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\network\\networkState.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "isOnline bilinmeyen durum çevrimiçi kabul edilir",
+          "status": "passed"
+        },
+        {
+          "name": "isOnline bağlantı yoksa çevrimdışıdır",
+          "status": "passed"
+        },
+        {
+          "name": "isOnline bağlı ama internete erişilemiyorsa çevrimdışıdır",
+          "status": "passed"
+        },
+        {
+          "name": "isOnline bağlı ve erişilebilirse çevrimiçidir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\domain\\settingsRules.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "CSV formül koruması tetikleyici karakterle başlayan metne başına tek tırnak ekler",
+          "status": "passed"
+        },
+        {
+          "name": "CSV formül koruması metin alanındaki tırnakları çiftler",
+          "status": "passed"
+        },
+        {
+          "name": "CSV formül koruması sayısal alanda koruma uygulanmaz",
+          "status": "passed"
+        },
+        {
+          "name": "buildSubscriptionCsv 11 alanlı başlık ve CRLF satır sonu üretir",
+          "status": "passed"
+        },
+        {
+          "name": "buildSubscriptionCsv kötü niyetli ad ve notu etkisizleştirir; tarih ve tutarı olduğu gibi yazar",
+          "status": "passed"
+        },
+        {
+          "name": "buildSubscriptionCsv tarih yoksa boş alan yazar",
+          "status": "passed"
+        },
+        {
+          "name": "hesap silme onayı üç koşul birden sağlanınca hata yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "hesap silme onayı büyük harfli ve boşluklu \"sil\" kabul edilir",
+          "status": "passed"
+        },
+        {
+          "name": "hesap silme onayı şifre, onay yazısı ve onay kutusu eksikse reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme yöntemleri ad ekler ve kırpar",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme yöntemleri büyük/küçük harf duyarsız tekrarı reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme yöntemleri boş ve 80 karakteri aşan adı reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme yöntemleri en fazla 40 yöntem",
+          "status": "passed"
+        },
+        {
+          "name": "ödeme yöntemleri kaldırma yalnızca eşleşen adı çıkarır",
+          "status": "passed"
+        },
+        {
+          "name": "geri bildirim boş ve 2000 karakteri aşan mesajı reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "geri bildirim kategoriler Flutter ile aynıdır ve paylaşım metni doğru biçimde oluşur",
+          "status": "passed"
+        },
+        {
+          "name": "tarih yardımcısı civilDate ile CSV tarihi tutarlı",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\data\\subscriptionRuntime.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "deviceConnection algılama hatasını çevrimiçi kanıtı saymaz",
+          "status": "passed"
+        },
+        {
+          "name": "deviceConnection bağlantı true, erişim true → online",
+          "status": "passed"
+        },
+        {
+          "name": "deviceConnection bağlantı true, erişim undefined → unknown",
+          "status": "passed"
+        },
+        {
+          "name": "deviceConnection bağlantı false, erişim undefined → offline",
+          "status": "passed"
+        },
+        {
+          "name": "deviceConnection bağlantı true, erişim false → offline",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\paymentDeferred.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "ertelenen ödeme durum yoksa ödenmiş sayılır",
+          "status": "passed"
+        },
+        {
+          "name": "ertelenen ödeme ertelenen kayıt aylık toplama girmez",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\percentShares.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "percentShares toplamı tam 100 yapar (eşit üç pay)",
+          "status": "passed"
+        },
+        {
+          "name": "percentShares yedi eşit payda da toplam 100 kalır",
+          "status": "passed"
+        },
+        {
+          "name": "percentShares tek kategori %100 alır",
+          "status": "passed"
+        },
+        {
+          "name": "percentShares toplam sıfırsa hepsi 0",
+          "status": "passed"
+        },
+        {
+          "name": "percentShares büyük kesir alan öğeye kalan puanı verir",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\renewalOverdue.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "isRenewalDue aktif kayıtta yenileme tarihi bugünden önceyse gecikmiştir",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewalDue yenileme günü bugün de kullanıcı onayıyla ilerletilebilir",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewalDue deneme kaydı da vadesinde ilerletilebilir; duraklatılmış ve iptal edilmiş kayıtlar ilerletilemez",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewalDue yenileme tarihi boşsa gecikmiş değildir",
+          "status": "passed"
+        },
+        {
+          "name": "isRenewalDue yenileme tarihi ilerideyse henüz vadesi gelmemiştir",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate Flutter–Expo onay altın senaryosu: 2026-09-30 + monthly → 2026-10-31",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate Flutter–Expo onay altın senaryosu: 2026-09-09 + monthly → 2026-11-09",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate Flutter–Expo onay altın senaryosu: 2025-06-01 + yearly → 2027-06-01",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate Flutter–Expo onay altın senaryosu: 2026-10-02 + weekly → 2026-10-16",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate bugün veya sonrasındaki ilk döngü tarihini verir (faturalama günü 31: 30 Eylül → 31 Ekim)",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate ay sonu kırpması olmayan kayıtta yenileme günü kullanılır (başlangıç günü değil)",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate başlangıç gününü korur: 31 Ocak başlangıçlı aylık kayıt ay sonunda kırpılır, sonra 31e döner",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate gecikmiş değilse null döner",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate yenileme günü bugün ve kullanıcı onaylarsa bir sonraki döngüyü yazar",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate gecikmiş kayıt için bugüne denk gelen sonraki döngü yerine takip eden döngüyü yazar",
+          "status": "passed"
+        },
+        {
+          "name": "advancedRenewalDate yıllık kayıt bir yıl ilerler",
+          "status": "passed"
+        },
+        {
+          "name": "renewalAdvancedEvent eski ve yeni tarihi payload olarak kaydeder",
+          "status": "passed"
+        },
+        {
+          "name": "renewalAdvancedEvent tarih aynıysa olay üretmez",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\core\\time\\calendar.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "parseCivilDate / formatCivilDate YYYY-MM-DD biçimini gidip gelerek korur",
+          "status": "passed"
+        },
+        {
+          "name": "parseCivilDate / formatCivilDate geçersiz takvim tarihini reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "zonedHourToUtc 2026-10-09 Europe/Istanbul 9:00 → 2026-10-09T06:00:00.000Z",
+          "status": "passed"
+        },
+        {
+          "name": "zonedHourToUtc 2026-10-09 America/New_York 9:00 → 2026-10-09T13:00:00.000Z",
+          "status": "passed"
+        },
+        {
+          "name": "zonedHourToUtc 2026-03-07 America/New_York 9:00 → 2026-03-07T14:00:00.000Z",
+          "status": "passed"
+        },
+        {
+          "name": "zonedHourToUtc 2026-03-08 America/New_York 9:00 → 2026-03-08T13:00:00.000Z",
+          "status": "passed"
+        },
+        {
+          "name": "addMonthsClamped 31 Ocak + 1 ay, artık olmayan yılda 28 Şubat olur",
+          "status": "passed"
+        },
+        {
+          "name": "addMonthsClamped 31 Ocak + 1 ay, artık yılda 29 Şubat olur",
+          "status": "passed"
+        },
+        {
+          "name": "addMonthsClamped yıl sınırını geçer",
+          "status": "passed"
+        },
+        {
+          "name": "nextRenewalDate fatura gününü korur: 31 Ocak → 28 Şubat → 31 Mart",
+          "status": "passed"
+        },
+        {
+          "name": "nextRenewalDate haftalık döngü 7 gün ekler ve ay sınırını geçer",
+          "status": "passed"
+        },
+        {
+          "name": "nextRenewalDate üç aylık ve yıllık döngüler doğru ilerler",
+          "status": "passed"
+        },
+        {
+          "name": "nextOccurrenceOnOrAfter henüz gelmemiş başlangıç tarihini aynen döner",
+          "status": "passed"
+        },
+        {
+          "name": "nextOccurrenceOnOrAfter geçmiş döngüleri atlayıp ilk gelecek tarihi bulur",
+          "status": "passed"
+        },
+        {
+          "name": "nextOccurrenceOnOrAfter referans gününde tam eşleşirse o günü döner",
+          "status": "passed"
+        },
+        {
+          "name": "daysBetween ay ve yıl sınırlarında tam gün sayar",
+          "status": "passed"
+        },
+        {
+          "name": "zoneToday (kullanıcının saat dilimi) aynı anı kullanıcının saat diliminde farklı güne çözer",
+          "status": "passed"
+        },
+        {
+          "name": "zoneToday (kullanıcının saat dilimi) gün sınırında (00:30 UTC) önceki takvim gününe düşmez",
+          "status": "passed"
+        },
+        {
+          "name": "zoneToday (kullanıcının saat dilimi) geçerli IANA saat dilimlerini tanır, uydurmaları reddeder",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\statusTransitions.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "canTransition ortak Flutter–Expo fixture durum tablosunun tamamıyla eşleşir",
+          "status": "passed"
+        },
+        {
+          "name": "canTransition Flutter ve DOMAIN §3 izin tablosunu uygular",
+          "status": "passed"
+        },
+        {
+          "name": "canTransition aynı durumdan aynı duruma geçiş yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "actionsFor her aksiyonun hedefi kaynak durumdan izinlidir",
+          "status": "passed"
+        },
+        {
+          "name": "actionsFor aktif kayıtta duraklat, iptal ve arşiv sunulur",
+          "status": "passed"
+        },
+        {
+          "name": "actionsFor arşivde yalnızca geri alma sunulur",
+          "status": "passed"
+        },
+        {
+          "name": "actionsFor duraklatılmışta devam ettir, deneme ve süresi dolmuşta aktif yap sunulur",
+          "status": "passed"
+        },
+        {
+          "name": "actionsFor iptal ve arşiv yıkıcı olarak işaretlenir",
+          "status": "passed"
+        },
+        {
+          "name": "actionsFor iptal edilmiş kayıtta yeniden etkinleştirme ve arşiv sunulur",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\savings\\domain\\savingsSummary.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "Ortak Flutter–Expo tasarruf altın senaryoları weekly 0.01 USD aylık/yıllık eşdeğeri",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo tasarruf altın senaryoları monthly 100.00 TRY aylık/yıllık eşdeğeri",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo tasarruf altın senaryoları quarterly 10.00 EUR aylık/yıllık eşdeğeri",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo tasarruf altın senaryoları yearly 120.00 GBP aylık/yıllık eşdeğeri",
+          "status": "passed"
+        },
+        {
+          "name": "Ortak Flutter–Expo tasarruf altın senaryoları tasarruf geçmişini para birimi bazında toplar, farklı para birimlerini karıştırmaz",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\auth\\domain\\authErrors.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "localizeAuthError Invalid login credentials → Türkçe mesaj",
+          "status": "passed"
+        },
+        {
+          "name": "localizeAuthError User already registered → Türkçe mesaj",
+          "status": "passed"
+        },
+        {
+          "name": "localizeAuthError Password should be at least 10 characters. → Türkçe mesaj",
+          "status": "passed"
+        },
+        {
+          "name": "localizeAuthError email rate limit exceeded → Türkçe mesaj",
+          "status": "passed"
+        },
+        {
+          "name": "localizeAuthError fetch network failure → Türkçe mesaj",
+          "status": "passed"
+        },
+        {
+          "name": "localizeAuthError eşleşmeyen sunucu metnini olduğu gibi bırakır",
+          "status": "passed"
+        },
+        {
+          "name": "localizeAuthError boş metin genel mesaja düşer",
+          "status": "passed"
+        },
+        {
+          "name": "messageForError Error nesnesinin mesajını yerelleştirir",
+          "status": "passed"
+        },
+        {
+          "name": "messageForError Error olmayan değerlerde genel mesaj döner",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\reminderRules.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "daysFromRules yalnızca etkin kuralların günlerini artan sırada verir",
+          "status": "passed"
+        },
+        {
+          "name": "daysFromRules hatalı kayıtları atlar",
+          "status": "passed"
+        },
+        {
+          "name": "rulesFromDays her gün için etkin kural üretir, tekrarsız ve sıralı",
+          "status": "passed"
+        },
+        {
+          "name": "toggleReminderDay kapalı bir çipi açar ve sıralar",
+          "status": "passed"
+        },
+        {
+          "name": "toggleReminderDay açık bir çipi kapatır",
+          "status": "passed"
+        },
+        {
+          "name": "toggleReminderDay son kalan çipi kapatmaya izin vermez",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\settings\\domain\\appLockRules.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "isValidPin 4–8 rakamı kabul eder",
+          "status": "passed"
+        },
+        {
+          "name": "isValidPin kısa, uzun, harf içeren ve boş PIN'i reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "lockoutMs ilk serbest denemelerde bekleme yoktur",
+          "status": "passed"
+        },
+        {
+          "name": "lockoutMs sonra üstel artar ve 15 dakikada sınırlanır",
+          "status": "passed"
+        },
+        {
+          "name": "shouldLockOnResume arka plana geçilmediyse kilitlemez",
+          "status": "passed"
+        },
+        {
+          "name": "shouldLockOnResume süre dolmadan dönüşte kilitlemez, dolunca kilitler",
+          "status": "passed"
+        },
+        {
+          "name": "shouldLockOnResume saat geri alındıysa kilitler",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\subscriptionArchive.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "arşiv ayrımı (Flutter ile aynı) is_archived doğruysa durum ne olursa olsun arşivdir",
+          "status": "passed"
+        },
+        {
+          "name": "arşiv ayrımı (Flutter ile aynı) durumu archived olan kayıt da arşivdir",
+          "status": "passed"
+        },
+        {
+          "name": "arşiv ayrımı (Flutter ile aynı) arşivdeki kayıt aktif sekmede görünmez, arşiv listesinde görünür",
+          "status": "passed"
+        },
+        {
+          "name": "arşiv ayrımı (Flutter ile aynı) arşiv listesi yenileme tarihine göre sıralanır",
+          "status": "passed"
+        },
+        {
+          "name": "arşiv ayrımı (Flutter ile aynı) bildirim kuralı yoksa boş liste döner",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\formSchedule.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "automatic form schedule past start uses the first strictly future anchored cycle",
+          "status": "passed"
+        },
+        {
+          "name": "automatic form schedule future and today start are the first due date",
+          "status": "passed"
+        },
+        {
+          "name": "automatic form schedule keeps 31 anchor after a short month and crosses leap years",
+          "status": "passed"
+        },
+        {
+          "name": "automatic form schedule keeps a manual override until start or period changes",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\stats\\domain\\paymentGroups.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "groupPaymentsByMonth en yeni ödemeyi üstte sıralar",
+          "status": "passed"
+        },
+        {
+          "name": "groupPaymentsByMonth her ay için bir başlık ekler",
+          "status": "passed"
+        },
+        {
+          "name": "groupPaymentsByMonth boş listede öğe yok",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\servicePresets.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "presetFromCatalogRow ad ve kategoriyi okur; tanınmayan kategori other olur",
+          "status": "passed"
+        },
+        {
+          "name": "presetFromCatalogRow boş adı reddeder",
+          "status": "passed"
+        },
+        {
+          "name": "resolveServicePresets sunucu listesi boşsa yedek listeyi kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "resolveServicePresets sunucu listesi doluysa onu kullanır",
+          "status": "passed"
+        },
+        {
+          "name": "matchServicePresets boş sorguda öneri göstermez",
+          "status": "passed"
+        },
+        {
+          "name": "matchServicePresets büyük/küçük harf duyarsız içerir eşleşir",
+          "status": "passed"
+        },
+        {
+          "name": "matchServicePresets Türkçe büyük harfte de eşleşir",
+          "status": "passed"
+        },
+        {
+          "name": "matchServicePresets tam eşleşen adı tekrar önermez",
+          "status": "passed"
+        },
+        {
+          "name": "matchServicePresets en çok limit kadar öneri döner",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\subscriptions\\domain\\renewalLabel.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "renewalLabel -1 gün → Süresi doldu",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 0 gün → Bugün yenileniyor",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 1 gün → Yarın yenileniyor",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 3 gün → 3 gün sonra",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 7 gün → 7 gün sonra",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 14 gün → 2 hafta sonra",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 21 gün → 3 hafta sonra",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 30 gün → 4 hafta sonra",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 60 gün → 2 ay sonra",
+          "status": "passed"
+        },
+        {
+          "name": "renewalLabel 365 gün → 12 ay sonra",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "D:\\SubscriptTrack\\expo\\src\\features\\notifications\\domain\\notificationCenter.test.ts",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "notificationText başlık abonelik adı, gövde kalan süre",
+          "status": "passed"
+        },
+        {
+          "name": "notificationText başlık ve gövde aynı bilgiyi tekrar etmez",
+          "status": "passed"
+        },
+        {
+          "name": "notificationText deneme metinleri",
+          "status": "passed"
+        },
+        {
+          "name": "notificationText ad yoksa tür adı başlık olur",
+          "status": "passed"
+        },
+        {
+          "name": "parseKind bilinmeyen türü null döner",
+          "status": "passed"
+        },
+        {
+          "name": "unreadCount okunmamış (readAt boş) kayıtları sayar",
+          "status": "passed"
+        },
+        {
+          "name": "unreadCount yerelde okunan ve kapatılanları sunucu yanıtını beklemeden rozetten çıkarır",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "finalVerification": {
+    "suites": 111,
+    "tests": 671,
+    "failures": 0,
+    "success": true,
+    "typecheck": "passed",
+    "lint": "passed",
+    "doctor": "21/21 passed",
+    "backend": "49/49 passed",
+    "postgres": "036/037/038/039 passed on isolated PostgreSQL 17",
+    "flutterTests": "858 passed",
+    "flutterAnalyze": "passed",
+    "androidIosExport": "passed",
+    "liveDeployment": "not performed",
+    "nativeAcceptance": "not performed",
+    "graphifyUpdate": "exit 1, no output"
+  },
+  "sourceWorkbookSha256": "c4cfee61896b781f982168f6501a23de5883b362addc04b03f0cb77f34ce59e3",
+  "exports": {
+    "version": 0,
+    "bundler": "metro",
+    "fileMetadata": {
+      "ios": {
+        "bundle": "_expo/static/js/ios/entry-46eec82226a421d7797bc84296d2b04e.hbc",
+        "assets": [
+          {
+            "path": "assets\\0a328cd9c1afd0afe8e3b1ec5165b1b4",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\7d40544b395c5949f4646f5e150fe020",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\a132ecc4ba5c1517ff83c0fb321bc7fc",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\0ea69b5077e7c4696db85dbcba75b0e1",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\2d0a9133e39524f138be6d4db9f4851f",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\3cd68ccdb8938e3711da2e8831b85493",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\61ca7e64b7d605716c57706cef640b9a",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\aff2c65b39a296d4f7e96d0f58169170",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d8e7601e3df962f83c62371ac14964d8",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\0747a1317bbe9c6fc340b889ef8ab3ae",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d84e297c3b3e49a614248143d53e40ca",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\1190ab078c57159f4245a328118fcd9a",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\78c625386b4d0690b421eb0fc78f7b9c",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\dad2fa9f4394a630f0f9a0d6dabd44bc",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\f3a81967828232c893d547162e922764",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d62ddc38b69aff346c20a28774933d6a",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d1ea1496f9057eb392d5bbf3732a61b7",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\19eeb73b9593a38f8e9f418337fc7d10",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\ab19f4cbc543357183a20571f68380a3",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d8b800c443b8972542883e0b9de2bdc6",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\412dd9275b6b48ad28f5e3d81bb1f626",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\017bc6ba3fc25503e5eb5e53826d48a8",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\20e71bdf79e3a97bf55fd9e164041578",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\b4eb097d35f44ed943676fd56f6bdc51",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\4e85bc9ebe07e0340c9c4fc2f6c38908",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\370dd5af19f8364907b6e2c41f45dbbf",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\adec7d6f310bc577f05e8fe06a5daccf",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\56c8d80832e37783f12c05db7c8849e2",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\4cb65968db2ee9747e1141845c66e5cd",
+            "ext": "ttf"
+          }
+        ]
+      },
+      "android": {
+        "bundle": "_expo/static/js/android/entry-596d7d592d8dcb0b3e2f8563e8e3a151.hbc",
+        "assets": [
+          {
+            "path": "assets\\a1525894e1eb1edaa185654fe42c3f1a",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\0a328cd9c1afd0afe8e3b1ec5165b1b4",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\778ffc9fe8773a878e9c30a6304784de",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\c79c3606a1cf168006ad3979763c7e0c",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\02bc1fa7c0313217bde2d65ccbff40c9",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\35ba0eaec5a4f5ed12ca16fabeae451d",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\3cd68ccdb8938e3711da2e8831b85493",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\61ca7e64b7d605716c57706cef640b9a",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\aff2c65b39a296d4f7e96d0f58169170",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d8e7601e3df962f83c62371ac14964d8",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\0747a1317bbe9c6fc340b889ef8ab3ae",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d84e297c3b3e49a614248143d53e40ca",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\1190ab078c57159f4245a328118fcd9a",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\78c625386b4d0690b421eb0fc78f7b9c",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\4403c6117ec30c859bc95d70ce4a71d3",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\069d99eb1fa6712c0b9034a58c6b57dd",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\c3273c9e5321f20d1e42c2efae2578c4",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\286d67d3f74808a60a78d3ebf1a5fb57",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d1ea1496f9057eb392d5bbf3732a61b7",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\19eeb73b9593a38f8e9f418337fc7d10",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\ab19f4cbc543357183a20571f68380a3",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\d8b800c443b8972542883e0b9de2bdc6",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\412dd9275b6b48ad28f5e3d81bb1f626",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\017bc6ba3fc25503e5eb5e53826d48a8",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\20e71bdf79e3a97bf55fd9e164041578",
+            "ext": "png"
+          },
+          {
+            "path": "assets\\98a4e3d00dbf5d65da99a69b38a7def2",
+            "ext": "xml"
+          },
+          {
+            "path": "assets\\9b5cb09b4e669ed0f28f3b3f2871a0a5",
+            "ext": "xml"
+          },
+          {
+            "path": "assets\\b4eb097d35f44ed943676fd56f6bdc51",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\4e85bc9ebe07e0340c9c4fc2f6c38908",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\370dd5af19f8364907b6e2c41f45dbbf",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\adec7d6f310bc577f05e8fe06a5daccf",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\56c8d80832e37783f12c05db7c8849e2",
+            "ext": "ttf"
+          },
+          {
+            "path": "assets\\4cb65968db2ee9747e1141845c66e5cd",
+            "ext": "ttf"
+          }
+        ]
+      }
+    }
+  }
+}

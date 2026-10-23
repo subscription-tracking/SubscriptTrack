@@ -1,6 +1,12 @@
 # Güncel Proje Durumu
 
-Son güncelleme: 13 Ekim 2026 (Expo senaryo kapatmaları; Flutter durum satırları önceki doğrulama düzeyindedir)
+**Expo Go yerel bildirim düzeltmesi (22 Ekim):** Android/iOS Go için yerel bildirim API'leri açıldı; uzak push kayıt yan etkisi yüklenmiyor. Android fiziksel Go'da izin ve arka planda test teslimi doğrulandı. iPhone, gerçek yenileme, erteleme ve reboot kabulü açık. Yeni kod yerel telefon oturumunda; mevcut dış CI paketi henüz güncellenmedi. [Kanıt ve sınırlar](quality/expo-go-notifications-2026-10-22.md).
+
+**Expo Go uzak paylaşım tercihi (22 Ekim):** Proje `@mfurkant/subscripttrack` EAS hesabına bağlıdır. Hesaba bağlı Expo tüneliyle dış manifest/Android paket HTTP 200 ve telefonda mobil veri üzerinden Expo Go giriş ekranı doğrulandı. Mevcut oturum açık bırakıldı; bilgisayardan bağımsız 7/24 hosting ve yeniden başlatmada sabit adres sağlanmış değildir. APK bu isteğin yerine geçmez. [Bağlantı, gereksinim ve kabul](operations/EXPO_REMOTE_PREVIEW.md).
+
+**22 Ekim backend/Expo kapanış uygulaması:** Export ve hesap silme korumaları canlıya dağıtıldı; onaylı ertelenmiş ödeme migration'ı uygulandı. Public şema tabanı, geçici PostgreSQL runner, cursor sayfalaması ve Storage sayfalı temizliği eklendi. Kanıtlar [kapanış raporunda](quality/backend-expo-closure-2026-10-22.md), sprint kapıları [kapanış planında](expo/CLOSURE_SPRINTS.md). Yerel yeni anahtarlar açıldı; fiziksel Android/iOS, gerçek e-posta, restore ve uzak CI kabulü tamamlanmış değildir. Aşağıdaki eski tarihli kayıtlar tarihçedir.
+
+Son güncelleme: 22 Ekim 2026. Fiziksel Samsung cihazda Metro üzerinden açılış, çevrimdışı liste okuma ve yerel test bildiriminin OS teslimi doğrulandı. Offline şerit ve snackbar safe-area çakışmaları giderildi. [Fiziksel Android kabul turu](quality/android-physical-acceptance-2026-10-22.md). Bunlar tam Android kabulü değildir; aşağıdaki eski tarihli Flutter/Expo durumları tarihçedir.
 
 **13 Ekim Expo form ve bildirim merkezi yeniden tasarımı:** Form segment, tutar satırı, gruplu ek alanlar ve maliyet özetiyle; bildirim merkezi filtre, ×N gruplama, onaylı satır içi "Ödendi" ve izin bandıyla yeniden kuruldu. Ayrıntı: [USER_FLOWS §19](product/USER_FLOWS.md). Cihaz kabulü, iOS ve TalkBack açık.
 

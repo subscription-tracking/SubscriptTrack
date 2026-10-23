@@ -1,5 +1,7 @@
 # Güvenlik ve Gizlilik
 
+**Expo yerel kilit ve kuyruk sınırı (12 Ekim 2026):** Kilit kaydı kritik okumada depo/JSON/eksik parça hatasını kayıt yokluğundan ayırır ve alan biçimini doğrular. Oturumlu içerik kilit yüklenene kadar ve depo hatasında gösterilmez; tekrar deneme sunulur. PIN doğrulama ve kalıcı deneme sayacı yazımı seri yürür; doğru PIN sonrası yazım hatası içeriği açmaz. Abonelik kuyruğunun sürümlü biçimi ve sahibi doğrulanır; bozuk kuyruk gönderilmeden ve silinmeden hata bildirilir. Native cihaz/yükseltme kabulü ayrıca gereklidir; birim testleri cihaz güvenlik kanıtının yerine geçmez.
+
 **Durum etiketleri:** Uygulandı · Kısmi · Planlı · Kapsam dışı. Kanıt kaynakları: kaynak kod, migration'lar, canlı Supabase dashboard'u (2026-09-30, [SUPABASE_LIVE_STATUS.md](../reference/SUPABASE_LIVE_STATUS.md)) ve [kalite raporu](../quality/index.html).
 
 ## 1. Hedefler
@@ -19,12 +21,14 @@
 | Service-role anahtarı istemcide yok | Uygulandı | İstemcide yalnızca `SUPABASE_ANON_KEY` (publishable); çalışma ağacında gizli değer yok (gitleaks) |
 | Oturum belirteçleri güvenli depoda | Uygulandı | `flutter_secure_storage`; eski depodan taşıma cihazda **doğrulanmadı** |
 | Uygulama kilidi (PIN, arka plan süresi, biyometri) | Kısmi | Salt'lı PBKDF2 özet, üstel bekleme ve saat geri alma koruması repoda uygulandı ve testli; kilit açıkken ekran görüntüsü/son uygulamalar önizlemesi engellenir; gerçek cihaz/biyometri doğrulaması yok |
+
+Expo'da yeni PIN özeti Flutter ile aynı PBKDF2-HMAC-SHA256 `v2` biçimi, 30.000 tur ve padding'li Base64URL serileştirmesini kullanır. Ortak Flutter–Expo fixture'ı hem Flutter'ın eski SHA-256 özetini hem de v2 kaydını iki istemcide doğrular. Eski Expo `v1` ve Flutter eski SHA-256 kayıtları doğrulanınca yükseltilir. Flutter `app_pin_hash` güvenli depo anahtarı Expo `appLock.pin` anahtarından farklıdır; iOS Keychain servisleri de farklıdır. Algoritma uyumu otomatik depo taşınmasını kanıtlamaz. PIN depo taşıması ve biyometri cihaz kabulü bekler.
 | CSV formül enjeksiyonu (dışa aktarma) etkisizleştirme | Uygulandı | `process-export` ve uygulama içi export |
 | Export dosyası özel bucket'ta, 1 saatlik imzalı bağlantı | Uygulandı | Bucket `exports` özel |
 | Hesap silme uygulama içinden | Uygulandı | `delete-account`; silme sonrası kalıntı veri kontrolü **doğrulanmadı** |
 | E-posta doğrulama | Uygulandı | "Confirm email" açık |
 | Leaked Password Protection | **Açık** | Canlıda kapalı; aksiyon gerekli |
-| Uygulama düzeyinde hız sınırı (auth hariç Supabase platform sınırları) | **Kısmi** | Kod ve migration 032 repoda hazır, testli (`_shared/ratelimit.js`, 4/4 fonksiyonda çağrı); **canlıda migration uygulanmadı ve fonksiyonlar yeniden deploy edilmedi, yani bugün etkin değil** |
+| Uygulama düzeyinde hız sınırı (auth hariç Supabase platform sınırları) | **Kısmi** | Kod ve migration 032 repoda hazır, testli (`_shared/ratelimit.js`, 4/4 fonksiyonda çağrı); **12 Ekim 2026 katalog kontrolüne göre migration 032'nin SQL nesneleri (`rate_limits`, `check_rate_limit`) canlıda var; ancak canlı Edge Function kaynakları (`delete-account`, `process-export`, `payment-methods`, `support-catalog`) `check_rate_limit` çağırmıyor, yani uygulama düzeyinde hız sınırı bugün etkin değil** |
 | Sertifika sabitleme, root/jailbreak tespiti | Kapsam dışı | Risk/operasyon maliyeti nedeniyle |
 | Bağımlılık zafiyet taraması (osv/SAST) | Planlı | Yalnızca `flutter pub outdated`: 0/11 doğrudan paket ana sürüm geride |
 | RLS politikalarının gerçek veritabanına karşı davranış testi | Planlı | Yalnızca SQL metni üzerinde testler var |
@@ -85,3 +89,10 @@ Yalnızca tanımlı route ve parametreler kabul edilir; deep link sahiplik kontr
 ## 12. Güvenlik olayı prosedürü (Planlı)
 
 1. Olayı doğrula 2. Etkilenen sistemi izole et 3. Anahtar/token revoke et 4. Etkiyi belirle 5. Yasal bildirim gereksinimini değerlendir 6. Kullanıcı iletişimi 7. Kök neden ve önleyici aksiyon.
+# Expo PIN depo hata sonucu — 12 Ekim 2026
+
+PIN doğrulama ve deneme sayacı yazımında depo hatası `storage_error` döndürür. `locked_out` yalnız deneme limiti kilididir. Depo okunamadığında veya doğrulanmış PIN sonrası sayaç yazılamadığında korumalı içerik gizli kalır; güvenli veriyi yeniden yükleme ekranı sunulur. PIN koordinatörünün saat ve depo bağımlılıkları verilerek paralel yanlış deneme, eski PIN yükseltme ve yazım hatası sınanır. Native SecureStore/biyometri kabulünün yerini bu testler almaz.
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

@@ -16,8 +16,15 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 os.chdir(ROOT)
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
 
-tracked = set(subprocess.run(['git', 'ls-files'], capture_output=True, text=True, encoding='utf-8').stdout.split('\n'))
+# Local review can include new, non-ignored files without staging user changes.
+# CI keeps the strict tracked-only default on a clean checkout.
+git_args = ['git', 'ls-files']
+if '--working-tree' in sys.argv:
+    git_args += ['--cached', '--others', '--exclude-standard']
+tracked = set(subprocess.run(git_args, capture_output=True, text=True, encoding='utf-8', check=True).stdout.split('\n'))
 tracked_dirs = {os.path.dirname(p) for p in tracked}
 for p in list(tracked):
     d = os.path.dirname(p)

@@ -99,6 +99,6 @@ Uygulama için crash raporlama, merkezi log ve metrik altyapısı **yoktur** (Pl
 | Konu | Durum |
 |---|---|
 | Migration zinciri ile canlı şema sapması | Açık ([SUPABASE_LIVE_STATUS.md](../reference/SUPABASE_LIVE_STATUS.md)) |
-| Edge Function hız sınırı | Kısmi: repoda hazır (migration 032), canlıda uygulanmadı |
+| Edge Function hız sınırı | Kısmi: SQL nesneleri canlıda (032), ancak canlı Edge Function'lar çağırmıyor; etkin değil |
 | Staging ortamı, crash raporlama | Planlı |
 | Realtime iki oturumlu doğrulama | Açık |

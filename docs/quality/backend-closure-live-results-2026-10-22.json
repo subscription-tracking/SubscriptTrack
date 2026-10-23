@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-10-22T15:12:34.987Z",
+  "results": [
+    {
+      "name": "three-distinct-disposable-auth-sessions",
+      "status": "PASS"
+    },
+    {
+      "name": "cross-account-read-update-and-foreign-payment-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "owner-reassignment-foreign-renewal-and-soft-delete-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "timezone-renewal-repeat-single-payment",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy-renewal-contract",
+      "status": "PASS"
+    },
+    {
+      "name": "ten-concurrent-live-deferred-requests-single-result",
+      "status": "PASS"
+    },
+    {
+      "name": "expired-export-rebuilt-with-usable-url",
+      "status": "PASS"
+    },
+    {
+      "name": "export-formula-neutralized-and-other-account-storage-hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "soft-delete-hidden-in-export-financial-history-preserved-new-payment-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "account-deletion-fixtures-include-nested-storage-object",
+      "status": "PASS"
+    },
+    {
+      "name": "same-account-realtime-within-five-seconds-other-account-no-delivery",
+      "status": "PASS"
+    },
+    {
+      "name": "account-A-deleted-and-old-token-user-lookup-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "account-A-old-token-storage-read-and-insert-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "account-B-deleted-and-old-token-user-lookup-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "account-B-old-token-storage-read-and-insert-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "account-DELETE-deleted-and-old-token-user-lookup-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "account-DELETE-old-token-storage-read-and-insert-denied",
+      "status": "PASS"
+    }
+  ],
+  "limitation": "Seeded disposable users; does not test email delivery, physical devices or iOS.",
+  "realtimeInsertMilliseconds": 582,
+  "cleanupErrors": []
+}

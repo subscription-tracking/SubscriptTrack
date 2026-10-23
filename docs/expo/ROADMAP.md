@@ -5,25 +5,26 @@
 ## Genel kurallar
 
 - Aşamalar sırayla ilerler. Bir aşamanın çıkış kriteri karşılanmadan sonraki aşamaya geçilmez.
-- Her aşama sonunda uygulama iOS ve Android'de açılabilir durumda olmalıdır (simülatör ya da cihaz).
+- Ürün hedefi iOS ve Android'dir. Bu geçişte Android AVD açılışı kanıtlandı; iOS kullanıcı yönlendirmesiyle ertelendi ve platform kabulü tamamlanmış sayılmaz.
 - Her aşamanın testleri Flutter'daki karşılık gelen testlerden türetilir ([PARITY.md](PARITY.md)).
 - Ürün kararı gerektiren her madde, uygulamadan önce kullanıcıya sorulur ([AGENTS.md](../../AGENTS.md)).
 - Her aşama kapanırken ilgili belgeler (ARCHITECTURE, LIBRARIES, PARITY) aynı değişiklikte güncellenir.
 - Sayfa bazlı sprint planı [SPRINTS.md](SPRINTS.md) dosyasındadır; aşamalar ve kapılar burada, sprint sırası orada tutulur.
+- Kod sonrası düzeltme, canlı entegrasyon ve cihaz kabulü [S12–S18 sprint planında](REMAINING_SPRINTS.md) izlenir.
 
 ## Aşama özeti
 
 | # | Aşama | Kapsam | Durum |
 |---|---|---|---|
-| 0 | Temel | Tema, ortak bileşenler, Supabase client, env, Money ve tarih modülleri, test altyapısı | Kod tamam (cihaz doğrulaması yok; lint kurulmadı) |
-| 1 | Kimlik doğrulama | Giriş, kayıt, şifre sıfırlama, e-posta doğrulama, oturum, route guard | Kod tamam (cihaz ve canlı Supabase doğrulaması yok) |
-| 2 | Abonelik çekirdeği | Liste, detay, form, durum yaşam döngüsü, arşiv, realtime, servis kataloğu | Planlı |
-| 3 | Offline | Cache, mutation kuyruğu, senkron koordinatörü, offline davranışı | Planlı |
-| 4 | Analitik | Dashboard, takvim, istatistik, ödeme geçmişi, tasarruf | Planlı |
-| 5 | Bildirim | Yerel bildirim planlama, kurallar, bildirim merkezi, tercihler, deep link | Planlı |
-| 6 | Ayarlar ve gizlilik | Profil, uygulama kilidi, CSV, export, hesap silme, ödeme yöntemleri, destek, onboarding, yasal sayfalar | Planlı |
-| 7 | Parite ve cihaz kabulü | Tüm PARITY satırlarını kapatma, cihaz senaryoları, EAS build | Planlı |
-| 8 | Karar | Flutter ile karşılaştırma ve ADR ile nihai karar | Planlı |
+| 0 | Temel | Tema, ortak bileşenler, Supabase client, env, Money ve tarih modülleri, test altyapısı | Kod ve yerel kalite kapıları geçti; cihaz/platform kabulü açık |
+| 1 | Kimlik doğrulama | Giriş, kayıt, şifre sıfırlama, e-posta doğrulama, oturum, route guard | Kod var; Android AVD'de oturumlu ana akış açıldı; e-posta ve çapraz hesap kabulü açık |
+| 2 | Abonelik çekirdeği | Liste, detay, form, durum yaşam döngüsü, arşiv, realtime, servis kataloğu | Kod ve tek test hesabında temel RPC yazımları var; RLS ve iki oturumlu Realtime açık |
+| 3 | Offline | Cache, mutation kuyruğu, senkron koordinatörü, offline davranışı | Kod ve domain testleri var; uçak modu/cihaz kabulü açık |
+| 4 | Analitik | Dashboard, takvim, istatistik, ödeme geçmişi, tasarruf | Kod ve hesaplama testleri var; görsel/erişilebilirlik paritesi açık |
+| 5 | Bildirim | Yerel bildirim planlama, kurallar, bildirim merkezi, tercihler, deep link | Kod ve canlı okundu/tercih yazımı var; OS teslimi ve çoklu cihaz kabulü açık |
+| 6 | Ayarlar ve gizlilik | Profil, uygulama kilidi, CSV, export, hesap silme, ödeme yöntemleri, destek, onboarding, yasal sayfalar | Kod var; cihaz CSV AVD ve bulut API kanıtı var; PIN taşıma, hesap silme ve yasal onay açık |
+| 7 | Parite ve cihaz kabulü | Tüm PARITY satırlarını kapatma, cihaz senaryoları, yerel/release build | Kısmi: Android AVD ana ekran ve CSV kabulü; fiziksel Android açık, iOS erteli, yayın build'i kullanıcı kararıyla erteli |
+| 8 | Karar | Flutter ile karşılaştırma ve ADR ile nihai karar | Bekliyor: karşılaştırma kanıtı ve ürün sahibi kararı gerekiyor |
 
 ## Aşama 0 — Temel
 
@@ -137,7 +138,7 @@
 - Uzak push kullanılmaz ([ADR 0009](../decisions/0009-supabase-only-architecture.md)).
 - Bildirim testleri Flutter'daki [notification testleriyle](../../mobile/test/core/local_notification_schedule_test.dart) eşleşir.
 
-**Karar bekliyor:** Bildirim paketi. AGENTS.md `flutter_local_notifications` diyor; Expo'da karşılığı `expo-notifications`. AGENTS.md güncellemesi kullanıcı onayı gerektirir.
+**Paket kararı alındı:** Expo sürümünde `expo-notifications` kullanılıyor; iOS/Android cihaz davranışı henüz kabul edilmedi ([ADR 0010](../decisions/0010-expo-parallel-app.md)).
 
 ## Aşama 6 — Ayarlar ve gizlilik
 
@@ -180,7 +181,7 @@
 
 | Tarih | Aşama | Olay |
 |---|---|---|
-| 2026-10-09 | Tasarım | Birebir görünüm çalışması (Flutter referansı): alt gezinme 4 sekme (Ana Sayfa, Abonelikler, İstatistikler, Ayarlar) ve dört sekmenin ortak üst barı (ikon, alt başlık, takvim, rozetli bildirim); dört sekme `(app)/(tabs)` grubunda, diğer ekranlar alt gezinmesiz yığında; Flutter kimlik doğrulama ölçüleri (24 boşluk, w800 başlık, 15 düğme yazısı); ana sayfa (kahraman kart, halka, çipler, donut, hızlı işlemler, tasarruf, boş durum); hizmet kimliği (marka ikonları); liste (3 sekme, hap çubuğu, Flutter kartı, filtre paneli); detay (renkli hero, bilgi kutuları, hatırlatmalar, geçmiş ödemeler, eylemler); Flutter biçimli para (`₺1.234,56`) ve tarih (Bugün/Yarın/Geçti). Kalan ekranlar: form, takvim, istatistik, tasarruf, bildirimler, ayarlar alt sayfaları, tanıtım, CSV içe aktarma, arşiv, iptal. Android bundle ve testler (310) geçiyor; cihazda görsel karşılaştırma yapılmadı |
+| 2026-10-10 | Kabul | Android 36 x86_64 AVD'de ana sekmeler, ayarlar/gizlilik ve altı durumlu CSV dışa/içe aktarma kontrol edildi; emülatör sonucu fiziksel Android/iOS kabulü yerine geçmez ([DEVICE_ACCEPTANCE](../operations/DEVICE_ACCEPTANCE.md)) |
 | 2026-10-09 | 0 | `expo/` iskeleti, Expo Router kurulumu ve boş iki ekran |
 | 2026-10-09 | 0 | Supabase istemcisi (aynı backend), `Money` ve takvim modülleri (Flutter kurallarından port), tema tokenları, `AsyncStateView` ve `OfflineBanner`; testler geçiyor, typecheck ve Android bundle hatasız |
 | 2026-10-09 | 0 | Karar verildi: fiziksel silme ve yenileme tarihi için ürün kuralı, bildirim için `expo-notifications` ([PARITY §4](PARITY.md), [ADR 0010](../decisions/0010-expo-parallel-app.md)) |
@@ -202,5 +203,6 @@ Aşama 0 çıkış kriterlerinden durum:
 - [x] `tsc --noEmit` hatasız
 - [x] Money ve tarih testleri Flutter `core/` kurallarını kapsıyor
 - [x] Android bundle üretiliyor
-- [ ] iOS ve Android'de açılış (iOS için Mac veya EAS Build gerekli; Android cihaz/emulator doğrulaması yapılmadı)
-- [ ] Lint yapılandırması (ESLint kurulumu bekliyor)
+- [x] Android debug uygulaması `SubscriptTrack_Expo_Test` AVD'sinde açıldı; ana sekmeler, gizlilik ve CSV dışa/içe aktarma akışları kontrol edildi (fiziksel cihaz testi yerine geçmez)
+- [ ] iOS cihaz açılışı (kullanıcı iOS/EAS doğrulamasını erteledi)
+- [x] ESLint yapılandırması ve Expo CI kalite iş akışı eklendi (GitHub CI sonucu bekliyor)

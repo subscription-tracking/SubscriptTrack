@@ -137,6 +137,7 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 - Aylık takvim görünümü
 - Gün bazında toplam ve abonelik listesi
 - Normal yenileme, trial bitişi ve yüksek tutarlı yıllık ödeme ayrımı
+- Yüksek tutar eşiği tanımlanana kadar yıllık ödeme yalnız normal yıllık yenileme olarak gösterilir (2026-10-10 geçici ürün kararı).
 - Takvim öğesine dokununca abonelik detayına geçiş
 
 ### 6.5 Bildirimler
@@ -147,6 +148,7 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 - Bildirime dokununca ilgili aboneliğe deep link
 - Aynı plan için tekrar zamanlamayı engelleme
 - Kullanıcının zaman dilimine göre teslimat
+- Bildirim açık/kapalı, kaç gün önce ve gönderim saati tercihleri aynı hesabın cihazlarında ortaktır.
 - Yenileme e-postası **kapsam dışı** (yalnızca Supabase Auth e-postaları)
 
 ### 6.6 Ücretsiz deneme takibi
@@ -171,7 +173,7 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 - Para birimi ve saat dilimi tercihleri
 - Yenileme hatırlatma (bildirim) tercihleri
 - Varsayılan bildirim günü
-- Veri dışa aktarma (aynı şema ile tekrar içe aktarılabilir CSV)
+- Veri dışa aktarma (trial, active, paused, cancelled, expired ve archived dahil tüm abonelik durumları; aynı şema ile tekrar içe aktarılabilir CSV)
 - Hesap silme
 
 ## 7. Sistem kategorileri
@@ -235,3 +237,7 @@ Yalnızca maliyete dahil edilmesi gereken aktif kayıtlar hesaplanır. Para biri
 - Aboneliği iptal ettiğimde geçmişi korumak ve tasarrufumu görmek istiyorum.
 - İnternet yokken son abonelik listemi görmek istiyorum.
 - Verilerimi dışa aktarabilmek ve hesabımı silebilmek istiyorum.
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

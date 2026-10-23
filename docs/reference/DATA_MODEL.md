@@ -37,6 +37,8 @@ Aşağıda `PK` = `id`, kullanıcı tablolarında `user_id uuid NOT NULL` vardı
 
 Realtime yayınında olan tek tablo.
 
+Migration 033, `subscriptions.amount` için `CHECK (amount >= 0 AND amount <= 1000000000)` tanımlar ve dosya başlığı canlıya 10 Ekim'de uygulandığını bildirir. İstemcilerin form ve CSV içe aktarma sınırı aynıdır; bu üst sınır genel `Money` toplamlarına uygulanmaz. Bu turda canlı CHECK ayrıca doğrulanmadı; bkz. [SUPABASE_LIVE_STATUS.md](SUPABASE_LIVE_STATUS.md).
+
 ### 2.2 `payment_events` — ödeme geçmişi
 `id`, `user_id`, `subscription_id`, `amount numeric NOT NULL`, `currency char`, `paid_at timestamptz NOT NULL`, `source text` (varsayılan `'manual'`), `status text` (varsayılan `'PAID'`), `deferred_until date`, `created_at`.
 
@@ -56,7 +58,7 @@ Realtime yayınında olan tek tablo.
 - `subscription_events`: `id`, `user_id`, `subscription_id`, `event_type`, `payload jsonb`, `created_at` (yaşam döngüsü kaydı).
 
 ### 2.7 `profiles`
-`user_id`, `first_name, `last_name`, `preferred_currency` (`'TRY'`), `timezone` (`'Europe/Istanbul'`), `locale` (`'tr-TR'`), `theme` (`'SYSTEM'`), `default_notify_days smallint` (3), `push_enabled boolean` (true), `created_at`, `updated_at`. Migration 021/023'e göre `handle_new_user_profile()` kayıtta oluşturur (`auth.users` tetikleyicisi canlıda ayrıca doğrulanmadı). **Not:** mobil istemci bu tabloyu şu an okumaz/yazmaz.
+`user_id`, `first_name`, `last_name`, `preferred_currency` (`'TRY'`), `timezone` (`'Europe/Istanbul'`), `locale` (`'tr-TR'`), `theme` (`'SYSTEM'`), `default_notify_days smallint` (3), `push_enabled boolean` (true), `created_at`, `updated_at`. Migration 021/023'e göre `handle_new_user_profile()` kayıtta oluşturur (`auth.users` tetikleyicisi canlıda ayrıca doğrulanmadı). Expo istemcisi profil saat dilimi, para birimi ve bildirim gün/etkinlik tercihlerini okur ve ilgili tercihleri yazar; gönderim saati `auth.users.user_metadata.reminder_hour` alanında tutulur. Canlı eşitleme henüz doğrulanmadı.
 
 ### 2.8 `service_catalog`
 `id`, `name`, `category` (`'other'`), `is_active`, `sort_order`, `updated_at`. Herkese açık okuma (`anon`, `authenticated`); yazma yok.
@@ -67,12 +69,12 @@ Realtime yayınında olan tek tablo.
 - `support_tickets`: `id`, `user_id`, `category` (`'general'`), `message`, `status` (`'open'`), `created_at`, `updated_at`. Yalnızca oku/ekle.
 - `device_tokens`: `id`, `user_id`, `token`, `platform`, `created_at`. **Planlı/kullanılmıyor:** uzak push yok, istemci yazmaz (bkz. [NOTIFICATIONS.md](../architecture/NOTIFICATIONS.md)).
 
-### 2.9.1 Kısıtlar ve kotalar (migration 033/034, repoda; **canlıda uygulanmadı**)
+### 2.9.1 Kısıtlar ve kotalar (migration 033/034; **canlıda doğrulandı**, 12 Ekim 2026 katalog kontrolü: `trg_quota_*` tetikleyicileri var, `device_tokens` yok, anon yazma yetkisi yok)
 - `subscriptions` CHECK kısıtları: ad 1–160, tutar 0–1e9, para birimi `^[A-Z]{3}$`, döngü `weekly/monthly/quarterly/yearly`, 10 kategori anahtarı, durum `trial/active/paused/cancelled/expired/archived`, not ≤ 2000, ödeme yöntemi ≤ 80, `notification_rules` ≤ 4 KB. İhlal SQLSTATE `23514`; istemci anlaşılır doğrulama hatasına çevirir.
 - Kullanıcı başına satır kotası (INSERT tetikleyicisi, aşımda `23514`): `subscriptions` 500, `support_tickets` 100, `exports` 200, `payment_events` 50000, `savings_events` 10000. Bildirim üreticisi kotasızdır.
 - `anon` tüm yazma yetkilerinden, `authenticated` TRUNCATE/REFERENCES/TRIGGER'dan yoksun bırakılır; `device_tokens` tablosu kaldırılır; `exports` kovası 5 MB ve `text/csv` ile sınırlanır.
 
-- Migration 035 (isteğe bağlı, canlıda uygulanmadı): `payment_events`, `subscription_events`, `notifications` satırlarının `subscription_id` değeri aynı `user_id`'nin aboneliği olmak zorundadır (INVOKER tetikleyici, SQLSTATE `23514`).
+- Migration 035 (canlıda doğrulandı: `trg_owner_*` tetikleyicileri katalogda var): `payment_events`, `subscription_events`, `notifications` satırlarının `subscription_id` değeri aynı `user_id`'nin aboneliği olmak zorundadır (INVOKER tetikleyici, SQLSTATE `23514`).
 
 ### 2.10 `rate_limits` (repoda var, **canlıda yok**)
 `user_id` (auth.users, cascade), `bucket`, `window_start`, `count`; PK `(user_id, bucket)`. RLS açık, politika yok, yalnızca `service_role` (migration 032, `check_rate_limit` fonksiyonu). Canlıya uygulanana kadar canlı şemada bulunmaz.
@@ -90,6 +92,12 @@ Realtime yayınında olan tek tablo.
 
 ## 5. Migration kuralları
 
+Migration 036, `confirm_subscription_renewal_idempotent` RPC'sini ekler. Sahip olunan abonelik satırı kilitlenip beklenen eski tarih denetlendikten sonra `payment_events`, `subscriptions.next_renewal_date` ve `subscription_events` tek veritabanı işleminde yazılır. Sonuç `idempotency_keys` üzerinde kullanıcı, yöntem, yol ve anahtarla saklanır. 12 Ekim 2026'da canlıya uygulandı (`20261011221006`); `subscription_events.payload` kolonu ve RPC katalogda doğrulandı. Eşzamanlılık ve rollback senaryoları yerelde izole PostgreSQL 17'de geçti; canlıda veri yazan test çalıştırılmadı.
+
 - Uygulanmış migration değiştirilmez; yeni numaralı migration eklenir.
 - Migration'lar `backend/migrations/` altındadır ve içeriği checksum ile izlenir (`backend/src/db/migrationPlan.js`).
 - Bu belge ve [API.md](API.md) aynı değişiklikte güncellenir.
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.

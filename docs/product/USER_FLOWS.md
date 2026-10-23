@@ -20,6 +20,8 @@ Alternatifler:
 
 ## 2. Onboarding
 
+**22 Ekim Expo giriş/kayıt görsel düzeni:** Login ve register, onboarding ile aynı düz tema zemini ve mor vurgu kullanır. Ortak AuthScaffold küçük marka satırı, parlamasız kompakt ikon/başlık ve güvenli alanda kaydırılabilir form sunar. Bu iki formda e-posta/parola etiketleri alanın üstünde sabittir; TextField'ın diğer ekranlardaki varsayılan floating etiketi korunur. Kayıt/giriş buton ölçüleri ve karşı ekran bağlantıları tutarlıdır. Mevcut doğrulama, parola görünürlüğü, kullanım şartı/gizlilik bağlantıları ve onay şartı korunur; Auth/API davranışı değişmez.
+
 Amaç: Ürünün değerini üç kısa mesajla anlatmak.
 
 1. Aboneliklerini tek yerde gör
@@ -28,10 +30,13 @@ Amaç: Ürünün değerini üç kısa mesajla anlatmak.
 
 Bildirim izni onboarding'in ilk saniyesinde istenmez. Önce bildirim değerini gösteren açıklayıcı ekran kullanılır.
 
+**22 Ekim Expo görsel düzeni:** Üç bilgi adımı ve son para birimi seçimi korunur. Düz tema zemini, tek mor vurgu, sola hizalı kısa başlıklar ve ortak görsel/metin alanı kullanılır. Sürekli hareketli/parlayan illüstrasyonların yerine açıkça “ÖRNEK GÖRÜNÜM” etiketli abonelik, yaklaşan yenileme ve aylık gider kartları gösterilir; bunlar kullanıcının verileri veya tasarruf vaadi değildir. Para birimi TRY/USD/EUR radyo satırlarıyla seçilir. İlerleme, Devam et/Başlayalım ve Atla eylemleri ortak alt düzendedir; safe-area ve dikey kaydırma küçük ekran/büyük yazıyı destekler. Para birimi kaydı başarısızsa hata gösterilir, tanıtım tamamlanmış sayılmaz ve tekrar denenebilir. API/domain sözleşmesi ve Flutter değiştirilmez.
+
 ## 3. İlk aboneliği ekleme
 
 ```text
 Ana Sayfa boş durumu
+→ Ana Sayfa, Abonelikler ve İstatistikler'de ortak kart/ikon/açıklama/düğme boş durumu
 → “İlk aboneliğini ekle”
 → Servis ara/seç veya özel servis
 → Fiyat + para birimi
@@ -40,6 +45,14 @@ Ana Sayfa boş durumu
 → Kaydet
 → Dashboard özeti
 ```
+
+İlk abonelik çağrısı her üç ekranda da “İlk aboneliğini ekle” olarak adlandırılır; başlık,
+açıklama ve ikon bulunduğu ekranın bağlamına göre değişir. Abonelikler ve İstatistikler boş
+ekranlarında kartlar aynı genişlik ve dikey merkez yerleşimini paylaşır.
+
+Yeni abonelik formunda servis, fiyat/dönem ve yenileme alanları ortak yüzey kartlarında
+gruplanır. Hızlı servis listesinde yatay kaydırma ipucu bulunur; aylık ve yıllık maliyet
+tahmini, kaydetme düğmesiyle birlikte sabit alt alanda gösterilir.
 
 Başarısız kayıtta:
 
@@ -68,6 +81,12 @@ Abonelikler
 → Kart seç
 → Detay
 ```
+
+Hesapta hiç kayıt yokken arama, filtre ve durum sekmeleri gizlenir; ortalanmış boş durum ilk abonelik ekleme ve CSV içe aktarma yolları sunar. Bir durum sekmesi boş, diğerinde kayıt varsa sekmeler görünür ve seçim eylemi yalnızca kayıt bulunan sekmede yer alır.
+
+Kayıtlı listede çoklu seçim eylemi durum sekmelerinin yanında görünür. Etkin kategori,
+para birimi veya yaklaşan tarih filtresi filtre düğmesinde sayı rozetiyle belirtilir.
+Aktif ve deneme kayıtlarında yenilemeye kalan süreyle birlikte kısa yenileme tarihi gösterilir.
 
 Filtreler:
 
@@ -192,6 +211,15 @@ Alt gezinmedeki **Ayarlar** sekmesi; Hesap bilgileri, Tercihler, Uygulama,
 Veri ve gizlilik ile Destek bölümlerinden oluşur. Hesap bilgileri profil ve
 şifre işlemlerine gider; hassas export ve hesap silme aksiyonları yalnızca
 **Gizlilik ve veri merkezi** altında bulunur.
+
+Ayarlar ana ekranında her bölüm yüzey kartı içinde gruplanır; durum değerleri satırın sağında,
+uzun açıklamalar ise başlığın altında gösterilir. Alt eylemler ve sürüm numarası alt gezinmeden
+güvenli boşluk bırakacak şekilde sayfa sonunda yer alır.
+
+Ayar alt ekranları aynı görsel dili sürdürür: seçimler ve eylemler yuvarlatılmış yüzey
+kartlarında gruplanır; kart kenarlığı, iç boşluk, bölüm başlıkları ve ayırıcılar ortak
+ayar tasarımını izler. Profil, geri bildirim, dışa aktarma ve güvenlik formları da alanları
+mantıksal kartlarda toplar; yıkıcı hesap silme eylemi hata rengiyle ayrıca vurgulanır.
 
 Geri bildirim ekranında kullanıcı kategori ve mesajı girer; Supabase
 yapılandırılmışsa **destek kaydı** oluşturulur (`support-catalog` POST →

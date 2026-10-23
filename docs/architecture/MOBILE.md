@@ -126,7 +126,7 @@ Yalnızca cihaz üzerinde `flutter_local_notifications`; uzak push/token altyap�
 
 - `ReminderPlanner` yenileme/trial hatırlatmalarını N gün önce 09:00'a planlar; `NotificationScheduler` arayüzü controller'ı statik servisten ayırır.
 - **Duplicate guard:** abonelik kimliği, ad, tutar, para birimi, yenileme/trial tarihi, durum, kural, genel ayar ve saat dilimini kapsayan hash değişmezse schedule atlanır.
-- `daysBefore` veya `timezone` değişince, ve uygulama `resumed` olduğunda cihaz saat dilimi okunup plan yenilenir.
+- `daysBefore` veya kaydedilmiş kullanıcı saat dilimi tercihi değişince, ve uygulama `resumed` olduğunda tercih edilen IANA bölgesiyle plan yenilenir. Tercih varsa cihaz saat dilimi değişikliği bu değeri ezmez; tercih boşken cihaz bölgesi varsayılan olarak izlenir.
 - Cold-start: bildirim payload'ındaki abonelik kimliği, liste yüklenene kadar saklanır, sonra detay açılır.
 - Plan sınırı: cihazda bekleyen en fazla 60 yerel bildirim (düzenli + erteleme).
 - Android 12+ exact-alarm izni kapalıysa `inexactAllowWhileIdle` ile planlanır.
@@ -159,4 +159,10 @@ Ayrıntı: [RELEASE.md](../operations/RELEASE.md).
 
 ## 11. Cihaz kabulü
 
+Expo yenileme geçişi: `EXPO_PUBLIC_ATOMIC_RENEWAL_ENABLED=false` varsayılanıyla mevcut ödeme ve tarih çağrıları çalışır. Migration 036 canlıda ayrı onayla doğrulandıktan sonra yeni tek işlemli RPC yolu bir Expo build'inde açılabilir. O zamana kadar ödeme başarılı, tarih güncellemesi başarısız olma riski devam eder. Expo ve Flutter iptal edilmiş aboneliği onayla yeniden etkinleştirir; detay düğmeleri durum geçiş tablosuyla sınırlıdır. Geçmiş tasarruf kayıtları korunur.
+
 Yerel bildirim, izin, cold-start, biyometri ve çoklu cihaz Realtime davranışı widget testleriyle kanıtlanamaz; sürüm kabulünde [DEVICE_ACCEPTANCE.md](../operations/DEVICE_ACCEPTANCE.md) Android ve iOS gerçek cihazlarda tamamlanır. Realtime için `public.subscriptions` tablosu `supabase_realtime` yayınındadır (migration 030); istemci kullanıcı filtresiyle INSERT/UPDATE/DELETE dinler.
+
+## Expo 59 senaryo sözleşmesi — 12 Ekim 2026
+
+**Expo için güncel kullanıcı kararı:** [Gereksinim, API/veri modeli ve dağıtım sözleşmesi](../quality/expo-59/CONTRACT.md). Önceki Expo anlatımıyla çelişen tarih, mantıksal silme, 1.000 kota, 2.000 not, tüm para birimleri, device/fixed bölge ve açık/koyu/sistem tema kurallarında bu sözleşme geçerlidir. Flutter mevcut uygulaması korunur. Kod hazırlığı canlı/native kabul anlamına gelmez.
