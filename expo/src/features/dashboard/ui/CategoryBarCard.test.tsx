@@ -11,19 +11,19 @@ jest.mock('../../../shared/widgets/ProgressBar', () => ({
 it('aylık eşdeğeri tahmin olarak adlandırır ve tek kategoride grafik çizmez', () => {
   mockBar.mockClear();
   render(<CategoryBarCard totals={[{ group: 'Müzik', currency: 'TRY', amount: Money.parse('30'), count: 1 }]} onPress={jest.fn()} />);
-  expect(screen.getByRole('button', { name: /Tahmini aylık dağılım, TRY\. Müzik: ₺30,00\. İstatistikleri aç/ })).toBeTruthy();
-  expect(screen.getByText('₺30,00')).toBeTruthy();
+  expect(screen.queryByText('Tahmini aylık dağılım')).toBeNull();
   expect(mockBar).not.toHaveBeenCalled();
 });
 
-it('diğer para birimlerinin özete dahil edilmediğini belirtir', () => {
+it('para birimlerini ayrı gösterir ve birlikte toplamaz', () => {
   render(<CategoryBarCard totals={[
     { group: 'Müzik', currency: 'TRY', amount: Money.parse('30'), count: 1 },
     { group: 'Eğlence', currency: 'USD', amount: Money.parse('10'), count: 1 },
   ]} onPress={jest.fn()} />);
-  expect(screen.getByText('TRY; diğer para birimleri hariç')).toBeTruthy();
-  expect(screen.getByRole('button', { name: /TRY; diğer para birimleri hariç\. Müzik: ₺30,00/ })).toBeTruthy();
-  expect(screen.queryByText(/10,00/)).toBeNull();
+  expect(screen.getByText('TRY')).toBeTruthy();
+  expect(screen.getByText('USD')).toBeTruthy();
+  expect(screen.getByText('₺30,00')).toBeTruthy();
+  expect(screen.getByText(/10,00/)).toBeTruthy();
 });
 
 it('kategori rengi tutar sıralaması değişince aynı kalır', () => {

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { Money } from '../../../../core/domain/money';
 import { CategoryBreakdownCard } from './CategoryBreakdownCard';
@@ -28,4 +28,22 @@ it('ödeme geçmişi yoksa tahmini tutarı gösterir ancak sahte geçmiş grafi�
   expect(screen.getByText('₺100,00')).toBeTruthy();
   expect(screen.queryByLabelText('Grafik dönemi')).toBeNull();
   expect(screen.getByText(/Geçmiş ödemeleri görüntülemek/)).toBeTruthy();
+});
+
+it('ay seçimi ve dönem değişiminde doğru ay ve toplamı gösterir', () => {
+  const onMonthsChanged = jest.fn();
+  const props = { currency: 'TRY', hasPaymentHistory: true, monthly: Money.parse('100'), now: new Date('2026-10-13T09:00:00Z'), timeZone: 'Europe/Istanbul', onMonthsChanged };
+  const view = render(<TrendCard {...props} trend={[100, 0, 300]} months={3} />);
+  fireEvent.press(screen.getByRole('button', { name: 'Ağu, ₺1,00' }));
+  expect(screen.getByRole('button', { name: 'Ağu, ₺1,00' }).props.accessibilityState.selected).toBe(true);
+  expect(screen.getByLabelText(/Ağu kayıtlı ödeme ₺1,00/)).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Eyl: ödeme yok' })).toBeTruthy();
+  fireEvent.press(screen.getByRole('radio', { name: '6 ay' }));
+  expect(onMonthsChanged).toHaveBeenCalledWith(6);
+  view.rerender(<TrendCard {...props} trend={[0, 0, 0, 100, 0, 300]} months={6} />);
+  expect(screen.getByLabelText(/Eki kayıtlı ödeme ₺3,00/)).toBeTruthy();
+  fireEvent.press(screen.getByRole('radio', { name: '12 ay' }));
+  expect(onMonthsChanged).toHaveBeenCalledWith(12);
+  view.rerender(<TrendCard {...props} trend={[0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 300]} months={12} />);
+  expect(screen.getByLabelText(/Eki kayıtlı ödeme ₺3,00/)).toBeTruthy();
 });

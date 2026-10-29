@@ -1,7 +1,7 @@
 import { useThemeRevision } from '../design/useThemeRevision';
 import { themedStyles } from '../design/themeRuntime';
 import type { ComponentProps } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -40,13 +40,15 @@ export function ActionSheet({
 }) {
   useThemeRevision();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   return (
     <LockAwareModal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.root}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel="Menüyü kapat" />
-        <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md }]} accessibilityViewIsModal accessibilityLabel={title}>
+        <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md, maxHeight: height - insets.top }]} accessibilityViewIsModal accessibilityLabel={title}>
           <View style={styles.handle} />
-          <Text style={[textStyle('heading'), styles.title]} numberOfLines={1}>{title}</Text>
+          <Text accessibilityRole="header" style={[textStyle('heading'), styles.title]}>{title}</Text>
+          <ScrollView keyboardShouldPersistTaps="handled">
           {items.map((item, index) => {
             const danger = item.tone === 'danger';
             const color = item.disabled ? colors.disabledText : danger ? colors.error : colors.onSurface;
@@ -61,10 +63,11 @@ export function ActionSheet({
               >
                 <MaterialIcons name={item.icon} size={sizes.rowActionIcon} color={color} />
                 <Text style={[textStyle('bodyStrong', { color }), styles.label]}>{item.label}</Text>
-                {item.hint ? <Text style={[textStyle('caption'), styles.hint]} numberOfLines={1}>{item.hint}</Text> : null}
+                {item.hint ? <Text style={[textStyle('caption'), styles.hint]}>{item.hint}</Text> : null}
               </Pressable>
             );
           })}
+          </ScrollView>
         </View>
       </View>
     </LockAwareModal>

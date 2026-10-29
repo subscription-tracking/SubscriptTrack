@@ -1,0 +1,65 @@
+171d28a91bc97cf9d7922553d57dc52b
+var _reactNative = require("@testing-library/react-native");
+var _calendar = require("../../../core/time/calendar");
+var _subscription = require("../../subscriptions/domain/subscription");
+var _CalendarEventItem = require("./CalendarEventItem");
+var _jsxRuntime = require("react/jsx-runtime");
+var subscription = (0, _subscription.subscriptionFromRow)({
+  id: 'sub-1',
+  name: 'Video Plus',
+  amount: '129.90',
+  currency: 'TRY',
+  billing_cycle: 'monthly',
+  category: 'streaming',
+  status: 'active',
+  start_date: '2026-01-01',
+  next_renewal_date: '2026-10-05',
+  payment_method: null,
+  notes: null,
+  website: null,
+  trial_end_date: null,
+  trial_price_after: null
+});
+describe('CalendarEventItem accessibility', () => {
+  it('date, event kind, subscription and amount are in the screen reader label', () => {
+    (0, _reactNative.render)((0, _jsxRuntime.jsx)(_CalendarEventItem.CalendarEventItem, {
+      subscription: subscription,
+      date: (0, _calendar.civilDate)(2026, 10, 5),
+      isTrial: true,
+      onPress: jest.fn()
+    }));
+    expect(_reactNative.screen.getByRole('button', {
+      name: '5 Ekim 2026, Video Plus, deneme bitişi, deneme sonrası ücret bilinmiyor'
+    })).toBeTruthy();
+    expect(_reactNative.screen.getByText('Ücret bilinmiyor')).toBeTruthy();
+  });
+  it('deneme sonrası ücret varsa sıfır deneme fiyatı yerine bu ücreti açıkça gösterir', () => {
+    var trial = (0, _subscription.subscriptionFromRow)({
+      id: 'trial',
+      name: 'Deneme',
+      amount: '0',
+      currency: 'TRY',
+      billing_cycle: 'monthly',
+      category: 'streaming',
+      status: 'trial',
+      start_date: '2026-10-01',
+      next_renewal_date: '2026-10-05',
+      payment_method: null,
+      notes: null,
+      website: null,
+      trial_end_date: '2026-10-05',
+      trial_price_after: '79.90'
+    });
+    (0, _reactNative.render)((0, _jsxRuntime.jsx)(_CalendarEventItem.CalendarEventItem, {
+      subscription: trial,
+      date: (0, _calendar.civilDate)(2026, 10, 5),
+      isTrial: true,
+      onPress: jest.fn()
+    }));
+    expect(_reactNative.screen.getByRole('button', {
+      name: /deneme sonrası ₺79,90/
+    })).toBeTruthy();
+    expect(_reactNative.screen.getByText('Deneme sonrası')).toBeTruthy();
+  });
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfcmVhY3ROYXRpdmUiLCJyZXF1aXJlIiwiX2NhbGVuZGFyIiwiX3N1YnNjcmlwdGlvbiIsIl9DYWxlbmRhckV2ZW50SXRlbSIsIl9qc3hSdW50aW1lIiwic3Vic2NyaXB0aW9uIiwic3Vic2NyaXB0aW9uRnJvbVJvdyIsImlkIiwibmFtZSIsImFtb3VudCIsImN1cnJlbmN5IiwiYmlsbGluZ19jeWNsZSIsImNhdGVnb3J5Iiwic3RhdHVzIiwic3RhcnRfZGF0ZSIsIm5leHRfcmVuZXdhbF9kYXRlIiwicGF5bWVudF9tZXRob2QiLCJub3RlcyIsIndlYnNpdGUiLCJ0cmlhbF9lbmRfZGF0ZSIsInRyaWFsX3ByaWNlX2FmdGVyIiwiZGVzY3JpYmUiLCJpdCIsInJlbmRlciIsImpzeCIsIkNhbGVuZGFyRXZlbnRJdGVtIiwiZGF0ZSIsImNpdmlsRGF0ZSIsImlzVHJpYWwiLCJvblByZXNzIiwiamVzdCIsImZuIiwiZXhwZWN0Iiwic2NyZWVuIiwiZ2V0QnlSb2xlIiwidG9CZVRydXRoeSIsImdldEJ5VGV4dCIsInRyaWFsIl0sInNvdXJjZXMiOlsiQ2FsZW5kYXJFdmVudEl0ZW0udGVzdC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgcmVuZGVyLCBzY3JlZW4gfSBmcm9tICdAdGVzdGluZy1saWJyYXJ5L3JlYWN0LW5hdGl2ZSc7XG5cbmltcG9ydCB7IGNpdmlsRGF0ZSB9IGZyb20gJy4uLy4uLy4uL2NvcmUvdGltZS9jYWxlbmRhcic7XG5pbXBvcnQgeyB0eXBlIFN1YnNjcmlwdGlvblJvdywgc3Vic2NyaXB0aW9uRnJvbVJvdyB9IGZyb20gJy4uLy4uL3N1YnNjcmlwdGlvbnMvZG9tYWluL3N1YnNjcmlwdGlvbic7XG5pbXBvcnQgeyBDYWxlbmRhckV2ZW50SXRlbSB9IGZyb20gJy4vQ2FsZW5kYXJFdmVudEl0ZW0nO1xuXG5jb25zdCBzdWJzY3JpcHRpb24gPSBzdWJzY3JpcHRpb25Gcm9tUm93KHtcbiAgaWQ6ICdzdWItMScsXG4gIG5hbWU6ICdWaWRlbyBQbHVzJyxcbiAgYW1vdW50OiAnMTI5LjkwJyxcbiAgY3VycmVuY3k6ICdUUlknLFxuICBiaWxsaW5nX2N5Y2xlOiAnbW9udGhseScsXG4gIGNhdGVnb3J5OiAnc3RyZWFtaW5nJyxcbiAgc3RhdHVzOiAnYWN0aXZlJyxcbiAgc3RhcnRfZGF0ZTogJzIwMjYtMDEtMDEnLFxuICBuZXh0X3JlbmV3YWxfZGF0ZTogJzIwMjYtMTAtMDUnLFxuICBwYXltZW50X21ldGhvZDogbnVsbCxcbiAgbm90ZXM6IG51bGwsXG4gIHdlYnNpdGU6IG51bGwsXG4gIHRyaWFsX2VuZF9kYXRlOiBudWxsLFxuICB0cmlhbF9wcmljZV9hZnRlcjogbnVsbCxcbn0gc2F0aXNmaWVzIFN1YnNjcmlwdGlvblJvdyk7XG5cbmRlc2NyaWJlKCdDYWxlbmRhckV2ZW50SXRlbSBhY2Nlc3NpYmlsaXR5JywgKCkgPT4ge1xuICBpdCgnZGF0ZSwgZXZlbnQga2luZCwgc3Vic2NyaXB0aW9uIGFuZCBhbW91bnQgYXJlIGluIHRoZSBzY3JlZW4gcmVhZGVyIGxhYmVsJywgKCkgPT4ge1xuICAgIHJlbmRlcig8Q2FsZW5kYXJFdmVudEl0ZW0gc3Vic2NyaXB0aW9uPXtzdWJzY3JpcHRpb259IGRhdGU9e2NpdmlsRGF0ZSgyMDI2LCAxMCwgNSl9IGlzVHJpYWwgb25QcmVzcz17amVzdC5mbigpfSAvPik7XG5cbiAgICBleHBlY3Qoc2NyZWVuLmdldEJ5Um9sZSgnYnV0dG9uJywgeyBuYW1lOiAnNSBFa2ltIDIwMjYsIFZpZGVvIFBsdXMsIGRlbmVtZSBiaXRpxZ9pLCBkZW5lbWUgc29ucmFzxLEgw7xjcmV0IGJpbGlubWl5b3InIH0pKS50b0JlVHJ1dGh5KCk7XG4gICAgZXhwZWN0KHNjcmVlbi5nZXRCeVRleHQoJ8OcY3JldCBiaWxpbm1peW9yJykpLnRvQmVUcnV0aHkoKTtcbiAgfSk7XG5cbiAgaXQoJ2RlbmVtZSBzb25yYXPEsSDDvGNyZXQgdmFyc2Egc8SxZsSxciBkZW5lbWUgZml5YXTEsSB5ZXJpbmUgYnUgw7xjcmV0aSBhw6fEsWvDp2EgZ8O2c3RlcmlyJywgKCkgPT4ge1xuICAgIGNvbnN0IHRyaWFsID0gc3Vic2NyaXB0aW9uRnJvbVJvdyh7IGlkOiAndHJpYWwnLCBuYW1lOiAnRGVuZW1lJywgYW1vdW50OiAnMCcsIGN1cnJlbmN5OiAnVFJZJywgYmlsbGluZ19jeWNsZTogJ21vbnRobHknLCBjYXRlZ29yeTogJ3N0cmVhbWluZycsIHN0YXR1czogJ3RyaWFsJywgc3RhcnRfZGF0ZTogJzIwMjYtMTAtMDEnLCBuZXh0X3JlbmV3YWxfZGF0ZTogJzIwMjYtMTAtMDUnLCBwYXltZW50X21ldGhvZDogbnVsbCwgbm90ZXM6IG51bGwsIHdlYnNpdGU6IG51bGwsIHRyaWFsX2VuZF9kYXRlOiAnMjAyNi0xMC0wNScsIHRyaWFsX3ByaWNlX2FmdGVyOiAnNzkuOTAnIH0pO1xuICAgIHJlbmRlcig8Q2FsZW5kYXJFdmVudEl0ZW0gc3Vic2NyaXB0aW9uPXt0cmlhbH0gZGF0ZT17Y2l2aWxEYXRlKDIwMjYsIDEwLCA1KX0gaXNUcmlhbCBvblByZXNzPXtqZXN0LmZuKCl9IC8+KTtcbiAgICBleHBlY3Qoc2NyZWVuLmdldEJ5Um9sZSgnYnV0dG9uJywgeyBuYW1lOiAvZGVuZW1lIHNvbnJhc8SxIOKCujc5LDkwLyB9KSkudG9CZVRydXRoeSgpO1xuICAgIGV4cGVjdChzY3JlZW4uZ2V0QnlUZXh0KCdEZW5lbWUgc29ucmFzxLEnKSkudG9CZVRydXRoeSgpO1xuICB9KTtcbn0pO1xuIl0sIm1hcHBpbmdzIjoiQUFBQSxJQUFBQSxZQUFBLEdBQUFDLE9BQUE7QUFFQSxJQUFBQyxTQUFBLEdBQUFELE9BQUE7QUFDQSxJQUFBRSxhQUFBLEdBQUFGLE9BQUE7QUFDQSxJQUFBRyxrQkFBQSxHQUFBSCxPQUFBO0FBQXdELElBQUFJLFdBQUEsR0FBQUosT0FBQTtBQUV4RCxJQUFNSyxZQUFZLEdBQUcsSUFBQUMsaUNBQW1CLEVBQUM7RUFDdkNDLEVBQUUsRUFBRSxPQUFPO0VBQ1hDLElBQUksRUFBRSxZQUFZO0VBQ2xCQyxNQUFNLEVB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

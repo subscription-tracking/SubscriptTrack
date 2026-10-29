@@ -7,6 +7,7 @@ import { borderWidth, colors, radius, sizes, spacing } from '../../../../shared/
 import { textStyle } from '../../../../shared/design/typography';
 import { DateField } from '../../../../shared/widgets/DateField';
 import { REMINDER_PRESET_DAYS, toggleReminderDay } from '../../domain/reminderRules';
+import { usePermissionQuery } from '../../../notifications/data/notificationPermission';
 import { type FormErrors, type SubscriptionFormValues } from '../../domain/subscriptionForm';
 import { FormSection } from './FormSection';
 import type { FormChange } from './formTypes';
@@ -30,6 +31,7 @@ export function RenewalCard({
   onChange,
   onAutomatic,
   disabled = false,
+  recalculated = false,
 }: {
   values: SubscriptionFormValues;
   errors: FormErrors;
@@ -38,8 +40,10 @@ export function RenewalCard({
   onChange: FormChange;
   onAutomatic: () => void;
   disabled?: boolean;
+  recalculated?: boolean;
 }) {
   useThemeRevision();
+  const permission = usePermissionQuery().data;
   return (
     <FormSection title="Yenileme ve hatırlatma">
       <View>
@@ -52,7 +56,7 @@ export function RenewalCard({
           onChange={(next) => onChange('nextRenewalDate', next)}
         />
         {scheduleMode === 'automatic' ? (
-          <Text style={textStyle('caption', { marginTop: spacing.xs })}>Başlangıç tarihine göre otomatik hesaplandı.</Text>
+          <Text style={textStyle('caption', { marginTop: spacing.xs })}>{recalculated ? 'Başlangıç veya dönem değiştiği için ödeme tarihi yeniden hesaplandı.' : 'Başlangıç tarihine göre otomatik hesaplandı.'}</Text>
         ) : (
           <Pressable accessibilityRole="button" accessibilityLabel="Elle seçildi, otomatik hesapla" accessibilityState={{ disabled }} disabled={disabled} onPress={onAutomatic} style={styles.scheduleLink}>
             <Text style={textStyle('caption', { color: colors.primary })}>Elle seçildi · Otomatik hesapla</Text>
@@ -79,6 +83,7 @@ export function RenewalCard({
           })}
         </View>
         {errors.reminderDays ? <Text style={textStyle('caption', { color: colors.error })}>{errors.reminderDays}</Text> : null}
+        {permission === 'denied' ? <Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.error })}>Bildirim izni kapalı; hatırlatmalar için cihaz ayarlarından izin ver.</Text> : null}
       </View>
     </FormSection>
   );

@@ -24,13 +24,14 @@ export function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const list = useRef<FlatList<number>>(null);
   const finishing = useRef(false);
+  const currencyChanged = useRef(false);
   const [index, setIndex] = useState(0);
   const [currency, setCurrency] = useState<ActiveCurrency>(DEFAULT_ACTIVE_CURRENCY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
-    void readDeviceCurrency().then(value => { if (active && value) setCurrency(value); }).catch(() => undefined);
+    void readDeviceCurrency().then(value => { if (active && value && !currencyChanged.current) setCurrency(value); }).catch(() => undefined);
     return () => { active = false; };
   }, []);
   async function finish() {
@@ -72,7 +73,7 @@ export function OnboardingScreen() {
         extraData={currency}
         renderItem={({ item }) => (
           <ScrollView style={{ width }} contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
-            {item === ONBOARDING_SLIDES.length ? <CurrencyPage selected={currency} onSelect={setCurrency} /> : (
+            {item === ONBOARDING_SLIDES.length ? <CurrencyPage selected={currency} onSelect={(next) => { currencyChanged.current = true; setCurrency(next); }} /> : (
               <>
                 <View style={styles.preview}><OnboardingPreview kind={ONBOARDING_SLIDES[item].illustration} /></View>
                 <View style={styles.copy}><EntranceFade>

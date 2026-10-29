@@ -56,6 +56,7 @@ describe('DeleteAccountScreen', () => {
     fireEvent.changeText(screen.getByLabelText('sil'), 'sil');
     fireEvent.press(screen.getByRole('checkbox'));
     fireEvent.press(screen.getByRole('button', { name: 'Hesabı kalıcı olarak sil' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Hesabı kalıcı olarak sil' }));
 
     expect(mockMutate).toHaveBeenCalledTimes(1);
     expect(mockSignIn).not.toHaveBeenCalled();

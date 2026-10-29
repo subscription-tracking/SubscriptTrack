@@ -35,5 +35,5 @@ export function SubscriptionEditScreen({ id }: { id: string }) {
             action: <TextLink label="Listeye dön" onPress={() => router.back()} />,
           };
 
-  return <AsyncStateView state={state}>{(subscription) => <SubscriptionFormScreen editing={subscription} />}</AsyncStateView>;
+  return <AsyncStateView state={state}>{(subscription) => <SubscriptionFormScreen key={subscription.id} editing={subscription} />}</AsyncStateView>;
 }

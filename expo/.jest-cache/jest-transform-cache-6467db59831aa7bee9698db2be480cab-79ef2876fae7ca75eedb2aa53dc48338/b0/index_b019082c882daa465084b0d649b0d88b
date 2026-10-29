@@ -1,0 +1,14 @@
+d8ff9cb8734ade6b54742fc7d641ecb2
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "SafeAreaView", {
+  enumerable: true,
+  get: function () {
+    return _SafeAreaView.SafeAreaView;
+  }
+});
+var _SafeAreaView = require("./SafeAreaView");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfU2FmZUFyZWFWaWV3IiwicmVxdWlyZSJdLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uL3NyYy9jb21wb25lbnRzL3NhZmUtYXJlYS9pbmRleC50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7QUFBQSxJQUFBQSxhQUFBLEdBQUFDLE9BQUEiLCJpZ25vcmVMaXN0IjpbXX0=

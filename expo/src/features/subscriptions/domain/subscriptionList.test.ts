@@ -1,6 +1,6 @@
 import { civilDate } from '../../../core/time/calendar';
 import { subscriptionFromRow, type SubscriptionRow } from './subscription';
-import { splitAttention } from './subscriptionList';
+import { splitAttention, visibleSubscriptions } from './subscriptionList';
 
 const sub = (id: string, next: string, status: SubscriptionRow['status'] = 'active') =>
   subscriptionFromRow({
@@ -34,4 +34,10 @@ describe('splitAttention', () => {
     const { attention } = splitAttention([sub('dur', '2026-10-01', 'paused')], today);
     expect(attention).toEqual([]);
   });
+});
+
+it('Türkçe büyük/küçük harf ve kategori adıyla bütün kayıtlarda arar', () => {
+  const item = { ...sub('turkish', '2026-10-10'), name: 'İnternet', category: 'music' as const };
+  expect(visibleSubscriptions([item], 'active', '  İNTERNET  ')).toEqual([item]);
+  expect(visibleSubscriptions([item], 'active', ' MÜZİK ')).toEqual([item]);
 });

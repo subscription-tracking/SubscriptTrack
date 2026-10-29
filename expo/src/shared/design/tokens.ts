@@ -4,7 +4,7 @@
  * okur; kendi boşluk, köşe, yazı ve buton ölçülerini uydurmaz
  * ([DESIGN_SYSTEM.md](../../../../docs/product/DESIGN_SYSTEM.md)).
  *
- * Yalnızca koyu tema vardır ([CURRENT_STATUS](../../../../docs/CURRENT_STATUS.md): açık tema planlı).
+ * Renkler etkin açık veya koyu temadan themeRuntime üzerinden alınır.
  */
 
 import { colors, statusColors } from './themeRuntime';
@@ -139,6 +139,12 @@ export const sizes = {
   badgeSize: 16,
   /** Ana sayfa halkası (Flutter `MonthProgressRing` 64 px). */
   ringSize: 64,
+  financialHeroRing: 88,
+  financialHeroAmountMinWidth: 180,
+  timelineDateWidth: 48,
+  timelineRailWidth: 12,
+  timelineMarkerSize: 8,
+  timelineIdentitySize: 40,
   /** Kahraman kartı ikonları (16) ve chevron (18). */
   heroIcon: 16,
   /** Dashboard çip ikonu (Flutter 14). */

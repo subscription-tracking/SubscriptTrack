@@ -1,0 +1,1 @@
+{"version":3,"names":["exports","useDocumentTitle"],"sources":["../../src/fork/useDocumentTitle.native.ts"],"sourcesContent":["/*\n * This file is unchanged, except for removing eslint comments\n */\nexport function useDocumentTitle() {\n  // Noop for native platforms\n}\n"],"mappings":";;;;;AAGAA,OAAA,CAAAC,gBAAA,GAAAA,gBAAA;AAAA,SAAgBA,gBAAgBA,CAAA,GAEhC","ignoreList":[]}

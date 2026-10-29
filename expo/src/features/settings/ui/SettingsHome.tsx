@@ -17,9 +17,10 @@ import { messageForError } from '../../auth/domain/authErrors';
 import { AccountSummaryCard, SectionLabel, SettingsTile, SignOutButton } from './SettingsParts';
 import { useActiveCurrency } from '../data/useActiveCurrency';
 import { useThemePreference } from '../../../shared/design/ThemeProvider';
+import appConfig from '../../../../app.json';
 
 /** Uygulama sürümü (Flutter ayarlar ekranındaki sabit metin). */
-const APP_VERSION = 'v1.0.0';
+const APP_VERSION = `v${appConfig.expo.version}`;
 
 /** Ad yoksa e-postanın yerel kısmı; baş harfler en fazla iki harf (Flutter `_initials`). */
 export function initialsFor(source: string): string {

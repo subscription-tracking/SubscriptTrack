@@ -1,0 +1,8 @@
+9c784ba82c74190ad49dcad0104c15c6
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = "sync" || 'sync';
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJleHBvcnRzIiwiZGVmYXVsdCJdLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9pbXBvcnQtbW9kZS9pbmRleC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgZGVmYXVsdCBwcm9jZXNzLmVudi5FWFBPX1JPVVRFUl9JTVBPUlRfTU9ERSB8fCAoJ3N5bmMnIGFzICdzeW5jJyB8ICdsYXp5Jyk7XG4iXSwibWFwcGluZ3MiOiI7Ozs7O0FBQUFBLE9BQUEsQ0FBQUMsT0FBQSxHQUFlLFVBQXdDLE1BQTBCIiwiaWdub3JlTGlzdCI6W119

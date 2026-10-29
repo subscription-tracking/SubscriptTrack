@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useMutation } from '@tanstack/react-query';
@@ -37,6 +37,7 @@ export function DeleteAccountScreen() {
   const [confirmation, setConfirmation] = useState('');
   const [acknowledged, setAcknowledged] = useState(false);
   const [errors, setErrors] = useState<DeleteAccountErrors>({});
+  const submitting = useRef(false);
 
   const remove = useMutation({
     mutationFn: async () => {
@@ -61,12 +62,15 @@ export function DeleteAccountScreen() {
       }
       snackbar.show(messageForError(error), 'error');
     },
+    onSettled: () => { submitting.current = false; },
   });
 
   function submit() {
+    if (submitting.current || remove.isPending || !online) return;
     const next = validateDeleteAccount({ password, confirmation, acknowledged });
     setErrors(next);
     if (hasDeleteErrors(next)) return;
+    submitting.current = true;
     remove.mutate();
   }
 

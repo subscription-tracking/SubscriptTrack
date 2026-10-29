@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { formatLongDate } from '../../../../core/format/date';
+import { formatCurrency } from '../../../../core/format/money';
+import { daysBetween } from '../../../../core/time/calendar';
 import { type CivilDate } from '../../../../core/time/calendar';
 import { borderWidth, colors, radius, spacing, statusColors, withAlpha } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
@@ -48,11 +50,21 @@ export function PaymentCard({
       </View>
     );
   }
+  if (subscription.status === 'trial') {
+    const trialDate = subscription.trialEndDate ?? subscription.nextRenewalDate;
+    return <View style={styles.card}>
+      <Text style={textStyle('label')}>Ücretsiz deneme bitişi</Text>
+      <Text style={textStyle('heading')}>{trialDate ? formatLongDate(trialDate) : 'Tarih belirtilmedi'}</Text>
+      {trialDate ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{countdown(daysBetween(today, trialDate))}</Text> : null}
+      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{subscription.trialPriceAfter ? `Deneme sonrası ${formatCurrency(subscription.trialPriceAfter, subscription.currency)}` : 'Deneme sonrası ücret belirtilmedi'}</Text>
+    </View>;
+  }
   const days = daysUntilRenewal(subscription, today);
   if (days === null || !subscription.nextRenewalDate) return null;
-  const tone = days < 0 ? colors.error : days <= 3 ? colors.tertiary : days <= 7 ? statusColors.warning : colors.primary;
+  const notStarted = isNotStarted(subscription, today);
+  const tone = notStarted ? colors.onSurfaceVariant : days < 0 ? colors.error : days === 0 ? statusColors.warning : colors.onSurfaceVariant;
   const due = isRenewalDue(subscription, today);
-  const showRenew = subscription.status === 'active' && due;
+  const showRenew = subscription.status === 'active' && due && !notStarted;
   const advanced = advancedRenewalDate(subscription, today);
   return (
     <View style={styles.card}>
@@ -62,13 +74,12 @@ export function PaymentCard({
           <Text style={textStyle('heading')}>{formatLongDate(subscription.nextRenewalDate)}</Text>
         </View>
         <View style={[styles.chip, { backgroundColor: withAlpha(tone, 0.12), borderColor: withAlpha(tone, 0.3) }]}>
-          <Text style={textStyle('captionStrong', { color: tone })}>{countdown(days)}</Text>
+          <Text style={textStyle('captionStrong', { color: tone })}>{notStarted ? 'Henüz başlamadı' : countdown(days)}</Text>
         </View>
       </View>
-      {days < 0 && advanced ? (
+      {!notStarted && days < 0 && advanced ? (
         <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{`Sonraki döngü (tahmini): ${formatLongDate(advanced)}`}</Text>
       ) : null}
-      {isNotStarted(subscription, today) ? <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Henüz başlamadı</Text> : null}
       {showRenew ? (
         <View style={styles.renew}>
           <PrimaryButton label="Ödendi ve yenilendi" icon="check-circle-outline" disabled={busy} onPress={onRenew} />

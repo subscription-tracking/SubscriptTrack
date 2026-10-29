@@ -1,6 +1,7 @@
 import { Money } from '../../../core/domain/money';
 import { type CivilDate } from '../../../core/time/calendar';
-import { activeForTotals, renewingWithin } from '../../subscriptions/domain/activeSelectors';
+import { activeForTotals } from '../../subscriptions/domain/activeSelectors';
+import { upcomingByDay } from '../../dashboard/domain/homeSummary';
 import { monthlyEquivalent, type Subscription, type SubscriptionCategory } from '../../subscriptions/domain/subscription';
 import { monthlyTotals, type PaymentEvent } from './paymentEvents';
 
@@ -23,7 +24,7 @@ export interface StatsSummary {
   trend: number[];
   hasPaymentHistory: boolean;
   categories: CategoryShare[];
-  /** 7 gün içinde yenilenecek en fazla 3 aktif kayıt. */
+  /** Yarın ile 7. gün arası tüm para birimlerindeki yenilemeler; denemeler dahil değildir. */
   dueSoon: Subscription[];
   highest: Subscription | null;
 }
@@ -63,7 +64,7 @@ export function buildStatsSummary(input: {
     trend: monthlyTotals(input.payments, currency, input.now, input.months ?? 6, input.timeZone),
     hasPaymentHistory: input.payments.some((payment) => payment.currency === currency),
     categories,
-    dueSoon: renewingWithin(input.subscriptions, input.today, 7).slice(0, 3),
+    dueSoon: upcomingByDay(input.subscriptions, input.today, 7).flatMap((day) => day.entries.filter((entry) => entry.kind === 'renewal').map((entry) => entry.subscription)),
     highest,
   };
 }

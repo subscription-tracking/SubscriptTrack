@@ -9,7 +9,7 @@ import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '..
 import { chartColors } from '../../../../shared/design/chartTheme';
 import { textStyle } from '../../../../shared/design/typography';
 import { monthlyEquivalent, type Subscription } from '../../../subscriptions/domain/subscription';
-import { StatsCardSurface } from './StatsCardSurface';
+import { ServiceIdentity } from '../../../subscriptions/ui/ServiceIdentity';
 
 /**
  * Flutter `InsightsCard`: en yüksek gider kalemi (aylık toplamdaki yüzdesiyle) ve 7 gün içinde yenilenecekler
@@ -31,14 +31,12 @@ export function InsightsCard({
   useThemeRevision();
   const sharePct = highest && total.minorUnits > 0 ? Math.round((monthlyEquivalent(highest).minorUnits / total.minorUnits) * 100) : 0;
   return (
-    <StatsCardSurface>
-      <Text style={textStyle('bodyStrong')}>Öne çıkanlar</Text>
+    <View style={styles.section}>
+      <Text accessibilityRole="header" style={textStyle('heading')}>Öne çıkanlar</Text>
       <View style={styles.gap} />
       {highest ? (
-        <View style={styles.highest}>
-          <View style={styles.avatar}>
-            <Text style={textStyle('heading', { color: colors.primary })}>{highest.name.length > 0 ? highest.name[0].toUpperCase() : '?'}</Text>
-          </View>
+        <View style={styles.highest} accessible accessibilityLabel={`${highest.name}, tahmini aylık ${formatCurrency(monthlyEquivalent(highest), currency)}, toplamın yüzde ${sharePct}`}>
+          <ServiceIdentity name={highest.name} category={highest.category} size={sizes.insightAvatar} compact />
           <View style={styles.highestText}>
             <Text style={textStyle('label')}>{`En yüksek tahmini gider: ${highest.name}`}</Text>
             <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>{`Aylık toplamın %${sharePct} kadarını oluşturuyor.`}</Text>
@@ -50,9 +48,9 @@ export function InsightsCard({
         <View style={[styles.banner, { marginTop: gaps.sectionInner }]}>
           <MaterialIcons name="warning-amber" size={sizes.warningIcon} color={chartColors.amber} />
           <View style={styles.bannerText}>
-            <Text style={textStyle('label')}>{`${dueSoon.length} abonelik 7 gün içinde yenilenecek`}</Text>
+            <Text style={textStyle('label')}>{`${dueSoon.length} abonelik yarından itibaren 7 gün içinde yenilenecek · tüm para birimleri`}</Text>
             <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>
-              {dueSoon.map((subscription) => subscription.name).join(', ')}
+              {dueSoon.slice(0, 3).map((subscription) => subscription.name).join(', ')}
             </Text>
           </View>
           <Pressable accessibilityRole="button" onPress={onReviewDue} style={styles.review}>
@@ -60,33 +58,22 @@ export function InsightsCard({
           </Pressable>
         </View>
       ) : null}
-    </StatsCardSurface>
+    </View>
   );
 }
 
 const styles = themedStyles(() => StyleSheet.create({
+  section: { paddingVertical: spacing.md },
   gap: {
     height: gaps.cardInset,
   },
   highest: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: gaps.sectionInner + 2,
-    borderRadius: radius.tile - 2,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: withAlpha(colors.outline, 0.4),
-    backgroundColor: colors.background,
-  },
-  avatar: {
-    width: sizes.insightAvatar,
-    height: sizes.insightAvatar,
-    borderRadius: sizes.insightAvatar / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: withAlpha(colors.primary, 0.15),
+    flexWrap: 'wrap',
   },
   highestText: {
-    flex: 1,
+    flex: 1, minWidth: 0,
     marginLeft: gaps.sectionInner,
   },
   banner: {

@@ -16,8 +16,8 @@ import { ServiceIdentity } from '../../subscriptions/ui/ServiceIdentity';
  */
 export function CalendarEventItem({ subscription, date, isTrial, onPress }: { subscription: Subscription; date: CivilDate; isTrial: boolean; onPress: () => void }) {
   useThemeRevision();
-  const amount = isTrial ? (subscription.trialPriceAfter ?? subscription.amount) : subscription.amount;
-  const amountLabel = isTrial ? `deneme sonrası ${formatCurrency(amount, subscription.currency)}` : formatCurrency(amount, subscription.currency);
+  const amount = isTrial ? subscription.trialPriceAfter : subscription.amount;
+  const amountLabel = amount ? (isTrial ? `deneme sonrası ${formatCurrency(amount, subscription.currency)}` : formatCurrency(amount, subscription.currency)) : 'deneme sonrası ücret bilinmiyor';
   return (
     <Pressable
       accessibilityRole="button"
@@ -34,7 +34,7 @@ export function CalendarEventItem({ subscription, date, isTrial, onPress }: { su
         </Text>
       </View>
       <View style={styles.amount}>
-        <Text style={textStyle('label', { color: colors.primary, textAlign: 'right' })}>{formatCurrency(amount, subscription.currency)}</Text>
+        <Text style={textStyle('label', { color: colors.primary, textAlign: 'right' })}>{amount ? formatCurrency(amount, subscription.currency) : 'Ücret bilinmiyor'}</Text>
         {isTrial ? <Text style={textStyle('caption', { textAlign: 'right' })}>Deneme sonrası</Text> : null}
       </View>
     </Pressable>

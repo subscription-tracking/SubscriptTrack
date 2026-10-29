@@ -59,7 +59,7 @@ export function EmptyState({
       >
         <MaterialIcons name={icon} size={iconSize} color={colors.primary} />
       </View>
-      <Text style={[textStyle('bodyStrong'), styles.centered, styles.title]}>{title}</Text>
+      <Text accessibilityRole="header" style={[textStyle('bodyStrong'), styles.centered, styles.title]}>{title}</Text>
       <Text style={[textStyle('bodySmall'), styles.centered, styles.description]}>{description}</Text>
       {actionLabel && onAction ? (
         <View style={styles.action}>

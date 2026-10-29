@@ -1,0 +1,5 @@
+31a8477b34687e45faeb29931de4f79e
+module.exports = {
+      testUri:
+        "../../expo-router/assets/react-navigation/elements/back-icon.png"
+    };

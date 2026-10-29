@@ -1,0 +1,72 @@
+a579178fc36ecc68aaf6a9a4072f203f
+"use strict";
+'use client';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function () {
+        return m[k];
+      }
+    };
+  }
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+var __importStar = this && this.__importStar || function () {
+  var ownKeys = function (o) {
+    ownKeys = Object.getOwnPropertyNames || function (o) {
+      var ar = [];
+      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+      return ar;
+    };
+    return ownKeys(o);
+  };
+  return function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    __setModuleDefault(result, mod);
+    return result;
+  };
+}();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useRegisterNavigator = useRegisterNavigator;
+var non_secure_1 = require("nanoid/non-secure");
+var React = __importStar(require("react"));
+var react_1 = require("react");
+var EnsureSingleNavigator_1 = require("./EnsureSingleNavigator");
+function useRegisterNavigator() {
+  var _React$useState = React.useState(() => (0, non_secure_1.nanoid)()),
+    _React$useState2 = (0, _slicedToArray2.default)(_React$useState, 1),
+    key = _React$useState2[0];
+  var container = (0, react_1.use)(EnsureSingleNavigator_1.SingleNavigatorContext);
+  if (container === undefined) {
+    throw new Error("Couldn't register the navigator. Have you wrapped your app with 'NavigationContainer'?\n\nThis can also happen if there are multiple copies of '@react-navigation' packages installed.");
+  }
+  React.useEffect(() => {
+    var register = container.register,
+      unregister = container.unregister;
+    register(key);
+    return () => unregister(key);
+  }, [container, key]);
+  return key;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsImRlZmF1bHQiLCJfc2xpY2VkVG9BcnJheTIiLCJleHBvcnRzIiwidXNlUmVnaXN0ZXJOYXZpZ2F0b3IiLCJub25fc2VjdXJlXzEiLCJSZWFjdCIsIl9faW1wb3J0U3RhciIsInJlYWN0XzEiLCJFbnN1cmVTaW5nbGVOYXZpZ2F0b3JfMSIsIl9SZWFjdCR1c2VTdGF0ZSIsInVzZVN0YXRlIiwibmFub2lkIiwiX1JlYWN0JHVzZVN0YXRlMiIsImtleSIsImNvbnRhaW5lciIsInVzZSIsIlNpbmdsZU5hdmlnYXRvckNvbnRleHQiLCJ1bmRlZmluZWQiLCJFcnJvciIsInVzZUVmZmVjdCIsInJlZ2lzdGVyIiwidW5yZWdpc3RlciJdLCJzb3VyY2VzIjpbIi4uLy4uLy4uL3NyYy9yZWFjdC1uYXZpZ2F0aW9uL2NvcmUvdXNlUmVnaXN0ZXJOYXZpZ2F0b3IudHN4Il0sInNvdXJjZXNDb250ZW50IjpbIid1c2UgY2xpZW50JztcbmltcG9ydCB7IG5hbm9pZCB9IGZyb20gJ25hbm9pZC9ub24tc2VjdXJlJztcbmltcG9ydCAqIGFzIFJlYWN0IGZyb20gJ3JlYWN0JztcbmltcG9ydCB7IHVzZSB9IGZyb20gJ3JlYWN0JztcblxuaW1wb3J0IHsgU2luZ2xlTmF2aWdhdG9yQ29udGV4dCB9IGZyb20gJy4vRW5zdXJlU2luZ2xlTmF2aWdhdG9yJztcblxuLyoqXG4gKiBSZWdpc3RlciBhIG5hdmlnYXRvciBpbiB0aGUgcGFyZW50IGNvbnRleHQgKGVpdGhlciBhIG5hdmlnYXRpb24gY29udGFpbmVyIG9yIGEgc2NyZWVuKS5cbiAqIFRoaXMgaXMgdXNlZCB0byBwcmV2ZW50IG11bHRpcGxlIG5hdmlnYXRvcnMgdW5kZXIgYSBzaW5nbGUgY29udGFpbmVyIG9yIHNjcmVlbi5cbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIHVzZVJlZ2lzdGVyTmF2aWdhdG9yKCkge1xuICBjb25zdCBba2V5XSA9IFJlYWN0LnVzZVN0YXRlKCgpID0+IG5hbm9pZCgpKTtcbiAgY29uc3QgY29udGFpbmVyID0gdXNlKFNpbmdsZU5hdmlnYXRvckNvbnRleHQpO1xuXG4gIGlmIChjb250YWluZXIgPT09IHVuZGVmaW5lZCkge1xuICAgIHRocm93IG5ldyBFcnJvcihcbiAgICAgIFwiQ291bGRuJ3QgcmVnaXN0ZXIgdGhlIG5hdmlnYXRvci4gSGF2ZSB5b3Ugd3JhcHBlZCB5b3VyIGFwcCB3aXRoICdOYXZpZ2F0aW9uQ29udGFpbmVyJz9cXG5cXG5UaGlzIGNhbiBhbHNvIGhhcHBlbiBpZiB0aGVyZSBhcmUgbXVsdGlwbGUgY29waWVzIG9mICdAcmVhY3QtbmF2aWdhdGlvbicgcGFja2FnZXMgaW5zdGFsbGVkLlwiXG4gICAgKTtcbiAgfVxuXG4gIFJlYWN0LnVzZUVmZmVjdCgoKSA9PiB7XG4gICAgY29uc3QgeyByZWdpc3RlciwgdW5yZWdpc3RlciB9ID0gY29udGFpbmVyO1xuXG4gICAgcmVnaXN0ZXIoa2V5KTtcblxuICAgIHJldHVybiAoKSA9PiB1bnJlZ2lzdGVyKGtleSk7XG4gIH0sIFtjb250YWluZXIsIGtleV0pO1xuXG4gIHJldHVybiBrZXk7XG59XG4iXSwibWFwcGluZ3MiOiI7QUFBQSxZQUFZOztBQUFDLElBQUFBLHNCQUFBLEdBQUFDLE9BQUEsaURBQUFDLE9BQUE7QUFBQSxJQUFBQyxlQUFBLEdBQUFILHNCQUFBLENBQUFDLE9BQUE7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQVdiRyxPQUFBLENBQUFDLG9CQUFBLEdBQUFBLG9CQUFBO0FBVkEsSUFBQUMsWUFBQSxHQUFBTCxPQUFBO0FBQ0EsSUFBQU0sS0FBQSxHQUFBQyxZQUFBLENBQUFQLE9BQUE7QUFDQSxJQUFBUSxPQUFBLEdBQUFSLE9BQUE7QUFFQSxJQUFBUyx1QkFBQSxHQUFBVCxPQUFBO0FBTUEsU0FBZ0JJLG9CQUFvQkEsQ0FBQTtFQUNsQyxJQUFBTSxlQUFBLEdBQWNKLEtBQUssQ0FBQ0ssUUFBUSxDQUFDLE1BQU0sSUFBQU4sWUFBQSxDQUFBTyxNQUFNLEdBQUUsQ0FBQztJQUFBQyxnQkFBQSxPQUFBWCxlQUFBLENBQUFELE9BQUEsRUFBQVMsZUFBQTtJQUFyQ0ksR0FBRyxHQUFBRCxnQkFBQTtFQUNWLElBQU1FLFNBQVMsR0FBRyxJQUFBUCxPQUFBLENBQUFRLEdBQUcsRUFBQ1AsdUJBQUEsQ0FBQVEsc0JBQXNCLENBQUM7RUFFN0MsSUFBSUYsU0FBUyxLQUFLRyxTQUFTLEVBQUU7SUFDM0IsTUFBTSxJQUFJQyxLQUFLLENBQ2Isd0xBQXdMLENBQ3pMO0VBQ0g7RUFFQWIsS0FBSyxDQUFDYyxTQUFTLENBQUMsTUFBSztJQUNuQixJQUFRQyxRQUFRLEdBQWlCTixTQUFTLENBQWxDTSxRQUFRO01BQUVDLFVBQVUsR0FBS1AsU0FBUyxDQUF4Qk8sVUFBVTtJQUU1QkQsUUFBUSxDQUFDUCxHQUFHLENBQUM7SUFFYixPQUFPLE1BQU1RLFVBQVUsQ0FBQ1IsR0FBRyxDQUFDO0VBQzlCLENBQUMsRUFBRSxDQUFDQyxTQUFTLEVBQUVELEdBQUcsQ0FBQyxDQUFDO0VBRXBCLE9BQU9BLEdBQUc7QUFDWiIsImlnbm9yZUxpc3QiOltdfQ==

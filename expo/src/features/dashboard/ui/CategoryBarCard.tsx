@@ -7,7 +7,7 @@ import { borderWidth, colors, gaps, radius, sizes, spacing } from '../../../shar
 import { textStyle } from '../../../shared/design/typography';
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { StackedBar } from '../../../shared/widgets/ProgressBar';
-import { type CategoryGroup, type CategoryTotal, donutEntries } from '../domain/dashboardHero';
+import { type CategoryGroup, type CategoryTotal } from '../domain/dashboardHero';
 
 const MAX_LEGEND = 4;
 const GROUP_COLOR_INDEX: Record<CategoryGroup, number> = { Eğlence: 0, Müzik: 1, Üretkenlik: 2, Araçlar: 3 };
@@ -15,28 +15,30 @@ const GROUP_COLOR_INDEX: Record<CategoryGroup, number> = { Eğlence: 0, Müzik: 
 /** Ana para birimindeki tahmini aylık eşdeğerleri kategori gruplarına ayırır. */
 export function CategoryBarCard({ totals, onPress }: { totals: CategoryTotal[]; onPress: () => void }) {
   useThemeRevision();
-  const { entries, total, primaryCurrency } = donutEntries(totals);
-  if (entries.length === 0 || total <= 0) return null;
+  const currencies = [...new Set(totals.map((entry) => entry.currency))].sort();
+  if (new Set(totals.filter((entry) => entry.amount.minorUnits > 0).map((entry) => entry.group)).size < 2) return null;
   const palette = categoryPalette();
   const colorFor = (group: CategoryGroup) => palette[GROUP_COLOR_INDEX[group]];
-  const otherCurrenciesExcluded = totals.some((entry) => entry.currency !== primaryCurrency);
-  const scope = otherCurrenciesExcluded ? `${primaryCurrency}; diğer para birimleri hariç` : primaryCurrency;
-  const breakdown = entries.slice(0, MAX_LEGEND)
+  const breakdown = totals
     .map((entry) => `${entry.group}: ${formatCurrency(entry.amount, entry.currency)}`)
     .join(', ');
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Tahmini aylık dağılım, ${scope}. ${breakdown}. İstatistikleri aç`}
+      accessibilityLabel={`Tahmini aylık dağılım. ${breakdown}. İstatistikleri aç`}
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <Text style={textStyle('heading')}>Tahmini aylık dağılım</Text>
-      {otherCurrenciesExcluded ? <Text style={textStyle('bodySmall')}>{scope}</Text> : null}
+      {currencies.map((currency) => {
+        const entries = totals.filter((entry) => entry.currency === currency && entry.amount.minorUnits > 0).sort((a, b) => b.amount.minorUnits - a.amount.minorUnits);
+        if (!entries.length) return null;
+        return <View key={currency} style={styles.currencyGroup}>
+      <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{currency}</Text>
       {entries.length > 1 ? <View style={styles.bar}>
         <StackedBar
           accessibilityLabel={`Kategori dağılımı: ${entries.map((entry) => entry.group).join(', ')}`}
-          segments={entries.map((entry) => ({ key: entry.group, weight: entry.amount.amount, color: colorFor(entry.group) }))}
+          segments={entries.map((entry) => ({ key: entry.group, weight: entry.amount.minorUnits, color: colorFor(entry.group) }))}
         />
       </View> : null}
       {entries.slice(0, MAX_LEGEND).map((entry) => (
@@ -46,6 +48,8 @@ export function CategoryBarCard({ totals, onPress }: { totals: CategoryTotal[]; 
           <Text style={textStyle('label')}>{formatCurrency(entry.amount, entry.currency)}</Text>
         </View>
       ))}
+      </View>;
+      })}
     </Pressable>
   );
 }
@@ -60,6 +64,7 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   pressed: { opacity: 0.85 },
   bar: { marginVertical: gaps.sectionInner },
+  currencyGroup: { marginTop: spacing.md },
   legendRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: gaps.legendRow },
   dot: { width: sizes.legendDot, height: sizes.legendDot, borderRadius: sizes.legendDot / 2 },
 }));

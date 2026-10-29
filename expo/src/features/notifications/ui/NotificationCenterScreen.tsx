@@ -25,6 +25,7 @@ import { NotificationCenterHeader } from './NotificationCenterHeader';
 import { NotificationRow } from './NotificationRow';
 import { PermissionBanner } from './PermissionBanner';
 import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
+import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 
 type Filter = 'all' | 'unread';
 
@@ -41,6 +42,7 @@ export function NotificationCenterScreen() {
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
   const query = useNotificationsQuery(user?.id);
+  const online = useOnlineStatus();
   const local = useNotificationLocalState(user?.id);
   const subscriptions = useSubscriptionsQuery(user?.id);
   const prefs = useNotifyPrefs();
@@ -82,7 +84,7 @@ export function NotificationCenterScreen() {
 
   const state: AsyncState<typeof groups> = query.isPending || !local.ready
     ? { status: 'loading' }
-    : query.isError
+    : query.isError && query.data === undefined
       ? {
           status: 'error',
           message: 'Bildirimler yüklenemedi. Bağlantını kontrol edip tekrar dene.',
@@ -126,6 +128,7 @@ export function NotificationCenterScreen() {
         />
       </View>
       {permissionDenied ? <PermissionBanner message="Bildirim izni kapalı; yeni hatırlatma gelmez." /> : null}
+      {query.data !== undefined && (!online || query.isError) ? <View style={styles.filter}><Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Bildirimler güncel olmayabilir.</Text><TextLink label="Tekrar dene" onPress={() => void query.refetch()} /></View> : null}
       <AsyncStateView state={state}>
         {(visible) =>
           visible.length === 0 ? (

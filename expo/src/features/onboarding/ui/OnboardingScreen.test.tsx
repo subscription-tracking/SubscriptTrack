@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { FlatList, Dimensions } from 'react-native';
 
 import { OnboardingScreen } from './OnboardingScreen';
@@ -35,6 +35,16 @@ describe('OnboardingScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Başlayalım' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/login'));
     expect(mockWriteCurrency).toHaveBeenCalledWith('EUR');
+  });
+
+  it('geciken kayıtlı tercih kullanıcının yeni seçimini ezmez', async () => {
+    let finishRead: (value: string) => void = () => {};
+    mockReadCurrency.mockReturnValue(new Promise<string>((resolve) => { finishRead = resolve; }));
+    render(<OnboardingScreen />);
+    fireEvent(screen.UNSAFE_getByType(FlatList), 'momentumScrollEnd', { nativeEvent: { contentOffset: { x: Dimensions.get('window').width * 3 } } });
+    fireEvent.press(screen.getByRole('radio', { name: 'Euro, EUR' }));
+    await act(async () => { finishRead('USD'); });
+    expect(screen.getByRole('radio', { name: 'Euro, EUR', checked: true })).toBeTruthy();
   });
 
   it('kayıt hatasında tanıtımı tamamlamaz ve tekrar denemeye izin verir', async () => {

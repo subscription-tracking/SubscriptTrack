@@ -17,10 +17,12 @@ export function ServiceIdentity({
   name,
   category,
   size = 44,
+  compact = false,
 }: {
   name: string;
   category: SubscriptionCategory;
   size?: number;
+  compact?: boolean;
 }) {
   useThemeRevision();
   const mark = serviceMark(name, category);
@@ -32,6 +34,7 @@ export function ServiceIdentity({
       accessibilityLabel={`${name} logosu`}
       style={[
         styles.box,
+        compact && styles.compact,
         {
           width: size,
           height: size,
@@ -76,4 +79,5 @@ const styles = themedStyles(() => StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 2,
   },
+  compact: { shadowOpacity: 0, elevation: 0 },
 }));

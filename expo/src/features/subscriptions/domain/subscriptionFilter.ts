@@ -76,9 +76,9 @@ export function applyFilter(
     case 'date':
       return filtered.sort(compareByRenewal);
     case 'amountAsc':
-      return filtered.sort((a, b) => currencyRank(a.currency) - currencyRank(b.currency) || monthlyEquivalent(a).compareTo(monthlyEquivalent(b)) || compareByRenewal(a, b));
+      return filtered.sort((a, b) => currencyRank(a.currency) - currencyRank(b.currency) || a.currency.localeCompare(b.currency) || monthlyEquivalent(a).compareTo(monthlyEquivalent(b)) || compareByRenewal(a, b));
     case 'amountDesc':
-      return filtered.sort((a, b) => currencyRank(a.currency) - currencyRank(b.currency) || monthlyEquivalent(b).compareTo(monthlyEquivalent(a)) || compareByRenewal(a, b));
+      return filtered.sort((a, b) => currencyRank(a.currency) - currencyRank(b.currency) || a.currency.localeCompare(b.currency) || monthlyEquivalent(b).compareTo(monthlyEquivalent(a)) || compareByRenewal(a, b));
     case 'name':
       return filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr-TR') || a.id.localeCompare(b.id));
   }

@@ -25,8 +25,8 @@ describe('CalendarEventItem accessibility', () => {
   it('date, event kind, subscription and amount are in the screen reader label', () => {
     render(<CalendarEventItem subscription={subscription} date={civilDate(2026, 10, 5)} isTrial onPress={jest.fn()} />);
 
-    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, deneme sonrası ₺129,90' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, deneme sonrası ₺129,90' }).props.accessibilityHint).toBe('Abonelik ayrıntılarını açar.');
+    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, deneme sonrası ücret bilinmiyor' })).toBeTruthy();
+    expect(screen.getByText('Ücret bilinmiyor')).toBeTruthy();
   });
 
   it('deneme sonrası ücret varsa sıfır deneme fiyatı yerine bu ücreti açıkça gösterir', () => {

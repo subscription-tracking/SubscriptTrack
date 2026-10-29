@@ -5,10 +5,9 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Money } from '../../../../core/domain/money';
 import { formatCurrency } from '../../../../core/format/money';
-import { colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
 import { chartColors } from '../../../../shared/design/chartTheme';
 import { textStyle } from '../../../../shared/design/typography';
-import { StatsCardSurface } from './StatsCardSurface';
 
 /**
  * Flutter `HeroSpendingCard`: "TAHMİNİ AYLIK ABONELİK GİDERİ", aktif sayısı rozeti, büyük aylık tutar,
@@ -34,23 +33,25 @@ export function HeroSpendingCard({
   // Değişim, ödeme geçmişinin bu ay ile geçen ay toplamı arasındaki farktır (ana sayfadaki yüzdeyle aynı kaynak).
   const change = trend.length >= 2 ? trend[trend.length - 1] - trend[trend.length - 2] : 0;
   return (
-    <StatsCardSurface padding={sizes.heroPadding}>
+    <View style={styles.hero}>
       <View style={styles.titleRow}>
         <Text style={textStyle('overline', { flex: 1 })}>
           TAHMİNİ AYLIK ABONELİK GİDERİ
         </Text>
         <View style={styles.activePill}>
-          <Text style={textStyle('captionStrong', { color: colors.primary })}>{`${activeCount} Aktif`}</Text>
+          <Text style={textStyle('captionStrong', { color: colors.primary })}>{`${activeCount} ${currency} aktif`}</Text>
         </View>
       </View>
-      <Text style={textStyle('display', { marginTop: spacing.sm + spacing.xxs / 2 })}>{formatCurrency(monthly, currency)}</Text>
-      <View style={styles.changeRow}>
-        <ChangeBadge change={change} currency={currency} hasPaymentHistory={hasPaymentHistory && hasComparison} />
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-          {`Tahmini yıllık ${formatCurrency(yearly, currency)}`}
-        </Text>
+      <Text style={textStyle('financialHero', { marginTop: spacing.md })}>{formatCurrency(monthly, currency)}</Text>
+      <View style={styles.annualRow}>
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Tahmini yıllık maliyet</Text>
+        <Text style={textStyle('heading', { fontVariant: ['tabular-nums'] })}>{formatCurrency(yearly, currency)}</Text>
       </View>
-    </StatsCardSurface>
+      <View style={styles.changeRow}>
+        {hasPaymentHistory && hasComparison ? <ChangeBadge change={change} currency={currency} hasPaymentHistory /> : null}
+        {hasPaymentHistory && hasComparison ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Bu ay henüz tamamlanmadı; yalnızca kaydedilen ödemeler karşılaştırılır.</Text> : null}
+      </View>
+    </View>
   );
 }
 
@@ -85,6 +86,8 @@ function badgeLook(change: number, currency: string, hasPaymentHistory: boolean)
 }
 
 const styles = themedStyles(() => StyleSheet.create({
+  hero: { backgroundColor: colors.surface, borderRadius: radius.medium, padding: sizes.heroPadding },
+  annualRow: { marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: borderWidth.hairline, borderTopColor: colors.border, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.xs },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',

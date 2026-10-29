@@ -8,6 +8,7 @@ const mockUseSubscriptionsQuery = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('../../../core/network/useOnlineStatus', () => ({ useOnlineStatus: () => true }));
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) }));
 jest.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ user: { id: 'test-user' } }) }));
@@ -44,6 +45,15 @@ describe('CalendarScreen', () => {
 
     expect(screen.getByText('Takvim yüklenemedi. Bağlantını kontrol edip tekrar dene.')).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'Tekrar dene' }));
+    expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('önbellek varsa yenileme hatasında takvimi korur ve tekrar dener', () => {
+    mockUseSubscriptionsQuery.mockReturnValue({ isPending: false, isError: true, data: [], refetch: mockRefetch });
+    render(<CalendarScreen />);
+    expect(screen.getByText('Takvim verileri güncel olmayabilir.')).toBeTruthy();
+    expect(screen.getByText('Ekim 2026')).toBeTruthy();
+    fireEvent.press(screen.getByRole('link', { name: 'Tekrar dene' }));
     expect(mockRefetch).toHaveBeenCalledTimes(1);
   });
 

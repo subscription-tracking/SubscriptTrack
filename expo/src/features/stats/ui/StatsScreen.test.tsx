@@ -6,6 +6,8 @@ import { StatsScreen } from './StatsScreen';
 const mockPush = jest.fn();
 const mockSubscriptions = jest.fn();
 const mockPayments = jest.fn();
+const mockOnline = jest.fn(() => true);
+jest.mock('../../../core/network/useOnlineStatus', () => ({ useOnlineStatus: () => mockOnline() }));
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
@@ -36,6 +38,7 @@ describe('StatsScreen', () => {
     mockPush.mockReset();
     mockSubscriptions.mockReset();
     mockPayments.mockReset();
+    mockOnline.mockReturnValue(true);
     mockSubscriptions.mockReturnValue({ data: [], isPending: false, isError: false, refetch: jest.fn() });
     mockPayments.mockReturnValue({ data: [], isPending: false, isError: false, refetch: jest.fn() });
   });
@@ -57,6 +60,13 @@ describe('StatsScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Tekrar dene' }));
     expect(retrySubscriptions).toHaveBeenCalledTimes(1);
     expect(retryPayments).toHaveBeenCalledTimes(1);
+  });
+
+  it('önbellekteki veriyi yenileme hatasında uyarıyla korur', () => {
+    mockSubscriptions.mockReturnValue({ data: [activeSubscription], isPending: false, isError: true, refetch: jest.fn() });
+    render(<StatsScreen />);
+    expect(screen.getByText(/analiz güncel olmayabilir/)).toBeTruthy();
+    expect(screen.queryByText(/İstatistikler yüklenemedi/)).toBeNull();
   });
 
   it('aktif abonelik yokken ilk kaydı eklemeye yönlendirir', () => {

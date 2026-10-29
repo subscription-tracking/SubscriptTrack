@@ -1,6 +1,7 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { FlatList, type ListRenderItemInfo, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -41,7 +42,7 @@ function withAttentionGroup(items: Subscription[], today: CivilDate): ListRow[] 
   const { attention, rest } = splitAttention(items, today);
   const asRows = (list: Subscription[]): ListRow[] => list.map((subscription) => ({ kind: 'item', key: subscription.id, subscription }));
   if (attention.length === 0) return asRows(items);
-  const rows: ListRow[] = [{ kind: 'header', key: 'h-attention', title: 'Geciken ödemeler' }, ...asRows(attention)];
+  const rows: ListRow[] = [{ kind: 'header', key: 'h-attention', title: 'Dikkat gerektiren ödemeler' }, ...asRows(attention)];
   if (rest.length > 0) rows.push({ kind: 'header', key: 'h-rest', title: 'Diğer abonelikler' }, ...asRows(rest));
   return rows;
 }
@@ -70,6 +71,7 @@ export function SubscriptionListScreen() {
   const { width } = useWindowDimensions();
   const { user } = useAuth();
   const query = useSubscriptionsQuery(user?.id);
+  const online = useOnlineStatus();
   const [tab, setTab] = useState<ListTab>('active');
   const [search, setSearch] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -89,7 +91,7 @@ export function SubscriptionListScreen() {
 
   const state: AsyncState<Subscription[]> = query.isPending
     ? { status: 'loading' }
-    : query.isError
+    : query.isError && query.data === undefined
       ? {
           status: 'error',
           message: 'Abonelikler yüklenemedi. Bağlantını kontrol edip tekrar dene.',
@@ -109,22 +111,27 @@ export function SubscriptionListScreen() {
     () =>
       LIST_TABS.map((item) => ({
         key: item.key,
-        total: visibleSubscriptions(all, item.key, '').length,
-        items: withAttentionGroup(applyFilter(visibleSubscriptions(all, item.key, search), filter, today), today),
+        total: counts[item.key],
+        items: (() => {
+          const filtered = applyFilter(visibleSubscriptions(all, item.key, search), filter, today);
+          return filter.sort === 'date' ? withAttentionGroup(filtered, today) : filtered.map((subscription) => ({ kind: 'item' as const, key: subscription.id, subscription }));
+        })(),
       })),
-    [all, search, filter, today],
+    [all, counts, search, filter, today],
   );
   const showGlobalEmpty = state.status === 'ready' && all.length === 0;
   const currentPage = pages.find((page) => page.key === tab);
+  const visibleIds = new Set(currentPage?.items.filter((item) => item.kind === 'item').map((item) => item.key) ?? []);
+  const visibleSelected = selected?.filter((id) => visibleIds.has(id)) ?? [];
   const filterCount = activeFilterCount(filter);
-  const selectionActions = (currentPage?.total ?? 0) > 0
-    ? selected === null
-      ? [{ label: 'Seç', icon: 'checklist' as const, onPress: () => setSelected([]), accessibilityLabel: 'Çoklu seçim başlat' }]
-      : [
+  const selectionActions = selected !== null
+    ? [
           { label: 'Bitti', icon: 'close' as const, onPress: () => setSelected(null), accessibilityLabel: 'Seçimden çık' },
-          { label: `Sil ${selected.length}`, icon: 'delete-outline' as const, onPress: () => deletion.confirm(selected), danger: true, disabled: deletion.busy || selected.length === 0, accessibilityLabel: `${selected.length} seçili aboneliği sil` },
+          { label: `Sil ${visibleSelected.length}`, icon: 'delete-outline' as const, onPress: () => deletion.confirm(visibleSelected), danger: true, disabled: deletion.busy || visibleSelected.length === 0, accessibilityLabel: `${visibleSelected.length} seçili aboneliği sil` },
         ]
-    : [];
+    : (currentPage?.total ?? 0) > 0
+      ? [{ label: 'Seç', icon: 'checklist' as const, onPress: () => setSelected([]), accessibilityLabel: 'Çoklu seçim başlat' }]
+      : [];
 
   const openSubscription = useCallback((id: string) => router.push(`/subscriptions/${id}`), [router]);
   const toggleSelected = useCallback(
@@ -136,20 +143,14 @@ export function SubscriptionListScreen() {
       if (entry.kind === 'header') return <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{entry.title}</Text>;
       const row = entry.subscription;
       return (
-      <View>
-        {selected !== null ? (
-          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected.includes(row.id) }} accessibilityLabel={`${row.name} seç`} onPress={() => toggleSelected(row.id)} style={styles.selection}>
-            <Text style={textStyle('bodyStrong')}>{selected.includes(row.id) ? '☑ Seçili' : '□ Seç'}</Text>
-          </Pressable>
-        ) : null}
-        <SubscriptionTile subscription={row} today={today} onPress={openSubscription} />
-      </View>
+        <SubscriptionTile subscription={row} today={today} selected={selected === null ? undefined : selected.includes(row.id)} onPress={selected === null ? openSubscription : toggleSelected} />
       );
     },
     [selected, today, openSubscription, toggleSelected],
   );
 
   function selectTab(next: ListTab) {
+    if (next !== tab) setSelected(null);
     setTab(next);
     const index = LIST_TABS.findIndex((item) => item.key === next);
     pager.current?.scrollTo({ x: index * width, animated: true });
@@ -158,13 +159,14 @@ export function SubscriptionListScreen() {
   function onMomentumEnd(offsetX: number) {
     const index = Math.round(offsetX / width);
     const next = LIST_TABS[index]?.key;
-    if (next && next !== tab) setTab(next);
+    if (next && next !== tab) { setSelected(null); setTab(next); }
   }
 
   const bottomInset = sizes.bottomNavHeight + insets.bottom + spacing.xl;
 
   return (
     <View style={styles.screen}>
+      {state.status === 'ready' && (!online || query.isError) ? <Text accessibilityLiveRegion="polite" style={styles.cacheNotice}>Bağlantı veya yenileme sorunu: gösterilen veriler güncel olmayabilir.</Text> : null}
       {showGlobalEmpty ? (
         <EmptyStateLayout
           footer={(
@@ -185,7 +187,7 @@ export function SubscriptionListScreen() {
         <>
           <SubscriptionListHeader
             search={search}
-            onSearchChange={setSearch}
+            onSearchChange={(value) => { setSelected(null); setSearch(value); }}
             onAdd={() => router.push('/subscriptions/add')}
             onFilter={() => setSheetOpen(true)}
             activeFilterCount={filterCount}
@@ -252,10 +254,10 @@ export function SubscriptionListScreen() {
         category={filter.category}
         sort={filter.sort}
         currency={filter.currency}
-        onCurrency={(currency) => setFilter((previous) => ({ ...previous, currency }))}
+        onCurrency={(currency) => { setSelected(null); setFilter((previous) => ({ ...previous, currency })); }}
         hasArchived={hasArchived}
-        onCategory={(next: SubscriptionCategory | null) => setFilter((prev) => ({ ...prev, category: next }))}
-        onSort={(next) => setFilter((prev) => ({ ...prev, sort: next }))}
+        onCategory={(next: SubscriptionCategory | null) => { setSelected(null); setFilter((prev) => ({ ...prev, category: next })); }}
+        onSort={(next) => { setSelected(null); setFilter((prev) => ({ ...prev, sort: next })); }}
         onOpenArchive={() => {
           setSheetOpen(false);
           router.push('/subscriptions/archived');
@@ -299,5 +301,5 @@ const styles = themedStyles(() => StyleSheet.create({
   separator: {
     height: spacing.none,
   },
-  selection: { minHeight: sizes.minTouchTarget, justifyContent: 'center', paddingHorizontal: spacing.xs },
+  cacheNotice: { ...textStyle('bodySmall', { color: colors.onSurfaceVariant }), paddingHorizontal: spacing.lg, paddingTop: spacing.xs },
 }));

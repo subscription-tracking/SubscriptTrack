@@ -1,0 +1,1 @@
+{"version":3,"names":["_Ionicons","_interopRequireDefault","require","_default","exports","default","Ionicons"],"sources":["Ionicons.js"],"sourcesContent":["import Ionicons from './build/Ionicons';\nexport default Ionicons;\n"],"mappings":";;;;;AAAA,IAAAA,SAAA,GAAAC,sBAAA,CAAAC,OAAA;AAAwC,IAAAC,QAAA,GAAAC,OAAA,CAAAC,OAAA,GACzBC,iBAAQ","ignoreList":[]}

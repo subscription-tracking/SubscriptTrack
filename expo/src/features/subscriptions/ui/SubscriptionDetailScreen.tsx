@@ -4,7 +4,7 @@ import { useCivilToday } from '../../../core/clock/useCivilToday';
 import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
@@ -22,6 +22,9 @@ import { DetailInfoList, SummaryBoxes } from './detail/DetailSummary';
 import { RecentPayments } from './detail/DetailHistory';
 import { useDetailMutations } from './detail/useDetailMutations';
 import { useDeletionAction } from './useDeletionAction';
+import { confirmRenewal } from './useConfirmedRenew';
+import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
+import { textStyle } from '../../../shared/design/typography';
 
 /**
  * Abonelik detayı: kompakt hero (geri, düzenle, ⋯ eylem menüsü), ödeme kartı, özet kutuları, ayrıntı
@@ -35,7 +38,7 @@ export function SubscriptionDetailScreen({ id }: { id: string }) {
 
   const state: AsyncState<Subscription> = query.isPending
     ? { status: 'loading' }
-    : query.isError
+    : query.isError && !query.data
       ? {
           status: 'error',
           message: 'Abonelik yüklenemedi. Tekrar dene.',
@@ -55,6 +58,7 @@ export function SubscriptionDetailScreen({ id }: { id: string }) {
       {(subscription) => (
         <Details
           subscription={subscription}
+          stale={query.isError}
           onBack={() => router.back()}
           onEdit={() => router.push(`/subscriptions/${subscription.id}/edit`)}
           onCancel={() => router.push(`/subscriptions/${subscription.id}/cancel`)}
@@ -69,11 +73,13 @@ function Details({
   onBack,
   onEdit,
   onCancel,
+  stale,
 }: {
   subscription: Subscription;
   onBack: () => void;
   onEdit: () => void;
   onCancel: () => void;
+  stale: boolean;
 }) {
   useThemeRevision();
   const insets = useSafeAreaInsets();
@@ -84,6 +90,7 @@ function Details({
   const deletion = useDeletionAction(onBack);
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
+  const online = useOnlineStatus();
   const subscriptionPayments = payments.data?.filter((event) => event.subscriptionId === subscription.id);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -99,6 +106,7 @@ function Details({
   }
 
   function onMenuAction(action: DetailMenuAction) {
+    if (busy || deletion.busy) return;
     if (action === 'cancel') onCancel();
     else if (action === 'delete') { if (!deletion.busy) deletion.confirm([subscription.id]); }
     else if (action === 'pause') changeWithConfirmation('paused');
@@ -113,10 +121,11 @@ function Details({
     <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: spacing.xl }} showsVerticalScrollIndicator={false}>
       <DetailHero subscription={subscription} onBack={onBack} onEdit={onEdit} onMenu={() => setMenuOpen(true)} />
       <View style={styles.body}>
-        <PaymentCard subscription={subscription} today={today} busy={busy} onRenew={() => renew.mutate()} />
+        {stale || !online ? <Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Bağlantı veya yenileme sorunu: gösterilen veriler güncel olmayabilir.</Text> : null}
+        <PaymentCard subscription={subscription} today={today} busy={busy} onRenew={() => { if (!busy) confirmRenewal(subscription, today, () => renew.mutate()); }} />
         <SummaryBoxes subscription={subscription} payments={subscriptionPayments} />
+        <RecentPayments payments={subscriptionPayments} loading={payments.isPending} error={payments.isError} onRetry={() => void payments.refetch()} timeZone={timeZone} onSeeAll={() => router.push({ pathname: '/stats/payments', params: { subscriptionId: subscription.id } })} />
         <DetailInfoList subscription={subscription} onEdit={onEdit} />
-        <RecentPayments payments={subscriptionPayments} loading={payments.isPending} error={payments.isError} onRetry={() => void payments.refetch()} timeZone={timeZone} onSeeAll={() => router.push('/stats/payments')} />
         {canHowToCancel ? <TonalButton label="Nasıl iptal edilir?" onPress={onCancel} /> : null}
       </View>
     </ScrollView>

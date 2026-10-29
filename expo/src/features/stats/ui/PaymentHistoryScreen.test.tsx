@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 
 import { type SubscriptionRow, subscriptionFromRow } from '../../subscriptions/domain/subscription';
 import { paymentFromRow } from '../domain/paymentEvents';
@@ -85,7 +86,19 @@ describe('PaymentHistoryScreen', () => {
     expect(screen.getByRole('button', { name: 'Ödeme kaydı ekle' })).toBeTruthy();
   });
 
+  it('aboneliğe özel geçmiş tercih edilen para birimi farklı olsa da yalnız ilgili kayıtları gösterir', () => {
+    const usd = paymentFromRow({ id: 'usd-1', subscription_id: 'subscription-1', amount: '12.00', currency: 'USD', paid_at: '2026-10-12T09:00:00Z', status: 'PAID' });
+    const other = paymentFromRow({ id: 'other', subscription_id: 'another', amount: '77.00', currency: 'TRY', paid_at: '2026-10-12T09:00:00Z', status: 'PAID' });
+    mockUsePaymentsQuery.mockReturnValue({ data: [usd, other], isPending: false, isError: false, refetch: mockRefetchPayments });
+    render(<PaymentHistoryScreen subscriptionId="subscription-1" />);
+    expect(screen.getByText('Video Plus · Ödeme geçmişi')).toBeTruthy();
+    expect(screen.getByText('$12,00')).toBeTruthy();
+    expect(screen.queryByText('₺77,00')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Genel ödeme geçmişi' })).toBeTruthy();
+  });
+
   it('ödeme kaydını abonelik adıyla gösterir; düzenleme ve silme eylemleri kaydın kimliğini taşır', () => {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
     render(<PaymentHistoryScreen />);
 
     fireEvent.press(screen.getByRole('button', { name: 'Video Plus, ₺49,90 ödeme kaydını düzenle' }));
@@ -93,6 +106,12 @@ describe('PaymentHistoryScreen', () => {
     expect(screen.getByLabelText('Tutar (TRY)').props.value).toBe('49.90');
 
     fireEvent.press(screen.getByRole('button', { name: 'Video Plus, ₺49,90 ödeme kaydını sil' }));
+    expect(mockMutate).not.toHaveBeenCalled();
+    const actions = alert.mock.calls[0][2] ?? [];
+    actions.find((action) => action.text === 'Sil')?.onPress?.();
+    actions.find((action) => action.text === 'Sil')?.onPress?.();
+    expect(mockMutate).toHaveBeenCalledTimes(1);
     expect(mockMutate).toHaveBeenCalledWith('payment-1');
+    alert.mockRestore();
   });
 });

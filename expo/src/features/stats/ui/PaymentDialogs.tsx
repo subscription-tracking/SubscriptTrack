@@ -69,11 +69,13 @@ export function AddPaymentDialog({
   subscriptions,
   onClose,
   onSave,
+  busy = false,
 }: {
   visible: boolean;
   subscriptions: Subscription[];
   onClose: () => void;
   onSave: (input: { subscription: Subscription; amount: Money }) => void;
+  busy?: boolean;
 }) {
   useThemeRevision();
   const first = subscriptions[0];
@@ -124,7 +126,7 @@ export function AddPaymentDialog({
       actions={
         <>
           <TextAction label="İptal" onPress={onClose} />
-          <FilledAction label="Kaydet" onPress={save} />
+          <FilledAction label="Kaydet" onPress={save} disabled={busy} />
         </>
       }
     >
@@ -153,12 +155,16 @@ export function EditPaymentDialog({
   initialAmount,
   onClose,
   onSave,
+  busy = false,
+  description,
 }: {
   visible: boolean;
   currency: string;
   initialAmount: string;
   onClose: () => void;
   onSave: (amount: Money) => void;
+  busy?: boolean;
+  description?: string;
 }) {
   useThemeRevision();
   const [amount, setAmount] = useState(initialAmount);
@@ -181,10 +187,11 @@ export function EditPaymentDialog({
       actions={
         <>
           <TextAction label="İptal" onPress={onClose} />
-          <FilledAction label="Kaydet" onPress={save} />
+          <FilledAction label="Kaydet" onPress={save} disabled={busy} />
         </>
       }
     >
+      {description ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginBottom: spacing.sm })}>{description}</Text> : null}
       <TextField
         label={`Tutar (${currency})`}
         value={amount}

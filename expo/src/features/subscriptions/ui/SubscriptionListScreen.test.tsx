@@ -1,5 +1,5 @@
 import { RefreshControl } from 'react-native';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { type SubscriptionRow, subscriptionFromRow } from '../domain/subscription';
 import { SubscriptionListScreen } from './SubscriptionListScreen';
 jest.mock('./useDeletionAction', () => ({ useDeletionAction: () => ({ confirm: jest.fn(), busy: false }) }));
@@ -7,6 +7,7 @@ jest.mock('./useDeletionAction', () => ({ useDeletionAction: () => ({ confirm: j
 const mockPush = jest.fn();
 const mockRefetch = jest.fn();
 const mockUseSubscriptionsQuery = jest.fn();
+const mockOnline = jest.fn(() => true);
 const mockArchivedUsd = subscriptionFromRow({
   id: 'archived-usd',
   name: 'USD arşiv kaydı',
@@ -89,6 +90,7 @@ const mockPaused = subscriptionFromRow({
 } satisfies SubscriptionRow);
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('../../../core/network/useOnlineStatus', () => ({ useOnlineStatus: () => mockOnline() }));
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) }));
 jest.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ user: { id: 'test-user' } }) }));
@@ -101,8 +103,12 @@ jest.mock('../data/queries', () => ({
 }));
 
 describe('SubscriptionListScreen', () => {
+  afterEach(async () => {
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 100)); });
+  });
   beforeEach(() => {
     mockPush.mockReset();
+    mockOnline.mockReturnValue(true);
     mockRefetch.mockReset();
     mockUseSubscriptionsQuery.mockReturnValue({
       data: [mockArchivedUsd],
@@ -142,6 +148,27 @@ describe('SubscriptionListScreen', () => {
     fireEvent(screen.UNSAFE_getByType(RefreshControl), 'refresh');
 
     expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('seçim modunda satır detayı açmaz ve arama değişince seçimden çıkar', () => {
+    mockUseSubscriptionsQuery.mockReturnValue({ data: [mockNetflix, mockDesignTool], isPending: false, isError: false, isRefetching: false, refetch: mockRefetch });
+    render(<SubscriptionListScreen />);
+    fireEvent.press(screen.getByRole('button', { name: 'Çoklu seçim başlat' }));
+    const item = screen.getByRole('checkbox', { name: /Netflix/ });
+    fireEvent.press(item);
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: '1 seçili aboneliği sil' })).toBeTruthy();
+    fireEvent.changeText(screen.getByLabelText('Aboneliklerinde ara'), 'Suite');
+    expect(screen.queryByRole('button', { name: '1 seçili aboneliği sil' })).toBeNull();
+    expect(screen.getByRole('button', { name: /Design Suite/ })).toBeTruthy();
+  });
+
+  it('önbellek verisiyle yenileme hatasında listeyi ve uyarıyı korur', () => {
+    mockUseSubscriptionsQuery.mockReturnValue({ data: [mockNetflix], isPending: false, isError: true, isRefetching: false, refetch: mockRefetch });
+    mockOnline.mockReturnValue(false);
+    render(<SubscriptionListScreen />);
+    expect(screen.getByText(/gösterilen veriler güncel olmayabilir/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Netflix/ })).toBeTruthy();
   });
   it('defaults to all currencies and combines currency, category, and search', () => {
     const usd = { ...mockDesignTool, id: 'usd', name: 'USD Suite', currency: 'USD' };

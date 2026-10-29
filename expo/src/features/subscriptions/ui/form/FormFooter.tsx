@@ -58,6 +58,8 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   summary: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     justifyContent: 'space-between',
     alignItems: 'center',
   },

@@ -20,6 +20,7 @@ describe('ActionSheet', () => {
   it('görünürken başlığı ve satırları gösterir, gizliyken göstermez', () => {
     const view = render(<ActionSheet visible title="Video Plus" items={items()} onClose={jest.fn()} />);
     expect(screen.getByText('Video Plus')).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Video Plus' })).toBeTruthy();
     expect(screen.getByText('Kayıt listede kalır')).toBeTruthy();
     expect(screen.getAllByRole('menuitem')).toHaveLength(2);
     view.rerender(<ActionSheet visible={false} title="Video Plus" items={items()} onClose={jest.fn()} />);

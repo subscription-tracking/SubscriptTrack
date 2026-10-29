@@ -1,0 +1,55 @@
+ed382ebd13b70c7b105361405b95f97d
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.findMenuElementById = findMenuElementById;
+exports.findMenuElementByIdInItems = findMenuElementByIdInItems;
+exports.validateMenuCallbacks = validateMenuCallbacks;
+function findMenuElementByIdInItems(items, id) {
+  for (var item of items) {
+    if (item.menu === undefined) {
+      continue;
+    }
+    var menu = findMenuElementById(item.menu, id);
+    if (menu !== null) {
+      return menu;
+    }
+  }
+  return null;
+}
+function findMenuElementById(menu, id) {
+  if (menu.id === id) {
+    return menu;
+  }
+  if (menu.type === 'menu') {
+    for (var child of menu.children) {
+      var result = findMenuElementById(child, id);
+      if (result !== null) {
+        return result;
+      }
+    }
+  }
+  return null;
+}
+function validateMenuCallbacks(menu) {
+  walkMenuTreeAndValidateCallbacks(menu, false);
+}
+function walkMenuTreeAndValidateCallbacks(menu, insideSingleSelection) {
+  var isInsideSingleSelection = insideSingleSelection || !!menu.singleSelection;
+  for (var child of menu.children) {
+    if (child.type === 'menuItem') {
+      if ((child.itemType === 'toggle' || isInsideSingleSelection && (child.itemType ?? 'automatic') === 'automatic') && child.onPress) {
+        console.warn(`[RNScreens] onPress on menu item "${child.id}" will not fire ` + 'because it is a toggle. Use onSelectionChange on parent menu instead.');
+      }
+    }
+    if (child.type === 'menu') {
+      if (isInsideSingleSelection && child.onSelectionChange) {
+        console.warn(`[RNScreens] onSelectionChange on menu "${child.id}" will not fire ` + 'because it is nested inside a singleSelection hierarchy. ' + 'Place onSelectionChange on the topmost singleSelection menu instead.');
+      }
+      walkMenuTreeAndValidateCallbacks(child, isInsideSingleSelection);
+    }
+  }
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJmaW5kTWVudUVsZW1lbnRCeUlkSW5JdGVtcyIsIml0ZW1zIiwiaWQiLCJpdGVtIiwibWVudSIsInVuZGVmaW5lZCIsImZpbmRNZW51RWxlbWVudEJ5SWQiLCJ0eXBlIiwiY2hpbGQiLCJjaGlsZHJlbiIsInJlc3VsdCIsInZhbGlkYXRlTWVudUNhbGxiYWNrcyIsIndhbGtNZW51VHJlZUFuZFZhbGlkYXRlQ2FsbGJhY2tzIiwiaW5zaWRlU2luZ2xlU2VsZWN0aW9uIiwiaXNJbnNpZGVTaW5nbGVTZWxlY3Rpb24iLCJzaW5nbGVTZWxlY3Rpb24iLCJpdGVtVHlwZSIsIm9uUHJlc3MiLCJjb25zb2xlIiwid2FybiIsIm9uU2VsZWN0aW9uQ2hhbmdlIl0sInNvdXJjZXMiOlsiLi4vLi4vLi4vLi4vLi4vLi4vc3JjL2NvbXBvbmVudHMvZ2FtbWEvc3RhY2svaGVhZGVyL3V0aWxzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbbnVsbF0sIm1hcHBpbmdzIjoiOzs7Ozs7OztBQU1PLFNBQVNBLDBCQUEwQkEsQ0FDeENDLEtBQXdCLEVBQ3hCQyxFQUFVLEVBQ3dCO0VBQ2xDLEtBQUssSUFBTUMsSUFBSSxJQUFJRixLQUFLLEVBQUU7SUFDeEIsSUFBSUUsSUFBSSxDQUFDQyxJQUFJLEtBQUtDLFNBQVMsRUFBRTtNQUMzQjtJQUNGO0lBRUEsSUFBTUQsSUFBSSxHQUFHRSxtQkFBbUIsQ0FBQ0gsSUFBSSxDQUFDQyxJQUFJLEVBQUVGLEVBQUUsQ0FBQztJQUMvQyxJQUFJRSxJQUFJLEtBQUssSUFBSSxFQUFFO01BQ2pCLE9BQU9BLElBQUk7SUFDYjtFQUNGO0VBRUEsT0FBTyxJQUFJO0FBQ2I7QUFFTyxTQUFTRSxtQkFBbUJBLENBQ2pDRixJQUErQixFQUMvQkYsRUFBVSxFQUN3QjtFQUNsQyxJQUFJRSxJQUFJLENBQUNGLEVBQUUsS0FBS0EsRUFBRSxFQUFFO0lBQ2xCLE9BQU9FLElBQUk7RUFDYjtFQUVBLElBQUlBLElBQUksQ0FBQ0csSUFBSSxLQUFLLE1BQU0sRUFBRTtJQUN4QixLQUFLLElBQU1DLEtBQUssSUFBSUosSUFBSSxDQUFDSyxRQUFRLEVBQUU7TUFDakMsSUFBTUMsTUFBTSxHQUFHSixtQkFBbUIsQ0FBQ0UsS0FBSyxFQUFFTixFQUFFLENBQUM7TUFDN0MsSUFBSVEsTUFBTSxLQUFLLElBQUksRUFBRTtRQUNuQixPQUFPQSxNQUFNO01BQ2Y7SUFDRjtFQUNGO0VBRUEsT0FBTyxJQUFJO0FBQ2I7QUFFTyxTQUFTQyxxQkFBcUJBLENBQUNQLElBQXdCLEVBQVE7RUFDcEVRLGdDQUFnQyxDQUFDUixJQUFJLEVBQUUsS0FBSyxDQUFDO0FBQy9DO0FBRUEsU0FBU1EsZ0NBQWdDQSxDQUN2Q1IsSUFBd0IsRUFDeEJTLHFCQUE4QixFQUN4QjtFQUdOLElBQU1DLHVCQUF1QixHQUMzQkQscUJBQXFCLElBQUksQ0FBQyxDQUFDVCxJQUFJLENBQUNXLGVBQWU7RUFFakQsS0FBSyxJQUFNUCxLQUFLLElBQUlKLElBQUksQ0FBQ0ssUUFBUSxFQUFFO0lBQ2pDLElBQUlELEtBQUssQ0FBQ0QsSUFBSSxLQUFLLFVBQVUsRUFBRTtNQUM3QixJQUNFLENBQUNDLEtBQUssQ0FBQ1EsUUFBUSxLQUFLLFFBQVEsSUFDekJGLHVCQUF1QixJQUN0QixDQUFDTixLQUFLLENBQUNRLFFBQVEsSUFBSSxXQUFXLE1BQU0sV0FBWSxLQUNwRFIsS0FBSyxDQUFDUyxPQUFPLEVBQ2I7UUFDQUMsT0FBTyxDQUFDQyxJQUFJLENBQ1YscUNBQXFDWCxLQUFLLENBQUNOLEVBQUUsa0JBQWtCLEdBQzdELHVFQUNKLENBQUM7TUFDSDtJQUNGO0lBRUEsSUFBSU0sS0FBSyxDQUFDRCxJQUFJLEtBQUssTUFBTSxFQUFFO01BQ3pCLElBQUlPLHVCQUF1QixJQUFJTixLQUFLLENBQUNZLGlCQUFpQixFQUFFO1FBQ3RERixPQUFPLENBQUNDLElBQUksQ0FDViwwQ0FBMENYLEtBQUssQ0FBQ04sRUFBRSxrQkFBa0IsR0FDbEUsMkRBQTJELEdBQzNELHNFQUNKLENBQUM7TUFDSDtNQUVBVSxnQ0FBZ0MsQ0FBQ0osS0FBSyxFQUFFTSx1QkFBdUIsQ0FBQztJQUNsRTtFQUNGO0FBQ0YiLCJpZ25vcmVMaXN0IjpbXX0=

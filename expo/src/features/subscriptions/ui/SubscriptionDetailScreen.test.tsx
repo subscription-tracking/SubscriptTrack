@@ -25,12 +25,14 @@ jest.mock('react-native-svg', () => {
 jest.mock('expo-router', () => ({ useRouter: () => ({ back: mockBack, push: mockPush }) }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) }));
 jest.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ user: { id: 'test-user' } }) }));
+jest.mock('../../../core/network/useOnlineStatus', () => ({ useOnlineStatus: () => true }));
 jest.mock('../../settings/data/useActiveCurrency', () => ({ useUserTimeZone: () => 'Europe/Istanbul' }));
 jest.mock('../../../core/clock/useCivilToday', () => ({ useCivilToday: () => ({ year: 2026, month: 10, day: 20 }) }));
 jest.mock('../../notifications/data/notificationPermission', () => ({ usePermissionQuery: () => ({ data: 'granted' }) }));
 jest.mock('../data/queries', () => ({ useSubscriptionQuery: (...args: unknown[]) => mockUseSubscriptionQuery(...args) }));
 jest.mock('../../stats/data/queries', () => ({ usePaymentsQuery: () => ({ data: mockPaymentState === 'ready' ? mockPayments : undefined, isPending: mockPaymentState === 'loading', isError: mockPaymentState === 'error', refetch: mockPaymentRefetch }) }));
 jest.mock('./useDeletionAction', () => ({ useDeletionAction: () => ({ confirm: mockConfirm, busy: false }) }));
+jest.mock('./useRenewAction', () => ({ useRenewAction: () => ({ mutate: jest.fn(), isPending: false }) }));
 jest.mock('./detail/useDetailMutations', () => ({
   useDetailMutations: () => ({ change: { mutate: mockChange }, renew: { mutate: mockRenew }, busy: false }),
 }));
@@ -100,7 +102,7 @@ describe('SubscriptionDetailScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Ödeme yöntemi: Belirtilmedi' }));
     expect(mockPush).toHaveBeenLastCalledWith('/subscriptions/subscription-1/edit');
     fireEvent.press(screen.getByRole('link', { name: 'Tümünü gör' }));
-    expect(mockPush).toHaveBeenLastCalledWith('/stats/payments');
+    expect(mockPush).toHaveBeenLastCalledWith({ pathname: '/stats/payments', params: { subscriptionId: 'subscription-1' } });
     fireEvent.press(screen.getByRole('button', { name: 'Nasıl iptal edilir?' }));
     expect(mockPush).toHaveBeenLastCalledWith('/subscriptions/subscription-1/cancel');
   });
@@ -147,12 +149,18 @@ describe('SubscriptionDetailScreen', () => {
     alert.mockRestore();
   });
 
-  it('vadesi gelmiş kayıtta "Ödendi ve yenilendi" görünür, basınca yeniler ve sonraki tarihi söyler', () => {
+  it('vadesi gelmiş kayıtta ödeme ancak onaydan sonra bir kez kaydedilir', () => {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
     open({ next_renewal_date: '2026-10-20' });
     expect(screen.getByText('Bugün')).toBeTruthy();
     expect(screen.getByText(/sonraki tarih 20 Kasım 2026 olur/)).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'Ödendi ve yenilendi' }));
+    expect(mockRenew).not.toHaveBeenCalled();
+    const actions = alert.mock.calls[0][2] ?? [];
+    actions.find((action) => action.text === 'Ödendi')?.onPress?.();
+    actions.find((action) => action.text === 'Ödendi')?.onPress?.();
     expect(mockRenew).toHaveBeenCalledTimes(1);
+    alert.mockRestore();
   });
 
   it('gecikmiş vadede gerçek vadeyi ve tahmini sonraki döngüyü ayrı satırlarda gösterir', () => {
@@ -165,6 +173,14 @@ describe('SubscriptionDetailScreen', () => {
     open();
     expect(screen.queryByRole('button', { name: 'Ödendi ve yenilendi' })).toBeNull();
     expect(screen.getByText('5 gün kaldı')).toBeTruthy();
+  });
+
+  it('deneme bitişini gösterir, bilinmeyen ücret veya ödeme eylemi üretmez', () => {
+    open({ status: 'trial', trial_end_date: '2026-10-22', trial_price_after: null, next_renewal_date: null });
+    expect(screen.getByText('Ücretsiz deneme bitişi')).toBeTruthy();
+    expect(screen.getByText('22 Ekim 2026')).toBeTruthy();
+    expect(screen.getByText('Deneme sonrası ücret belirtilmedi')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Ödendi ve yenilendi' })).toBeNull();
   });
 
   it('yıllık maliyeti ve şimdiye kadar ödenen toplamı gösterir', () => {
@@ -186,6 +202,20 @@ describe('SubscriptionDetailScreen', () => {
     mockPayments = [payment('a', '1'), payment('b', '2'), payment('c', '3'), payment('d', '4')];
     open();
     expect(screen.getAllByText('Ödendi')).toHaveLength(3);
+  });
+
+  it('son üç kaydı gelen sıra yerine ödeme tarihine ve eşit tarihte kimliğe göre seçer', () => {
+    mockPayments = [
+      { ...payment('old', '1'), paidAt: '2026-10-01T09:00:00Z' },
+      { ...payment('z', '2'), paidAt: '2026-10-19T09:00:00Z' },
+      { ...payment('a', '3'), paidAt: '2026-10-19T09:00:00Z' },
+      { ...payment('new', '4'), paidAt: '2026-10-20T09:00:00Z' },
+    ];
+    open();
+    expect(screen.queryByText('₺1,00')).toBeNull();
+    expect(screen.getByText('₺4,00')).toBeTruthy();
+    expect(screen.getByText('₺3,00')).toBeTruthy();
+    expect(screen.getByText('₺2,00')).toBeTruthy();
   });
 
   it('ödeme sorgusu sürerken boş geçmiş veya sıfır toplam göstermez', () => {

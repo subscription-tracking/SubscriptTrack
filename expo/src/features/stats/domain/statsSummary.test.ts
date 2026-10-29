@@ -4,6 +4,8 @@ import { monthOverMonthPercent, monthlyTotals, paymentFromRow, totalForMonth, ty
 import { buildStatsSummary } from './statsSummary';
 import { savingsDraftFor, savingsTotalsByCurrency, potentialSavings, type SavingsEvent } from '../../savings/domain/savingsSummary';
 import { Money } from '../../../core/domain/money';
+import { upcomingByDay } from '../../dashboard/domain/homeSummary';
+import { countsByTab } from '../../subscriptions/domain/subscriptionList';
 
 const row = (overrides: Partial<SubscriptionRow>): SubscriptionRow => ({
   id: 'id',
@@ -90,6 +92,19 @@ describe('buildStatsSummary', () => {
     expect(summary.currency).toBe('USD');
     expect(summary.monthly.decimalString).toBe('5.00');
     expect(summary.highest?.id).toBe('c');
+  });
+
+  it('aktif sayısı para birimi kapsamındadır; liste sayısı bütün para birimlerini kapsar', () => {
+    expect(countsByTab(items).active).toBe(3);
+    expect(buildStatsSummary({ subscriptions: items, payments: [], today, now, timeZone, activeCurrency: 'TRY' })?.activeCount).toBe(2);
+  });
+
+  it('7 günlük sayı tüm yenilemeleri içerir, bugün ve 8. gün hariç dashboard ile eşleşir', () => {
+    const subs = [0, 1, 2, 3, 4, 7, 8].map((days) => sub({ id: `s${days}`, currency: days % 2 ? 'USD' : 'TRY', next_renewal_date: `2026-10-${String(9 + days).padStart(2, '0')}` }));
+    const summary = buildStatsSummary({ subscriptions: subs, payments: [], today, now, timeZone, activeCurrency: 'TRY' })!;
+    const dashboard = upcomingByDay(subs, today, 7).flatMap((day) => day.entries.filter((entry) => entry.kind === 'renewal').map((entry) => entry.subscription.id));
+    expect(summary.dueSoon.map((item) => item.id)).toEqual(dashboard);
+    expect(summary.dueSoon.map((item) => item.id)).toEqual(['s1', 's2', 's3', 's4', 's7']);
   });
 
   it('kategoriler aylık tutara göre büyükten küçüğe sıralanır', () => {

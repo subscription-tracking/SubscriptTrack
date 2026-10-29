@@ -1,7 +1,7 @@
 import { useThemeRevision } from '../design/useThemeRevision';
 import { themedStyles } from '../design/themeRuntime';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
 import { colors, sizes, spacing } from '../design/tokens';
@@ -19,7 +19,7 @@ export function ScreenTopBar({ title, action }: { title: string; action?: { labe
   return (
     <HeaderShell style={styles.topBar}>
       <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
-        <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
+        <Ionicons name="arrow-back-outline" size={sizes.iconButtonSize} color={colors.onBackground} />
       </Pressable>
       <Text accessibilityRole="header" style={[textStyle('heading'), styles.title]}>{title}</Text>
       {action ? (

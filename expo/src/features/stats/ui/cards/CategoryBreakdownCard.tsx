@@ -4,14 +4,13 @@ import { Animated, StyleSheet, Text, View } from 'react-native';
 
 import { Money } from '../../../../core/domain/money';
 import { formatCurrency } from '../../../../core/format/money';
-import { colors, radius, sizes, spacing } from '../../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 import { useGrowIn } from '../../../../shared/widgets/useGrowIn';
 import { CATEGORY_LABELS, type SubscriptionCategory } from '../../../subscriptions/domain/subscription';
 import { categorySummary } from '../../domain/chartSummary';
 import { percentShares } from '../../domain/percentShares';
 import { categoryColor } from './categoryColor';
-import { StatsCardSurface } from './StatsCardSurface';
 
 export interface CategoryEntry {
   category: SubscriptionCategory;
@@ -39,9 +38,9 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
   });
 
   return (
-    <StatsCardSurface>
+    <View style={styles.section}>
       <View style={styles.header} accessible accessibilityLabel={summary}>
-        <Text style={textStyle('bodyStrong', { flex: 1 })} numberOfLines={1}>
+        <Text style={textStyle('heading', { flex: 1 })}>
           Kategori dağılımı
         </Text>
         <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginLeft: spacing.xs })}>{`${entries.length} kategori`}</Text>
@@ -50,12 +49,12 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
       {entries.map((entry, index) => {
         const share = shares[index] ?? 0;
         const color = categoryColor(entry.category);
-        const width = grow[index].interpolate({ inputRange: [0, 1], outputRange: ['0%', `${Math.max(1, share)}%`] });
+        const width = grow[index].interpolate({ inputRange: [0, 1], outputRange: ['0%', `${share}%`] });
         return (
           <View key={entry.category} style={styles.row}>
             <View style={styles.line}>
               <View style={[styles.dot, { backgroundColor: color }]} />
-              <Text style={textStyle('label', { flex: 1, marginLeft: spacing.sm })} numberOfLines={1}>
+              <Text style={textStyle('label', { flex: 1, marginLeft: spacing.sm })}>
                 {CATEGORY_LABELS[entry.category]}
               </Text>
               <Text style={textStyle('label')}>{formatCurrency(entry.monthly, currency)}</Text>
@@ -75,11 +74,12 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
           </View>
         );
       })}
-    </StatsCardSurface>
+    </View>
   );
 }
 
 const styles = themedStyles(() => StyleSheet.create({
+  section: { paddingVertical: spacing.lg, borderTopWidth: borderWidth.hairline, borderTopColor: colors.border },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -92,6 +92,7 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   line: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
   },
   dot: {

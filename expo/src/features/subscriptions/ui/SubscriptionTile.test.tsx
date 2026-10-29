@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { civilDate } from '../../../core/time/calendar';
+import { colors, statusColors } from '../../../shared/design/tokens';
 import { type SubscriptionRow, subscriptionFromRow } from '../domain/subscription';
 import { SubscriptionTile } from './SubscriptionTile';
 
@@ -51,5 +52,15 @@ describe('SubscriptionTile gecikmiş vade', () => {
     expect(screen.getByText('3 gün gecikti · 6 Eki')).toBeTruthy();
     const note = screen.getByText('Sonraki döngü (tahmini): 6 Kasım 2026');
     expect(note.props.numberOfLines).toBeUndefined();
+  });
+
+  it('gelecek, bugün ve gecikmiş durumlarını farklı semantik renklerle gösterir', () => {
+    const active = { ...trial, status: 'active' as const };
+    const view = render(<SubscriptionTile subscription={{ ...active, nextRenewalDate: civilDate(2026, 10, 10) }} today={civilDate(2026, 10, 9)} onPress={jest.fn()} />);
+    expect(screen.getByText(/10 Eki/).props.style.color).toBe(colors.onSurfaceVariant);
+    view.rerender(<SubscriptionTile subscription={{ ...active, nextRenewalDate: civilDate(2026, 10, 9) }} today={civilDate(2026, 10, 9)} onPress={jest.fn()} />);
+    expect(screen.getByText(/9 Eki/).props.style.color).toBe(statusColors.warning);
+    view.rerender(<SubscriptionTile subscription={{ ...active, nextRenewalDate: civilDate(2026, 10, 6) }} today={civilDate(2026, 10, 9)} onPress={jest.fn()} />);
+    expect(screen.getByText(/3 gün gecikti/).props.style.color).toBe(colors.error);
   });
 });

@@ -1,7 +1,7 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import type { ComponentProps } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
@@ -36,6 +36,8 @@ export function SettingsTile({
   onPress: () => void;
 }) {
   useThemeRevision();
+  const { fontScale, width } = useWindowDimensions();
+  const stacked = valueBelow || Boolean(value && (value.length > 18 || fontScale >= 1.3 || width < 360));
   return (
     <Pressable
       accessibilityRole="button"
@@ -45,15 +47,15 @@ export function SettingsTile({
     >
       <MaterialIcons name={icon} size={sizes.tileIcon} color={colors.onSurface} />
       <View style={styles.tileText}>
-        <Text style={textStyle('label')} numberOfLines={2}>{label}</Text>
-        {value && valueBelow ? (
-          <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })} numberOfLines={2}>
+        <Text style={textStyle('label')}>{label}</Text>
+        {value && stacked ? (
+          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>
             {value}
           </Text>
         ) : null}
       </View>
-      {value && !valueBelow ? (
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right', flexShrink: 1, maxWidth: '42%' })} numberOfLines={1} ellipsizeMode="tail">
+      {value && !stacked ? (
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right', flexShrink: 1, maxWidth: '42%' })}>
           {value}
         </Text>
       ) : null}

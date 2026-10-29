@@ -71,7 +71,7 @@ function topThree(active: readonly Subscription[]): Map<string, Subscription[]> 
   for (const [currency, items] of byCurrency) {
     byCurrency.set(
       currency,
-      [...items].sort((a, b) => monthlyEquivalent(b).minorUnits - monthlyEquivalent(a).minorUnits).slice(0, 3),
+      [...items].sort((a, b) => monthlyEquivalent(b).minorUnits - monthlyEquivalent(a).minorUnits || a.name.localeCompare(b.name, 'tr-TR') || a.id.localeCompare(b.id)).slice(0, 3),
     );
   }
   return byCurrency;

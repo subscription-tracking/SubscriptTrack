@@ -1,0 +1,63 @@
+884c5a55cf95ff78a0980b31f08cb186
+"use strict";
+'use client';
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function () {
+        return m[k];
+      }
+    };
+  }
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+var __importStar = this && this.__importStar || function () {
+  var ownKeys = function (o) {
+    ownKeys = Object.getOwnPropertyNames || function (o) {
+      var ar = [];
+      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+      return ar;
+    };
+    return ownKeys(o);
+  };
+  return function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    __setModuleDefault(result, mod);
+    return result;
+  };
+}();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getNamedContext = getNamedContext;
+var React = __importStar(require("react"));
+var contexts = '__react_navigation__elements_contexts';
+globalThis[contexts] = globalThis[contexts] ?? new Map();
+function getNamedContext(name, initialValue) {
+  var context = globalThis[contexts].get(name);
+  if (context) {
+    return context;
+  }
+  context = React.createContext(initialValue);
+  context.displayName = name;
+  globalThis[contexts].set(name, context);
+  return context;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJleHBvcnRzIiwiZ2V0TmFtZWRDb250ZXh0IiwiUmVhY3QiLCJfX2ltcG9ydFN0YXIiLCJyZXF1aXJlIiwiY29udGV4dHMiLCJnbG9iYWxUaGlzIiwiTWFwIiwibmFtZSIsImluaXRpYWxWYWx1ZSIsImNvbnRleHQiLCJnZXQiLCJjcmVhdGVDb250ZXh0IiwiZGlzcGxheU5hbWUiLCJzZXQiXSwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvcmVhY3QtbmF2aWdhdGlvbi9lbGVtZW50cy9nZXROYW1lZENvbnRleHQudHN4Il0sInNvdXJjZXNDb250ZW50IjpbIid1c2UgY2xpZW50JztcbmltcG9ydCAqIGFzIFJlYWN0IGZyb20gJ3JlYWN0JztcblxuY29uc3QgY29udGV4dHMgPSAnX19yZWFjdF9uYXZpZ2F0aW9uX19lbGVtZW50c19jb250ZXh0cyc7XG5cbmRlY2xhcmUgZ2xvYmFsIHtcbiAgLy8gZXNsaW50LWRpc2FibGUtbmV4dC1saW5lIG5vLXZhclxuICB2YXIgX19yZWFjdF9uYXZpZ2F0aW9uX19lbGVtZW50c19jb250ZXh0czogTWFwPHN0cmluZywgUmVhY3QuQ29udGV4dDxhbnk+Pjtcbn1cblxuLy8gV2UgdXNlIGEgZ2xvYmFsIHZhcmlhYmxlIHRvIGtlZXAgb3VyIGNvbnRleHRzIHNvIHRoYXQgd2UgY2FuIHJldXNlIHNhbWUgY29udGV4dHMgYWNyb3NzIHBhY2thZ2VzXG5nbG9iYWxUaGlzW2NvbnRleHRzXSA9IGdsb2JhbFRoaXNbY29udGV4dHNdID8/IG5ldyBNYXA8c3RyaW5nLCBSZWFjdC5Db250ZXh0PGFueT4+KCk7XG5cbmV4cG9ydCBmdW5jdGlvbiBnZXROYW1lZENvbnRleHQ8VD4obmFtZTogc3RyaW5nLCBpbml0aWFsVmFsdWU6IFQpOiBSZWFjdC5Db250ZXh0PFQ+IHtcbiAgbGV0IGNvbnRleHQgPSBnbG9iYWxUaGlzW2NvbnRleHRzXS5nZXQobmFtZSk7XG5cbiAgaWYgKGNvbnRleHQpIHtcbiAgICByZXR1cm4gY29udGV4dDtcbiAgfVxuXG4gIGNvbnRleHQgPSBSZWFjdC5jcmVhdGVDb250ZXh0PFQ+KGluaXRpYWxWYWx1ZSk7XG4gIGNvbnRleHQuZGlzcGxheU5hbWUgPSBuYW1lO1xuXG4gIGdsb2JhbFRoaXNbY29udGV4dHNdLnNldChuYW1lLCBjb250ZXh0KTtcblxuICByZXR1cm4gY29udGV4dDtcbn1cbiJdLCJtYXBwaW5ncyI6IjtBQUFBLFlBQVk7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFhWkEsT0FBQSxDQUFBQyxlQUFBLEdBQUFBLGVBQUE7QUFaQSxJQUFBQyxLQUFBLEdBQUFDLFlBQUEsQ0FBQUMsT0FBQTtBQUVBLElBQU1DLFFBQVEsR0FBRyx1Q0FBdUM7QUFReERDLFVBQVUsQ0FBQ0QsUUFBUSxDQUFDLEdBQUdDLFVBQVUsQ0FBQ0QsUUFBUSxDQUFDLElBQUksSUFBSUUsR0FBRyxFQUE4QjtBQUVwRixTQUFnQk4sZUFBZUEsQ0FBSU8sSUFBWSxFQUFFQyxZQUFlO0VBQzlELElBQUlDLE9BQU8sR0FBR0osVUFBVSxDQUFDRCxRQUFRLENBQUMsQ0FBQ00sR0FBRyxDQUFDSCxJQUFJLENBQUM7RUFFNUMsSUFBSUUsT0FBTyxFQUFFO0lBQ1gsT0FBT0EsT0FBTztFQUNoQjtFQUVBQSxPQUFPLEdBQUdSLEtBQUssQ0FBQ1UsYUFBYSxDQUFJSCxZQUFZLENBQUM7RUFDOUNDLE9BQU8sQ0FBQ0csV0FBVyxHQUFHTCxJQUFJO0VBRTFCRixVQUFVLENBQUNELFFBQVEsQ0FBQyxDQUFDUyxHQUFHLENBQUNOLElBQUksRUFBRUUsT0FBTyxDQUFDO0VBRXZDLE9BQU9BLE9BQU87QUFDaEIiLCJpZ25vcmVMaXN0IjpbXX0=

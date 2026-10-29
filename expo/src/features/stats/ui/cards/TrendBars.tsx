@@ -44,13 +44,13 @@ export function TrendBars({
   return (
     <View style={styles.row}>
       {values.map((value, index) => {
-        const ratio = value <= 0 ? 0 : Math.min(1, Math.max(0.08, value / max));
+        const ratio = value <= 0 ? 0 : Math.min(1, value / max);
         const selected = index === selectedIndex;
         const barColor = selected ? colors.primary : hasPaymentHistory ? withAlpha(chartColors.chart0, 0.75) : colors.surfaceContainerHighest;
-        const showLabel = !hasPaymentHistory || values.length <= 6 || (index % 2 === 0 && index < last - 2) || index === last;
+        const showLabel = !hasPaymentHistory || values.length <= 6 || index % 2 === 0 || index === last || selected;
         const label = showLabel ? monthAt(index) : '';
         const labelStyle = selected ? textStyle('captionStrong', { color: colors.primary }) : textStyle('caption');
-        const height = grow[index].interpolate({ inputRange: [0, 1], outputRange: ['0%', `${Math.round(ratio * 100)}%`] });
+        const height = grow[index].interpolate({ inputRange: [0, 1], outputRange: ['0%', `${ratio * 100}%`] });
         return (
           <Pressable
             key={index}
@@ -63,11 +63,7 @@ export function TrendBars({
             <View style={styles.area}>
               <Animated.View style={[styles.bar, { height, backgroundColor: barColor }]} />
             </View>
-            {value <= 0 ? (
-              <Text style={[textStyle('caption'), styles.empty]} accessible={false}>
-                –
-              </Text>
-            ) : null}
+            <Text style={[textStyle('caption'), styles.empty]} accessible={false}>{value <= 0 ? '–' : ' '}</Text>
             <Text style={[labelStyle, styles.label]} numberOfLines={1}>
               {label}
             </Text>

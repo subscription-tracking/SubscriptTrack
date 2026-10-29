@@ -7,6 +7,9 @@ jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 it('tahminleri ve kayıtlı ödemelerin dönemler arası farkını ayrı açıklar', () => {
   render(<HeroSpendingCard monthly={Money.parse('30')} yearly={Money.parse('360')} currency="TRY" activeCount={1} trend={[1000, 1500]} hasPaymentHistory />);
   expect(screen.getByText('TAHMİNİ AYLIK ABONELİK GİDERİ')).toBeTruthy();
-  expect(screen.getByText('Tahmini yıllık ₺360,00')).toBeTruthy();
+  expect(screen.getByText('1 TRY aktif')).toBeTruthy();
+  expect(screen.getByText('Tahmini yıllık maliyet')).toBeTruthy();
+  expect(screen.getByText('₺360,00')).toBeTruthy();
   expect(screen.getByText('Kayıtlı ödemeler geçen aya göre ₺5,00 arttı')).toBeTruthy();
+  expect(screen.getByText(/Bu ay henüz tamamlanmadı/)).toBeTruthy();
 });

@@ -75,6 +75,7 @@ export function SubscriptionFilterSheet({
             <View style={styles.gapBlock} />
 
             <Text style={textStyle('bodyStrong')}>Sıralama</Text>
+            {currency === null ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Tutar sıralaması para birimlerine göre gruplandırılır.</Text> : null}
             {SORT_OPTIONS.map((option) => (
               <RadioRow key={option} label={SORT_LABELS[option]} selected={sort === option} onPress={() => onSort(option)} />
             ))}

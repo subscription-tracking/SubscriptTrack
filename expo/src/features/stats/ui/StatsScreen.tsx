@@ -3,7 +3,9 @@ import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useCivilToday } from '../../../core/clock/useCivilToday';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
+import { textStyle } from '../../../shared/design/typography';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
@@ -38,11 +40,12 @@ export function StatsScreen() {
   const today = useCivilToday(timeZone);
   const [months, setMonths] = useState(6);
   const currency = useActiveCurrency();
+  const online = useOnlineStatus();
 
   const state: AsyncState<{ subscriptions: Subscription[]; payments: PaymentEvent[] }> =
-    subscriptions.isPending || payments.isPending
+    (subscriptions.isPending && subscriptions.data === undefined) || (payments.isPending && payments.data === undefined)
       ? { status: 'loading' }
-      : subscriptions.isError || payments.isError
+      : (subscriptions.isError && subscriptions.data === undefined) || (payments.isError && payments.data === undefined)
         ? {
             status: 'error',
             message: 'İstatistikler yüklenemedi. Bağlantını kontrol edip tekrar dene.',
@@ -116,6 +119,7 @@ export function StatsScreen() {
               />
             }
           >
+            {!online || subscriptions.isError || payments.isError ? <Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginBottom: spacing.md })}>Bağlantı veya yenileme sorunu: analiz güncel olmayabilir. Yenilemek için ekranı aşağı çek.</Text> : null}
             <Body
               summary={summary}
               now={now}
@@ -124,6 +128,7 @@ export function StatsScreen() {
               onMonthsChanged={setMonths}
               onPayments={() => router.push('/stats/payments')}
               onSavings={() => router.push('/savings')}
+              onReviewDue={() => router.navigate('/subscriptions')}
             />
           </ScrollView>
         );
@@ -140,6 +145,7 @@ function Body({
   onMonthsChanged,
   onPayments,
   onSavings,
+  onReviewDue,
 }: {
   summary: StatsSummary;
   now: Date;
@@ -148,6 +154,7 @@ function Body({
   onMonthsChanged: (months: number) => void;
   onPayments: () => void;
   onSavings: () => void;
+  onReviewDue: () => void;
 }) {
   useThemeRevision();
   const highest = summary.highest;
@@ -184,7 +191,7 @@ function Body({
             total={summary.monthly}
             currency={summary.currency}
             dueSoon={summary.dueSoon}
-            onReviewDue={onSavings}
+            onReviewDue={onReviewDue}
           />
           <View style={styles.gap20} />
         </>

@@ -1,10 +1,11 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
+import { usePreventRemove } from 'expo-router/react-navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { type CivilDate, parseCivilDate } from '../../../core/time/calendar';
@@ -51,6 +52,7 @@ import { automaticFormDate, changeFormField, type ScheduleMode } from '../domain
 export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Subscription; initialStart?: string }) {
   useThemeRevision();
   const router = useRouter();
+  const navigation = useNavigation();
   const queryClient = useQueryClient();
   const snackbar = useSnackbar();
   const { user } = useAuth();
@@ -83,6 +85,11 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
         },
   );
   const [submitted, setSubmitted] = useState(false);
+  const [initialValues] = useState(() => JSON.stringify(values));
+  const saved = useRef(false);
+  const categoryManuallySet = useRef(Boolean(editing));
+  const attemptedValues = useRef<string | null>(null);
+  const [scheduleRecalculated, setScheduleRecalculated] = useState(false);
   const [scheduleMode, setScheduleMode] = useState<ScheduleMode>(editing ? 'manual' : 'automatic');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const submitting = useRef(false);
@@ -94,10 +101,20 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
   const duplicateName = !editing && hasDuplicateName(values.name, existing.data ?? []);
   const resolvedValues = scheduleMode === 'automatic' ? { ...values, nextRenewalDate: automaticFormDate(values, today) } : values;
   const errors: FormErrors = submitted ? validateSubscriptionForm(resolvedValues) : {};
+  const dirty = JSON.stringify(values) !== initialValues;
+  usePreventRemove(dirty, ({ data }) => {
+    if (saved.current) { navigation.dispatch(data.action); return; }
+    if (submitting.current) return;
+    Alert.alert('Kaydedilmemiş değişiklikler', 'Çıkarsan yaptığın değişiklikler kaybolacak.', [
+      { text: 'Düzenlemeye devam et', style: 'cancel' },
+      { text: 'Değişiklikleri sil ve çık', style: 'destructive', onPress: () => navigation.dispatch(data.action) },
+    ]);
+  });
 
   function update<K extends keyof SubscriptionFormValues>(key: K, value: SubscriptionFormValues[K]) {
+    if (key === 'category') categoryManuallySet.current = true;
     if (key === 'nextRenewalDate') setScheduleMode('manual');
-    if (key === 'startDate' || key === 'billingCycle') setScheduleMode('automatic');
+    if (key === 'startDate' || key === 'billingCycle') { if (scheduleMode === 'manual') setScheduleRecalculated(true); setScheduleMode('automatic'); }
     setValues((current) => changeFormField(current, key, value, today));
   }
 
@@ -121,6 +138,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
       }
       const notice = submitNotice(result.submission);
       if (notice) snackbar.show(notice.message, notice.tone);
+      saved.current = true;
       router.back();
     },
     onError: (error: Error) => snackbar.show(error.message, 'error'),
@@ -140,6 +158,12 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
       scrollToFirstError(found);
       return;
     }
+    const payload = JSON.stringify(resolvedValues);
+    if (attemptedValues.current !== null && attemptedValues.current !== payload) {
+      snackbar.show('Önceki kayıt sonucu belirsiz olabilir. Aynı değerlerle tekrar dene; farklı bilgilerle yeni bir kayıt başlatma.', 'error');
+      return;
+    }
+    attemptedValues.current = payload;
     submitting.current = true;
     save.mutate();
   }
@@ -166,6 +190,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
               disabled={busy}
               nameNotice={duplicateName ? 'Aynı isimde bir abonelik zaten var; yine de kaydedebilirsin.' : undefined}
               onChange={update}
+              onAutoCategory={(category) => { if (!categoryManuallySet.current) setValues((current) => ({ ...current, category })); }}
             />
           </FormSection>
         </View>
@@ -181,6 +206,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
             errors={errors}
             today={today}
             scheduleMode={scheduleMode}
+            recalculated={scheduleRecalculated}
             disabled={busy}
             onChange={update}
             onAutomatic={() => {

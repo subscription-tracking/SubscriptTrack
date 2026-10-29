@@ -1,0 +1,5 @@
+35cd8faddbfe199a1e9e3250ad2a944d
+module.exports = {
+      testUri:
+        "../../expo-router/assets/react-navigation/elements/clear-icon.png"
+    };

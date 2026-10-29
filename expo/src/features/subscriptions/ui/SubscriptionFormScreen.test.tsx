@@ -1,24 +1,30 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 
 import { SubscriptionFormScreen } from './SubscriptionFormScreen';
 import { type SubscriptionRow, subscriptionFromRow } from '../domain/subscription';
 
 const mockMutate = jest.fn();
+let mockMutationOptions: { onSettled: () => void };
 const mockShow = jest.fn();
 const mockBack = jest.fn();
+const mockDispatch = jest.fn();
+const mockPrevent = jest.fn();
 const mockCatalog: { name: string; category: 'streaming' }[] = [];
 const mockExisting: { name: string }[] = [];
 
-jest.mock('expo-router', () => ({ useRouter: () => ({ back: mockBack }) }));
+jest.mock('expo-router', () => ({ useRouter: () => ({ back: mockBack }), useNavigation: () => ({ dispatch: mockDispatch }) }));
+jest.mock('expo-router/react-navigation', () => ({ usePreventRemove: (...args: unknown[]) => mockPrevent(...args) }));
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('@expo/vector-icons/FontAwesome6', () => 'FontAwesome6');
 jest.mock('@tanstack/react-query', () => ({
-  useMutation: () => ({ mutate: mockMutate, isPending: false }),
+  useMutation: (options: { onSettled: () => void }) => { mockMutationOptions = options; return { mutate: mockMutate, isPending: false }; },
   useQueryClient: () => ({ invalidateQueries: jest.fn() }),
 }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => 'test-idempotency-key' }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 0 }) }));
 jest.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ user: { id: 'test-user' } }) }));
+jest.mock('../../notifications/data/notificationPermission', () => ({ usePermissionQuery: () => ({ data: 'granted' }) }));
 jest.mock('../../settings/data/useActiveCurrency', () => ({
   useActiveCurrency: () => 'TRY',
   useUserTimeZone: () => 'Europe/Istanbul',
@@ -38,6 +44,8 @@ describe('SubscriptionFormScreen', () => {
     mockMutate.mockReset();
     mockShow.mockReset();
     mockBack.mockReset();
+    mockPrevent.mockReset();
+    mockDispatch.mockReset();
     mockCatalog.length = 0;
     mockExisting.length = 0;
   });
@@ -51,6 +59,7 @@ describe('SubscriptionFormScreen', () => {
     expect(screen.getByText('TRY')).toBeTruthy();
     expect(screen.getByText('Ne sıklıkla yenileniyor?')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Aboneliği kaydet' })).toBeTruthy();
+    expect(mockPrevent.mock.calls.at(-1)?.[0]).toBe(false);
   });
 
   it('boş zorunlu alanları gösterir ve geçersiz formu kaydetmez', () => {
@@ -82,6 +91,18 @@ describe('SubscriptionFormScreen', () => {
     expect(mockMutate).toHaveBeenCalledTimes(1);
   });
 
+  it('sonucu belirsiz denemeden sonra değişen veriyi aynı anahtarla göndermez', () => {
+    render(<SubscriptionFormScreen />);
+    fireEvent.changeText(screen.getByLabelText('Servis'), 'Acme');
+    fireEvent.changeText(screen.getByLabelText('Tutar'), '12.50');
+    fireEvent.press(screen.getByRole('button', { name: 'Aboneliği kaydet' }));
+    mockMutationOptions.onSettled();
+    fireEvent.changeText(screen.getByLabelText('Tutar'), '15.00');
+    fireEvent.press(screen.getByRole('button', { name: 'Aboneliği kaydet' }));
+    expect(mockMutate).toHaveBeenCalledTimes(1);
+    expect(mockShow).toHaveBeenCalledWith(expect.stringContaining('Önceki kayıt sonucu belirsiz'), 'error');
+  });
+
   it('popüler servis seçimini servis alanına ve kategoriye uygular', () => {
     mockCatalog.push({ name: 'Netflix', category: 'streaming' });
     render(<SubscriptionFormScreen />);
@@ -89,6 +110,15 @@ describe('SubscriptionFormScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Netflix' }));
 
     expect(screen.getByLabelText('Servis').props.value).toBe('Netflix');
+  });
+
+  it('elle seçilen kategori daha sonra servis eşleşmesiyle ezilmez', () => {
+    mockCatalog.push({ name: 'Netflix', category: 'streaming' });
+    render(<SubscriptionFormScreen />);
+    fireEvent.press(screen.getByRole('button', { name: /Kategori: Diğer/ }));
+    fireEvent.press(screen.getByRole('menuitem', { name: 'Müzik' }));
+    fireEvent.changeText(screen.getByLabelText('Servis'), 'Netflix');
+    expect(screen.getByRole('button', { name: /Kategori: Müzik/ })).toBeTruthy();
   });
 });
 
@@ -108,12 +138,19 @@ describe('düzenlemeyi kaydetmeden çıkma (senaryo 17)', () => {
     website: null, trial_end_date: null, trial_price_after: null,
   } satisfies SubscriptionRow;
 
-  it('değişikliği yazmadan geri döner', () => {
+  it('değişiklikte çıkış için onay ister, vazgeçince kalır', () => {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
     render(<SubscriptionFormScreen editing={subscriptionFromRow(row)} />);
     fireEvent.changeText(screen.getByLabelText('Servis'), 'Netflix Premium');
-    fireEvent.press(screen.getByLabelText('Geri'));
+    const [enabled, callback] = mockPrevent.mock.calls.at(-1) as [boolean, (event: unknown) => void];
+    expect(enabled).toBe(true);
+    callback({ data: { action: { type: 'GO_BACK' } } });
     expect(mockMutate).not.toHaveBeenCalled();
-    expect(mockBack).toHaveBeenCalled();
+    expect(mockDispatch).not.toHaveBeenCalled();
+    const buttons = alert.mock.calls[0][2] ?? [];
+    buttons.find((button) => button.text === 'Değişiklikleri sil ve çık')?.onPress?.();
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'GO_BACK' });
+    alert.mockRestore();
   });
   it('kapalı "Daha fazla seçenek" bölümündeki hatada bölümü açar ve özet gösterir', () => {
     render(<SubscriptionFormScreen />);

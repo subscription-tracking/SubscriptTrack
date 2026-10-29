@@ -1,0 +1,52 @@
+abdcf053a8e7d00329a5419b64696378
+"use strict";
+'use client';
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function () {
+        return m[k];
+      }
+    };
+  }
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+var __importStar = this && this.__importStar || function () {
+  var ownKeys = function (o) {
+    ownKeys = Object.getOwnPropertyNames || function (o) {
+      var ar = [];
+      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+      return ar;
+    };
+    return ownKeys(o);
+  };
+  return function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    __setModuleDefault(result, mod);
+    return result;
+  };
+}();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BottomTabBarHeightCallbackContext = void 0;
+var React = __importStar(require("react"));
+exports.BottomTabBarHeightCallbackContext = React.createContext(undefined);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIl9faW1wb3J0U3RhciIsInJlcXVpcmUiLCJleHBvcnRzIiwiQm90dG9tVGFiQmFySGVpZ2h0Q2FsbGJhY2tDb250ZXh0IiwiY3JlYXRlQ29udGV4dCIsInVuZGVmaW5lZCJdLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uL3NyYy9yZWFjdC1uYXZpZ2F0aW9uL2JvdHRvbS10YWJzL3V0aWxzL0JvdHRvbVRhYkJhckhlaWdodENhbGxiYWNrQ29udGV4dC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBjbGllbnQnO1xuaW1wb3J0ICogYXMgUmVhY3QgZnJvbSAncmVhY3QnO1xuXG5leHBvcnQgY29uc3QgQm90dG9tVGFiQmFySGVpZ2h0Q2FsbGJhY2tDb250ZXh0ID0gUmVhY3QuY3JlYXRlQ29udGV4dDxcbiAgKChoZWlnaHQ6IG51bWJlcikgPT4gdm9pZCkgfCB1bmRlZmluZWRcbj4odW5kZWZpbmVkKTtcbiJdLCJtYXBwaW5ncyI6IjtBQUFBLFlBQVk7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQ1osSUFBQUEsS0FBQSxHQUFBQyxZQUFBLENBQUFDLE9BQUE7QUFFYUMsT0FBQSxDQUFBQyxpQ0FBaUMsR0FBR0osS0FBSyxDQUFDSyxhQUFhLENBRWxFQyxTQUFTLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

@@ -1,0 +1,60 @@
+cd3a08014301033139fbaa88f5e37387
+"use strict";
+'use client';
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function () {
+        return m[k];
+      }
+    };
+  }
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+var __importStar = this && this.__importStar || function () {
+  var ownKeys = function (o) {
+    ownKeys = Object.getOwnPropertyNames || function (o) {
+      var ar = [];
+      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+      return ar;
+    };
+    return ownKeys(o);
+  };
+  return function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    __setModuleDefault(result, mod);
+    return result;
+  };
+}();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.AnimatedHeaderHeightContext = void 0;
+exports.useAnimatedHeaderHeight = useAnimatedHeaderHeight;
+var React = __importStar(require("react"));
+exports.AnimatedHeaderHeightContext = React.createContext(undefined);
+function useAnimatedHeaderHeight() {
+  var animatedValue = React.useContext(exports.AnimatedHeaderHeightContext);
+  if (animatedValue === undefined) {
+    throw new Error("Couldn't find the header height. Are you inside a screen in a native stack navigator?");
+  }
+  return animatedValue;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJleHBvcnRzIiwidXNlQW5pbWF0ZWRIZWFkZXJIZWlnaHQiLCJSZWFjdCIsIl9faW1wb3J0U3RhciIsInJlcXVpcmUiLCJBbmltYXRlZEhlYWRlckhlaWdodENvbnRleHQiLCJjcmVhdGVDb250ZXh0IiwidW5kZWZpbmVkIiwiYW5pbWF0ZWRWYWx1ZSIsInVzZUNvbnRleHQiLCJFcnJvciJdLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uL3NyYy9yZWFjdC1uYXZpZ2F0aW9uL25hdGl2ZS1zdGFjay91dGlscy91c2VBbmltYXRlZEhlYWRlckhlaWdodC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBjbGllbnQnO1xuaW1wb3J0ICogYXMgUmVhY3QgZnJvbSAncmVhY3QnO1xuaW1wb3J0IHR5cGUgeyBBbmltYXRlZCB9IGZyb20gJ3JlYWN0LW5hdGl2ZSc7XG5cbmV4cG9ydCBjb25zdCBBbmltYXRlZEhlYWRlckhlaWdodENvbnRleHQgPSBSZWFjdC5jcmVhdGVDb250ZXh0PFxuICBBbmltYXRlZC5BbmltYXRlZEludGVycG9sYXRpb248bnVtYmVyPiB8IHVuZGVmaW5lZFxuPih1bmRlZmluZWQpO1xuXG5leHBvcnQgZnVuY3Rpb24gdXNlQW5pbWF0ZWRIZWFkZXJIZWlnaHQoKSB7XG4gIGNvbnN0IGFuaW1hdGVkVmFsdWUgPSBSZWFjdC51c2VDb250ZXh0KEFuaW1hdGVkSGVhZGVySGVpZ2h0Q29udGV4dCk7XG5cbiAgaWYgKGFuaW1hdGVkVmFsdWUgPT09IHVuZGVmaW5lZCkge1xuICAgIHRocm93IG5ldyBFcnJvcihcbiAgICAgIFwiQ291bGRuJ3QgZmluZCB0aGUgaGVhZGVyIGhlaWdodC4gQXJlIHlvdSBpbnNpZGUgYSBzY3JlZW4gaW4gYSBuYXRpdmUgc3RhY2sgbmF2aWdhdG9yP1wiXG4gICAgKTtcbiAgfVxuXG4gIHJldHVybiBhbmltYXRlZFZhbHVlO1xufVxuIl0sIm1hcHBpbmdzIjoiO0FBQUEsWUFBWTs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFRWkEsT0FBQSxDQUFBQyx1QkFBQSxHQUFBQSx1QkFBQTtBQVBBLElBQUFDLEtBQUEsR0FBQUMsWUFBQSxDQUFBQyxPQUFBO0FBR2FKLE9BQUEsQ0FBQUssMkJBQTJCLEdBQUdILEtBQUssQ0FBQ0ksYUFBYSxDQUU1REMsU0FBUyxDQUFDO0FBRVosU0FBZ0JOLHVCQUF1QkEsQ0FBQTtFQUNyQyxJQUFNTyxhQUFhLEdBQUdOLEtBQUssQ0FBQ08sVUFBVSxDQUFDVCxPQUFBLENBQUFLLDJCQUEyQixDQUFDO0VBRW5FLElBQUlHLGFBQWEsS0FBS0QsU0FBUyxFQUFFO0lBQy9CLE1BQU0sSUFBSUcsS0FBSyxDQUNiLHVGQUF1RixDQUN4RjtFQUNIO0VBRUEsT0FBT0YsYUFBYTtBQUN0QiIsImlnbm9yZUxpc3QiOltdfQ==

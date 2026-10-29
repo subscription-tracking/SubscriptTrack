@@ -1,0 +1,67 @@
+450311e2ee39f78c407133161cb212f4
+"use strict";
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function () {
+        return m[k];
+      }
+    };
+  }
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+var __importStar = this && this.__importStar || function () {
+  var ownKeys = function (o) {
+    ownKeys = Object.getOwnPropertyNames || function (o) {
+      var ar = [];
+      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+      return ar;
+    };
+    return ownKeys(o);
+  };
+  return function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    __setModuleDefault(result, mod);
+    return result;
+  };
+}();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useBackButton = useBackButton;
+var React = __importStar(require("react"));
+var react_native_1 = require("react-native");
+function useBackButton(ref) {
+  React.useEffect(() => {
+    var subscription = react_native_1.BackHandler.addEventListener('hardwareBackPress', () => {
+      var navigation = ref.current;
+      if (navigation == null) {
+        return false;
+      }
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return true;
+      }
+      return false;
+    });
+    return () => subscription.remove();
+  }, [ref]);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJleHBvcnRzIiwidXNlQmFja0J1dHRvbiIsIlJlYWN0IiwiX19pbXBvcnRTdGFyIiwicmVxdWlyZSIsInJlYWN0X25hdGl2ZV8xIiwicmVmIiwidXNlRWZmZWN0Iiwic3Vic2NyaXB0aW9uIiwiQmFja0hhbmRsZXIiLCJhZGRFdmVudExpc3RlbmVyIiwibmF2aWdhdGlvbiIsImN1cnJlbnQiLCJjYW5Hb0JhY2siLCJnb0JhY2siLCJyZW1vdmUiXSwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvcmVhY3QtbmF2aWdhdGlvbi9uYXRpdmUvdXNlQmFja0J1dHRvbi5uYXRpdmUudHN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCAqIGFzIFJlYWN0IGZyb20gJ3JlYWN0JztcbmltcG9ydCB7IEJhY2tIYW5kbGVyIH0gZnJvbSAncmVhY3QtbmF0aXZlJztcblxuaW1wb3J0IHR5cGUgeyBOYXZpZ2F0aW9uQ29udGFpbmVyUmVmLCBQYXJhbUxpc3RCYXNlIH0gZnJvbSAnLi4vY29yZSc7XG5cbmV4cG9ydCBmdW5jdGlvbiB1c2VCYWNrQnV0dG9uKHJlZjogUmVhY3QuUmVmT2JqZWN0PE5hdmlnYXRpb25Db250YWluZXJSZWY8UGFyYW1MaXN0QmFzZT4gfCBudWxsPikge1xuICBSZWFjdC51c2VFZmZlY3QoKCkgPT4ge1xuICAgIGNvbnN0IHN1YnNjcmlwdGlvbiA9IEJhY2tIYW5kbGVyLmFkZEV2ZW50TGlzdGVuZXIoJ2hhcmR3YXJlQmFja1ByZXNzJywgKCkgPT4ge1xuICAgICAgY29uc3QgbmF2aWdhdGlvbiA9IHJlZi5jdXJyZW50O1xuXG4gICAgICBpZiAobmF2aWdhdGlvbiA9PSBudWxsKSB7XG4gICAgICAgIHJldHVybiBmYWxzZTtcbiAgICAgIH1cblxuICAgICAgaWYgKG5hdmlnYXRpb24uY2FuR29CYWNrKCkpIHtcbiAgICAgICAgbmF2aWdhdGlvbi5nb0JhY2soKTtcblxuICAgICAgICByZXR1cm4gdHJ1ZTtcbiAgICAgIH1cblxuICAgICAgcmV0dXJuIGZhbHNlO1xuICAgIH0pO1xuXG4gICAgcmV0dXJuICgpID0+IHN1YnNjcmlwdGlvbi5yZW1vdmUoKTtcbiAgfSwgW3JlZl0pO1xufVxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBS0FBLE9BQUEsQ0FBQUMsYUFBQSxHQUFBQSxhQUFBO0FBTEEsSUFBQUMsS0FBQSxHQUFBQyxZQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxjQUFBLEdBQUFELE9BQUE7QUFJQSxTQUFnQkgsYUFBYUEsQ0FBQ0ssR0FBa0U7RUFDOUZKLEtBQUssQ0FBQ0ssU0FBUyxDQUFDLE1BQUs7SUFDbkIsSUFBTUMsWUFBWSxHQUFHSCxjQUFBLENBQUFJLFdBQVcsQ0FBQ0MsZ0JBQWdCLENBQUMsbUJBQW1CLEVBQUUsTUFBSztNQUMxRSxJQUFNQyxVQUFVLEdBQUdMLEdBQUcsQ0FBQ00sT0FBTztNQUU5QixJQUFJRCxVQUFVLElBQUksSUFBSSxFQUFFO1FBQ3RCLE9BQU8sS0FBSztNQUNkO01BRUEsSUFBSUEsVUFBVSxDQUFDRSxTQUFTLEVBQUUsRUFBRTtRQUMxQkYsVUFBVSxDQUFDRyxNQUFNLEVBQUU7UUFFbkIsT0FBTyxJQUFJO01BQ2I7TUFFQSxPQUFPLEtBQUs7SUFDZCxDQUFDLENBQUM7SUFFRixPQUFPLE1BQU1OLFlBQVksQ0FBQ08sTUFBTSxFQUFFO0VBQ3BDLENBQUMsRUFBRSxDQUFDVCxHQUFHLENBQUMsQ0FBQztBQUNYIiwiaWdub3JlTGlzdCI6W119

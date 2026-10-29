@@ -29,7 +29,7 @@ export function RecentPayments({
   onRetry?: () => void;
 }) {
   useThemeRevision();
-  const recent = payments?.slice(0, RECENT_LIMIT) ?? [];
+  const recent = payments ? [...payments].sort((a, b) => Date.parse(b.paidAt) - Date.parse(a.paidAt) || a.id.localeCompare(b.id)).slice(0, RECENT_LIMIT) : [];
   const { width, fontScale } = useWindowDimensions();
   const stacked = width < 360 || fontScale > 1.2;
   return (

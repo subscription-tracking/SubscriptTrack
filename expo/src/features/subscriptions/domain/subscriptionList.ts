@@ -1,5 +1,5 @@
 import { type CivilDate, dayNumber } from '../../../core/time/calendar';
-import { type Subscription, type SubscriptionStatus } from './subscription';
+import { CATEGORY_LABELS, type Subscription, type SubscriptionStatus } from './subscription';
 import { isRenewalDue } from './renewalOverdue';
 
 /**
@@ -53,7 +53,7 @@ export function visibleSubscriptions(
 
   return subscriptions
     .filter((subscription) => statuses.includes(subscription.status))
-    .filter((subscription) => needle === '' || subscription.name.toLocaleLowerCase('tr-TR').includes(needle))
+    .filter((subscription) => needle === '' || subscription.name.toLocaleLowerCase('tr-TR').includes(needle) || CATEGORY_LABELS[subscription.category].toLocaleLowerCase('tr-TR').includes(needle))
     .sort(compareByRenewal);
 }
 

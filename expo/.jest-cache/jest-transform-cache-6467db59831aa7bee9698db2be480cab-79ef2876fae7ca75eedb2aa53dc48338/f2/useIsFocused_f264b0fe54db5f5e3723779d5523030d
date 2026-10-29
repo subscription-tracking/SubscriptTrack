@@ -1,0 +1,16 @@
+5788eb1dc1ab39966ccd87d0b3f5d22d
+"use strict";
+'use client';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useIsFocused = void 0;
+var native_1 = require("./react-navigation/native");
+Object.defineProperty(exports, "useIsFocused", {
+  enumerable: true,
+  get: function () {
+    return native_1.useIsFocused;
+  }
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJuYXRpdmVfMSIsInJlcXVpcmUiLCJPYmplY3QiLCJkZWZpbmVQcm9wZXJ0eSIsImV4cG9ydHMiLCJlbnVtZXJhYmxlIiwiZ2V0IiwidXNlSXNGb2N1c2VkIl0sInNvdXJjZXMiOlsiLi4vc3JjL3VzZUlzRm9jdXNlZC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIGNsaWVudCc7XG5leHBvcnQgeyB1c2VJc0ZvY3VzZWQgfSBmcm9tICcuL3JlYWN0LW5hdmlnYXRpb24vbmF0aXZlJztcbiJdLCJtYXBwaW5ncyI6IjtBQUFBLFlBQVk7Ozs7OztBQUNaLElBQUFBLFFBQUEsR0FBQUMsT0FBQTtBQUFTQyxNQUFBLENBQUFDLGNBQUEsQ0FBQUMsT0FBQTtFQUFBQyxVQUFBO0VBQUFDLEdBQUEsV0FBQUEsQ0FBQTtJQUFBLE9BQUFOLFFBQUEsQ0FBQU8sWUFBWTtFQUFBO0FBQUEiLCJpZ25vcmVMaXN0IjpbXX0=

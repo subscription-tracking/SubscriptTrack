@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { colors, extraRadius, extraSpacing, sizes, spacing, withAlpha } from '../design/tokens';
+import { colors, extraSpacing, sizes, spacing } from '../design/tokens';
 import { textStyle } from '../design/typography';
 import { HeaderShell } from './HeaderShell';
 
@@ -15,12 +15,13 @@ type IoniconName = ComponentProps<typeof Ionicons>['name'];
  * başlık; sağda takvim ve okunmamış rozetli bildirim düğmesi. Yüksekliğe güvenli alan üstü eklenir.
  */
 export function TopBar({
-  icon,
   title,
   subtitle,
   unreadCount = 0,
   onCalendar,
   onNotifications,
+  variant = 'default',
+  showCalendar = false,
 }: {
   icon: IoniconName;
   title: string;
@@ -28,24 +29,32 @@ export function TopBar({
   unreadCount?: number;
   onCalendar: () => void;
   onNotifications: () => void;
+  variant?: 'default' | 'home';
+  showCalendar?: boolean;
 }) {
   useThemeRevision();
   return (
     <HeaderShell minHeight={sizes.topBarHeight}>
       <View style={styles.titleRow}>
-        <View style={styles.iconBox}>
-          <Ionicons name={icon} size={sizes.topBarIconSize} color={colors.primary} />
-        </View>
         <View style={styles.titleColumn}>
-          {subtitle ? <Text numberOfLines={1} style={textStyle('caption')}>{subtitle}</Text> : null}
-          <Text numberOfLines={1} style={[textStyle('heading'), subtitle ? styles.subtitleGap : null]}>
-            {title}
-          </Text>
+          {variant === 'home' ? <>
+            <Text accessibilityRole="header" style={textStyle('headline')}><Text>Subscript</Text><Text style={{ color: colors.primary }}>Track</Text></Text>
+            {subtitle ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{subtitle}</Text> : null}
+          </> : <>
+            <Text accessibilityRole="header" style={textStyle('headline')}>{title}</Text>
+            <Text
+              accessibilityElementsHidden={!subtitle}
+              importantForAccessibility={subtitle ? 'auto' : 'no-hide-descendants'}
+              style={[textStyle('bodySmall', { color: colors.onSurfaceVariant }), styles.subtitleGap, !subtitle && styles.reservedSubtitle]}
+            >
+              {subtitle ?? '\u00a0'}
+            </Text>
+          </>}
         </View>
       </View>
       <View style={styles.actions}>
-        <IconButton icon="calendar-outline" label="Takvim" onPress={onCalendar} />
-        <View>
+        {showCalendar ? <IconButton icon="calendar-outline" label="Takvim" onPress={onCalendar} /> : null}
+        {variant === 'home' ? <View>
           <IconButton
             icon="notifications-outline"
             label={unreadCount > 0 ? `Bildirimler, ${unreadCount} okunmamış` : 'Bildirimler'}
@@ -56,7 +65,7 @@ export function TopBar({
               <Text style={textStyle('caption', { color: colors.white })}>{String(unreadCount)}</Text>
             </View>
           ) : null}
-        </View>
+        </View> : null}
         <View style={styles.trailingGap} />
       </View>
     </HeaderShell>
@@ -78,22 +87,14 @@ const styles = themedStyles(() => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconBox: {
-    width: sizes.topBarIconBox,
-    height: sizes.topBarIconBox,
-    borderRadius: extraRadius.topBarIcon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: withAlpha(colors.primary, 0.16),
-  },
   titleColumn: {
     flex: 1,
-    marginLeft: extraSpacing.topBarIconGap,
     justifyContent: 'center',
   },
   subtitleGap: {
     marginTop: extraSpacing.topBarSubtitleGap,
   },
+  reservedSubtitle: { opacity: 0 },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',

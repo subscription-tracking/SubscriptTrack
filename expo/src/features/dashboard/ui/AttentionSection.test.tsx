@@ -73,18 +73,18 @@ it('Vazgeç yenilemeyi çalıştırmaz', () => {
   alertSpy.mockRestore();
 });
 
-it('işlem sürerken yalnız o satırın düğmesi pasif olur', () => {
+it('işlem sürerken diğer ödeme düğmeleri de pasif olur', () => {
   mockPending = { isPending: true, variables: { id: 'a' } };
   render(<AttentionSection items={itemsFor([row('a', '2026-10-10'), row('b', '2026-10-11')])} today={today} onOpen={jest.fn()} onMore={jest.fn()} />);
 
   const first = screen.getByRole('button', { name: 'İşleniyor' });
   const second = screen.getByRole('button', { name: 'Ödendi' });
   expect(first.props.accessibilityState.disabled).toBe(true);
-  expect(second.props.accessibilityState.disabled).toBe(false);
+  expect(second.props.accessibilityState.disabled).toBe(true);
 });
 
 it('kayıt yoksa hiçbir şey çizmez', () => {
   render(<AttentionSection items={[]} today={today} onOpen={jest.fn()} onMore={jest.fn()} />);
 
-  expect(screen.queryByText('Geciken ödemeler')).toBeNull();
+  expect(screen.queryByText('Dikkat gerektiren ödemeler')).toBeNull();
 });

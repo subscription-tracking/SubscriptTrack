@@ -151,3 +151,13 @@ Dört karar onaylandı ve uygulandı:
 - Kurallar bir test ile zorlanacak: ham hex, token dışı boşluk ve yazı boyutu bulunursa test kırılır. (Mimari testin tasarım karşılığı; [ARCHITECTURE.md](ARCHITECTURE.md) testleriyle aynı dosyada.)
 - Yeni ekran eklenirken: rol ve token seçilir, ham değer yazılmaz.
 - Bu belge değişince `tokens.ts` ve `typography.ts` aynı değişiklikte güncellenir.
+
+## 13. Güncel ortak bileşen kuralları
+
+- Tema `ThemeProvider` ve `themedStyles` üzerinden açık, koyu veya sistem tercihiyle uygulanır. Ekranlarda semantik `colors` kullanılır; mevcut palet `themePalette.ts` içindedir.
+- Finansal özet için `textStyle('financialHero')`, diğer sayısal değerler için `textStyle('numeric')` kullanılır. Her iki rol de tabular rakam ister. Örneğin: `<Text style={textStyle('financialHero')}>{formattedAmount}</Text>`.
+- `PrimaryButton` yüklenirken erişilebilir adını korur ve meşgul/devre dışı durumunu bildirir. `TonalButton` özel minimum yükseklik verilse bile 48 dp dokunma alanını korur.
+- `ActionSheet` başlığı semantik başlıktır; içerik ekran yüksekliğine sığmadığında kaydırılır. Kapatma ve yıkıcı eylemin ayrıca onaylanması çağıran akışın sorumluluğundadır.
+- `AnimatedMoney`, hareket azaltma açıkken ya da tercih okunamadığında hedef tutarı doğrudan gösterir. Sistem tercihi değişikliklerini izler.
+- Genel navigasyonda mevcut Ionicons kullanılır; ActionSheet ve boş durumların mevcut Material ikonları ile servis kimliklerindeki marka ikonları korunur. Yeni ikon ailesi gerektiren dönüşümler sonraki ekran çalışmalarında değerlendirilir.
+- Alt gezinmenin sabit yüksekliği, büyük sistem yazısında ve küçük ekranlarda ayrıca cihaz üzerinde doğrulanmalıdır; Jest sonucu tek başına görsel kabul değildir.

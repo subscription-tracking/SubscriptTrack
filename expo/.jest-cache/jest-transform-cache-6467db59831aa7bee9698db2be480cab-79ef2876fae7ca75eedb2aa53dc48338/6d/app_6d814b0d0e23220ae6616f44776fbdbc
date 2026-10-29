@@ -1,0 +1,74 @@
+12d32c2c11fcfe4c28d8c59a81aa8caa
+{
+  "expo": {
+    "name": "SubscriptTrack",
+    "slug": "subscripttrack",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#101217",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.subscripttrack.app"
+    },
+    "android": {
+      "package": "com.subscripttrack.app",
+      "permissions": [
+        "SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      "expo-notifications",
+      "expo-system-ui",
+      "expo-status-bar",
+      "expo-secure-store",
+      "expo-font",
+      "expo-asset",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Uygulama kilidini Face ID ile açmak için kullanılır."
+        }
+      ],
+      "expo-sharing",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#F8F9FC",
+          "dark": {
+            "backgroundColor": "#101217"
+          }
+        }
+      ]
+    ],
+    "scheme": "subscripttrack",
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c03f1989-6da2-482d-9b84-1e681531528c"
+      }
+    },
+    "owner": "mfurkant"
+  }
+}

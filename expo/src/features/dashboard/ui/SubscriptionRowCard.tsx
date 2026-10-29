@@ -36,8 +36,8 @@ export function SubscriptionRowCard({
       >
         <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.archiveAvatar} />
         <View style={styles.middle}>
-          <Text style={textStyle('bodyStrong')} numberOfLines={1}>{subscription.name}</Text>
-          <Text style={textStyle('caption', { color: subtitleColor, marginTop: spacing.xxs / 2 })} numberOfLines={2}>{subtitle}</Text>
+          <Text style={textStyle('bodyStrong')}>{subscription.name}</Text>
+          <Text style={textStyle('caption', { color: subtitleColor, marginTop: spacing.xxs / 2 })}>{subtitle}</Text>
         </View>
       </Pressable>
       {trailing}
@@ -55,7 +55,7 @@ const styles = themedStyles(() => StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  main: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  main: { flex: 1, minHeight: sizes.minTouchTarget, flexDirection: 'row', alignItems: 'center' },
   pressed: { opacity: 0.85 },
   middle: { flex: 1, marginHorizontal: gaps.sheetRow },
 }));

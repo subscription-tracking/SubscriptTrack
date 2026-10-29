@@ -1,0 +1,16 @@
+743244f8920778e74f96d319daec1bb7
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Stack = void 0;
+var _host = require("./host");
+var _screen = require("./screen");
+var _header = require("./header");
+var Stack = exports.Stack = {
+  Host: _host.StackHost,
+  Screen: _screen.StackScreen,
+  HeaderConfig: _header.StackHeaderConfig
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfaG9zdCIsInJlcXVpcmUiLCJfc2NyZWVuIiwiX2hlYWRlciIsIlN0YWNrIiwiZXhwb3J0cyIsIkhvc3QiLCJTdGFja0hvc3QiLCJTY3JlZW4iLCJTdGFja1NjcmVlbiIsIkhlYWRlckNvbmZpZyIsIlN0YWNrSGVhZGVyQ29uZmlnIl0sInNvdXJjZXMiOlsiLi4vLi4vLi4vLi4vLi4vc3JjL2NvbXBvbmVudHMvZ2FtbWEvc3RhY2svaW5kZXgudHMiXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7OztBQUFBLElBQUFBLEtBQUEsR0FBQUMsT0FBQTtBQUNBLElBQUFDLE9BQUEsR0FBQUQsT0FBQTtBQUNBLElBQUFFLE9BQUEsR0FBQUYsT0FBQTtBQWdETyxJQUFNRyxLQUFLLEdBQUFDLE9BQUEsQ0FBQUQsS0FBQSxHQUFHO0VBQ25CRSxJQUFJLEVBQUVDLEtBQUEsQ0FBQUEsU0FBUztFQUNmQyxNQUFNLEVBQUVDLE9BQUEsQ0FBQUEsV0FBVztFQUNuQkMsWUFBWSxFQUFFQyxPQUFBLENBQUFBO0FBQ2hCLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

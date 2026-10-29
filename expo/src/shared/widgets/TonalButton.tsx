@@ -31,7 +31,7 @@ export function TonalButton({ label, onPress, tone = 'neutral', disabled = false
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { minHeight },
+        { minHeight: Math.max(minHeight, sizes.minTouchTarget) },
         danger && styles.danger,
         disabled && styles.disabled,
         pressed && !disabled && styles.pressed,

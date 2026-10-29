@@ -2,18 +2,18 @@ import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../../shared/design/themeRuntime';
 import { type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { formatAmount } from '../../../../core/format/money';
-import { borderWidth, colors, radius, sizes, spacing, withAlpha } from '../../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
+import { HeaderShell } from '../../../../shared/widgets/HeaderShell';
 import { CATEGORY_LABELS, type Subscription } from '../../domain/subscription';
 import { statusChipState } from '../../domain/statusChip';
-import { ServiceIdentity, resolveServiceColor } from '../ServiceIdentity';
+import { ServiceIdentity } from '../ServiceIdentity';
 import { periodSuffix } from './detailFormat';
 
-type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+type IconName = ComponentProps<typeof Ionicons>['name'];
 
 /**
  * Koyu tema ile uyumlu üst alan; servis rengi yalnızca logoyu vurgular.
@@ -31,29 +31,25 @@ export function DetailHero({
   onMenu: () => void;
 }) {
   useThemeRevision();
-  const insets = useSafeAreaInsets();
-  const brand = resolveServiceColor(subscription.name, subscription.category);
   const chip = subscription.status === 'active'
     ? null
     : statusChipState({ status: subscription.status, isNotStarted: false, daysUntilRenewal: null }).label;
   return (
-    <View style={[styles.hero, { paddingTop: insets.top + spacing.xs }]}>
+    <View style={styles.hero}>
 
-      <View style={styles.controls}>
-        <GlassButton icon="arrow-back-ios" label="Geri" onPress={onBack} />
+      <HeaderShell style={styles.controls}>
+        <GlassButton icon="arrow-back-outline" label="Geri" onPress={onBack} />
         <View style={styles.controlsRight}>
-          <GlassButton icon="edit" label="Düzenle" onPress={onEdit} />
-          <GlassButton icon="more-vert" label="Menü" onPress={onMenu} />
+          <GlassButton icon="create-outline" label="Düzenle" onPress={onEdit} />
+          <GlassButton icon="ellipsis-vertical" label="Menü" onPress={onMenu} />
         </View>
-      </View>
+      </HeaderShell>
 
       <View style={styles.titleRow}>
-        <View style={[styles.logoTile, { borderColor: withAlpha(brand, 0.3) }]}>
-          <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.heroLogoIcon} />
-        </View>
+        <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.heroLogoIcon} compact />
         <View style={styles.titleColumn}>
           <Text accessibilityRole="header" style={textStyle('title')}>{subscription.name}</Text>
-          <Text style={textStyle('label', { marginTop: spacing.xxs })}>
+          <Text style={textStyle('heading', { marginTop: spacing.xxs, fontVariant: ['tabular-nums'] })}>
             {`${formatAmount(subscription.amount.amount, subscription.currency)} ${periodSuffix(subscription.billingCycle)}`}
           </Text>
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs })}>{CATEGORY_LABELS[subscription.category]}</Text>
@@ -68,11 +64,11 @@ export function DetailHero({
   );
 }
 
-function GlassButton({ icon, label, onPress }: { icon: MaterialIconName; label: string; onPress: () => void }) {
+function GlassButton({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
   useThemeRevision();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.glass}>
-      <MaterialIcons name={icon} size={sizes.glassIcon} color={colors.onSurface} />
+      <Ionicons name={icon} size={sizes.glassIcon} color={colors.onSurface} />
     </Pressable>
   );
 }
@@ -88,7 +84,6 @@ const styles = themedStyles(() => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
   },
   controlsRight: {
     flexDirection: 'row',
@@ -108,15 +103,6 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xs,
-  },
-  logoTile: {
-    width: sizes.heroLogoIcon + spacing.lg,
-    height: sizes.heroLogoIcon + spacing.lg,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: borderWidth.regular,
   },
   titleColumn: {
     flex: 1,

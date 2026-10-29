@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../design/useThemeRevision';
 import { useEffect, useState } from 'react';
-import { Text, type TextStyle } from 'react-native';
+import { AccessibilityInfo, Text, type TextStyle } from 'react-native';
 
 import { formatAmount } from '../../core/format/money';
 
@@ -33,8 +33,19 @@ export function AnimatedMoney({
 
 /** Hedef değere easeOutCubic ile ulaşan sayı. Her hedef değişiminde 0'dan yeniden sayar. */
 export function useCountUp(target: number, duration: number): number {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(target);
+  const [reduceMotion, setReduceMotion] = useState(true);
   useEffect(() => {
+    let mounted = true;
+    let changed = false;
+    const listener = AccessibilityInfo.addEventListener('reduceMotionChanged', (enabled) => { changed = true; setReduceMotion(enabled); });
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (mounted && !changed) setReduceMotion(enabled);
+    }).catch(() => undefined);
+    return () => { mounted = false; listener.remove(); };
+  }, []);
+  useEffect(() => {
+    if (reduceMotion || duration <= 0) return;
     const started = Date.now();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const step = () => {
@@ -46,6 +57,6 @@ export function useCountUp(target: number, duration: number): number {
     return () => {
       if (timer !== undefined) clearTimeout(timer);
     };
-  }, [target, duration]);
-  return value;
+  }, [target, duration, reduceMotion]);
+  return reduceMotion || duration <= 0 ? target : value;
 }

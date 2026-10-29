@@ -1,0 +1,11 @@
+71b6bef690035479d8e61a85a3a91b72
+"use strict";
+'use client';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.IsWithinLayoutContext = void 0;
+var react_1 = require("react");
+exports.IsWithinLayoutContext = (0, react_1.createContext)(false);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJyZWFjdF8xIiwicmVxdWlyZSIsImV4cG9ydHMiLCJJc1dpdGhpbkxheW91dENvbnRleHQiLCJjcmVhdGVDb250ZXh0Il0sInNvdXJjZXMiOlsiLi4vLi4vc3JjL2xheW91dHMvSXNXaXRoaW5MYXlvdXRDb250ZXh0LnRzIl0sInNvdXJjZXNDb250ZW50IjpbIid1c2UgY2xpZW50JztcblxuaW1wb3J0IHsgY3JlYXRlQ29udGV4dCB9IGZyb20gJ3JlYWN0JztcblxuZXhwb3J0IGNvbnN0IElzV2l0aGluTGF5b3V0Q29udGV4dCA9IGNyZWF0ZUNvbnRleHQoZmFsc2UpO1xuIl0sIm1hcHBpbmdzIjoiO0FBQUEsWUFBWTs7Ozs7O0FBRVosSUFBQUEsT0FBQSxHQUFBQyxPQUFBO0FBRWFDLE9BQUEsQ0FBQUMscUJBQXFCLEdBQUcsSUFBQUgsT0FBQSxDQUFBSSxhQUFhLEVBQUMsS0FBSyxDQUFDIiwiaWdub3JlTGlzdCI6W119

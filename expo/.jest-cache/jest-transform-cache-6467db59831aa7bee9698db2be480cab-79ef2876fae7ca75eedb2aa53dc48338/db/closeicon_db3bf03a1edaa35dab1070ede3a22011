@@ -1,0 +1,5 @@
+5c25d9d35e0499b762cef04f0e5af4f4
+module.exports = {
+      testUri:
+        "../../expo-router/assets/react-navigation/elements/close-icon.png"
+    };

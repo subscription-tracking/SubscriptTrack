@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { type CivilDate } from '../../../core/time/calendar';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
@@ -13,8 +13,6 @@ import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState
 import { Spacer } from '../../../shared/widgets/Spacer';
 import { TonalButton } from '../../../shared/widgets/TonalButton';
 import { textStyle } from '../../../shared/design/typography';
-import { formatLongDate } from '../../../core/format/date';
-import { weekdayName } from '../domain/dayLabel';
 import { useAuth } from '../../auth/AuthProvider';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { usePaymentsQuery } from '../../stats/data/queries';
@@ -41,10 +39,11 @@ export function DashboardScreen() {
   const payments = usePaymentsQuery(user?.id);
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
+  const online = useOnlineStatus();
 
   const state: AsyncState<Subscription[]> = query.isPending
     ? { status: 'loading' }
-    : query.isError
+    : query.isError && query.data === undefined
       ? {
           status: 'error',
           message: 'Özet yüklenemedi. Bağlantını kontrol edip tekrar dene.',
@@ -61,6 +60,7 @@ export function DashboardScreen() {
           paymentsUnavailable={payments.data === undefined}
           paymentsLoading={payments.data === undefined && (payments.isPending || payments.isRefetching)}
           onRetryPayments={() => void payments.refetch()}
+          cachedNotice={!online || (query.isError && query.data !== undefined) || (payments.isError && payments.data !== undefined)}
           today={today}
           timeZone={timeZone}
           bottomInset={sizes.bottomNavHeight + insets.bottom + spacing.xl}
@@ -78,6 +78,7 @@ function Summary({
   paymentsUnavailable,
   paymentsLoading,
   onRetryPayments,
+  cachedNotice,
   today,
   timeZone,
   bottomInset,
@@ -89,6 +90,7 @@ function Summary({
   paymentsUnavailable: boolean;
   paymentsLoading: boolean;
   onRetryPayments: () => void;
+  cachedNotice: boolean;
   today: CivilDate;
   timeZone: string;
   bottomInset: number;
@@ -108,7 +110,9 @@ function Summary({
   const toStats = () => router.navigate('/stats');
   const toAdd = () => router.push('/subscriptions/add');
   const openSubscription = (id: string) => router.push(`/subscriptions/${id}`);
-  const showEmptyState = active.length === 0 && summaries.length === 0 && !paymentsUnavailable;
+  const showEmptyState = subscriptions.length === 0 && summaries.length === 0 && !paymentsUnavailable;
+  const categoryData = categoryTotals(active);
+  const showCategories = new Set(categoryData.filter((entry) => entry.amount.minorUnits > 0).map((entry) => entry.group)).size > 1;
 
   return (
     <ScrollView
@@ -121,15 +125,7 @@ function Summary({
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
-      <View style={styles.heading}>
-        <View style={styles.headingText}>
-          <Text style={textStyle('headline')}><Text>Subscript</Text><Text style={{ color: colors.primary }}>Track</Text></Text>
-          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${formatLongDate(today).replace(` ${today.year}`, '')} ${weekdayName(today)}`}</Text>
-        </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Bildirimleri aç" onPress={() => router.push('/notifications')} style={styles.headerAction}>
-          <MaterialIcons name="notifications-none" size={24} color={colors.onSurfaceVariant} />
-        </Pressable>
-      </View>
+      {cachedNotice ? <Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginBottom: spacing.md })}>Bağlantı veya yenileme sorunu: gösterilen veriler güncel olmayabilir.</Text> : null}
       {showEmptyState ? (
         <EmptyStateLayout>
           <EmptyState
@@ -158,17 +154,14 @@ function Summary({
             onAll={toSubscriptions}
             onReminders={() => router.push('/settings/notifications')}
           />
-          {active.length > 0 ? (
-            <>
-              <Spacer size={gaps.sectionTop} />
-              <CategoryBarCard totals={categoryTotals(active)} onPress={toStats} />
-            </>
-          ) : null}
           <Spacer size={gaps.sectionTop} />
           <TonalButton label="Abonelik ekle" onPress={toAdd} />
-          <Pressable accessibilityRole="button" accessibilityLabel="Takvimi aç" onPress={() => router.push('/calendar')} style={styles.calendarAction}>
-            <MaterialIcons name="calendar-today" size={22} color={colors.onSurfaceVariant} /><Text style={textStyle('bodyStrong')}>Takvimi aç</Text>
-          </Pressable>
+          {showCategories ? (
+            <>
+              <Spacer size={gaps.sectionTop} />
+              <CategoryBarCard totals={categoryData} onPress={toStats} />
+            </>
+          ) : null}
         </>
       )}
     </ScrollView>
@@ -180,10 +173,6 @@ const styles = themedStyles(() => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
-  headingText: { flex: 1 },
-  headerAction: { minWidth: sizes.minTouchTarget, minHeight: sizes.minTouchTarget, alignItems: 'center', justifyContent: 'center' },
-  calendarAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, minHeight: sizes.minTouchTarget, marginTop: spacing.sm },
   content: {
     flexGrow: 1,
     paddingTop: spacing.md,

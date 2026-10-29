@@ -15,16 +15,15 @@ import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { activeForTotals } from '../../dashboard/domain/dashboardSummary';
 import { colors } from '../../../shared/design/tokens';
 import { TopBar } from '../../../shared/widgets/TopBar';
-import { activeSubtitle, greetingFor, homeDateLabel } from '../domain/tabHeader';
-import { } from '../../../core/time/calendar';
+import { activeSubtitle, homeDateLabel } from '../domain/tabHeader';
+import type { CivilDate } from '../../../core/time/calendar';
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
 export type TabKey = 'home' | 'subscriptions' | 'stats' | 'settings';
 
 /**
- * Dört ana sekmenin ortak iskeleti: üst bar (Flutter `TopBar`) ve içerik. Her sekmenin başlık metni
- * Flutter `AppShell._topBarFor` ile aynıdır.
+ * Dört ana sekmenin ortak iskeleti. Ana sayfa marka başlığını kullanır; diğer sekmeler kendi başlıklarını korur.
  */
 export function TabScaffold({ tab, children }: { tab: TabKey; children: ReactNode }) {
   useThemeRevision();
@@ -38,8 +37,7 @@ export function TabScaffold({ tab, children }: { tab: TabKey; children: ReactNod
   const unread = unreadCount(notifications.data ?? [], notificationLocal.read, notificationLocal.dismissed);
 
   const header = headerFor(tab, {
-    now: new Date(),
-    user,
+    today,
     activeCount: activeForTotals(subscriptions.data ?? [], today).length,
   });
 
@@ -47,6 +45,8 @@ export function TabScaffold({ tab, children }: { tab: TabKey; children: ReactNod
     <View style={styles.screen}>
       <TopBar
         icon={header.icon}
+        variant={tab === 'home' ? 'home' : 'default'}
+        showCalendar={tab === 'subscriptions'}
         title={header.title}
         subtitle={header.subtitle}
         unreadCount={unread}
@@ -60,11 +60,11 @@ export function TabScaffold({ tab, children }: { tab: TabKey; children: ReactNod
 
 function headerFor(
   tab: TabKey,
-  input: { now: Date; user: { displayName: string | null; email: string } | null; activeCount: number },
+  input: { today: CivilDate; activeCount: number },
 ): { icon: IoniconName; title: string; subtitle?: string } {
   switch (tab) {
     case 'home':
-      return { icon: 'home-outline', subtitle: homeDateLabel(input.now), title: greetingFor(input.user) };
+      return { icon: 'home-outline', subtitle: homeDateLabel(input.today), title: 'SubscriptTrack' };
     case 'subscriptions':
       return { icon: 'grid', subtitle: activeSubtitle(input.activeCount), title: 'Abonelikler' };
     case 'stats':

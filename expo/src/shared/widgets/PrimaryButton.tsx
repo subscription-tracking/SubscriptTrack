@@ -29,11 +29,12 @@ interface PrimaryButtonProps {
 export function PrimaryButton({ label, onPress, loading = false, disabled = false, tall = true, icon, tone = 'primary' }: PrimaryButtonProps) {
   useThemeRevision();
   const inactive = loading || disabled;
-  const foreground = inactive ? colors.disabledText : colors.onPrimary;
+  const foreground = inactive ? colors.disabledText : tone === 'danger' ? colors.background : colors.onPrimary;
   return (
     <Pressable
       accessible
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
       onPress={onPress}
@@ -46,7 +47,7 @@ export function PrimaryButton({ label, onPress, loading = false, disabled = fals
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={colors.onPrimary} />
+        <ActivityIndicator size="small" color={colors.disabledText} />
       ) : (
         <View style={styles.content}>
           {icon ? <MaterialIcons name={icon} size={sizes.buttonIcon} color={foreground} /> : null}

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { SettingsHome } from './SettingsHome';
+import appConfig from '../../../../app.json';
 
 const mockPush = jest.fn();
 const mockPreference = { preference: 'light' as 'system' | 'light' | 'dark', ready: true, error: '', setPreference: jest.fn() };
@@ -35,6 +36,7 @@ describe('ayarlar ana ekranı tema satırı (senaryo 49)', () => {
     render(<SettingsHome />);
     expect(screen.getByText('Tema')).toBeTruthy();
     expect(screen.getAllByText('Açık').length).toBeGreaterThan(0);
+    expect(screen.getByText(`v${appConfig.expo.version}`)).toBeTruthy();
   });
 
   it('tema satırına basınca tema seçimi ekranına gider', () => {

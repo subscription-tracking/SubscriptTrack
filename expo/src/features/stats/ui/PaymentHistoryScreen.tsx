@@ -2,11 +2,13 @@ import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useCivilToday } from '../../../core/clock/useCivilToday';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useAuth } from '../../auth/AuthProvider';
+import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { formatCurrency } from '../../../core/format/money';
 import { formatLongDate } from '../../../core/format/date';
 import { type CivilDate, } from '../../../core/time/calendar';
@@ -30,7 +32,7 @@ import { AddPaymentDialog, EditPaymentDialog } from './PaymentDialogs';
  * Ödeme geçmişi (Flutter `PaymentHistoryScreen`): kayıtlar kart listesi olarak; her kartta ad, tarih, tutar ve
  * düzenle/sil düğmeleri. "Kayıt ekle" uzatılmış düğmesi ekleme iletişim kutusunu açar. Silme onay istemez.
  */
-export function PaymentHistoryScreen() {
+export function PaymentHistoryScreen({ subscriptionId }: { subscriptionId?: string } = {}) {
   useThemeRevision();
   const { user } = useAuth();
   const payments = usePaymentsQuery(user?.id);
@@ -39,10 +41,12 @@ export function PaymentHistoryScreen() {
   const today = useCivilToday(timeZone);
 
   const currency = useActiveCurrency();
+  const router = useRouter();
+  const online = useOnlineStatus();
   const state: AsyncState<{ payments: PaymentEvent[]; subscriptions: Subscription[] }> =
-    payments.isPending || subscriptions.isPending
+    (payments.isPending && payments.data === undefined) || (subscriptions.isPending && subscriptions.data === undefined)
       ? { status: 'loading' }
-      : payments.isError || subscriptions.isError
+      : (payments.isError && payments.data === undefined) || (subscriptions.isError && subscriptions.data === undefined)
         ? {
             status: 'error',
             message: 'Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip tekrar dene.',
@@ -54,14 +58,16 @@ export function PaymentHistoryScreen() {
         : {
             status: 'ready',
             data: {
-              payments: (payments.data ?? []).filter((payment) => payment.currency === currency),
-              subscriptions: inCurrency(subscriptions.data ?? [], currency),
+              payments: (payments.data ?? []).filter((payment) => subscriptionId ? payment.subscriptionId === subscriptionId : payment.currency === currency),
+              subscriptions: subscriptionId ? (subscriptions.data ?? []).filter((subscription) => subscription.id === subscriptionId) : inCurrency(subscriptions.data ?? [], currency),
             },
           };
 
   return (
     <View style={styles.screen}>
-      <ScreenTopBar title="Ödeme geçmişi" />
+      <ScreenTopBar title={subscriptionId ? `${subscriptions.data?.find((item) => item.id === subscriptionId)?.name ?? 'Abonelik'} · Ödeme geçmişi` : 'Ödeme geçmişi'} />
+      {state.status === 'ready' && (!online || payments.isError || subscriptions.isError) ? <Text accessibilityLiveRegion="polite" style={[textStyle('bodySmall', { color: colors.onSurfaceVariant }), styles.cacheNotice]}>Bağlantı veya yenileme sorunu: gösterilen kayıtlar güncel olmayabilir.</Text> : null}
+      {subscriptionId ? <Pressable accessibilityRole="button" onPress={() => router.push('/stats/payments')} style={styles.allHistory}><Text style={textStyle('label', { color: colors.primary })}>Genel ödeme geçmişi</Text></Pressable> : null}
       <AsyncStateView state={state}>
         {(data) => <History payments={data.payments} subscriptions={data.subscriptions} today={today} timeZone={timeZone} />}
       </AsyncStateView>
@@ -101,7 +107,10 @@ function History({ payments, subscriptions, today, timeZone }: { payments: Payme
                 name={names.get(item.payment.subscriptionId ?? '') ?? 'Silinmiş abonelik'}
                 dateLabel={`${formatLongDate(localCivilDate(item.payment.paidAt, timeZone))} · ${paymentStatusLabel(item.payment.status)}`}
                 onEdit={() => setEditing(item.payment)}
-                onDelete={() => remove.mutate(item.payment.id)}
+                onDelete={() => { if (remove.isPending) return; let submitted = false; Alert.alert('Ödeme kaydını sil', `${nameForPayment(names, item.payment)} · ${formatLongDate(localCivilDate(item.payment.paidAt, timeZone))} · ${formatCurrency(item.payment.amount, item.payment.currency)} kaydı silinsin mi?`, [
+                  { text: 'Vazgeç', style: 'cancel' },
+                  { text: 'Sil', style: 'destructive', onPress: () => { if (!submitted) { submitted = true; remove.mutate(item.payment.id); } } },
+                ]); }}
               />
             )
           }
@@ -115,22 +124,27 @@ function History({ payments, subscriptions, today, timeZone }: { payments: Payme
 
       <AddPaymentDialog
         visible={adding}
+        busy={add.isPending}
         subscriptions={addable}
         onClose={() => setAdding(false)}
-        onSave={({ subscription, amount }) => add.mutate({ subscription, amount: amount.decimalString })}
+        onSave={({ subscription, amount }) => { if (!add.isPending) add.mutate({ subscription, amount: amount.decimalString }); }}
       />
       {editing ? (
         <EditPaymentDialog
           visible
           currency={editing.currency}
-          initialAmount={editing.amount.amount.toFixed(2)}
+          initialAmount={editing.amount.decimalString}
+          busy={edit.isPending}
+          description={`${nameForPayment(names, editing)} · ${formatLongDate(localCivilDate(editing.paidAt, timeZone))}`}
           onClose={() => setEditing(null)}
-          onSave={(amount) => edit.mutate({ id: editing.id, amount: amount.decimalString, paidAt: new Date(editing.paidAt) })}
+          onSave={(amount) => { if (!edit.isPending) edit.mutate({ id: editing.id, amount: amount.decimalString, paidAt: new Date(editing.paidAt) }); }}
         />
       ) : null}
     </View>
   );
 }
+
+function nameForPayment(names: Map<string, string>, payment: PaymentEvent) { return names.get(payment.subscriptionId ?? '') ?? 'Silinmiş abonelik'; }
 
 function PaymentCard({
   payment,
@@ -187,6 +201,8 @@ const styles = themedStyles(() => StyleSheet.create({
   body: {
     flex: 1,
   },
+  allHistory: { minHeight: sizes.minTouchTarget, justifyContent: 'center', paddingHorizontal: spacing.lg },
+  cacheNotice: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },
   empty: {
     flex: 1,
     alignItems: 'center',

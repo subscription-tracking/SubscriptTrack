@@ -23,6 +23,7 @@ export function ServiceField({
   disabled,
   nameNotice,
   onChange,
+  onAutoCategory,
 }: {
   values: SubscriptionFormValues;
   errors: FormErrors;
@@ -32,19 +33,20 @@ export function ServiceField({
   /** Ada ilişkin engellemeyen bilgi uyarısı (örn. aynı isimde kayıt var). */
   nameNotice?: string;
   onChange: FormChange;
+  onAutoCategory: (category: ServicePreset['category']) => void;
 }) {
   useThemeRevision();
-  const currentName = values.name.trim().toLowerCase();
+  const currentName = values.name.trim().toLocaleLowerCase('tr-TR');
 
   function pickPreset(preset: ServicePreset) {
     onChange('name', preset.name);
-    onChange('category', preset.category);
+    onAutoCategory(preset.category);
   }
 
   function nameChanged(next: string) {
     onChange('name', next);
-    const match = presets.find((preset) => preset.name.trim().toLowerCase() === next.trim().toLowerCase());
-    if (match) onChange('category', match.category);
+    const match = presets.find((preset) => preset.name.trim().toLocaleLowerCase('tr-TR') === next.trim().toLocaleLowerCase('tr-TR'));
+    if (match) onAutoCategory(match.category);
   }
 
   return (
@@ -60,12 +62,13 @@ export function ServiceField({
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.presetRow}>
             {presets.map((preset) => {
-              const selected = currentName === preset.name.trim().toLowerCase();
+              const selected = currentName === preset.name.trim().toLocaleLowerCase('tr-TR');
               return (
                 <Pressable
                   key={preset.name}
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
+                  disabled={disabled}
                   onPress={() => pickPreset(preset)}
                   style={[styles.preset, selected && styles.presetSelected]}
                 >

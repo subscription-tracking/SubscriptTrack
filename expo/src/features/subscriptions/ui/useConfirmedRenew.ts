@@ -15,16 +15,19 @@ export function useConfirmedRenew(today: CivilDate) {
   const pendingId = renew.isPending ? renew.variables?.id : undefined;
 
   const confirm = (subscription: Subscription) => {
-    const next = advancedRenewalDate(subscription, today);
-    Alert.alert(
-      `${subscription.name} ödendi mi?`,
-      next ? `Yenileme tarihi ${formatLongDate(next)} olacak.` : 'Yenileme tarihi güncellenecek.',
-      [
-        { text: 'Vazgeç', style: 'cancel' },
-        { text: 'Ödendi', onPress: () => renew.mutate(subscription) },
-      ],
-    );
+    if (renew.isPending) return;
+    confirmRenewal(subscription, today, () => renew.mutate(subscription));
   };
 
   return { confirm, pendingId };
+}
+
+/** Ortak açık onay; aynı onay penceresinden tekrar gönderimi engeller. */
+export function confirmRenewal(subscription: Subscription, today: CivilDate, onConfirm: () => void) {
+  const next = advancedRenewalDate(subscription, today);
+  let submitted = false;
+  Alert.alert(`${subscription.name} ödendi mi?`, next ? `Ödemeyi yaptığını işaretleyeceksin. Yenileme tarihi ${formatLongDate(next)} olacak.` : 'Ödemeyi yaptığını işaretleyeceksin. Yenileme tarihi güncellenecek.', [
+    { text: 'Vazgeç', style: 'cancel' },
+    { text: 'Ödendi', onPress: () => { if (!submitted) { submitted = true; onConfirm(); } } },
+  ]);
 }

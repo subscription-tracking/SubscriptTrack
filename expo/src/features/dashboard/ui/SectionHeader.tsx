@@ -20,7 +20,7 @@ export function SectionHeader({
   useThemeRevision();
   return (
     <View style={styles.header}>
-      <Text style={textStyle('heading')}>{title}</Text>
+      <Text accessibilityRole="header" style={textStyle('heading')}>{title}</Text>
       {badge ? (
         <View style={styles.badge} accessibilityLabel={`${badge} kayıt`}>
           <Text style={textStyle('captionStrong', { color: colors.onErrorContainer })}>{badge}</Text>

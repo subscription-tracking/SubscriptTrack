@@ -1,7 +1,7 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
 import { colors, sizes, spacing } from '../../../shared/design/tokens';
@@ -18,7 +18,7 @@ export function NotificationCenterHeader({ canMarkAll, onMarkAll }: { canMarkAll
   return (
     <HeaderShell style={styles.bar}>
       <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={[styles.button, styles.back]}>
-        <MaterialIcons name="arrow-back" size={sizes.iconButtonSize} color={colors.onBackground} />
+        <Ionicons name="arrow-back-outline" size={sizes.iconButtonSize} color={colors.onBackground} />
       </Pressable>
       <Text accessibilityRole="header" style={[textStyle('heading'), styles.title]}>Bildirimler</Text>
       <Pressable
@@ -29,7 +29,7 @@ export function NotificationCenterHeader({ canMarkAll, onMarkAll }: { canMarkAll
         onPress={onMarkAll}
         style={styles.button}
       >
-        <MaterialIcons name="done-all" size={sizes.iconButtonSize} color={canMarkAll ? colors.onBackground : colors.disabledText} />
+        <Ionicons name="checkmark-done-outline" size={sizes.iconButtonSize} color={canMarkAll ? colors.onBackground : colors.disabledText} />
       </Pressable>
       <Pressable
         accessibilityRole="button"
@@ -37,7 +37,7 @@ export function NotificationCenterHeader({ canMarkAll, onMarkAll }: { canMarkAll
         onPress={() => router.push('/settings/notifications')}
         style={styles.button}
       >
-        <MaterialIcons name="settings" size={sizes.iconButtonSize} color={colors.onBackground} />
+        <Ionicons name="settings-outline" size={sizes.iconButtonSize} color={colors.onBackground} />
       </Pressable>
     </HeaderShell>
   );

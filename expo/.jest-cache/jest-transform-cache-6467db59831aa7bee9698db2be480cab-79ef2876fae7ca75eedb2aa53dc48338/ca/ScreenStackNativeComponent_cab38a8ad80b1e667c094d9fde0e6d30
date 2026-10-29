@@ -1,0 +1,11 @@
+a1b24fb2fa14ab9d2a4e2d6ea3b873fb
+"use strict";
+'use client';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _reactNative = require("react-native");
+var _default = exports.default = (0, _reactNative.codegenNativeComponent)('RNSScreenStack', {});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJPYmplY3QiLCJkZWZpbmVQcm9wZXJ0eSIsImV4cG9ydHMiLCJ2YWx1ZSIsImRlZmF1bHQiLCJfcmVhY3ROYXRpdmUiLCJyZXF1aXJlIiwiX2RlZmF1bHQiLCJjb2RlZ2VuTmF0aXZlQ29tcG9uZW50Il0sInNvdXJjZXMiOlsiLi4vLi4vLi4vc3JjL2ZhYnJpYy9TY3JlZW5TdGFja05hdGl2ZUNvbXBvbmVudC50cyJdLCJzb3VyY2VzQ29udGVudCI6W251bGxdLCJtYXBwaW5ncyI6IjtBQUFBLFlBQVk7O0FBQUNBLE1BQUEsQ0FBQUMsY0FBQSxDQUFBQyxPQUFBO0VBQUFDLEtBQUE7QUFBQTtBQUFBRCxPQUFBLENBQUFFLE9BQUE7QUFFYixJQUFBQyxZQUFBLEdBQUFDLE9BQUE7QUFHQSxJQUFBQyxRQUFBLEdBQUFMLE9BQUEsQ0FBQUUsT0FBQSxHQVdlLElBQUFDLFlBQUEsQ0FBQUcsc0JBQXNCLEVBQWMsZ0JBQWdCLEVBQUUsQ0FBQyxDQUFDLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

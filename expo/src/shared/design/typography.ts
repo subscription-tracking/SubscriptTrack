@@ -29,6 +29,7 @@ type CoreStyle = {
 
 const CORE = {
   display: { size: 36, weight: 700, color: 'onSurface', letterSpacing: -0.5, tabular: true },
+  financialHero: { size: 44, weight: 700, color: 'onSurface', letterSpacing: -0.5, tabular: true },
   headline: { size: 28, weight: 700, color: 'onSurface' },
   title: { size: 22, weight: 700, color: 'onSurface' },
   heading: { size: 18, weight: 600, color: 'onSurface' },

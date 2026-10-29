@@ -48,6 +48,7 @@ const subscriptionRow = (overrides: Partial<SubscriptionRow> = {}): Subscription
 });
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush, back: jest.fn() }) }));
+jest.mock('../../../core/network/useOnlineStatus', () => ({ useOnlineStatus: () => true }));
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('@expo/vector-icons/FontAwesome6', () => 'FontAwesome6');
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) }));
@@ -110,6 +111,15 @@ describe('NotificationCenterScreen', () => {
     expect(screen.getByText('Yaklaşan yenilemeler burada görünür.')).toBeTruthy();
     fireEvent.press(screen.getByRole('link', { name: 'Bildirim ayarları' }));
     expect(mockPush).toHaveBeenCalledWith('/settings/notifications');
+  });
+
+  it('önbellekte bildirim varken yenileme hatasını ve tekrar denemeyi gösterir', () => {
+    mockUseNotificationsQuery.mockReturnValue({ isPending: false, isError: true, data: [notice], refetch: mockRefetch });
+    render(<NotificationCenterScreen />);
+    expect(screen.getByText('Bildirimler güncel olmayabilir.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Video Plus, Yenilenmesine 3 gün kaldı/ })).toBeTruthy();
+    fireEvent.press(screen.getByRole('link', { name: 'Tekrar dene' }));
+    expect(mockRefetch).toHaveBeenCalledTimes(1);
   });
 
   it('satıra dokununca yerelde okundu sayar, sunucu eşitlemesini başlatır ve abonelik ayrıntısını açar', async () => {

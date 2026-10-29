@@ -25,12 +25,14 @@ export const SubscriptionTile = memo(function SubscriptionTile({
   today,
   onPress,
   showStatus = true,
+  selected,
 }: {
   subscription: Subscription;
   today: CivilDate;
   /** Satırın kimliğiyle çağrılır; kararlı bir işleyici verilirse memo etkili olur. */
   onPress: (id: string) => void;
   showStatus?: boolean;
+  selected?: boolean;
 }) {
   useThemeRevision();
   const status = subscription.status;
@@ -50,14 +52,15 @@ export const SubscriptionTile = memo(function SubscriptionTile({
 
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={selected === undefined ? 'button' : 'checkbox'}
+      accessibilityState={selected === undefined ? undefined : { checked: selected }}
       accessibilityLabel={[subscription.name, CATEGORY_LABELS[subscription.category], BILLING_CYCLE_LABELS[subscription.billingCycle], formatCurrency(subscription.amount, subscription.currency), statusLabel, dateLabel].filter(Boolean).join(', ')}
       onPress={() => onPress(subscription.id)}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.card, selected && styles.selected, pressed && styles.pressed]}
     >
       <View style={styles.row}>
         <View style={{ opacity: dimmed ? 0.55 : 1 }}>
-          <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.listAvatar} />
+          <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.listAvatar} compact />
         </View>
 
         <View style={styles.middle}>
@@ -69,7 +72,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
             {subscription.name}
           </Text>
           <View style={styles.subtitleRow}>
-            <Text numberOfLines={1} style={textStyle('caption', { flexShrink: 1 })}>
+            <Text style={textStyle('caption', { flexShrink: 1 })}>
               {`${CATEGORY_LABELS[subscription.category]} · ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
             </Text>
             {chipVisible ? (
@@ -85,6 +88,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
         </View>
 
         <Trailing subscription={subscription} days={days} today={today} dueDateShort={dueDateShort} />
+        {selected !== undefined ? <Text style={textStyle('bodyStrong', { color: selected ? colors.primary : colors.onSurfaceVariant, marginLeft: spacing.xs })}>{selected ? '☑' : '□'}</Text> : null}
       </View>
       {upcoming ? (
         <Text style={[textStyle('caption'), styles.note]}>
@@ -101,13 +105,16 @@ function Trailing({ subscription, days, today, dueDateShort }: { subscription: S
   const isPaused = status === 'paused';
   const isCancelled = status === 'cancelled';
   const isExpired = status === 'expired';
-  const urgent = days !== null && days <= 3;
+  const overdue = days !== null && days < 0 && !isNotStarted(subscription, today);
+  const dueToday = days === 0 && !isNotStarted(subscription, today);
   const labelColor = isPaused || isExpired
     ? colors.onSurfaceVariant
     : isCancelled
       ? statusColors.success
-      : urgent
+      : overdue
         ? colors.error
+        : dueToday
+          ? statusColors.warning
         : colors.onSurfaceVariant;
   const label = isPaused ? 'Duraklatıldı' : isCancelled ? 'İptal edildi' : isExpired ? 'Süresi doldu' : isNotStarted(subscription, today) ? 'Henüz başlamadı' : days === null ? '—' : days < 0 ? `${-days} gün gecikti` : renewalLabel(days);
   return (
@@ -116,7 +123,7 @@ function Trailing({ subscription, days, today, dueDateShort }: { subscription: S
         {formatCurrency(subscription.amount, subscription.currency)}
       </Text>
       <Text
-        style={textStyle(urgent ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
+        style={textStyle(overdue || dueToday ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
       >
         {dueDateShort ? `${label} · ${dueDateShort}` : label}
       </Text>
@@ -144,6 +151,7 @@ const styles = themedStyles(() => StyleSheet.create({
   pressed: {
     opacity: 0.85,
   },
+  selected: { backgroundColor: colors.secondaryContainer },
   middle: {
     flex: 1,
     marginLeft: gaps.rowLoose - 2,
