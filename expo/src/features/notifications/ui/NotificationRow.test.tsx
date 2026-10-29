@@ -68,6 +68,6 @@ describe('NotificationRow', () => {
     view.unmount();
 
     render(<NotificationRow item={item} read actions={{ canPay: true }} paying onPay={onPay} {...handlers()} />);
-    expect(screen.getByRole('button', { name: 'Ödendi' }).props.accessibilityState).toMatchObject({ disabled: true });
+    expect(screen.getByRole('button', { name: 'İşleniyor' }).props.accessibilityState).toMatchObject({ disabled: true });
   });
 });

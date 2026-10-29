@@ -50,7 +50,7 @@ describe('FeedbackScreen', () => {
     renderScreen();
     fireEvent.changeText(screen.getByLabelText('Mesajın'), '  Takvim filtresi önerisi  ');
     fireEvent.press(screen.getByRole('button', { name: 'Tür: Özellik isteği' }));
-    fireEvent.press(screen.getByRole('button', { name: 'Hata bildirimi' }));
+    fireEvent.press(screen.getByRole('radio', { name: 'Hata bildirimi' }));
     fireEvent.press(screen.getByRole('button', { name: 'Destek kaydı oluştur' }));
 
     await waitFor(() => expect(mockCreateTicket).toHaveBeenCalledWith({ message: '  Takvim filtresi önerisi  ', category: 'Hata bildirimi' }));

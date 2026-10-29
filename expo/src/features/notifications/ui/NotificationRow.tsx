@@ -1,7 +1,7 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
-import { type ComponentProps, useState } from 'react';
-import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
+import { type ComponentProps, useEffect, useMemo, useState } from 'react';
+import { AccessibilityInfo, Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { borderWidth, colors, gaps, sizes, spacing, statusColors } from '../../../shared/design/tokens';
@@ -80,6 +80,14 @@ export function NotificationRow({
 }) {
   useThemeRevision();
   const [translateX] = useState(() => new Animated.Value(0));
+  // Until the preference is known, avoid a decorative exit animation.
+  const [reduceMotion, setReduceMotion] = useState(true);
+  useEffect(() => {
+    let mounted = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => { if (mounted) setReduceMotion(enabled); }).catch(() => undefined);
+    const listener = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => { mounted = false; listener.remove(); };
+  }, []);
   const text = notificationText(item.kind, { name: item.name, days: item.days });
   const detail = amountText ? `${text.body} · ${amountText}` : text.body;
   const label = [text.title, text.body, amountText, count > 1 ? `${count} kez` : null, read ? null : 'okunmamış'].filter(Boolean).join(', ');
@@ -88,19 +96,24 @@ export function NotificationRow({
     ...(read ? [] : [{ name: 'markRead', label: 'Okundu say' }]),
   ];
 
-  const [responder] = useState(() =>
+  const responder = useMemo(() =>
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gesture) => gesture.dx < -8 && Math.abs(gesture.dy) < 12,
       onPanResponderMove: (_, gesture) => translateX.setValue(Math.min(0, gesture.dx)),
       onPanResponderRelease: (_, gesture) => {
         if (gesture.dx < -DISMISS_THRESHOLD) {
-          Animated.timing(translateX, { toValue: -sizes.rowExit, duration: 180, useNativeDriver: true }).start(onDismiss);
+          if (reduceMotion) onDismiss();
+          else Animated.timing(translateX, { toValue: -sizes.rowExit, duration: 180, useNativeDriver: true }).start(onDismiss);
         } else {
-          Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
+          if (reduceMotion) translateX.setValue(0);
+          else Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
         }
       },
-      onPanResponderTerminate: () => Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start(),
-    }),
+      onPanResponderTerminate: () => {
+        if (reduceMotion) translateX.setValue(0);
+        else Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
+      },
+    }), [onDismiss, reduceMotion, translateX],
   );
 
   return (
@@ -141,7 +154,7 @@ export function NotificationRow({
         </Pressable>
         {actions ? (
           <View style={styles.actions}>
-            {actions.canPay ? <TonalButton label="Ödendi" disabled={paying} onPress={() => onPay?.()} /> : null}
+            {actions.canPay ? <TonalButton label={paying ? 'İşleniyor' : 'Ödendi'} disabled={paying} onPress={() => onPay?.()} /> : null}
             <TextLink label="Aboneliği aç" onPress={onOpen} />
           </View>
         ) : null}

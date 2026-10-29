@@ -1,7 +1,9 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { useRouter } from 'expo-router';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import type { CivilDate } from '../../../core/time/calendar';
+import { formatLongDate } from '../../../core/format/date';
+import { textStyle } from '../../../shared/design/typography';
 import type { Subscription } from '../../subscriptions/domain/subscription';
 import { formatDateParam } from '../domain/calendarDateParam';
 import { useCalendarMonth } from './useCalendarMonth';
@@ -30,6 +32,8 @@ export function CalendarMonth({ subscriptions, today }: { subscriptions: Subscri
       </View>
 
       <OverdueSection subscriptions={overdue} today={today} onOpen={(item) => router.push(`/subscriptions/${item.id}`)} />
+
+      {selected ? <Text accessibilityRole="header" style={[textStyle('heading'), styles.selectedDate]}>{formatLongDate(selected)}</Text> : null}
 
       {dayEvents.length === 0 && allEvents.length > 0 ? null : dayEvents.length === 0 ? (
         <EmptyDayState

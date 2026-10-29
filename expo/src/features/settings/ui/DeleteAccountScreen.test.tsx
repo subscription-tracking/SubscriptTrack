@@ -43,6 +43,7 @@ describe('DeleteAccountScreen', () => {
     expect(screen.getByText('Devam etmek için şifreni gir')).toBeTruthy();
     expect(screen.getByText('Onaylamak için "sil" yaz')).toBeTruthy();
     expect(screen.getByText('Silinecek verileri anladığını onayla')).toBeTruthy();
+    expect(screen.getByRole('checkbox').props.accessibilityHint).toContain('Silinecek verileri anladığını onayla');
     expect(mockMutate).not.toHaveBeenCalled();
     expect(mockSignIn).not.toHaveBeenCalled();
   });

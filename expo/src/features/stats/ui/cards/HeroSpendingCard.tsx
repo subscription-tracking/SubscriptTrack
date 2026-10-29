@@ -36,7 +36,7 @@ export function HeroSpendingCard({
   return (
     <StatsCardSurface padding={sizes.heroPadding}>
       <View style={styles.titleRow}>
-        <Text style={textStyle('overline', { flex: 1 })} numberOfLines={1}>
+        <Text style={textStyle('overline', { flex: 1 })}>
           TAHMİNİ AYLIK ABONELİK GİDERİ
         </Text>
         <View style={styles.activePill}>
@@ -46,8 +46,8 @@ export function HeroSpendingCard({
       <Text style={textStyle('display', { marginTop: spacing.sm + spacing.xxs / 2 })}>{formatCurrency(monthly, currency)}</Text>
       <View style={styles.changeRow}>
         <ChangeBadge change={change} currency={currency} hasPaymentHistory={hasPaymentHistory && hasComparison} />
-        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginLeft: gaps.chip - 1, flex: 1 })} numberOfLines={1}>
-          {`Yıllık ${formatCurrency(yearly, currency)}`}
+        <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
+          {`Tahmini yıllık ${formatCurrency(yearly, currency)}`}
         </Text>
       </View>
     </StatsCardSurface>
@@ -61,7 +61,7 @@ function ChangeBadge({ change, currency, hasPaymentHistory }: { change: number; 
   return (
     <View style={[styles.badge, { backgroundColor: look.background }]}>
       <MaterialIcons name={look.icon} size={sizes.badgeIcon} color={look.color} />
-      <Text style={textStyle('captionStrong', { color: look.color, marginLeft: spacing.xxs })}>{look.label}</Text>
+      <Text style={textStyle('captionStrong', { color: look.color, marginLeft: spacing.xxs, flexShrink: 1 })}>{look.label}</Text>
     </View>
   );
 }
@@ -71,14 +71,14 @@ function badgeLook(change: number, currency: string, hasPaymentHistory: boolean)
     return { icon: 'calendar-today' as const, label: 'Tahmini aylık gider', color: colors.onSurfaceVariant, background: colors.surfaceContainerHighest };
   }
   if (change === 0) {
-    return { icon: 'horizontal-rule' as const, label: 'Aynı seviyede', color: colors.onSurfaceVariant, background: colors.surfaceContainerHighest };
+    return { icon: 'horizontal-rule' as const, label: 'Kayıtlı ödemeler geçen ayla aynı', color: colors.onSurfaceVariant, background: colors.surfaceContainerHighest };
   }
   const down = change < 0;
   const amount = formatCurrency(Money.fromMinorUnits(Math.abs(change)), currency);
   const color = down ? chartColors.decrease : colors.error;
   return {
     icon: down ? ('south-east' as const) : ('north-east' as const),
-    label: `${amount} ${down ? 'azalış' : 'artış'}`,
+    label: `Kayıtlı ödemeler geçen aya göre ${amount} ${down ? 'azaldı' : 'arttı'}`,
     color,
     background: withAlpha(color, 0.15),
   };
@@ -96,13 +96,14 @@ const styles = themedStyles(() => StyleSheet.create({
     backgroundColor: withAlpha(colors.primary, 0.12),
   },
   changeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginTop: gaps.rowLoose - 2,
+    gap: spacing.xs,
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
+    maxWidth: '100%',
     paddingHorizontal: spacing.sm - spacing.xxs / 2,
     paddingVertical: spacing.xxs + 1,
     borderRadius: radius.field - 4,

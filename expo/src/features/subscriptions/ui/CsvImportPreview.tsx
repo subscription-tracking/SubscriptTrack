@@ -4,6 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { colors, spacing, sizes } from '../../../shared/design/tokens';
 import { textStyle, textButtonText } from '../../../shared/design/typography';
 import { PrimaryButton } from '../../../shared/widgets/PrimaryButton';
+import { formatCurrency } from '../../../core/format/money';
 import { ScreenBottomInset } from '../../../shared/widgets/ScreenBottomInset';
 import type { ParseResult } from '../domain/csvImportParser';
 import { statusFallbackCounts } from '../domain/csvStatusPreview';
@@ -25,7 +26,7 @@ export function CsvImportPreview({ parsed, busy, online, onPick, onImport }: { p
             ))}
             {parsed.errors.length > 0 ? (
               <View style={styles.errors}>
-                <Text style={textStyle('bodySmall', { color: colors.error })}>{`${parsed.errors.length} satır aktarılmadı`}</Text>
+                <Text accessibilityRole="header" style={textStyle('bodySmall', { color: colors.error })}>{`${parsed.errors.length} hatalı satır içe aktarılmayacak`}</Text>
                 {parsed.errors.map((line) => (
                   <Text key={line} style={textStyle('caption')}>
                     {line}
@@ -38,7 +39,7 @@ export function CsvImportPreview({ parsed, busy, online, onPick, onImport }: { p
               <View key={`${index}-${row.name}`} style={styles.row}>
                 <Text style={textStyle('body')}>{row.name}</Text>
                 <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
-                  {`${row.amount.amount} ${row.currency} · ${BILLING_CYCLE_LABELS[row.billingCycle]} · ${STATUS_LABELS[row.status]}`}
+                  {`${formatCurrency(row.amount, row.currency)} · ${BILLING_CYCLE_LABELS[row.billingCycle]} · ${STATUS_LABELS[row.status]}`}
                 </Text>
               </View>
             ))}

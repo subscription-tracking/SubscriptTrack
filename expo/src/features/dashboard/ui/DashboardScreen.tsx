@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
-import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCivilToday } from '../../../core/clock/useCivilToday';
@@ -10,6 +11,10 @@ import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
 import { Spacer } from '../../../shared/widgets/Spacer';
+import { TonalButton } from '../../../shared/widgets/TonalButton';
+import { textStyle } from '../../../shared/design/typography';
+import { formatLongDate } from '../../../core/format/date';
+import { weekdayName } from '../domain/dayLabel';
 import { useAuth } from '../../auth/AuthProvider';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { usePaymentsQuery } from '../../stats/data/queries';
@@ -54,11 +59,13 @@ export function DashboardScreen() {
           subscriptions={subscriptions}
           payments={payments.data ?? []}
           paymentsUnavailable={payments.data === undefined}
+          paymentsLoading={payments.data === undefined && (payments.isPending || payments.isRefetching)}
+          onRetryPayments={() => void payments.refetch()}
           today={today}
           timeZone={timeZone}
           bottomInset={sizes.bottomNavHeight + insets.bottom + spacing.xl}
-          refreshing={query.isRefetching}
-          onRefresh={() => void query.refetch()}
+          refreshing={query.isRefetching || payments.isRefetching}
+          onRefresh={() => { void Promise.all([query.refetch(), payments.refetch()]); }}
         />
       )}
     </AsyncStateView>
@@ -69,6 +76,8 @@ function Summary({
   subscriptions,
   payments,
   paymentsUnavailable,
+  paymentsLoading,
+  onRetryPayments,
   today,
   timeZone,
   bottomInset,
@@ -78,6 +87,8 @@ function Summary({
   subscriptions: Subscription[];
   payments: PaymentEvent[];
   paymentsUnavailable: boolean;
+  paymentsLoading: boolean;
+  onRetryPayments: () => void;
   today: CivilDate;
   timeZone: string;
   bottomInset: number;
@@ -91,23 +102,34 @@ function Summary({
   const summaries = monthPaymentSummary(active, payments, today, new Date(), timeZone, currency);
   const attention = attentionItems(subscriptions, today);
   const upcoming = upcomingByDay(subscriptions, today, 14);
+  const later = upcomingByDay(subscriptions, today, Number.MAX_SAFE_INTEGER).filter((day) => day.dayOffset > 14);
 
   const toSubscriptions = () => router.navigate('/subscriptions');
   const toStats = () => router.navigate('/stats');
   const toAdd = () => router.push('/subscriptions/add');
   const openSubscription = (id: string) => router.push(`/subscriptions/${id}`);
-  const showEmptyState = active.length === 0 && summaries.length === 0;
+  const showEmptyState = active.length === 0 && summaries.length === 0 && !paymentsUnavailable;
 
   return (
     <ScrollView
       style={styles.screen}
       contentContainerStyle={[
         styles.content,
-        showEmptyState ? styles.emptyContent : { paddingBottom: bottomInset },
+        showEmptyState && styles.emptyContent,
+        { paddingBottom: bottomInset },
       ]}
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
+      <View style={styles.heading}>
+        <View style={styles.headingText}>
+          <Text style={textStyle('headline')}><Text>Subscript</Text><Text style={{ color: colors.primary }}>Track</Text></Text>
+          <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${formatLongDate(today).replace(` ${today.year}`, '')} ${weekdayName(today)}`}</Text>
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Bildirimleri aç" onPress={() => router.push('/notifications')} style={styles.headerAction}>
+          <MaterialIcons name="notifications-none" size={24} color={colors.onSurfaceVariant} />
+        </Pressable>
+      </View>
       {showEmptyState ? (
         <EmptyStateLayout>
           <EmptyState
@@ -120,7 +142,7 @@ function Summary({
         </EmptyStateLayout>
       ) : (
         <>
-          <HeroCard summaries={summaries} fallbackCurrency={currency} unavailable={paymentsUnavailable} onPress={toStats} />
+          <HeroCard summaries={summaries} fallbackCurrency={currency} unavailable={paymentsUnavailable} loading={paymentsLoading} onPress={toStats} onRetry={onRetryPayments} />
           {attention.length > 0 ? (
             <>
               <Spacer size={gaps.sectionTop} />
@@ -130,6 +152,7 @@ function Summary({
           <Spacer size={gaps.sectionTop} />
           <UpcomingTimeline
             days={upcoming}
+            later={later}
             onOpen={openSubscription}
             onCalendar={() => router.push('/calendar')}
             onAll={toSubscriptions}
@@ -141,6 +164,11 @@ function Summary({
               <CategoryBarCard totals={categoryTotals(active)} onPress={toStats} />
             </>
           ) : null}
+          <Spacer size={gaps.sectionTop} />
+          <TonalButton label="Abonelik ekle" onPress={toAdd} />
+          <Pressable accessibilityRole="button" accessibilityLabel="Takvimi aç" onPress={() => router.push('/calendar')} style={styles.calendarAction}>
+            <MaterialIcons name="calendar-today" size={22} color={colors.onSurfaceVariant} /><Text style={textStyle('bodyStrong')}>Takvimi aç</Text>
+          </Pressable>
         </>
       )}
     </ScrollView>
@@ -152,6 +180,10 @@ const styles = themedStyles(() => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
+  headingText: { flex: 1 },
+  headerAction: { minWidth: sizes.minTouchTarget, minHeight: sizes.minTouchTarget, alignItems: 'center', justifyContent: 'center' },
+  calendarAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, minHeight: sizes.minTouchTarget, marginTop: spacing.sm },
   content: {
     flexGrow: 1,
     paddingTop: spacing.md,
@@ -161,6 +193,5 @@ const styles = themedStyles(() => StyleSheet.create({
     flexGrow: 1,
     paddingTop: spacing.none,
     paddingHorizontal: spacing.none,
-    paddingBottom: spacing.none,
   },
 }));

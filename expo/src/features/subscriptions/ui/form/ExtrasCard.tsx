@@ -41,14 +41,14 @@ export function ExtrasCard({
           label="Kategori"
           value={CATEGORY_LABELS[values.category]}
           accessibilityHint="Kategoriyi değiştirmek için dokun"
-          onPress={() => setCategoryOpen(true)}
+          onPress={disabled ? undefined : () => setCategoryOpen(true)}
         />
         <View>
           <ListRow
             label="Ödeme yöntemi"
             value={paymentText || 'Belirtilmedi'}
             accessibilityHint="Ödeme yöntemini yazmak için dokun"
-            onPress={() => setPaymentOpen((open) => !open)}
+            onPress={disabled ? undefined : () => setPaymentOpen((open) => !open)}
           />
           {showPayment ? (
             <View style={styles.inline}>
@@ -86,6 +86,7 @@ export function ExtrasCard({
                 value={values.trialEndDate}
                 fallback={today}
                 error={errors.trialEndDate}
+                disabled={disabled}
                 onChange={(next) => onChange('trialEndDate', next)}
               />
               <TextField
@@ -101,7 +102,7 @@ export function ExtrasCard({
         </View>
       </GroupedList>
       <ActionSheet
-        visible={categoryOpen}
+        visible={categoryOpen && !disabled}
         title="Kategori"
         onClose={() => setCategoryOpen(false)}
         items={SUBSCRIPTION_CATEGORIES.map((category) => ({

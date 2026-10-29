@@ -50,6 +50,6 @@ describe('SubscriptionTile gecikmiş vade', () => {
 
     expect(screen.getByText('3 gün gecikti · 6 Eki')).toBeTruthy();
     const note = screen.getByText('Sonraki döngü (tahmini): 6 Kasım 2026');
-    expect(note.props.numberOfLines).toBe(1);
+    expect(note.props.numberOfLines).toBeUndefined();
   });
 });

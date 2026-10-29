@@ -181,6 +181,7 @@ export function SubscriptionFormScreen({ editing, initialStart }: { editing?: Su
             errors={errors}
             today={today}
             scheduleMode={scheduleMode}
+            disabled={busy}
             onChange={update}
             onAutomatic={() => {
               setScheduleMode('automatic');

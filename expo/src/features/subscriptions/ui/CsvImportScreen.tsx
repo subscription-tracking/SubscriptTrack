@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { colors, sizes } from '../../../shared/design/tokens';
 import { textButtonText } from '../../../shared/design/typography';
@@ -21,7 +21,7 @@ export function CsvImportScreen() {
       <ScreenTopBar title="CSV içe aktar" />
       <View style={styles.body}>
         {parsed === null ? (
-          <View style={styles.start}>
+          <ScrollView contentContainerStyle={styles.start}>
             <CsvImportSteps />
             <PrimaryButton label="CSV dosyası seç" icon="upload-file" tall={false} onPress={() => void pick()} />
             <View style={styles.gapSmall} />
@@ -29,7 +29,7 @@ export function CsvImportScreen() {
               <MaterialIcons name="description" size={sizes.linkIcon} color={colors.primary} />
               <Text style={[textButtonText, styles.textButtonLabel]}>Örnek format nasıl olmalı?</Text>
             </Pressable>
-          </View>
+          </ScrollView>
         ) : (
           <CsvImportPreview parsed={parsed} busy={busy} online={online} onPick={pick} onImport={runImport} />
         )}

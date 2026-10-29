@@ -40,7 +40,7 @@ export function InsightsCard({
             <Text style={textStyle('heading', { color: colors.primary })}>{highest.name.length > 0 ? highest.name[0].toUpperCase() : '?'}</Text>
           </View>
           <View style={styles.highestText}>
-            <Text style={textStyle('label')} numberOfLines={1}>{`En yüksek gider: ${highest.name}`}</Text>
+            <Text style={textStyle('label')}>{`En yüksek tahmini gider: ${highest.name}`}</Text>
             <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>{`Aylık toplamın %${sharePct} kadarını oluşturuyor.`}</Text>
           </View>
           <Text style={textStyle('label', { marginLeft: spacing.xs })}>{formatCurrency(monthlyEquivalent(highest), currency)}</Text>
@@ -51,7 +51,7 @@ export function InsightsCard({
           <MaterialIcons name="warning-amber" size={sizes.warningIcon} color={chartColors.amber} />
           <View style={styles.bannerText}>
             <Text style={textStyle('label')}>{`${dueSoon.length} abonelik 7 gün içinde yenilenecek`}</Text>
-            <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })} numberOfLines={1}>
+            <Text style={textStyle('caption', { marginTop: spacing.xxs / 2 })}>
               {dueSoon.map((subscription) => subscription.name).join(', ')}
             </Text>
           </View>
@@ -103,7 +103,7 @@ const styles = themedStyles(() => StyleSheet.create({
     marginLeft: gaps.sectionInner,
   },
   review: {
-    minHeight: sizes.minTouchTarget - spacing.xs,
+    minHeight: sizes.minTouchTarget,
     marginLeft: spacing.xs,
     paddingHorizontal: gaps.sectionInner - 2 + spacing.xxs / 2,
     justifyContent: 'center',

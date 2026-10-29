@@ -4,7 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { formatCurrency } from '../../../core/format/money';
 import { formatMonthYear } from '../../../core/format/date';
 import { dayNumber, type CivilDate } from '../../../core/time/calendar';
-import { colors, sizes } from '../../../shared/design/tokens';
+import { colors, sizes, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { CalendarDayCell } from './CalendarDayCell';
 import type { useCalendarMonth } from './useCalendarMonth';
@@ -92,7 +92,7 @@ export function CalendarLegend() {
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Yenileme</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDiamond, { backgroundColor: colors.tertiary }]} />
+          <View style={[styles.legendDiamond, { backgroundColor: statusColors.trial }]} />
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Deneme bitişi</Text>
         </View>
         <View style={styles.legendItem}>

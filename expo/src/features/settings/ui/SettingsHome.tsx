@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNotifyPrefs } from '../../notifications/data/notificationPrefs';
 import { resetOnboardingDone } from '../../onboarding/data/onboardingFlag';
-import { borderWidth, colors, gaps, radius, sizes, spacing } from '../../../shared/design/tokens';
+import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { fetchPaymentMethods } from '../data/paymentMethodsRepository';
@@ -75,8 +75,8 @@ export function SettingsHome() {
     ]);
   }
 
-  const notificationsValue = prefs.data?.enabled === false ? 'Kapalı' : 'Açık';
-  const methodCount = methods.data?.length ?? 0;
+  const notificationsValue = prefs.data === undefined ? (prefs.isError ? 'Yüklenemedi' : 'Yükleniyor') : prefs.data.enabled ? 'Açık' : 'Kapalı';
+  const methodsValue = methods.data === undefined ? (methods.isError ? 'Yüklenemedi' : 'Yükleniyor') : `${methods.data.length} yöntem`;
 
   return (
     <ScrollView
@@ -98,7 +98,7 @@ export function SettingsHome() {
         <SettingsTile
           icon="label-outline"
           label="Ödeme yöntemleri"
-          value={`${methodCount} yöntem`}
+          value={methodsValue}
           onPress={() => router.push('/settings/payment-methods')}
         />
         <SettingsTile icon="dark-mode" label="Tema" value={themeValue} onPress={() => router.push('/settings/appearance')} />
@@ -164,10 +164,7 @@ const styles = themedStyles(() => StyleSheet.create({
   group: {
     marginHorizontal: spacing.lg,
     overflow: 'hidden',
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceHigh,
+    backgroundColor: colors.background,
   },
   signOutGap: {
     height: gaps.sectionTop - 4,

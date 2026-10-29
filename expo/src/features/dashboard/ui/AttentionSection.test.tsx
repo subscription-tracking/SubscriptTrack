@@ -77,7 +77,8 @@ it('işlem sürerken yalnız o satırın düğmesi pasif olur', () => {
   mockPending = { isPending: true, variables: { id: 'a' } };
   render(<AttentionSection items={itemsFor([row('a', '2026-10-10'), row('b', '2026-10-11')])} today={today} onOpen={jest.fn()} onMore={jest.fn()} />);
 
-  const [first, second] = screen.getAllByRole('button', { name: 'Ödendi' });
+  const first = screen.getByRole('button', { name: 'İşleniyor' });
+  const second = screen.getByRole('button', { name: 'Ödendi' });
   expect(first.props.accessibilityState.disabled).toBe(true);
   expect(second.props.accessibilityState.disabled).toBe(false);
 });

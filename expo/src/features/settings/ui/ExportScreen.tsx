@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Clipboard from 'expo-clipboard';
@@ -48,43 +48,53 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
   useThemeRevision();
   const timeZone = useUserTimeZone();
   const snackbar = useSnackbar();
-  const [busy, setBusy] = useState(false);
+  const [activeAction, setActiveAction] = useState<'file' | 'cloud' | 'copy' | null>(null);
+  const actionInFlight = useRef(false);
+  const busy = activeAction !== null;
   const total = subscriptions.length;
 
   /** Bulut dışa aktarma: CSV bulutta üretilir, 1 saat geçerli bağlantı paylaşılır. */
   async function cloudShare() {
-    setBusy(true);
+    if (actionInFlight.current) return;
+    actionInFlight.current = true;
+    setActiveAction('cloud');
     try {
       const { downloadUrl } = await requestCloudExport();
       await Share.share({ message: downloadUrl, title: 'SubscriptTrack dışa aktarma' });
     } catch (error) {
       snackbar.show(error instanceof Error ? error.message : 'Dışa aktarılamadı.', 'error');
     } finally {
-      setBusy(false);
+      actionInFlight.current = false;
+      setActiveAction(null);
     }
   }
 
   async function copy() {
-    if (total === 0) return;
-    setBusy(true);
+    if (total === 0 || actionInFlight.current) return;
+    actionInFlight.current = true;
+    setActiveAction('copy');
     try {
       await Clipboard.setStringAsync(buildSubscriptionCsv(subscriptions));
       snackbar.show('CSV panoya kopyalandı.', 'primary');
     } catch {
       snackbar.show('Panoya kopyalanamadı.', 'error');
     } finally {
-      setBusy(false);
+      actionInFlight.current = false;
+      setActiveAction(null);
     }
   }
 
   async function share() {
-    setBusy(true);
+    if (total === 0 || actionInFlight.current) return;
+    actionInFlight.current = true;
+    setActiveAction('file');
     try {
       await shareCsvFile(buildSubscriptionCsv(subscriptions), timeZone);
     } catch (error) {
       snackbar.show(error instanceof Error ? error.message : 'Dışa aktarılamadı.', 'error');
     } finally {
-      setBusy(false);
+      actionInFlight.current = false;
+      setActiveAction(null);
     }
   }
 
@@ -102,7 +112,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
 
       <View style={styles.gap} />
       <SettingsPanel style={styles.actionCard}>
-      <PrimaryButton label="Dosya olarak paylaş" loading={busy} disabled={total === 0} onPress={() => void share()} />
+      <PrimaryButton label="Dosya olarak paylaş" loading={activeAction === 'file'} disabled={busy || total === 0} onPress={() => void share()} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         Nasıl çalışır: Dosya cihazında oluşturulur, sunucuya yüklenmez.
       </Text>
@@ -110,7 +120,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
 
       <View style={styles.gap} />
       <SettingsPanel style={styles.actionCard}>
-      <TonalButton label="Bulut bağlantısı oluştur" disabled={busy} onPress={() => void cloudShare()} />
+      <TonalButton label={activeAction === 'cloud' ? 'Bağlantı hazırlanıyor' : 'Bulut bağlantısı oluştur'} disabled={busy} onPress={() => void cloudShare()} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         Nasıl çalışır: Dosya sunucuya yüklenir ve 1 saat geçerli bir bağlantıyla paylaşılır.
       </Text>
@@ -118,7 +128,7 @@ function ExportBody({ subscriptions }: { subscriptions: Subscription[] }) {
 
       <View style={styles.gap} />
       <SettingsPanel style={styles.actionCard}>
-      <TonalButton label="Panoya kopyala" disabled={busy || total === 0} onPress={() => void copy()} />
+      <TonalButton label={activeAction === 'copy' ? 'Panoya kopyalanıyor' : 'Panoya kopyala'} disabled={busy || total === 0} onPress={() => void copy()} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
         Nasıl çalışır: CSV metni yalnızca bu cihazın panosuna kopyalanır, sunucuya yüklenmez.
       </Text>

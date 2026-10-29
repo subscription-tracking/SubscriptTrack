@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../auth/AuthProvider';
 import { colors, gaps, sizes, spacing } from '../../../shared/design/tokens';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
-import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
+import { EmptyState } from '../../../shared/widgets/EmptyState';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { activeForTotals } from '../../subscriptions/domain/activeSelectors';
 import { type Subscription } from '../../subscriptions/domain/subscription';
@@ -60,7 +60,7 @@ export function StatsScreen() {
       {(data) => {
         if (activeForTotals(data.subscriptions, today).length === 0) {
           return (
-            <EmptyStateLayout>
+            <ScrollView contentContainerStyle={[styles.emptyStage, { paddingBottom: bottomInset }]}>
               <EmptyState
                 icon="bar-chart"
                 title="Henüz analiz yok"
@@ -68,7 +68,10 @@ export function StatsScreen() {
                 actionLabel="İlk aboneliğini ekle"
                 onAction={() => router.push('/subscriptions/add')}
               />
-            </EmptyStateLayout>
+            <View style={styles.emptyActions}>
+              <ActionCards onSavings={() => router.push('/savings')} onPaymentHistory={() => router.push('/stats/payments')} />
+            </View>
+            </ScrollView>
           );
         }
         const now = new Date();
@@ -83,7 +86,7 @@ export function StatsScreen() {
         });
         if (!summary) {
           return (
-            <EmptyStateLayout>
+            <ScrollView contentContainerStyle={[styles.emptyStage, { paddingBottom: bottomInset }]}>
               <EmptyState
                 icon="bar-chart"
                 title="Bu para biriminde analiz yok"
@@ -91,7 +94,10 @@ export function StatsScreen() {
                 actionLabel="Abonelik ekle"
                 onAction={() => router.push('/subscriptions/add')}
               />
-            </EmptyStateLayout>
+            <View style={styles.emptyActions}>
+              <ActionCards onSavings={() => router.push('/savings')} onPaymentHistory={() => router.push('/stats/payments')} />
+            </View>
+            </ScrollView>
           );
         }
         return (
@@ -202,6 +208,8 @@ const styles = themedStyles(() => StyleSheet.create({
     paddingTop: spacing.md,
     paddingHorizontal: spacing.lg,
   },
+  emptyStage: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+  emptyActions: { paddingTop: spacing.md },
   gap16: {
     height: spacing.md,
   },

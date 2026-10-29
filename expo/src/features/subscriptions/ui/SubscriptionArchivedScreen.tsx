@@ -160,14 +160,16 @@ function ArchivedRow({
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'right' })}>{CATEGORY_LABELS[subscription.category]}</Text>
       </View>
       </Pressable>
+      <View style={styles.actions}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${subscription.name} aboneliğini aktif yap`} accessibilityState={{ disabled: restorePending }} disabled={restorePending} onPress={onRestore} style={[styles.restore, restorePending && styles.disabled]}>
         <MaterialIcons name="unarchive" size={sizes.iconButtonSize} color={colors.primary} />
         <Text style={textStyle('caption', { color: colors.primary })}>Geri al</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel={`${subscription.name} aboneliğini yanlış kayıt olarak sil`} accessibilityState={{ disabled: deletePending }} disabled={deletePending} onPress={onDelete} style={[styles.restore, styles.remove, deletePending && styles.disabled]}>
         <MaterialIcons name="delete-forever" size={sizes.iconButtonSize} color={colors.error} />
-        <Text style={textStyle('caption', { color: colors.error })}>Sil</Text>
+        <Text style={textStyle('caption', { color: colors.error })}>Yanlış kaydı sil</Text>
       </Pressable>
+      </View>
     </View>
   );
 }
@@ -186,7 +188,8 @@ const styles = themedStyles(() => StyleSheet.create({
     padding: spacing.md,
   },
   separator: {
-    height: spacing.xs,
+    height: borderWidth.hairline,
+    backgroundColor: colors.border,
   },
   content: {
     flex: 1,
@@ -194,16 +197,9 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: spacing.md,
-    paddingRight: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    paddingVertical: spacing.md,
   },
+  actions: { flexDirection: 'row', justifyContent: 'flex-end', flexWrap: 'wrap' },
   avatar: {
     width: sizes.archiveAvatar,
     height: sizes.archiveAvatar,
@@ -227,6 +223,9 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.medium,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
   },
   remove: {
     marginLeft: spacing.sm,

@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from 'react';
+import { Children, type ReactNode, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -29,17 +29,24 @@ export function ListRow({
   value,
   onPress,
   accessibilityHint,
+  icon,
+  stacked = false,
 }: {
   label: string;
   value: string;
   onPress?: () => void;
   accessibilityHint?: string;
+  icon?: ComponentProps<typeof MaterialIcons>['name'];
+  stacked?: boolean;
 }) {
   useThemeRevision();
   const content = (
     <View style={styles.row}>
+      {icon ? <MaterialIcons name={icon} size={sizes.tileIcon} color={colors.onSurfaceVariant} /> : null}
+      <View style={[styles.content, stacked && styles.stacked]}>
       <Text style={[textStyle('bodySmall', { color: colors.onSurfaceVariant }), styles.label]}>{label}</Text>
-      <Text style={[textStyle('bodySmall'), styles.value]} numberOfLines={1}>{value}</Text>
+      <Text style={[textStyle('bodySmall'), styles.value, stacked && styles.stackedValue]} numberOfLines={stacked ? undefined : 2}>{value}</Text>
+      </View>
       {onPress ? <MaterialIcons name="chevron-right" size={sizes.rowActionIcon} color={colors.onSurfaceVariant} /> : null}
     </View>
   );
@@ -71,9 +78,13 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
     minHeight: sizes.minTouchTarget,
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     gap: spacing.sm,
   },
   label: { flexShrink: 0 },
+  content: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  stacked: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xxs },
+  stackedValue: { textAlign: 'left', flex: 0 },
   value: { flex: 1, textAlign: 'right' },
   pressed: { opacity: 0.7 },
 }));

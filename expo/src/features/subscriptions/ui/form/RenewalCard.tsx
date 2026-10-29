@@ -29,6 +29,7 @@ export function RenewalCard({
   scheduleMode,
   onChange,
   onAutomatic,
+  disabled = false,
 }: {
   values: SubscriptionFormValues;
   errors: FormErrors;
@@ -36,6 +37,7 @@ export function RenewalCard({
   scheduleMode: 'automatic' | 'manual';
   onChange: FormChange;
   onAutomatic: () => void;
+  disabled?: boolean;
 }) {
   useThemeRevision();
   return (
@@ -46,12 +48,13 @@ export function RenewalCard({
           value={values.nextRenewalDate}
           fallback={today}
           error={errors.nextRenewalDate}
+          disabled={disabled}
           onChange={(next) => onChange('nextRenewalDate', next)}
         />
         {scheduleMode === 'automatic' ? (
           <Text style={textStyle('caption', { marginTop: spacing.xs })}>Başlangıç tarihine göre otomatik hesaplandı.</Text>
         ) : (
-          <Pressable accessibilityRole="button" accessibilityLabel="Elle seçildi, otomatik hesapla" onPress={onAutomatic} style={styles.scheduleLink}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Elle seçildi, otomatik hesapla" accessibilityState={{ disabled }} disabled={disabled} onPress={onAutomatic} style={styles.scheduleLink}>
             <Text style={textStyle('caption', { color: colors.primary })}>Elle seçildi · Otomatik hesapla</Text>
           </Pressable>
         )}
@@ -65,7 +68,8 @@ export function RenewalCard({
               <Pressable
                 key={day}
                 accessibilityRole="checkbox"
-                accessibilityState={{ checked: selected }}
+                accessibilityState={{ checked: selected, disabled }}
+                disabled={disabled}
                 onPress={() => onChange('reminderDays', toggleReminderDay(values.reminderDays, day))}
                 style={[styles.chip, selected ? styles.chipSelected : null]}
               >
@@ -94,6 +98,8 @@ const styles = themedStyles(() => StyleSheet.create({
     gap: spacing.xs,
   },
   chip: {
+    minHeight: sizes.minTouchTarget,
+    justifyContent: 'center',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: radius.choice,

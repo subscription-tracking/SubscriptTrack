@@ -18,7 +18,6 @@ import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { useUserTimeZone } from '../data/useActiveCurrency';
-import { SettingsPanel } from './SettingsControls';
 
 /** Flutter `ProfileScreen`: başlık (avatar, e-posta, üyelik tarihi), görünen ad, e-posta ve şifre değiştirme. */
 export function ProfileScreen() {
@@ -91,17 +90,17 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
 
   return (
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-      <SettingsPanel style={styles.header}>
+      <View style={styles.header}>
         <View style={styles.avatar}>
           <Text style={textStyle('headline', { color: colors.onPrimaryContainer })}>{initial}</Text>
         </View>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xs })}>{email}</Text>
         <Text style={textStyle('bodySmall', { marginTop: spacing.xxs / 2 })}>{`Üyelik tarihi: ${memberSince}`}</Text>
-      </SettingsPanel>
+      </View>
 
       <View style={styles.gap28} />
-      <SettingsPanel style={styles.formPanel}>
-      <Text style={textStyle('bodyStrong')}>İsim</Text>
+      <View>
+      <Text accessibilityRole="header" style={textStyle('bodyStrong')}>İsim</Text>
       <View style={styles.gap8} />
       <TextField label="Adın" prefixIcon="person-outline" value={name} onChangeText={setName} placeholder="Adını gir" editable={!nameSave.isPending} />
       {nameChanged ? (
@@ -110,11 +109,11 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <PrimaryButton label="Adı kaydet" tall={false} loading={nameSave.isPending} onPress={() => nameSave.mutate()} />
         </>
       ) : null}
-      </SettingsPanel>
+      </View>
 
       <View style={styles.gap28} />
-      <SettingsPanel style={styles.formPanel}>
-      <Text style={textStyle('bodyStrong')}>E-posta</Text>
+      <View>
+      <Text accessibilityRole="header" style={textStyle('bodyStrong')}>E-posta</Text>
       <View style={styles.gap8} />
       <TextField label="E-posta" prefixIcon="email" value={newEmail} onChangeText={setNewEmail} keyboardType="email-address" autoComplete="email" editable={!emailSave.isPending} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xxs })}>
@@ -126,11 +125,11 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <PrimaryButton label="E-postayı güncelle" tall={false} loading={emailSave.isPending} onPress={() => emailSave.mutate()} />
         </>
       ) : null}
-      </SettingsPanel>
+      </View>
 
       <View style={styles.gap32} />
-      <SettingsPanel style={styles.formPanel}>
-      <Text style={textStyle('bodyStrong')}>Şifre değiştir</Text>
+      <View>
+      <Text accessibilityRole="header" style={textStyle('bodyStrong')}>Şifre değiştir</Text>
       <View style={styles.gap12} />
       <PasswordField
         label="Mevcut şifre"
@@ -161,7 +160,7 @@ function ProfileBody({ email, displayName, createdAt }: { email: string; display
           <PrimaryButton label="Şifreyi güncelle" tall={false} loading={passwordSave.isPending} disabled={!passwordReady} onPress={submitPassword} />
         </>
       ) : null}
-      </SettingsPanel>
+      </View>
       <ScreenBottomInset />
     </ScrollView>
   );
@@ -176,11 +175,7 @@ const styles = themedStyles(() => StyleSheet.create({
     padding: spacing.lg,
   },
   header: {
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  formPanel: {
-    padding: spacing.md,
+    alignItems: 'flex-start',
   },
   avatar: {
     width: sizes.profileAvatar,

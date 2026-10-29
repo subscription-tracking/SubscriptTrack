@@ -49,7 +49,7 @@ export function AttentionSection({
             onPress={() => onOpen(item.subscription.id)}
             trailing={
               <TonalButton
-                label="Ödendi"
+                label={pendingId === item.subscription.id ? 'İşleniyor' : 'Ödendi'}
                 disabled={pendingId === item.subscription.id}
                 onPress={() => confirm(item.subscription)}
               />

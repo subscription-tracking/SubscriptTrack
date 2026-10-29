@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../../shared/design/themeRuntime';
@@ -39,6 +39,7 @@ export function PaymentCard({
   onRenew: () => void;
 }) {
   useThemeRevision();
+  const { width, fontScale } = useWindowDimensions();
   const note = STATUS_NOTES[subscription.status];
   if (note) {
     return (
@@ -55,7 +56,7 @@ export function PaymentCard({
   const advanced = advancedRenewalDate(subscription, today);
   return (
     <View style={styles.card}>
-      <View style={styles.row}>
+      <View style={[styles.row, (width < 360 || fontScale > 1.2) && styles.stacked]}>
         <View style={styles.text}>
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>Sonraki ödeme</Text>
           <Text style={textStyle('heading')}>{formatLongDate(subscription.nextRenewalDate)}</Text>
@@ -92,8 +93,10 @@ const styles = themedStyles(() => StyleSheet.create({
     backgroundColor: colors.surface,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  stacked: { flexDirection: 'column', alignItems: 'flex-start' },
   text: { flex: 1 },
   chip: {
+    flexShrink: 0,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
     borderRadius: radius.pill,

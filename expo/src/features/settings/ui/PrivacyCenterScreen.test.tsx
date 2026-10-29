@@ -15,7 +15,7 @@ describe('PrivacyCenterScreen', () => {
     render(<PrivacyCenterScreen />);
 
     expect(screen.getByText('Verilerin kontrolü sende')).toBeTruthy();
-    expect(screen.getByText('Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Bu bilgilere yalnızca sen erişebilirsin.')).toBeTruthy();
+    expect(screen.getByText('Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Verilerini buradan yönetebilirsin.')).toBeTruthy();
     expect(screen.getByText('Bu işlem geri alınamaz')).toBeTruthy();
   });
 

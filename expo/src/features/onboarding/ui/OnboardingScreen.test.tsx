@@ -31,6 +31,7 @@ describe('OnboardingScreen', () => {
     render(<OnboardingScreen />);
     fireEvent(screen.UNSAFE_getByType(FlatList), 'momentumScrollEnd', { nativeEvent: { contentOffset: { x: Dimensions.get('window').width * 3 } } });
     fireEvent.press(screen.getByRole('radio', { name: 'Euro, EUR' }));
+    expect(screen.getByRole('radio', { name: 'Euro, EUR', checked: true })).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'Başlayalım' }));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/login'));
     expect(mockWriteCurrency).toHaveBeenCalledWith('EUR');

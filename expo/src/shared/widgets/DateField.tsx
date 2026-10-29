@@ -23,6 +23,7 @@ export function DateField({
   error,
   fallback,
   icon,
+  disabled = false,
 }: {
   label: string;
   value: CivilDate | null;
@@ -30,6 +31,7 @@ export function DateField({
   error?: string | null;
   fallback: CivilDate;
   icon?: MaterialIconName;
+  disabled?: boolean;
 }) {
   useThemeRevision();
   const [open, setOpen] = useState(false);
@@ -37,7 +39,7 @@ export function DateField({
 
   function handleChange(event: DateTimePickerEvent, picked?: Date) {
     if (Platform.OS === 'android') setOpen(false);
-    if (event.type === 'dismissed' || !picked) return;
+    if (disabled || event.type === 'dismissed' || !picked) return;
     onChange(civilDate(picked.getFullYear(), picked.getMonth() + 1, picked.getDate()));
   }
 
@@ -46,6 +48,9 @@ export function DateField({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${label}: ${value ? formatLongDate(value) : 'seçilmedi'}`}
+        accessibilityHint={error ? `Hata: ${error}` : undefined}
+        accessibilityState={{ disabled }}
+        disabled={disabled}
         onPress={() => setOpen(true)}
         style={[styles.tile, error ? styles.tileError : null]}
       >
@@ -58,8 +63,8 @@ export function DateField({
         </View>
         <MaterialIcons name="chevron-right" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
       </Pressable>
-      {error ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xxs, marginLeft: spacing.md })}>{error}</Text> : null}
-      {open ? (
+      {error ? <Text accessibilityLiveRegion="polite" style={textStyle('caption', { color: colors.error, marginTop: spacing.xxs, marginLeft: spacing.md })}>{error}</Text> : null}
+      {open && !disabled ? (
         <DateTimePicker
           value={new Date(shown.year, shown.month - 1, shown.day)}
           mode="date"

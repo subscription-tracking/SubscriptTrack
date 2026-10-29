@@ -78,5 +78,6 @@ export const styles = themedStyles(() => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: sizes.bottomNavHeight + spacing.xl,
   },
+  selectedDate: { paddingHorizontal: spacing.lg, marginBottom: spacing.xs },
 }));
 

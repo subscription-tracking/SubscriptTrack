@@ -8,7 +8,7 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
-import { colors, sizes, spacing } from '../../../shared/design/tokens';
+import { colors, spacing } from '../../../shared/design/tokens';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { TextLink } from '../../../shared/widgets/TextLink';
 import { TonalButton } from '../../../shared/widgets/TonalButton';
@@ -84,7 +84,7 @@ function Details({
   const deletion = useDeletionAction(onBack);
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
-  const subscriptionPayments = (payments.data ?? []).filter((event) => event.subscriptionId === subscription.id);
+  const subscriptionPayments = payments.data?.filter((event) => event.subscriptionId === subscription.id);
   const [menuOpen, setMenuOpen] = useState(false);
 
   function changeWithConfirmation(to: Subscription['status']) {
@@ -109,15 +109,17 @@ function Details({
   const canHowToCancel = subscription.status === 'active' || subscription.status === 'paused';
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: sizes.bottomNavHeight + insets.bottom + spacing.xl }} showsVerticalScrollIndicator={false}>
+    <View style={[styles.screen, { paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right }]}>
+    <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: spacing.xl }} showsVerticalScrollIndicator={false}>
       <DetailHero subscription={subscription} onBack={onBack} onEdit={onEdit} onMenu={() => setMenuOpen(true)} />
       <View style={styles.body}>
         <PaymentCard subscription={subscription} today={today} busy={busy} onRenew={() => renew.mutate()} />
         <SummaryBoxes subscription={subscription} payments={subscriptionPayments} />
         <DetailInfoList subscription={subscription} onEdit={onEdit} />
-        <RecentPayments payments={subscriptionPayments} timeZone={timeZone} onSeeAll={() => router.push('/stats/payments')} />
+        <RecentPayments payments={subscriptionPayments} loading={payments.isPending} error={payments.isError} onRetry={() => void payments.refetch()} timeZone={timeZone} onSeeAll={() => router.push('/stats/payments')} />
         {canHowToCancel ? <TonalButton label="Nasıl iptal edilir?" onPress={onCancel} /> : null}
       </View>
+    </ScrollView>
       <DetailMenu
         visible={menuOpen}
         name={subscription.name}
@@ -126,7 +128,7 @@ function Details({
         onClose={() => setMenuOpen(false)}
         onAction={onMenuAction}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -137,7 +139,8 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   body: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xs,
     gap: spacing.md,
   },
+  scroll: { flex: 1 },
 }));

@@ -97,13 +97,14 @@ function SavingsBody({ subscriptions, events, today, timeZone }: { subscriptions
   const showCurrency = groups.size > 1;
   // Üst kartın saydığı üç kayıt "Tasarruf fırsatları"nda; geri kalanı "Diğer fırsatlar"da.
   const featuredIds = useMemo(() => new Set([...groups.values()].flat().map((item) => item.id)), [groups]);
-  const featured = active.filter((item) => featuredIds.has(item.id));
-  const others = active.filter((item) => !featuredIds.has(item.id));
+  const featured = [...groups.values()].flat();
+  const others = active.filter((item) => !featuredIds.has(item.id))
+    .sort((a, b) => monthlyEquivalent(b).minorUnits - monthlyEquivalent(a).minorUnits);
 
-  if (active.length === 0) {
+  if (active.length === 0 && visibleEvents.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={textStyle('body', { color: colors.onSurfaceVariant, textAlign: 'center' })}>Henüz abonelik yok.</Text>
+        <Text style={textStyle('body', { color: colors.onSurfaceVariant, textAlign: 'center' })}>{`${currency} için aktif abonelik veya tasarruf geçmişi yok.`}</Text>
       </View>
     );
   }
@@ -117,15 +118,16 @@ function SavingsBody({ subscriptions, events, today, timeZone }: { subscriptions
           <View key={currency} style={styles.topCard}>
             <Text style={textStyle('bodyStrong', { color: colors.onPrimaryContainer })}>{headline(showCurrency, currency)}</Text>
             <Text style={textStyle('heading', { color: colors.onPrimaryContainer, marginTop: spacing.sm })}>
-              {topCostSentence(items.length, formatCurrency(yearly, currency))}
+              {`Tahmini: ${topCostSentence(items.length, formatCurrency(yearly, currency))}`}
             </Text>
             <Text style={textStyle('bodySmall', { color: colors.onPrimaryContainer })}>{`${formatCurrency(monthly, currency)}/ay`}</Text>
           </View>
         );
       })}
 
-      <Text style={textStyle('bodyStrong', { marginTop: gaps.sectionInner - 2 })}>Yıllık maliyetler</Text>
-      <Text style={textStyle('caption', { marginBottom: spacing.xs })}>Aktif aboneliklerin yıllık maliyeti, en yüksekten başlayarak.</Text>
+      {active.length > 0 ? <>
+      <Text style={textStyle('bodyStrong', { marginTop: gaps.sectionInner - 2 })}>Tahmini yıllık maliyetler</Text>
+      <Text style={textStyle('caption', { marginBottom: spacing.xs })}>Mevcut tutarlar üzerinden yıllık eşdeğerler, en yüksekten başlayarak.</Text>
       {featured.map((subscription) => (
         <SavingsRow key={subscription.id} subscription={subscription} />
       ))}
@@ -137,10 +139,12 @@ function SavingsBody({ subscriptions, events, today, timeZone }: { subscriptions
           ))}
         </>
       ) : null}
+      </> : <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${currency} için aktif abonelik yok.`}</Text>}
 
       {visibleEvents.length > 0 ? (
         <>
           <Text style={textStyle('bodyStrong', { marginTop: gaps.rowLoose + spacing.xs - 2 })}>İptal ve duraklatma geçmişi</Text>
+          <Text style={textStyle('caption')}>Kaydedilen yıllık eşdeğer tutarlar; gerçekleşen tasarruf değildir.</Text>
           {visibleEvents.map((event, index) => (
             <View key={`${event.effectiveAt}-${index}`} style={styles.historyRow}>
               <MaterialIcons name="trending-down" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />

@@ -1,6 +1,6 @@
 import { useThemeRevision } from '../design/useThemeRevision';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Easing, type LayoutChangeEvent } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, type LayoutChangeEvent } from 'react-native';
 
 /**
  * Flutter `EntranceFade`: ilk çizimde 550 ms içinde solarak ve yukarı kayarak gelir.
@@ -13,15 +13,32 @@ export function EntranceFade({ children, delay = 0 }: { children: ReactNode; del
   const [height, setHeight] = useState(0);
 
   useEffect(() => {
-    const animation = Animated.timing(progress, {
-      toValue: 1,
-      duration: 550,
-      delay,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
+    let mounted = true;
+    let preferenceChanged = false;
+    let animation: Animated.CompositeAnimation | undefined;
+    const applyPreference = (reduce: boolean) => {
+      animation?.stop();
+      if (reduce) {
+        progress.setValue(1);
+      } else {
+        animation = Animated.timing(progress, {
+          toValue: 1,
+          duration: 550,
+          delay,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        });
+        animation.start();
+      }
+    };
+    const listener = AccessibilityInfo.addEventListener('reduceMotionChanged', (reduce) => {
+      preferenceChanged = true;
+      applyPreference(reduce);
     });
-    animation.start();
-    return () => animation.stop();
+    void AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+      if (mounted && !preferenceChanged) applyPreference(reduce);
+    }).catch(() => { if (mounted && !preferenceChanged) progress.setValue(1); });
+    return () => { mounted = false; listener.remove(); animation?.stop(); };
   }, [delay, progress]);
 
   const onLayout = (event: LayoutChangeEvent) => setHeight(event.nativeEvent.layout.height);

@@ -95,7 +95,7 @@ export function TrendCard({
         <Text style={textStyle('heading', { color: colors.primary })}>{formatValue(values[index])}</Text>
       </View>
 
-      {state === 'empty' ? (
+      {!hasPaymentHistory ? null : state === 'empty' ? (
         <View style={styles.empty}>
           <MaterialIcons name="bar-chart" size={sizes.emptyStateIcon} color={colors.onSurfaceVariant} />
           <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, textAlign: 'center', marginTop: spacing.xs })}>

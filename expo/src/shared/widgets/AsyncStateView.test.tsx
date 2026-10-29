@@ -21,8 +21,15 @@ describe('AsyncStateView', () => {
       </AsyncStateView>,
     );
     expect(UNSAFE_getAllByType(View).some((view) => view.props.accessibilityRole === 'alert' && view.props.accessibilityLiveRegion === 'assertive')).toBe(true);
-    fireEvent.press(screen.getByRole('button', { name: 'Tekrar dene' }));
+    const retry = screen.getByRole('button', { name: 'Tekrar dene' });
+    expect(retry.parent?.props.accessibilityRole).not.toBe('alert');
+    fireEvent.press(retry);
     expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it('boş durumdaki eylemi duyuru alanının dışında erişilebilir bırakır', () => {
+    render(<AsyncStateView state={{ status: 'empty', title: 'Boş', action: <Text accessibilityRole="button">Ekle</Text> }}>{() => null}</AsyncStateView>);
+    expect(screen.getByRole('button', { name: 'Ekle' }).parent?.props.accessibilityLiveRegion).toBeUndefined();
   });
 
   it('onRetry yoksa tekrar dene düğmesini göstermez', () => {

@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { type SubscriptionRow, subscriptionFromRow } from '../../subscriptions/domain/subscription';
 import { ExportScreen } from './ExportScreen';
 import { shareCsvFile } from '../data/exportFile';
 import { buildSubscriptionCsv } from '../domain/csvExport';
+import { requestCloudExport } from '../data/cloudExportRepository';
 
 const mockUseSubscriptionsQuery = jest.fn();
 const mockRefetch = jest.fn();
@@ -97,5 +98,18 @@ describe('ExportScreen', () => {
     expect(screen.getByText('Nasıl çalışır: Dosya cihazında oluşturulur, sunucuya yüklenmez.')).toBeTruthy();
     expect(screen.getByText('Nasıl çalışır: Dosya sunucuya yüklenir ve 1 saat geçerli bir bağlantıyla paylaşılır.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Bulut bağlantısı oluştur' })).toBeTruthy();
+  });
+
+  it('bulut işlemi sürerken ilgili düğmeyi beklemede gösterir ve diğer işlemleri engeller', async () => {
+    let rejectRequest: (error: Error) => void = () => undefined;
+    jest.mocked(requestCloudExport).mockImplementationOnce(() => new Promise((_, reject) => { rejectRequest = reject; }));
+    render(<ExportScreen />);
+    fireEvent.press(screen.getByRole('button', { name: 'Bulut bağlantısı oluştur' }));
+    expect(screen.getByRole('button', { name: 'Bağlantı hazırlanıyor' }).props.accessibilityState.disabled).toBe(true);
+    expect(screen.getByRole('button', { name: 'Dosya olarak paylaş' }).props.accessibilityState).toMatchObject({ disabled: true, busy: false });
+    fireEvent.press(screen.getByRole('button', { name: 'Dosya olarak paylaş' }));
+    expect(shareCsvFile).not.toHaveBeenCalled();
+    await act(async () => rejectRequest(new Error('Bağlantı hazırlanamadı.')));
+    expect(mockSnackbarShow).toHaveBeenCalledWith('Bağlantı hazırlanamadı.', 'error');
   });
 });

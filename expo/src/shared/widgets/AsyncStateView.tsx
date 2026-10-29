@@ -40,9 +40,11 @@ export function AsyncStateView<T>({
 
     case 'error':
       return (
-        <View style={styles.centered} accessibilityRole="alert" accessibilityLiveRegion="assertive">
-          <Text style={styles.title}>Bir sorun oluştu</Text>
-          <Text style={styles.description}>{state.message}</Text>
+        <View style={styles.centered}>
+          <View accessibilityRole="alert" accessibilityLiveRegion="assertive" style={styles.message}>
+            <Text style={styles.title}>Bir sorun oluştu</Text>
+            <Text style={styles.description}>{state.message}</Text>
+          </View>
           {state.onRetry ? (
             <Pressable
               onPress={state.onRetry}
@@ -57,9 +59,11 @@ export function AsyncStateView<T>({
 
     case 'empty':
       return (
-        <View style={styles.centered} accessibilityLiveRegion="polite">
-          <Text style={styles.title}>{state.title}</Text>
-          {state.description ? <Text style={styles.description}>{state.description}</Text> : null}
+        <View style={styles.centered}>
+          <View accessibilityLiveRegion="polite" style={styles.message}>
+            <Text style={styles.title}>{state.title}</Text>
+            {state.description ? <Text style={styles.description}>{state.description}</Text> : null}
+          </View>
           {state.action}
         </View>
       );
@@ -78,6 +82,7 @@ const styles = themedStyles(() => StyleSheet.create({
     gap: spacing.sm,
     backgroundColor: colors.background,
   },
+  message: { alignItems: 'center', gap: spacing.sm },
   title: {
     color: colors.onBackground,
     ...textStyle('bodyStrong'),

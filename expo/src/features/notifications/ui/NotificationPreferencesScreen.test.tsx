@@ -90,12 +90,21 @@ describe('NotificationPreferencesScreen', () => {
   it('gün seçimini hesaba kaydeder ve bildirimler kapatılınca zamanlanmış hatırlatmaları siler', async () => {
     render(<NotificationPreferencesScreen />);
 
+    expect(screen.getByRole('switch', { name: 'Yenileme bildirimleri' })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: '3 gün önce', checked: true })).toBeTruthy();
     fireEvent.press(screen.getByRole('radio', { name: '7 gün önce' }));
     await waitFor(() => expect(mockSave).toHaveBeenCalledWith({ enabled: true, defaultDays: 7, reminderHour: 9 }));
 
     fireEvent(screen.getByRole('switch'), 'valueChange', false);
     await waitFor(() => expect(mockSave).toHaveBeenCalledWith({ enabled: false, defaultDays: 3, reminderHour: 9 }));
     expect(mockCancelAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('gün tercihi kaydedilemediğinde hata gösterir', async () => {
+    mockSave.mockRejectedValue(new Error('Kaydedilemedi'));
+    render(<NotificationPreferencesScreen />);
+    fireEvent.press(screen.getByRole('radio', { name: '7 gün önce' }));
+    await waitFor(() => expect(mockSnackbar).toHaveBeenCalledWith('Kaydedilemedi', 'error'));
   });
 
   it('test bildirimi sonuç mesajını gösterir', async () => {

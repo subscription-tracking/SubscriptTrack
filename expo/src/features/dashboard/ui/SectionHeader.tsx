@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
-import { colors, radius, spacing } from '../../../shared/design/tokens';
+import { colors, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 
 /** Ana sayfa bölüm başlığı: solda başlık, isteğe bağlı sayı rozeti, sağda eylem bağlantısı. */
@@ -28,7 +28,7 @@ export function SectionHeader({
       ) : null}
       <View style={styles.spacer} />
       {action && onAction ? (
-        <Pressable accessibilityRole="button" onPress={onAction}>
+        <Pressable accessibilityRole="button" onPress={onAction} style={styles.action}>
           <Text style={textStyle('label', { color: colors.primary })}>{action}</Text>
         </Pressable>
       ) : null}
@@ -39,6 +39,7 @@ export function SectionHeader({
 const styles = themedStyles(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center' },
   spacer: { flex: 1 },
+  action: { minHeight: sizes.minTouchTarget, justifyContent: 'center' },
   badge: {
     marginLeft: spacing.xs,
     minWidth: spacing.lg,

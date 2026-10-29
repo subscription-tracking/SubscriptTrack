@@ -3,7 +3,7 @@ import { themedStyles } from '../../../shared/design/themeRuntime';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { formatCurrency } from '../../../core/format/money';
-import { borderWidth, colors, gaps, radius, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
 
@@ -29,15 +29,12 @@ const styles = themedStyles(() => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.xs,
-    paddingHorizontal: gaps.cardInset,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.outlineHalf,
-    backgroundColor: colors.surface,
+    paddingVertical: spacing.md,
+    borderBottomWidth: borderWidth.hairline,
+    borderBottomColor: colors.border,
   },
   texts: {
     flex: 1,
+    marginRight: spacing.sm,
   },
 }));

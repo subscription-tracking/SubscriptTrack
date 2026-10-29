@@ -66,7 +66,7 @@ export function AppearanceScreen() {
         <SectionLabel label="Tema" />
         <SettingsPanel style={styles.panel}>
           {theme.error ? <Text style={textStyle('bodySmall', { color: colors.error, padding: spacing.md })}>{theme.error}</Text> : null}
-          {(['system', 'light', 'dark'] as const).map((value, index) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: theme.preference === value }} style={[styles.row, index < 2 && styles.rowDivider]} onPress={() => { void theme.setPreference(value).catch((error: Error) => snackbar.show(error.message, 'error')); }}>
+          {(['system', 'light', 'dark'] as const).map((value, index) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ checked: theme.preference === value }} style={[styles.row, index < 2 && styles.rowDivider]} onPress={() => { void theme.setPreference(value).catch((error: Error) => snackbar.show(error.message, 'error')); }}>
             <Text style={textStyle('label', { flex: 1 })}>{value === 'system' ? 'Sistem teması' : value === 'light' ? 'Açık tema' : 'Koyu tema'}</Text>
             {theme.preference === value ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
           </Pressable>)}
@@ -79,7 +79,7 @@ export function AppearanceScreen() {
             <Pressable
               key={option.code}
               accessibilityRole="radio"
-              accessibilityState={{ selected: active }}
+              accessibilityState={{ checked: active }}
               onPress={() => choose(option.code)}
               style={[styles.row, index < CURRENCY_OPTIONS.length - 1 && styles.rowDivider]}
             >
@@ -92,13 +92,14 @@ export function AppearanceScreen() {
 
         <SectionLabel label="Saat dilimi" />
         <SettingsPanel style={styles.panel}>
-        {(['device', 'fixed'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: mode === value }} disabled={setMode.isPending} style={[styles.row, styles.rowDivider]} onPress={() => setMode.mutate(value, { onError: (error: Error) => snackbar.show(error.message, 'error') })}>
+        {(['device', 'fixed'] as const).map((value) => <Pressable key={value} accessibilityRole="radio" accessibilityState={{ checked: mode === value, disabled: setMode.isPending }} disabled={setMode.isPending} style={[styles.row, styles.rowDivider]} onPress={() => setMode.mutate(value, { onError: (error: Error) => snackbar.show(error.message, 'error') })}>
           <Text style={textStyle('label')}>{value === 'device' ? 'Cihazı izle' : 'Sabit hesap bölgesi'}</Text>
           {mode === value ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
         </Pressable>)}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Saat dilimi seç, mevcut ${timeZone}`}
+          accessibilityState={{ expanded: showTimeZones }}
           onPress={() => setShowTimeZones((visible) => !visible)}
           style={[styles.row, showTimeZones && styles.rowDivider]}
         >
@@ -113,12 +114,12 @@ export function AppearanceScreen() {
         </Pressable>
         {showTimeZones ? (
           <View>
-            <Pressable accessibilityRole="radio" accessibilityState={{ selected: timeZone === deviceTimeZone() }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(deviceTimeZone())} style={[styles.row, styles.rowDivider]}>
+            <Pressable accessibilityRole="radio" accessibilityState={{ checked: timeZone === deviceTimeZone(), disabled: setTimeZone.isPending }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(deviceTimeZone())} style={[styles.row, styles.rowDivider]}>
               <Text style={textStyle('label', { flex: 1 })}>{`Cihazın şu anki bölgesi (${deviceTimeZone()})`}</Text>
               {timeZone === deviceTimeZone() ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
             </Pressable>
             {TIME_ZONES.map(([label, zone]) => (
-              <Pressable key={zone} accessibilityRole="radio" accessibilityState={{ selected: timeZone === zone }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(zone)} style={[styles.row, styles.rowDivider]}>
+              <Pressable key={zone} accessibilityRole="radio" accessibilityState={{ checked: timeZone === zone, disabled: setTimeZone.isPending }} disabled={setTimeZone.isPending} onPress={() => chooseTimeZone(zone)} style={[styles.row, styles.rowDivider]}>
                 <Text style={textStyle('label', { flex: 1 })}>{`${label} (${zone})`}</Text>
                 {timeZone === zone ? <MaterialIcons name="check" size={sizes.checkIcon} color={colors.primary} /> : null}
               </Pressable>

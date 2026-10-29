@@ -51,6 +51,7 @@ export function MoreOptions({
             label="Başlangıç tarihi"
             value={values.startDate}
             fallback={today}
+            disabled={disabled}
             onChange={(next) => onChange('startDate', next)}
           />
           {showInitialPayment ? (
@@ -68,6 +69,7 @@ export function MoreOptions({
                   label={values.initialPaymentStatus === 'deferred' ? 'Ertelenen tarih' : 'Ödeme tarihi'}
                   value={values.initialPaymentDate}
                   fallback={today}
+                  disabled={disabled}
                   onChange={(next) => onChange('initialPaymentDate', next)}
                 />
               ) : null}

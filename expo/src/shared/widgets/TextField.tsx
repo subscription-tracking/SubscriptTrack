@@ -29,7 +29,7 @@ interface TextFieldProps extends Omit<TextInputProps, 'style'> {
  * Flutter `InputDecoration` (filled, outline) karşılığı: surfaceHigh dolgu,
  * 14 köşe, 0.5 kenarlık, odakta 1.5 primary kenarlık, etiket içeride → üstte.
  */
-export function TextField({ label, labelPlacement = 'floating', prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, placeholder, ...inputProps }: TextFieldProps) {
+export function TextField({ label, labelPlacement = 'floating', prefixIcon, prefix, suffix, error, editable = true, value, onFocus, onBlur, placeholder, accessibilityHint, ...inputProps }: TextFieldProps) {
   useThemeRevision();
   const [focused, setFocused] = useState(false);
   const above = labelPlacement === 'above';
@@ -64,6 +64,7 @@ export function TextField({ label, labelPlacement = 'floating', prefixIcon, pref
           </View> : null}
           <TextInput
             accessibilityLabel={label}
+            accessibilityHint={[error ? `Hata: ${error}` : null, accessibilityHint].filter(Boolean).join(' ') || undefined}
             accessibilityState={{ disabled: !editable }}
             placeholderTextColor={colors.onSurfaceVariant}
             autoCapitalize="none"
@@ -85,7 +86,7 @@ export function TextField({ label, labelPlacement = 'floating', prefixIcon, pref
         </View>
         {suffix ? <View style={styles.suffix}>{suffix}</View> : null}
       </View>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text accessibilityLiveRegion="polite" style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 }

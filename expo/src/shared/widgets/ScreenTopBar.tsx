@@ -21,7 +21,7 @@ export function ScreenTopBar({ title, action }: { title: string; action?: { labe
       <Pressable accessibilityRole="button" accessibilityLabel="Geri" onPress={() => router.back()} style={styles.backButton}>
         <MaterialIcons name="arrow-back" size={24} color={colors.onBackground} />
       </Pressable>
-      <Text style={[textStyle('heading'), styles.title]}>{title}</Text>
+      <Text accessibilityRole="header" style={[textStyle('heading'), styles.title]}>{title}</Text>
       {action ? (
         <Pressable accessibilityRole="button" onPress={action.onPress} style={styles.action}>
           <Text style={textStyle('label', { color: colors.primary })}>{action.label}</Text>

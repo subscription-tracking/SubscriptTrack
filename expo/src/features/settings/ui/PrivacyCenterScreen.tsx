@@ -23,7 +23,7 @@ export function PrivacyCenterScreen() {
         <SettingsPanel style={styles.card}>
           <Text style={textStyle('bodyStrong')}>Verilerin kontrolü sende</Text>
           <Text style={textStyle('bodySmall', { marginTop: spacing.sm })}>
-            Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Bu bilgilere yalnızca sen erişebilirsin.
+            Aboneliklerin ve tasarruf kayıtların hesabınla ilişkilidir. Verilerini buradan yönetebilirsin.
           </Text>
         </SettingsPanel>
         <View style={styles.gap} />
@@ -35,7 +35,11 @@ export function PrivacyCenterScreen() {
           label="Verilerimi dışa aktar"
           subtitle="CSV dosyası olarak paylaş"
           onPress={() => router.push('/settings/export')}
+          last
         />
+        </SettingsPanel>
+        <View style={styles.gap} />
+        <SettingsPanel>
         <ListRow
           icon="delete-forever"
           label="Hesabımı ve verilerimi sil"

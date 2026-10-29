@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Money } from '../../../core/domain/money';
@@ -7,7 +7,7 @@ import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
-import { ProgressBar } from '../../../shared/widgets/ProgressBar';
+import { ProgressRing } from '../../../shared/widgets/ProgressRing';
 import { type MonthPaymentSummary } from '../domain/homeSummary';
 
 function fractionPaid(summary: MonthPaymentSummary): number {
@@ -22,22 +22,33 @@ export function HeroCard({
   summaries,
   fallbackCurrency,
   unavailable = false,
+  loading = false,
   onPress,
+  onRetry,
 }: {
   summaries: readonly MonthPaymentSummary[];
   /** Hiç özet yokken sıfırın gösterileceği para birimi (aktif para birimi). */
   fallbackCurrency: string;
   unavailable?: boolean;
+  loading?: boolean;
   onPress: () => void;
+  onRetry: () => void;
 }) {
   useThemeRevision();
+  if (loading) {
+    return <View style={styles.card} accessibilityRole="progressbar" accessibilityLabel="Ödeme özeti yükleniyor" accessibilityLiveRegion="polite">
+      <ActivityIndicator color={colors.primary} />
+      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>Ödeme özeti yükleniyor</Text>
+    </View>;
+  }
   if (unavailable) {
     return (
-      <Pressable accessibilityRole="button" accessibilityLabel="Ödeme özeti kullanılamıyor, istatistikleri aç" onPress={onPress} style={styles.card}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Ödeme özeti yüklenemedi, tekrar dene" onPress={onRetry} style={styles.card}>
         <Text style={textStyle('label')}>Ödeme özeti kullanılamıyor</Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
-          Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip İstatistikler ekranından tekrar dene.
+          Ödeme geçmişi yüklenemedi. Bağlantını kontrol edip tekrar dene.
         </Text>
+        <Text style={textStyle('label', { color: colors.primary, marginTop: spacing.sm })}>Tekrar dene</Text>
       </Pressable>
     );
   }
@@ -49,30 +60,35 @@ export function HeroCard({
   };
   const others = summaries.slice(1);
   const allDone = primary.remaining.minorUnits === 0 && primary.paid.minorUnits > 0;
+  const accessibilitySummary = [
+    'Bu ayın özeti, istatistikleri aç',
+    `kalan ${formatCurrency(primary.remaining, primary.currency)}`,
+    `ödenen ${formatCurrency(primary.paid, primary.currency)}`,
+    `toplam ${formatCurrency(primary.total, primary.currency)}`,
+    ...others.map((item) => `${item.currency}, kalan ${formatCurrency(item.remaining, item.currency)}, ödenen ${formatCurrency(item.paid, item.currency)}`),
+  ].join(', ');
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Bu ayın özeti, istatistikleri aç"
+      accessibilityLabel={accessibilitySummary}
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginBottom: gaps.heroLabel })}>Bu ay kalan ödemeler</Text>
-      {allDone ? (
-        <View style={styles.doneRow}>
-          <MaterialIcons name="check-circle" size={sizes.checkIcon} color={statusColors.success} />
-          <Text style={textStyle('title', { marginLeft: spacing.xs })}>Bu ay tüm ödemeler tamam</Text>
-        </View>
-      ) : (
-        <Text style={textStyle('display')} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+      <View style={styles.heroRow}>
+        <Text style={textStyle('display', { flex: 1, flexShrink: 1 })}>
           {formatCurrency(primary.remaining, primary.currency)}
         </Text>
-      )}
-      <View style={styles.bar}>
-        <ProgressBar fraction={fractionPaid(primary)} accessibilityLabel="Bu ay ödenen oran" />
+        {primary.total.minorUnits > 0 ? <View accessible accessibilityRole="progressbar" accessibilityLabel="Bu ay ödenen oran" accessibilityValue={{ min: 0, max: 100, now: Math.round(fractionPaid(primary) * 100) }}>
+          <ProgressRing size={sizes.ringSize} progress={fractionPaid(primary)} color={colors.primary} trackColor={colors.border}>
+            <Text style={textStyle('bodyStrong')}>{`%${Math.round(fractionPaid(primary) * 100)}`}</Text>
+          </ProgressRing>
+        </View> : null}
       </View>
+      {allDone ? <View style={styles.doneRow}><MaterialIcons name="check-circle" size={sizes.checkIcon} color={statusColors.success} /><Text style={textStyle('label', { color: statusColors.success, marginLeft: spacing.xs, flexShrink: 1 })}>{others.some((item) => item.remaining.minorUnits > 0) ? `${primary.currency} ödemeleri tamam` : 'Bu ay tüm ödemeler tamam'}</Text></View> : null}
       <View style={styles.row}>
-        <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{`Ödenen ${formatCurrency(primary.paid, primary.currency)}`}</Text>
-        <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{`Toplam ${formatCurrency(primary.total, primary.currency)}`}</Text>
+        <View><Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Ödenen</Text><Text style={textStyle('numeric')}>{formatCurrency(primary.paid, primary.currency)}</Text></View>
+        <View><Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Toplam</Text><Text style={textStyle('numeric')}>{formatCurrency(primary.total, primary.currency)}</Text></View>
       </View>
       {others.map((summary) => (
         <Text key={summary.currency} style={textStyle('caption', { marginTop: gaps.hint })}>
@@ -94,6 +110,6 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   pressed: { opacity: 0.9 },
   doneRow: { flexDirection: 'row', alignItems: 'center' },
-  bar: { marginTop: gaps.rowLoose, marginBottom: gaps.heroLabel },
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  row: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: spacing.xs, marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: borderWidth.hairline, borderTopColor: colors.border },
 }));

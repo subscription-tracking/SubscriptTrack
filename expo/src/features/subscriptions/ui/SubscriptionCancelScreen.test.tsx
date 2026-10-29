@@ -65,7 +65,8 @@ describe('SubscriptionCancelScreen', () => {
 
     expect(screen.getByText('Kayıtlı bir web sitesi yok. Sağlayıcının iptal sayfasını kendin açıp ardından "İptal ettim" seçeneğini kullan.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'İptal ettim. İptal tarihini ve varsa erişim bitişini kaydet.' })).toBeTruthy();
-    fireEvent.press(screen.getByRole('button', { name: 'Durdurdum. Aboneliği duraklat; kayıt listede kalır.' }));
+    expect(screen.getByText('İptal veya duraklatma işlemini önce sağlayıcıda yap. Buradaki seçim yalnızca uygulamadaki kaydı günceller.')).toBeTruthy();
+    fireEvent.press(screen.getByRole('button', { name: 'Durdurdum. Sağlayıcıda duraklattıysan kaydın durumunu güncelle.' }));
     expect(mockMutate).toHaveBeenCalledTimes(1);
   });
 
@@ -82,7 +83,7 @@ describe('SubscriptionCancelScreen', () => {
     mockMutationPending = true;
     render(<SubscriptionCancelScreen id="subscription-1" />);
 
-    const pause = screen.getByRole('button', { name: 'Durdurdum. Aboneliği duraklat; kayıt listede kalır.' });
+    const pause = screen.getByRole('button', { name: 'Durdurdum. Sağlayıcıda duraklattıysan kaydın durumunu güncelle.' });
     expect(pause.props.accessibilityState.disabled).toBe(true);
     fireEvent.press(pause);
     expect(mockMutate).not.toHaveBeenCalled();

@@ -20,7 +20,6 @@ import { TextField } from '../../../shared/widgets/TextField';
 import { useSnackbar } from '../../../shared/widgets/AppSnackbar';
 import { DeleteAccountError, requestAccountDeletion } from '../data/accountRepository';
 import { CONFIRM_WORD, hasDeleteErrors, type DeleteAccountErrors, validateDeleteAccount } from '../domain/deleteAccountRules';
-import { SettingsPanel } from './SettingsControls';
 
 const OFFLINE_MESSAGE = 'Hesabını silmek için internet bağlantısı gerekir.';
 
@@ -83,7 +82,7 @@ export function DeleteAccountScreen() {
         </View>
 
         <View style={styles.gapLarge} />
-        <SettingsPanel style={styles.formPanel}>
+        <View>
         <Text style={textStyle('bodySmall')}>Devam etmek için şifreni gir:</Text>
         <View style={styles.gap} />
         <PasswordField
@@ -106,10 +105,10 @@ export function DeleteAccountScreen() {
         />
 
         <View style={styles.gap} />
-        <CheckboxRow checked={acknowledged} onChange={setAcknowledged}>
+        <CheckboxRow checked={acknowledged} onChange={setAcknowledged} disabled={remove.isPending} accessibilityHint={errors.acknowledged ? `Hata: ${errors.acknowledged}` : undefined}>
           <Text style={textStyle('bodySmall')}>Silinecek verileri anladım.</Text>
         </CheckboxRow>
-        {errors.acknowledged ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>{errors.acknowledged}</Text> : null}
+        {errors.acknowledged ? <Text accessibilityLiveRegion="polite" style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>{errors.acknowledged}</Text> : null}
         {!online ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xs })}>{OFFLINE_MESSAGE}</Text> : null}
 
         <View style={styles.gapLarge} />
@@ -120,7 +119,7 @@ export function DeleteAccountScreen() {
           disabled={!online}
           onPress={submit}
         />
-        </SettingsPanel>
+        </View>
         <ScreenBottomInset />
       </ScrollView>
     </KeyboardScreen>
@@ -143,9 +142,6 @@ const styles = themedStyles(() => StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: withAlpha(colors.error, 0.4),
     backgroundColor: colors.errorContainer,
-  },
-  formPanel: {
-    padding: spacing.md,
   },
   gap: {
     height: spacing.xs,

@@ -1,7 +1,7 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useEffect, useState } from 'react';
-import { AppState, Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { AppState, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -95,12 +95,17 @@ function Preferences({ value }: { value: NotifyPrefs }) {
     } catch { snackbar.show('Test bildirimi planlanamadı. İzinleri kontrol edip tekrar dene.', 'error'); }
   }
 
+  async function chooseDays(days: number) {
+    try { await save({ ...value, defaultDays: days }); }
+    catch (error) { snackbar.show(error instanceof Error ? error.message : 'Tercih kaydedilemedi.', 'error'); }
+  }
+
   const selectedDays = value.defaultDays;
   const hourLabel = `${String(value.reminderHour).padStart(2, '0')}:00`;
 
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.body, { paddingBottom: insets.bottom + spacing.xl }]}>
+    <ScrollView contentContainerStyle={[styles.body, { paddingBottom: insets.bottom + spacing.xl }]}>
       <SettingsPanel style={styles.panel}>
       <View style={styles.switchRow}>
         <MaterialIcons name="notifications-none" size={sizes.tileIcon} color={colors.onSurface} />
@@ -109,6 +114,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
           <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Abonelik yenilenmeden önce bildirim al</Text>
         </View>
         <Switch
+          accessibilityLabel="Yenileme bildirimleri"
           value={value.enabled}
           disabled={requesting || unsupported}
           onValueChange={(next) => void toggleEnabled(next)}
@@ -135,8 +141,8 @@ function Preferences({ value }: { value: NotifyPrefs }) {
               <Pressable
                 key={days}
                 accessibilityRole="radio"
-                accessibilityState={{ selected }}
-                onPress={() => void save({ ...value, defaultDays: days })}
+                accessibilityState={{ checked: selected }}
+                onPress={() => void chooseDays(days)}
                 style={styles.radioRow}
               >
                 <View style={[styles.radioOuter, { borderColor: selected ? colors.primary : colors.onSurfaceVariant }]}>
@@ -163,7 +169,7 @@ function Preferences({ value }: { value: NotifyPrefs }) {
           onChange={(event, picked) => void pickHour(event, picked)}
         />
       ) : null}
-    </View>
+    </ScrollView>
   );
 }
 

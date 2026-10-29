@@ -10,10 +10,10 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
  * Flutter `CheckboxListTile` (leading, contentPadding 0) karşılığı. Kutu 18 px,
  * köşe 2, işaretliyken primary dolgu ve onPrimary onay simgesi.
  */
-export function CheckboxRow({ checked, onChange, children }: { checked: boolean; onChange: (next: boolean) => void; children: ReactNode }) {
+export function CheckboxRow({ checked, onChange, children, disabled = false, accessibilityHint }: { checked: boolean; onChange: (next: boolean) => void; children: ReactNode; disabled?: boolean; accessibilityHint?: string }) {
   useThemeRevision();
   return (
-    <Pressable accessibilityRole="checkbox" accessibilityState={{ checked }} onPress={() => onChange(!checked)} style={styles.row}>
+    <Pressable accessibilityRole="checkbox" accessibilityState={{ checked, disabled }} accessibilityHint={accessibilityHint} disabled={disabled} onPress={() => onChange(!checked)} style={styles.row}>
       <View style={[styles.box, checked && styles.boxChecked]}>
         {checked ? <MaterialIcons name="check" size={16} color={colors.onPrimary} /> : null}
       </View>

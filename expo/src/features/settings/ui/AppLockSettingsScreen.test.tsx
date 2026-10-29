@@ -32,6 +32,7 @@ describe('AppLockSettingsScreen', () => {
 
     fireEvent.press(screen.getByRole('button', { name: 'PIN’i etkinleştir' }));
     expect(screen.getByText('PIN 4–8 rakam olmalı')).toBeTruthy();
+    expect(screen.getByLabelText('Yeni PIN').props.accessibilityHint).toContain('PIN 4–8 rakam olmalı');
     expect(mockMutate).not.toHaveBeenCalled();
 
     fireEvent.changeText(screen.getByLabelText('Yeni PIN'), '1234');
@@ -51,6 +52,7 @@ describe('AppLockSettingsScreen', () => {
 
     fireEvent.press(getByRole('button', { name: 'PIN’i değiştir' }));
     expect(screen.getByText('Mevcut PIN’ini gir')).toBeTruthy();
+    expect(screen.getByLabelText('Mevcut PIN').props.accessibilityHint).toContain('Mevcut PIN’ini gir');
     expect(mockMutate).not.toHaveBeenCalled();
 
     fireEvent.changeText(screen.getByLabelText('Mevcut PIN'), '1234');
@@ -74,7 +76,9 @@ describe('AppLockSettingsScreen', () => {
     mockLock.enabled = true;
 
     render(<AppLockSettingsScreen />);
-    expect(screen.getByRole('radio', { name: '1 dakika sonra' }).props.accessibilityState.selected).toBe(true);
+    expect(screen.getByRole('radio', { name: '1 dakika sonra', checked: true })).toBeTruthy();
+    expect(screen.getByRole('switch', { name: 'PIN kilidi' })).toBeTruthy();
+    expect(screen.getByRole('switch', { name: 'Biyometrik kilit açma' })).toBeTruthy();
     fireEvent.press(screen.getByRole('radio', { name: '5 dakika sonra' }));
 
     expect(mockMutate).toHaveBeenCalledWith(5);

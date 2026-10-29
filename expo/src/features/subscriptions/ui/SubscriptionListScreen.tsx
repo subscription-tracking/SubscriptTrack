@@ -81,7 +81,7 @@ export function SubscriptionListScreen() {
   const [selected, setSelected] = useState<string[] | null>(null);
   const deletion = useDeletionAction(() => setSelected(null));
   const everything: Subscription[] = useMemo(() => query.data ?? [], [query.data]);
-  // Aktif para birimi dışındaki kayıtlar listelenmez; sayıları aşağıda not olarak belirtilir.
+  // Tüm para birimleri listelenir; filtre yalnız kullanıcının seçimiyle uygulanır.
   const all: Subscription[] = everything;
   const counts = useMemo(() => countsByTab(all), [all]);
   // Arşiv ekranı tüm para birimlerini gösterir; bağlantı etkin para birimine göre gizlenmemeli.
@@ -138,7 +138,7 @@ export function SubscriptionListScreen() {
       return (
       <View>
         {selected !== null ? (
-          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected.includes(row.id) }} accessibilityLabel={`${row.name} seç`} onPress={() => toggleSelected(row.id)}>
+          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected.includes(row.id) }} accessibilityLabel={`${row.name} seç`} onPress={() => toggleSelected(row.id)} style={styles.selection}>
             <Text style={textStyle('bodyStrong')}>{selected.includes(row.id) ? '☑ Seçili' : '□ Seç'}</Text>
           </Pressable>
         ) : null}
@@ -297,6 +297,7 @@ const styles = themedStyles(() => StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   separator: {
-    height: spacing.xs,
+    height: spacing.none,
   },
+  selection: { minHeight: sizes.minTouchTarget, justifyContent: 'center', paddingHorizontal: spacing.xs },
 }));

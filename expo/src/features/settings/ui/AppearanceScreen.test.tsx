@@ -28,8 +28,8 @@ describe('AppearanceScreen', () => {
   it('seçili para birimini erişilebilir işaretler ve farklı seçimde tercihi günceller', () => {
     render(<AppearanceScreen />);
 
-    expect(screen.getByRole('radio', { name: 'Türk Lirası (TRY)' }).props.accessibilityState.selected).toBe(true);
-    expect(screen.getByRole('radio', { name: 'ABD Doları (USD)' }).props.accessibilityState.selected).toBe(false);
+    expect(screen.getByRole('radio', { name: 'Türk Lirası (TRY)', checked: true })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: 'ABD Doları (USD)', checked: false })).toBeTruthy();
     fireEvent.press(screen.getByRole('radio', { name: 'ABD Doları (USD)' }));
 
     expect(mockSetCurrency).toHaveBeenCalledWith('USD');
@@ -38,8 +38,11 @@ describe('AppearanceScreen', () => {
   it('IANA saat dilimi seçicisini açar ve seçimi kaydetme mutasyonuna iletir', () => {
     render(<AppearanceScreen />);
 
-    fireEvent.press(screen.getByRole('button', { name: 'Saat dilimi seç, mevcut Europe/Istanbul' }));
-    expect(screen.getByRole('radio', { name: 'Türkiye (Europe/Istanbul)' }).props.accessibilityState.selected).toBe(true);
+    const toggle = screen.getByRole('button', { name: 'Saat dilimi seç, mevcut Europe/Istanbul' });
+    expect(toggle.props.accessibilityState.expanded).toBe(false);
+    fireEvent.press(toggle);
+    expect(screen.getByRole('button', { name: 'Saat dilimi seç, mevcut Europe/Istanbul' }).props.accessibilityState.expanded).toBe(true);
+    expect(screen.getByRole('radio', { name: 'Türkiye (Europe/Istanbul)', checked: true })).toBeTruthy();
     fireEvent.press(screen.getByRole('radio', { name: 'New York (America/New_York)' }));
 
     expect(mockSetTimeZone).toHaveBeenCalledWith('America/New_York', expect.objectContaining({ onSuccess: expect.any(Function), onError: expect.any(Function) }));

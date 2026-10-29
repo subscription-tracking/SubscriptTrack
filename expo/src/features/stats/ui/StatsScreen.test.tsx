@@ -64,6 +64,10 @@ describe('StatsScreen', () => {
     expect(screen.getByText('Henüz analiz yok')).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'İlk aboneliğini ekle' }));
     expect(mockPush).toHaveBeenCalledWith('/subscriptions/add');
+    fireEvent.press(screen.getByRole('button', { name: 'Ödeme geçmişi' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Tasarruf' }));
+    expect(mockPush).toHaveBeenCalledWith('/stats/payments');
+    expect(mockPush).toHaveBeenCalledWith('/savings');
   });
 
   it('analiz kartlarından tasarruf ve ödeme geçmişine gider', () => {

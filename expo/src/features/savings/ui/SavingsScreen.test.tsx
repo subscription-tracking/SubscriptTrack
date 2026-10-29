@@ -84,15 +84,16 @@ describe('SavingsScreen', () => {
 
     render(<SavingsScreen />);
 
-    expect(screen.getByText('Henüz abonelik yok.')).toBeTruthy();
+    expect(screen.getByText('TRY için aktif abonelik yok.')).toBeTruthy();
+    expect(screen.getByText('Duraklatıldı · 10 Ekim 2026')).toBeTruthy();
   });
 
   it('aktif TRY kayıtlarından en yüksek üç yıllık fırsatı ve aynı para biriminin geçmişini gösterir', () => {
     render(<SavingsScreen />);
 
     expect(screen.getByText('En yüksek yıllık maliyetler')).toBeTruthy();
-    expect(screen.getByText('İlk 3 abonelik yılda ₺1.080,00 tutuyor.')).toBeTruthy();
-    expect(screen.getByText('Yıllık maliyetler')).toBeTruthy();
+    expect(screen.getByText('Tahmini: İlk 3 abonelik yılda ₺1.080,00 tutuyor.')).toBeTruthy();
+    expect(screen.getByText('Tahmini yıllık maliyetler')).toBeTruthy();
     expect(screen.queryByText('Olası yıllık tasarruf')).toBeNull();
     expect(screen.getByText('Fourth Service')).toBeTruthy();
     expect(screen.getByText('Diğer abonelikler')).toBeTruthy();
@@ -101,5 +102,12 @@ describe('SavingsScreen', () => {
     expect(screen.getByText('Duraklatıldı · 10 Ekim 2026')).toBeTruthy();
     expect(screen.queryByText('USD Service')).toBeNull();
     expect(screen.queryByText(/İptal edildi/)).toBeNull();
+  });
+
+  it('seçili para biriminde hem aktif abonelik hem geçmiş yoksa kapsamı belirten boş durum gösterir', () => {
+    mockUseSubscriptionsQuery.mockReturnValue({ data: [sampleSubscriptions[4]], isPending: false, isError: false });
+    mockUseSavingsQuery.mockReturnValue({ data: [], isPending: false, isError: false });
+    render(<SavingsScreen />);
+    expect(screen.getByText('TRY için aktif abonelik veya tasarruf geçmişi yok.')).toBeTruthy();
   });
 });

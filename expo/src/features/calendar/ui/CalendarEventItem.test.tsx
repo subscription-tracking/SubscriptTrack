@@ -25,7 +25,14 @@ describe('CalendarEventItem accessibility', () => {
   it('date, event kind, subscription and amount are in the screen reader label', () => {
     render(<CalendarEventItem subscription={subscription} date={civilDate(2026, 10, 5)} isTrial onPress={jest.fn()} />);
 
-    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, ₺129,90' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, ₺129,90' }).props.accessibilityHint).toBe('Abonelik ayrıntılarını açar.');
+    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, deneme sonrası ₺129,90' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '5 Ekim 2026, Video Plus, deneme bitişi, deneme sonrası ₺129,90' }).props.accessibilityHint).toBe('Abonelik ayrıntılarını açar.');
+  });
+
+  it('deneme sonrası ücret varsa sıfır deneme fiyatı yerine bu ücreti açıkça gösterir', () => {
+    const trial = subscriptionFromRow({ id: 'trial', name: 'Deneme', amount: '0', currency: 'TRY', billing_cycle: 'monthly', category: 'streaming', status: 'trial', start_date: '2026-10-01', next_renewal_date: '2026-10-05', payment_method: null, notes: null, website: null, trial_end_date: '2026-10-05', trial_price_after: '79.90' });
+    render(<CalendarEventItem subscription={trial} date={civilDate(2026, 10, 5)} isTrial onPress={jest.fn()} />);
+    expect(screen.getByRole('button', { name: /deneme sonrası ₺79,90/ })).toBeTruthy();
+    expect(screen.getByText('Deneme sonrası')).toBeTruthy();
   });
 });

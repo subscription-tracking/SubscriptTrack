@@ -51,6 +51,7 @@ export function AmountRow({
           <Text style={textStyle('caption')}>Tutar</Text>
           <TextInput
             accessibilityLabel="Tutar"
+            accessibilityHint={errors.amount ? `Hata: ${errors.amount}` : undefined}
             value={values.amount}
             onChangeText={(next) => onChange('amount', next)}
             keyboardType="decimal-pad"
@@ -61,7 +62,7 @@ export function AmountRow({
           />
         </View>
       </View>
-      {errors.amount ? <Text style={textStyle('caption', { color: colors.error, marginLeft: spacing.xs })}>{errors.amount}</Text> : null}
+      {errors.amount ? <Text accessibilityLiveRegion="polite" style={textStyle('caption', { color: colors.error, marginLeft: spacing.xs })}>{errors.amount}</Text> : null}
       <ActionSheet
         visible={sheetOpen}
         title="Para birimi"

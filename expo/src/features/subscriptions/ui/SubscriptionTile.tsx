@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatCurrency } from '../../../core/format/money';
 import { formatLongDate, monthShort } from '../../../core/format/date';
 import { type CivilDate } from '../../../core/time/calendar';
-import { borderWidth, colors, gaps, radius, sizes, spacing, statusColors } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, sizes, spacing, statusColors } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscription, daysUntilRenewal } from '../domain/subscription';
 import { renewalLabel } from '../domain/renewalLabel';
@@ -62,7 +62,6 @@ export const SubscriptionTile = memo(function SubscriptionTile({
 
         <View style={styles.middle}>
           <Text
-            numberOfLines={1}
             style={textStyle('label', {
               textDecorationLine: status === 'cancelled' ? 'line-through' : 'none',
             })}
@@ -88,7 +87,7 @@ export const SubscriptionTile = memo(function SubscriptionTile({
         <Trailing subscription={subscription} days={days} today={today} dueDateShort={dueDateShort} />
       </View>
       {upcoming ? (
-        <Text numberOfLines={1} style={[textStyle('caption'), styles.note]}>
+        <Text style={[textStyle('caption'), styles.note]}>
           {`Sonraki döngü (tahmini): ${formatLongDate(upcoming)}`}
         </Text>
       ) : null}
@@ -117,8 +116,6 @@ function Trailing({ subscription, days, today, dueDateShort }: { subscription: S
         {formatCurrency(subscription.amount, subscription.currency)}
       </Text>
       <Text
-        numberOfLines={1}
-        ellipsizeMode="tail"
         style={textStyle(urgent ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
       >
         {dueDateShort ? `${label} · ${dueDateShort}` : label}
@@ -129,12 +126,12 @@ function Trailing({ subscription, days, today, dueDateShort }: { subscription: S
 
 const styles = themedStyles(() => StyleSheet.create({
   card: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md - 1,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.md,
+    minHeight: sizes.minTouchTarget,
+    borderBottomWidth: borderWidth.hairline,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
   row: {
     flexDirection: 'row',
@@ -142,7 +139,7 @@ const styles = themedStyles(() => StyleSheet.create({
   },
   note: {
     marginTop: spacing.xs,
-    marginLeft: sizes.listAvatar + gaps.rowLoose - 2,
+    marginLeft: sizes.listAvatar + spacing.sm,
   },
   pressed: {
     opacity: 0.85,

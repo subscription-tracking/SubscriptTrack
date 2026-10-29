@@ -3,10 +3,10 @@ import { themedStyles } from '../../../../shared/design/themeRuntime';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { borderWidth, colors, radius, spacing } from '../../../../shared/design/tokens';
+import { borderWidth, colors, spacing } from '../../../../shared/design/tokens';
 import { textStyle } from '../../../../shared/design/typography';
 
-/** Flutter `FormSection`: 16 dolgu, 16 köşe, 0.5 dış kenarlık (outline %50). İlgili alanları gruplar. */
+/** Form alanlarını başlık ve ayırıcıyla gruplar. */
 export function FormSection({ children, title }: { children: ReactNode; title?: string }) {
   useThemeRevision();
   return (
@@ -19,11 +19,10 @@ export function FormSection({ children, title }: { children: ReactNode; title?: 
 
 const styles = themedStyles(() => StyleSheet.create({
   section: {
-    padding: spacing.md,
-    borderRadius: radius.section,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceHigh,
+    paddingVertical: spacing.md,
+    borderBottomWidth: borderWidth.hairline,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
     gap: spacing.md,
   },
 }));

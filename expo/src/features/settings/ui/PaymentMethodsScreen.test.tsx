@@ -4,12 +4,13 @@ import { PaymentMethodsScreen } from './PaymentMethodsScreen';
 
 const mockRefetch = jest.fn();
 const mockUseQuery = jest.fn();
+let mockPending = false;
 
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('@tanstack/react-query', () => ({
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
   useQueryClient: () => ({ invalidateQueries: jest.fn() }),
-  useMutation: () => ({ isPending: false, mutate: jest.fn() }),
+  useMutation: () => ({ isPending: mockPending, mutate: jest.fn() }),
 }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) }));
 jest.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ user: { id: 'test-user' } }) }));
@@ -20,6 +21,15 @@ describe('PaymentMethodsScreen', () => {
   beforeEach(() => {
     mockRefetch.mockReset();
     mockUseQuery.mockReset();
+    mockPending = false;
+  });
+
+  it('kaydetme sürerken yöntemleri değiştirme eylemlerini kapatır', () => {
+    mockPending = true;
+    mockUseQuery.mockReturnValue({ isPending: false, isError: false, data: ['Kişisel kart'], refetch: mockRefetch });
+    render(<PaymentMethodsScreen />);
+    expect(screen.getByRole('button', { name: 'Kişisel kart düzenle' }).props.accessibilityState.disabled).toBe(true);
+    expect(screen.getByRole('button', { name: 'Kişisel kart sil' }).props.accessibilityState.disabled).toBe(true);
   });
 
   it('yüklenirken erişilebilir ilerleme durumunu gösterir', () => {

@@ -68,10 +68,10 @@ const styles = themedStyles(() => StyleSheet.create({
   content: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
   },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   brandDot: { width: sizes.brandDot, height: sizes.brandDot, borderRadius: radius.pill, backgroundColor: colors.primary },
   icon: { width: spacing.huge, height: spacing.huge, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: withAlpha(colors.primary, 0.1) },
 }));

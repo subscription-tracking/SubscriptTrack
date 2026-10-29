@@ -59,18 +59,19 @@ export function CategoryBreakdownCard({ entries, total, currency }: { entries: C
                 {CATEGORY_LABELS[entry.category]}
               </Text>
               <Text style={textStyle('label')}>{formatCurrency(entry.monthly, currency)}</Text>
-              <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, width: sizes.percentWidth, textAlign: 'right', marginLeft: spacing.xs })}>
+              {entries.length > 1 && total.minorUnits > 0 ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, width: sizes.percentWidth, textAlign: 'right', marginLeft: spacing.xs })}>
                 {`%${share}`}
-              </Text>
+              </Text> : null}
             </View>
-            <View
+            {entries.length > 1 && total.minorUnits > 0 ? <View
               style={styles.track}
+              accessible
               accessibilityRole="progressbar"
               accessibilityLabel={CATEGORY_LABELS[entry.category]}
               accessibilityValue={{ min: 0, max: 100, now: share }}
             >
               <Animated.View style={[styles.fill, { width, backgroundColor: color }]} />
-            </View>
+            </View> : null}
           </View>
         );
       })}

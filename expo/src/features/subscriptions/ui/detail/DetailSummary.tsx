@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { useThemeRevision } from '../../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../../shared/design/themeRuntime';
@@ -12,13 +12,14 @@ import { annualEquivalent, BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscript
 import { enabledRuleDays, reminderSummary, totalPaid } from './detailFormat';
 
 /** İki sütunlu özet kutuları: yıllık maliyet ve şimdiye kadar ödenen toplam. */
-export function SummaryBoxes({ subscription, payments }: { subscription: Subscription; payments: readonly PaymentEvent[] }) {
+export function SummaryBoxes({ subscription, payments }: { subscription: Subscription; payments?: readonly PaymentEvent[] }) {
   useThemeRevision();
-  const paid = totalPaid(payments, subscription.currency);
+  const paid = payments ? totalPaid(payments, subscription.currency) : null;
+  const { width, fontScale } = useWindowDimensions();
   return (
-    <View style={styles.boxes}>
-      <Box title="Yıllık maliyet" value={formatCurrency(annualEquivalent(subscription), subscription.currency)} />
-      <Box title="Şimdiye kadar ödenen" value={paid ? formatAmount(paid.amount, subscription.currency) : '—'} />
+    <View style={[styles.boxes, (width < 360 || fontScale > 1.2) && styles.stacked]}>
+      <Box title="Tahmini yıllık maliyet" value={formatCurrency(annualEquivalent(subscription), subscription.currency)} />
+      <Box title="Toplam ödenen" value={paid ? formatAmount(paid.amount, subscription.currency) : '—'} />
     </View>
   );
 }
@@ -28,7 +29,7 @@ function Box({ title, value }: { title: string; value: string }) {
   return (
     <View style={styles.box} accessible accessibilityLabel={`${title}: ${value}`}>
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{title}</Text>
-      <Text style={textStyle('heading')} numberOfLines={1}>{value}</Text>
+      <Text style={textStyle('heading')}>{value}</Text>
     </View>
   );
 }
@@ -37,14 +38,18 @@ function Box({ title, value }: { title: string; value: string }) {
 export function DetailInfoList({ subscription, onEdit }: { subscription: Subscription; onEdit: () => void }) {
   useThemeRevision();
   const permission = usePermissionQuery().data;
+  const { width, fontScale } = useWindowDimensions();
+  const stacked = width < 360 || fontScale > 1.2;
+  const method = subscription.paymentMethod?.trim();
+  const paymentMethod = method?.toLocaleLowerCase('tr-TR') === 'kart' ? 'Kart' : method || 'Belirtilmedi';
   const blocked = (permission === 'denied' || permission === 'undetermined') && enabledRuleDays(subscription.notificationRules).length > 0;
   return (
     <View style={styles.info}>
       <GroupedList>
-        <ListRow label="Sıklık" value={BILLING_CYCLE_LABELS[subscription.billingCycle]} />
-        <ListRow label="Kategori" value={CATEGORY_LABELS[subscription.category]} />
-        <ListRow label="Ödeme yöntemi" value={subscription.paymentMethod ?? 'Belirtilmedi'} onPress={onEdit} />
-        <ListRow label="Hatırlatma" value={reminderSummary(subscription.notificationRules)} onPress={onEdit} />
+        <ListRow stacked={stacked} icon="repeat" label="Sıklık" value={BILLING_CYCLE_LABELS[subscription.billingCycle]} />
+        <ListRow stacked={stacked} icon="category" label="Kategori" value={CATEGORY_LABELS[subscription.category]} />
+        <ListRow stacked={stacked} icon="credit-card" label="Ödeme yöntemi" value={paymentMethod} onPress={onEdit} />
+        <ListRow stacked={stacked} icon="notifications-none" label="Hatırlatma" value={reminderSummary(subscription.notificationRules)} onPress={onEdit} />
       </GroupedList>
       {blocked ? (
         <Text style={textStyle('caption', { color: colors.error })}>
@@ -57,6 +62,7 @@ export function DetailInfoList({ subscription, onEdit }: { subscription: Subscri
 
 const styles = themedStyles(() => StyleSheet.create({
   boxes: { flexDirection: 'row', gap: spacing.sm },
+  stacked: { flexDirection: 'column' },
   box: {
     flex: 1,
     gap: spacing.xxs,

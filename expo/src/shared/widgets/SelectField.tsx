@@ -43,6 +43,8 @@ export function SelectField<T extends string>({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${label}: ${selected?.label ?? ''}`}
+        accessibilityHint={error ? `Hata: ${error}` : undefined}
+        accessibilityState={{ disabled, expanded: open }}
         disabled={disabled}
         onPress={() => setOpen(true)}
         style={[styles.field, error ? styles.fieldError : null]}
@@ -50,13 +52,13 @@ export function SelectField<T extends string>({
         {prefix ? <View style={styles.prefix}>{prefix}</View> : null}
         <View style={styles.texts}>
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>{label}</Text>
-          <Text numberOfLines={1} style={textStyle('bodyStrong')}>
+          <Text style={textStyle('bodyStrong')}>
             {selected?.label ?? ''}
           </Text>
         </View>
         <MaterialIcons name="keyboard-arrow-down" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
       </Pressable>
-      {error ? <Text style={textStyle('caption', { color: colors.error, marginTop: spacing.xxs, marginLeft: spacing.md })}>{error}</Text> : null}
+      {error ? <Text accessibilityLiveRegion="polite" style={textStyle('caption', { color: colors.error, marginTop: spacing.xxs, marginLeft: spacing.md })}>{error}</Text> : null}
 
       <LockAwareModal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <Pressable accessibilityRole="button" accessibilityLabel="Kapat" style={styles.backdrop} onPress={() => setOpen(false)} />
@@ -67,8 +69,8 @@ export function SelectField<T extends string>({
             keyExtractor={(item) => item.value}
             renderItem={({ item }) => (
               <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: item.value === value }}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: item.value === value }}
                 onPress={() => {
                   onChange(item.value);
                   setOpen(false);

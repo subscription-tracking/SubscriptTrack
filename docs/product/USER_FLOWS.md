@@ -278,17 +278,18 @@ Ana Sayfa
 
 ```text
 Detay
-→ Hero (logo, ad, tutar · kategori, durum çipi); ⋯ menüsü
+→ Koyu temaya uyumlu kompakt başlık (servis rengi logoda; ad, tutar ve kategori ayrı satırlarda); ⋯ menüsü
 → Ödeme kartı: sonraki tarih, geri sayım çipi
    → vadesi gelmişse birincil "Ödendi ve yenilendi"
-→ Özet: Yıllık maliyet · Şimdiye kadar ödenen
+→ Özet: Tahmini yıllık maliyet · Toplam ödenen
 → Ayrıntılar (Sıklık, Kategori, Ödeme yöntemi, Hatırlatma; dokununca düzenle)
-→ Son ödemeler (en çok 3) → Tümünü gör
+→ Son ödemeler (en çok 3); başlığın yanında Tümünü gör
 → "Nasıl iptal edilir?" → iptal akışı (§9)
 ⋯ menüsü (alt sayfa): Duraklat / Devam et, Arşivle, İptal ettim, Yanlış kaydı sil
 ```
 
 - Yaşam döngüsü eylemleri yalnızca ⋯ menüsündedir; sayfa sonunda eylem yığını yoktur. Yıkıcı eylem ("Yanlış kaydı sil") menünün en altında, hata renginde ve mevcut kalıcı silme/arşiv kurallarına (ADR 0006) bağlıdır; silme kullanılamıyorsa kullanıcıya "Silme şu an kullanılamıyor" mesajı gösterilir.
+- **23 Ekim detay düzenlemesi:** İçerik alt ve yatay güvenli alanların içinde kayar; sabit alt sekme yüksekliği ayrılmaz. Küçük ekran veya büyük yazıda özet, ödeme tarihi ve bilgi satırları dikey yerleşir. Ödeme sorgusunun yüklenme/hata durumları boş geçmişten ayrılır; hata için tekrar yükleme sunulur. Tahmini yıllık maliyet mevcut tutarın yıllık karşılığıdır, gerçekleşmiş ödeme değildir. [Doğrulama](../quality/subscription-detail-redesign-2026-10-23.md).
 
 ## 19. Abonelik formu ve bildirim merkezi (Expo, 13 Ekim 2026 yeniden tasarım)
 

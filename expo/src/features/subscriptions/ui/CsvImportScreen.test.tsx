@@ -69,8 +69,9 @@ describe('CsvImportScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: 'CSV dosyası seç' }));
 
     await waitFor(() => expect(screen.getByText('1 geçerli kayıt')).toBeTruthy());
-    expect(screen.getByText('1 satır aktarılmadı')).toBeTruthy();
+    expect(screen.getByText('1 hatalı satır içe aktarılmayacak')).toBeTruthy();
     expect(screen.getByText('Video Plus')).toBeTruthy();
+    expect(screen.getByText(/₺49,90/)).toBeTruthy();
     expect(screen.getByText('İçe aktarma için internet bağlantısı gerekir.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Geçerli kayıtları içe aktar' }).props.accessibilityState.disabled).toBe(true);
   });

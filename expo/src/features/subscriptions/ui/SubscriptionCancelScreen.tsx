@@ -11,7 +11,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { formatCurrency } from '../../../core/format/money';
 import { formatLongDate } from '../../../core/format/date';
 import { type CivilDate, formatCivilDate, } from '../../../core/time/calendar';
-import { borderWidth, colors, radius, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
+import { borderWidth, colors, screenGutter, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { CheckboxRow } from '../../../shared/widgets/CheckboxRow';
@@ -88,6 +88,9 @@ function Choices({ subscription }: { subscription: Subscription }) {
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
         Tahmini yıllık tasarruf: {formatCurrency(annual, subscription.currency)}
       </Text>
+      <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>
+        İptal veya duraklatma işlemini önce sağlayıcıda yap. Buradaki seçim yalnızca uygulamadaki kaydı günceller.
+      </Text>
 
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -95,7 +98,7 @@ function Choices({ subscription }: { subscription: Subscription }) {
           <Text style={textStyle('bodyStrong')}>Sağlayıcı sayfası</Text>
         </View>
         {providerUrl ? (
-          <TonalButton label="Sağlayıcı iptal sayfasını aç" onPress={() => void Linking.openURL(providerUrl)} />
+          <TonalButton label="Sağlayıcı sitesini aç" onPress={() => void Linking.openURL(providerUrl)} />
         ) : (
           <Text style={textStyle('caption', { color: colors.onSurfaceVariant })}>
             Kayıtlı bir web sitesi yok. Sağlayıcının iptal sayfasını kendin açıp ardından &quot;İptal ettim&quot; seçeneğini kullan.
@@ -108,7 +111,7 @@ function Choices({ subscription }: { subscription: Subscription }) {
         <Choice icon="cancel" label="İptal ettim" description="İptal tarihini ve varsa erişim bitişini kaydet." onPress={() => setShowForm(true)} />
       ) : null}
       {canPause ? (
-        <Choice icon="pause-circle-outline" label="Durdurdum" description="Aboneliği duraklat; kayıt listede kalır." onPress={() => pause.mutate(undefined)} disabled={pause.isPending} />
+        <Choice icon="pause-circle-outline" label="Durdurdum" description="Sağlayıcıda duraklattıysan kaydın durumunu güncelle." onPress={() => pause.mutate(undefined)} disabled={pause.isPending} />
       ) : null}
       <Choice icon="check-circle-outline" label="Kullanmaya devam et" description="Hiçbir şey değişmez." onPress={() => router.back()} />
       <ScreenBottomInset />
@@ -205,22 +208,16 @@ const styles = themedStyles(() => StyleSheet.create({
     gap: spacing.xs,
   },
   card: {
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
+    paddingVertical: spacing.md,
     gap: spacing.sm,
   },
   choice: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: radius.medium,
-    backgroundColor: colors.surface,
-    borderWidth: borderWidth.hairline,
-    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    borderBottomWidth: borderWidth.hairline,
+    borderBottomColor: colors.border,
   },
   cardHeader: {
     flexDirection: 'row',

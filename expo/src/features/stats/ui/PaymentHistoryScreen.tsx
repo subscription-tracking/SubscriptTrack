@@ -10,7 +10,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { formatCurrency } from '../../../core/format/money';
 import { formatLongDate } from '../../../core/format/date';
 import { type CivilDate, } from '../../../core/time/calendar';
-import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
@@ -94,7 +94,7 @@ function History({ payments, subscriptions, today, timeZone }: { payments: Payme
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) =>
             item.kind === 'header' ? (
-              <Text style={textStyle('captionStrong', { color: colors.onSurfaceVariant, marginTop: spacing.sm })}>{item.label}</Text>
+              <Text accessibilityRole="header" style={textStyle('captionStrong', { color: colors.onSurfaceVariant, marginTop: spacing.sm })}>{item.label}</Text>
             ) : (
               <PaymentCard
                 payment={item.payment}
@@ -149,12 +149,13 @@ function PaymentCard({
   return (
     <View style={styles.card}>
       <View style={styles.texts}>
-        <Text style={textStyle('body')} numberOfLines={1}>
+        <Text style={textStyle('bodyStrong')}>
           {name}
         </Text>
         <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{dateLabel}</Text>
       </View>
-      <Text style={textStyle('label')}>{formatCurrency(payment.amount, payment.currency)}</Text>
+      <View style={styles.actions}>
+      <Text style={textStyle('label', { flex: 1 })}>{formatCurrency(payment.amount, payment.currency)}</Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${name}, ${formatCurrency(payment.amount, payment.currency)} ödeme kaydını düzenle`}
@@ -173,6 +174,7 @@ function PaymentCard({
       >
         <MaterialIcons name="delete-outline" size={sizes.iconButtonSize} color={colors.onSurfaceVariant} />
       </Pressable>
+      </View>
     </View>
   );
 }
@@ -194,23 +196,16 @@ const styles = themedStyles(() => StyleSheet.create({
     padding: spacing.lg,
   },
   separator: {
-    height: spacing.xs,
+    height: borderWidth.hairline,
+    backgroundColor: colors.border,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: gaps.cardInset,
-    paddingRight: spacing.xs,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.hairline,
-    borderColor: withAlpha(colors.outline, 0.5),
-    backgroundColor: colors.surface,
+    paddingVertical: spacing.sm,
   },
   texts: {
-    flex: 1,
-    marginRight: spacing.xs,
+    gap: spacing.xxs,
   },
+  actions: { flexDirection: 'row', alignItems: 'center' },
   iconButton: {
     width: sizes.minTouchTarget,
     height: sizes.minTouchTarget,

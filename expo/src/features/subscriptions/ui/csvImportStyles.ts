@@ -13,9 +13,10 @@ export const styles = themedStyles(() => StyleSheet.create({
     paddingTop: spacing.lg,
   },
   start: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: spacing.xl,
   },
   steps: {
     alignSelf: 'stretch',

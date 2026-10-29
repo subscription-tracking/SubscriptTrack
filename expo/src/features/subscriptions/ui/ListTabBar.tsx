@@ -58,6 +58,7 @@ export function ListTabBar({
               key={action.accessibilityLabel}
               accessibilityRole="button"
               accessibilityLabel={action.accessibilityLabel}
+              accessibilityState={{ disabled: !!action.disabled }}
               disabled={action.disabled}
               onPress={action.onPress}
               style={({ pressed }) => [styles.action, action.danger && styles.actionDanger, action.disabled && styles.actionDisabled, pressed && styles.actionPressed]}
@@ -83,13 +84,13 @@ const styles = themedStyles(() => StyleSheet.create({
     flex: 1,
     minWidth: 0,
     width: 0,
-    height: sizes.pillHeight,
+    minHeight: sizes.minTouchTarget,
   },
   row: {
     gap: spacing.xs,
   },
   pill: {
-    height: sizes.pillHeight,
+    minHeight: sizes.minTouchTarget,
     paddingHorizontal: gaps.pillX,
     borderRadius: radius.pill,
     alignItems: 'center',
@@ -100,7 +101,7 @@ const styles = themedStyles(() => StyleSheet.create({
     gap: spacing.xxs,
   },
   action: {
-    minHeight: sizes.pillHeight,
+    minHeight: sizes.minTouchTarget,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

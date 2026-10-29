@@ -105,6 +105,7 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
               <MethodCard
                 key={name}
                 name={name}
+                disabled={save.isPending}
                 onEdit={() => setDialog({ mode: 'edit', name })}
                 onDelete={() => confirmRemove(name)}
               />
@@ -143,20 +144,20 @@ function MethodsEditor({ initial, userId }: { initial: string[]; userId: string 
 }
 
 /** Flutter `_MethodCard`: 40 px kart ikonu, kalın ad ve düzenle/sil düğmeleri. */
-function MethodCard({ name, onEdit, onDelete }: { name: string; onEdit: () => void; onDelete: () => void }) {
+function MethodCard({ name, onEdit, onDelete, disabled }: { name: string; onEdit: () => void; onDelete: () => void; disabled: boolean }) {
   useThemeRevision();
   return (
     <View style={styles.card}>
       <View style={styles.cardIcon}>
         <MaterialIcons name="credit-card" size={sizes.iconButtonSize} color={colors.primary} />
       </View>
-      <Text numberOfLines={1} style={textStyle('bodyStrong', { flex: 1, marginLeft: spacing.sm })}>
+      <Text style={textStyle('bodyStrong', { flex: 1, marginLeft: spacing.sm })}>
         {name}
       </Text>
-      <Pressable accessibilityRole="button" accessibilityLabel={`${name} düzenle`} onPress={onEdit} style={styles.iconButton}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${name} düzenle`} accessibilityState={{ disabled }} disabled={disabled} onPress={onEdit} style={styles.iconButton}>
         <MaterialIcons name="edit" size={sizes.rowActionIcon} color={colors.onSurfaceVariant} />
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={`${name} sil`} onPress={onDelete} style={styles.iconButton}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${name} sil`} accessibilityState={{ disabled }} disabled={disabled} onPress={onDelete} style={styles.iconButton}>
         <MaterialIcons name="delete-outline" size={sizes.rowActionIcon} color={colors.error} />
       </Pressable>
     </View>
@@ -182,12 +183,9 @@ const styles = themedStyles(() => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
-    borderRadius: radius.medium,
-    borderWidth: borderWidth.statsEdge,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: borderWidth.hairline,
+    borderBottomColor: colors.border,
   },
   cardIcon: {
     width: sizes.minTouchTarget - spacing.sm,

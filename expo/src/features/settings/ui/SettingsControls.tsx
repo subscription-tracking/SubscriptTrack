@@ -40,6 +40,8 @@ export function SwitchTile({
         {subtitle ? <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginTop: spacing.xxs / 2 })}>{subtitle}</Text> : null}
       </View>
       <Switch
+        accessibilityLabel={label}
+        accessibilityHint={subtitle}
         value={value}
         disabled={disabled}
         onValueChange={onValueChange}
@@ -54,7 +56,7 @@ export function SwitchTile({
 export function RadioRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   useThemeRevision();
   return (
-    <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={onPress} style={styles.radio}>
+    <Pressable accessibilityRole="radio" accessibilityState={{ checked: selected }} onPress={onPress} style={styles.radio}>
       <View style={[styles.radioOuter, { borderColor: selected ? colors.primary : colors.onSurfaceVariant }]}>
         {selected ? <View style={styles.radioInner} /> : null}
       </View>

@@ -151,15 +151,15 @@ function SetupSection({ busy, onSetup }: { busy: boolean; onSetup: (pin: string)
   useThemeRevision();
   const [pin, setPin] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ field: 'pin' | 'confirm'; message: string } | null>(null);
 
   function submit() {
     if (!isValidPin(pin)) {
-      setError(`PIN ${PIN_MIN_LENGTH}–${PIN_MAX_LENGTH} rakam olmalı`);
+      setError({ field: 'pin', message: `PIN ${PIN_MIN_LENGTH}–${PIN_MAX_LENGTH} rakam olmalı` });
       return;
     }
     if (pin !== confirm) {
-      setError('PIN’ler eşleşmiyor');
+      setError({ field: 'confirm', message: 'PIN’ler eşleşmiyor' });
       return;
     }
     setError(null);
@@ -168,9 +168,9 @@ function SetupSection({ busy, onSetup }: { busy: boolean; onSetup: (pin: string)
 
   return (
     <View style={styles.block}>
-      <TextField label="Yeni PIN" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} />
+      <TextField label="Yeni PIN" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error?.field === 'pin' ? error.message : null} />
       <View style={styles.gap} />
-      <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error} />
+      <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error?.field === 'confirm' ? error.message : null} />
       <View style={styles.gap} />
       <PrimaryButton label="PIN’i etkinleştir" loading={busy} onPress={submit} />
       <Text style={textStyle('caption', { color: colors.onSurfaceVariant, marginTop: spacing.xs })}>
@@ -198,12 +198,12 @@ function EnabledSection({
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ field: 'current' | 'next' | 'confirm'; message: string } | null>(null);
 
   function changePin() {
-    if (!isValidPin(current)) return setError('Mevcut PIN’ini gir');
-    if (!isValidPin(next)) return setError(`Yeni PIN ${PIN_MIN_LENGTH}–${PIN_MAX_LENGTH} rakam olmalı`);
-    if (next !== confirm) return setError('Yeni PIN’ler eşleşmiyor');
+    if (!isValidPin(current)) return setError({ field: 'current', message: 'Mevcut PIN’ini gir' });
+    if (!isValidPin(next)) return setError({ field: 'next', message: `Yeni PIN ${PIN_MIN_LENGTH}–${PIN_MAX_LENGTH} rakam olmalı` });
+    if (next !== confirm) return setError({ field: 'confirm', message: 'Yeni PIN’ler eşleşmiyor' });
     setError(null);
     onChangePin(next, current);
     setCurrent('');
@@ -222,11 +222,11 @@ function EnabledSection({
 
   return (
     <View style={styles.block}>
-      <TextField label="Mevcut PIN" value={current} onChangeText={setCurrent} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} />
+      <TextField label="Mevcut PIN" value={current} onChangeText={setCurrent} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error?.field === 'current' ? error.message : null} />
       <View style={styles.gap} />
-      <TextField label="Yeni PIN" value={next} onChangeText={setNext} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} />
+      <TextField label="Yeni PIN" value={next} onChangeText={setNext} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error?.field === 'next' ? error.message : null} />
       <View style={styles.gap} />
-      <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error} />
+      <TextField label="Yeni PIN (tekrar)" value={confirm} onChangeText={setConfirm} keyboardType="number-pad" secureTextEntry maxLength={PIN_MAX_LENGTH} editable={!busy} error={error?.field === 'confirm' ? error.message : null} />
       <View style={styles.gap} />
       <PrimaryButton label="PIN’i değiştir" loading={busy} onPress={changePin} />
       <View style={styles.gap} />

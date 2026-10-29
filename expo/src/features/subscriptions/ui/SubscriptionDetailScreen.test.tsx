@@ -14,6 +14,8 @@ const mockChange = jest.fn();
 const mockRenew = jest.fn();
 const mockConfirm = jest.fn();
 let mockPayments: PaymentEvent[] = [];
+let mockPaymentState = 'ready';
+const mockPaymentRefetch = jest.fn();
 
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('react-native-svg', () => {
@@ -27,7 +29,7 @@ jest.mock('../../settings/data/useActiveCurrency', () => ({ useUserTimeZone: () 
 jest.mock('../../../core/clock/useCivilToday', () => ({ useCivilToday: () => ({ year: 2026, month: 10, day: 20 }) }));
 jest.mock('../../notifications/data/notificationPermission', () => ({ usePermissionQuery: () => ({ data: 'granted' }) }));
 jest.mock('../data/queries', () => ({ useSubscriptionQuery: (...args: unknown[]) => mockUseSubscriptionQuery(...args) }));
-jest.mock('../../stats/data/queries', () => ({ usePaymentsQuery: () => ({ data: mockPayments, isPending: false, isError: false }) }));
+jest.mock('../../stats/data/queries', () => ({ usePaymentsQuery: () => ({ data: mockPaymentState === 'ready' ? mockPayments : undefined, isPending: mockPaymentState === 'loading', isError: mockPaymentState === 'error', refetch: mockPaymentRefetch }) }));
 jest.mock('./useDeletionAction', () => ({ useDeletionAction: () => ({ confirm: mockConfirm, busy: false }) }));
 jest.mock('./detail/useDetailMutations', () => ({
   useDetailMutations: () => ({ change: { mutate: mockChange }, renew: { mutate: mockRenew }, busy: false }),
@@ -65,6 +67,7 @@ describe('SubscriptionDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPayments = [];
+    mockPaymentState = 'ready';
   });
 
   it('yükleniyor, yeniden denenebilir hata ve kayıt bulunamadı durumlarını işler', () => {
@@ -167,15 +170,15 @@ describe('SubscriptionDetailScreen', () => {
   it('yıllık maliyeti ve şimdiye kadar ödenen toplamı gösterir', () => {
     mockPayments = [payment('p1', '49.90'), payment('p2', '49.90'), payment('p3', '49.90', 'DEFERRED')];
     open();
-    expect(screen.getByLabelText('Yıllık maliyet: ₺598,80')).toBeTruthy();
-    expect(screen.getByLabelText('Şimdiye kadar ödenen: ₺99,80')).toBeTruthy();
+    expect(screen.getByLabelText('Tahmini yıllık maliyet: ₺598,80')).toBeTruthy();
+    expect(screen.getByLabelText('Toplam ödenen: ₺99,80')).toBeTruthy();
     expect(screen.getAllByText('Ödendi')).toHaveLength(2);
     expect(screen.getByText('Ertelendi')).toBeTruthy();
   });
 
   it('ödeme yoksa toplam "—" ve boş mesaj gösterir', () => {
     open();
-    expect(screen.getByLabelText('Şimdiye kadar ödenen: —')).toBeTruthy();
+    expect(screen.getByLabelText('Toplam ödenen: —')).toBeTruthy();
     expect(screen.getByText('Henüz ödeme kaydı yok.')).toBeTruthy();
   });
 
@@ -183,5 +186,29 @@ describe('SubscriptionDetailScreen', () => {
     mockPayments = [payment('a', '1'), payment('b', '2'), payment('c', '3'), payment('d', '4')];
     open();
     expect(screen.getAllByText('Ödendi')).toHaveLength(3);
+  });
+
+  it('ödeme sorgusu sürerken boş geçmiş veya sıfır toplam göstermez', () => {
+    mockPaymentState = 'loading';
+    open();
+    expect(screen.getByText('Ödemeler yükleniyor…')).toBeTruthy();
+    expect(screen.queryByText('Henüz ödeme kaydı yok.')).toBeNull();
+    expect(screen.getByLabelText('Toplam ödenen: —')).toBeTruthy();
+  });
+
+  it('ödeme sorgusu hatasında tekrar yükleme sunar', () => {
+    mockPaymentState = 'error';
+    open();
+    expect(screen.getByText('Ödeme geçmişi güncellenemedi.')).toBeTruthy();
+    expect(screen.queryByText('Henüz ödeme kaydı yok.')).toBeNull();
+    fireEvent.press(screen.getByRole('link', { name: 'Ödemeleri tekrar yükle' }));
+    expect(mockPaymentRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('uzun servis adını korur ve kart etiketini sunumda normalleştirir', () => {
+    const name = 'Uzun isimli aile ve profesyonel video aboneliği';
+    open({ name, payment_method: 'kart' });
+    expect(screen.getByRole('header', { name })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ödeme yöntemi: Kart' })).toBeTruthy();
   });
 });
