@@ -1,9 +1,0 @@
-35db7b8ed47dfeb6b01314ee80d38bbe
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _Ionicons = _interopRequireDefault(require("./build/Ionicons"));
-var _default = exports.default = _Ionicons.default;
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfSW9uaWNvbnMiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl9kZWZhdWx0IiwiZXhwb3J0cyIsImRlZmF1bHQiLCJJb25pY29ucyJdLCJzb3VyY2VzIjpbIklvbmljb25zLmpzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBJb25pY29ucyBmcm9tICcuL2J1aWxkL0lvbmljb25zJztcbmV4cG9ydCBkZWZhdWx0IElvbmljb25zO1xuIl0sIm1hcHBpbmdzIjoiOzs7OztBQUFBLElBQUFBLFNBQUEsR0FBQUMsc0JBQUEsQ0FBQUMsT0FBQTtBQUF3QyxJQUFBQyxRQUFBLEdBQUFDLE9BQUEsQ0FBQUMsT0FBQSxHQUN6QkMsaUJBQVEiLCJpZ25vcmVMaXN0IjpbXX0=

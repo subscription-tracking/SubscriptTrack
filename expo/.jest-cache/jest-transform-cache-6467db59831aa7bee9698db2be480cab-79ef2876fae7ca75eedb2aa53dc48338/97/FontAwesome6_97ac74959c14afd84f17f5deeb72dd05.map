@@ -1,1 +1,0 @@
-{"version":3,"names":["_FontAwesome","_interopRequireDefault","require","_default","exports","default","FontAwesome6"],"sources":["FontAwesome6.js"],"sourcesContent":["import FontAwesome6 from './build/FontAwesome6';\nexport default FontAwesome6;\n"],"mappings":";;;;;AAAA,IAAAA,YAAA,GAAAC,sBAAA,CAAAC,OAAA;AAAgD,IAAAC,QAAA,GAAAC,OAAA,CAAAC,OAAA,GACjCC,oBAAY","ignoreList":[]}

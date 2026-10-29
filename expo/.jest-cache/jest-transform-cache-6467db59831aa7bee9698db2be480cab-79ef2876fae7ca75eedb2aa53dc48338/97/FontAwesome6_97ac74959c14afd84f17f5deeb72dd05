@@ -1,9 +1,0 @@
-d19ccd88520729d8008a54a1988d4eaa
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _FontAwesome = _interopRequireDefault(require("./build/FontAwesome6"));
-var _default = exports.default = _FontAwesome.default;
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfRm9udEF3ZXNvbWUiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl9kZWZhdWx0IiwiZXhwb3J0cyIsImRlZmF1bHQiLCJGb250QXdlc29tZTYiXSwic291cmNlcyI6WyJGb250QXdlc29tZTYuanMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IEZvbnRBd2Vzb21lNiBmcm9tICcuL2J1aWxkL0ZvbnRBd2Vzb21lNic7XG5leHBvcnQgZGVmYXVsdCBGb250QXdlc29tZTY7XG4iXSwibWFwcGluZ3MiOiI7Ozs7O0FBQUEsSUFBQUEsWUFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBO0FBQWdELElBQUFDLFFBQUEsR0FBQUMsT0FBQSxDQUFBQyxPQUFBLEdBQ2pDQyxvQkFBWSIsImlnbm9yZUxpc3QiOltdfQ==

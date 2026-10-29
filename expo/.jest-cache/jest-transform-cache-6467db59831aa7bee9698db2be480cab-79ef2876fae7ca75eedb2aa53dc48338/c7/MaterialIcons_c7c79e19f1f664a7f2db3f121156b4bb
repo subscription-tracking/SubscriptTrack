@@ -1,9 +1,0 @@
-4bc51a8e169d249d5cd37b8ea375029a
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _MaterialIcons = _interopRequireDefault(require("./build/MaterialIcons"));
-var _default = exports.default = _MaterialIcons.default;
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfTWF0ZXJpYWxJY29ucyIsIl9pbnRlcm9wUmVxdWlyZURlZmF1bHQiLCJyZXF1aXJlIiwiX2RlZmF1bHQiLCJleHBvcnRzIiwiZGVmYXVsdCIsIk1hdGVyaWFsSWNvbnMiXSwic291cmNlcyI6WyJNYXRlcmlhbEljb25zLmpzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBNYXRlcmlhbEljb25zIGZyb20gJy4vYnVpbGQvTWF0ZXJpYWxJY29ucyc7XG5leHBvcnQgZGVmYXVsdCBNYXRlcmlhbEljb25zO1xuIl0sIm1hcHBpbmdzIjoiOzs7OztBQUFBLElBQUFBLGNBQUEsR0FBQUMsc0JBQUEsQ0FBQUMsT0FBQTtBQUFrRCxJQUFBQyxRQUFBLEdBQUFDLE9BQUEsQ0FBQUMsT0FBQSxHQUNuQ0Msc0JBQWEiLCJpZ25vcmVMaXN0IjpbXX0=

@@ -42,3 +42,4 @@ yarn-error.*
 
 # local environment (Supabase URL and publishable key)
 .env
+expo/.jest-cache/
