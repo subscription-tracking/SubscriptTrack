@@ -1,6 +1,8 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { useCivilToday } from '../../../core/clock/useCivilToday';
+import { orderCurrencies } from '../../../core/domain/moneyByCurrency';
+import { SegmentedControl } from '../../../shared/widgets/SegmentedControl';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -40,6 +42,7 @@ export function StatsScreen() {
   const today = useCivilToday(timeZone);
   const [months, setMonths] = useState(6);
   const currency = useActiveCurrency();
+  const [pickedCurrency, setPickedCurrency] = useState<string | null>(null);
   const online = useOnlineStatus();
 
   const state: AsyncState<{ subscriptions: Subscription[]; payments: PaymentEvent[] }> =
@@ -78,13 +81,16 @@ export function StatsScreen() {
           );
         }
         const now = new Date();
+        // Yüzde ve grafikler para birimi karıştıramaz: tek para birimi gösterilir; birden çoksa üstte seçici çıkar.
+        const available = orderCurrencies(activeForTotals(data.subscriptions, today).map((item) => item.currency), currency);
+        const shownCurrency = pickedCurrency !== null && available.includes(pickedCurrency) ? pickedCurrency : available.includes(currency) ? currency : available[0];
         const summary = buildStatsSummary({
           subscriptions: data.subscriptions,
           payments: data.payments,
           today,
           now,
           timeZone,
-          activeCurrency: currency,
+          activeCurrency: shownCurrency,
           months,
         });
         if (!summary) {
@@ -93,7 +99,7 @@ export function StatsScreen() {
               <EmptyState
                 icon="bar-chart"
                 title="Bu para biriminde analiz yok"
-                description={`${currency} para biriminde aktif abonelik yok. Para birimini Ayarlar > Görünüm ve bölge bölümünden değiştirebilirsin.`}
+                description={`${shownCurrency} para biriminde aktif abonelik yok.`}
                 actionLabel="Abonelik ekle"
                 onAction={() => router.push('/subscriptions/add')}
               />
@@ -120,6 +126,12 @@ export function StatsScreen() {
             }
           >
             {!online || subscriptions.isError || payments.isError ? <Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.onSurfaceVariant, marginBottom: spacing.md })}>Bağlantı veya yenileme sorunu: analiz güncel olmayabilir. Yenilemek için ekranı aşağı çek.</Text> : null}
+            {available.length > 1 && available.length <= 4 ? (
+              <View style={styles.currencyPicker}>
+                <SegmentedControl accessibilityLabel="Para birimi" options={available.map((code) => ({ value: code, label: code }))} value={shownCurrency} onChange={setPickedCurrency} />
+                <Text style={textStyle('caption', { marginTop: spacing.xs })}>Para birimleri birbirine çevrilmez; her biri ayrı analiz edilir.</Text>
+              </View>
+            ) : null}
             <Body
               summary={summary}
               now={now}
@@ -215,6 +227,7 @@ const styles = themedStyles(() => StyleSheet.create({
     paddingTop: spacing.md,
     paddingHorizontal: spacing.lg,
   },
+  currencyPicker: { marginBottom: spacing.md },
   emptyStage: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
   emptyActions: { paddingTop: spacing.md },
   gap16: {

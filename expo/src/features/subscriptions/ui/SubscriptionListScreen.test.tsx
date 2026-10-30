@@ -158,8 +158,11 @@ describe('SubscriptionListScreen', () => {
     fireEvent.press(item);
     expect(mockPush).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: '1 seçili aboneliği sil' })).toBeTruthy();
-    fireEvent.changeText(screen.getByLabelText('Aboneliklerinde ara'), 'Suite');
+    expect(screen.getByText('1 seçildi')).toBeTruthy();
+    expect(screen.queryByLabelText('Ara')).toBeNull();
+    fireEvent.press(screen.getByRole('button', { name: 'Seçimden çık' }));
     expect(screen.queryByRole('button', { name: '1 seçili aboneliği sil' })).toBeNull();
+    fireEvent.changeText(screen.getByLabelText('Ara'), 'Suite');
     expect(screen.getByRole('button', { name: /Design Suite/ })).toBeTruthy();
   });
 
@@ -181,7 +184,7 @@ describe('SubscriptionListScreen', () => {
     expect(screen.getByRole('radio', { name: 'Aylık eşdeğer: artan' })).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'Yazılım' }));
     fireEvent.press(screen.getByRole('button', { name: 'Kapat' }));
-    fireEvent.changeText(screen.getByLabelText('Aboneliklerinde ara'), 'Suite');
+    fireEvent.changeText(screen.getByLabelText('Ara'), 'Suite');
     expect(screen.getByRole('button', { name: /USD Suite, Yazılım/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Netflix/ })).toBeNull();
   });
@@ -196,7 +199,7 @@ describe('SubscriptionListScreen', () => {
     });
 
     render(<SubscriptionListScreen />);
-    fireEvent.changeText(screen.getByLabelText('Aboneliklerinde ara'), 'netflix');
+    fireEvent.changeText(screen.getByLabelText('Ara'), 'netflix');
 
     expect(screen.getByRole('button', { name: /Netflix, Video ve dizi/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Design Suite/ })).toBeNull();
@@ -219,7 +222,7 @@ describe('SubscriptionListScreen', () => {
     expect(screen.getByRole('button', { name: /Design Suite, Yazılım/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Netflix/ })).toBeNull();
 
-    fireEvent.changeText(screen.getByLabelText('Aboneliklerinde ara'), 'eşleşme-yok');
+    fireEvent.changeText(screen.getByLabelText('Ara'), 'eşleşme-yok');
     expect(screen.getByText('Sonuç bulunamadı.')).toBeTruthy();
   });
 

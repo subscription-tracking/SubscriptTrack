@@ -10,6 +10,7 @@ const mockRenew = jest.fn();
 let mockPending: { isPending: boolean; variables?: { id: string } } = { isPending: false };
 
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
+jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }) }));
 jest.mock('../../subscriptions/ui/useRenewAction', () => ({
   useRenewAction: () => ({ mutate: mockRenew, ...mockPending }),
 }));
@@ -44,19 +45,21 @@ it('gecikmiş ve bugünkü satırların alt metnini yazar', () => {
   expect(attentionSubtitle(due)).toContain('Bugün yenileniyor');
 });
 
-it('en fazla üç satır gösterir ve fazlası için "+N daha" bağlantısını açar', () => {
+it('tüm satırları alt sayfada listeler ve tüm abonelikler bağlantısını açar', () => {
   const onMore = jest.fn();
   const items = itemsFor([row('a', '2026-10-01'), row('b', '2026-10-02'), row('c', '2026-10-03'), row('d', '2026-10-04'), row('e', '2026-10-05')]);
   render(<AttentionSection items={items} today={today} onOpen={jest.fn()} onMore={onMore} />);
+  fireEvent.press(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ }));
 
-  expect(screen.getAllByRole('button', { name: 'Ödendi' })).toHaveLength(3);
-  fireEvent.press(screen.getByText('+2 daha'));
+  expect(screen.getAllByRole('button', { name: 'Ödendi' })).toHaveLength(5);
+  fireEvent.press(screen.getByText('Tüm abonelikleri gör'));
   expect(onMore).toHaveBeenCalledTimes(1);
 });
 
 it('satıra dokununca detayı açar', () => {
   const onOpen = jest.fn();
   render(<AttentionSection items={itemsFor([row('a', '2026-10-10')])} today={today} onOpen={onOpen} onMore={jest.fn()} />);
+  fireEvent.press(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ }));
 
   fireEvent.press(screen.getByRole('button', { name: /Servis a/ }));
   expect(onOpen).toHaveBeenCalledWith('a');
@@ -65,6 +68,7 @@ it('satıra dokununca detayı açar', () => {
 it('Vazgeç yenilemeyi çalıştırmaz', () => {
   const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
   render(<AttentionSection items={itemsFor([row('a', '2026-10-10')])} today={today} onOpen={jest.fn()} onMore={jest.fn()} />);
+  fireEvent.press(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ }));
 
   fireEvent.press(screen.getByRole('button', { name: 'Ödendi' }));
   const buttons = alertSpy.mock.calls[0][2] ?? [];
@@ -76,6 +80,7 @@ it('Vazgeç yenilemeyi çalıştırmaz', () => {
 it('işlem sürerken diğer ödeme düğmeleri de pasif olur', () => {
   mockPending = { isPending: true, variables: { id: 'a' } };
   render(<AttentionSection items={itemsFor([row('a', '2026-10-10'), row('b', '2026-10-11')])} today={today} onOpen={jest.fn()} onMore={jest.fn()} />);
+  fireEvent.press(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ }));
 
   const first = screen.getByRole('button', { name: 'İşleniyor' });
   const second = screen.getByRole('button', { name: 'Ödendi' });

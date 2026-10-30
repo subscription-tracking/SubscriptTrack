@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +12,6 @@ import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
 import { Spacer } from '../../../shared/widgets/Spacer';
-import { TonalButton } from '../../../shared/widgets/TonalButton';
 import { textStyle } from '../../../shared/design/typography';
 import { useAuth } from '../../auth/AuthProvider';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
@@ -19,11 +19,11 @@ import { usePaymentsQuery } from '../../stats/data/queries';
 import { type PaymentEvent } from '../../stats/domain/paymentEvents';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { type Subscription } from '../../subscriptions/domain/subscription';
-import { categoryTotals } from '../domain/dashboardHero';
 import { activeForTotals } from '../domain/dashboardSummary';
 import { attentionItems, monthPaymentSummary, upcomingByDay } from '../domain/homeSummary';
+import { stripDays, weekTotals } from '../domain/weekSummary';
+import { TextLink } from '../../../shared/widgets/TextLink';
 import { AttentionSection } from './AttentionSection';
-import { CategoryBarCard } from './CategoryBarCard';
 import { HeroCard } from './HeroCard';
 import { UpcomingTimeline } from './UpcomingTimeline';
 
@@ -104,15 +104,21 @@ function Summary({
   const summaries = monthPaymentSummary(active, payments, today, new Date(), timeZone, currency);
   const attention = attentionItems(subscriptions, today);
   const upcoming = upcomingByDay(subscriptions, today, 14);
+  const monthDays = upcomingByDay(subscriptions, today, 30);
   const later = upcomingByDay(subscriptions, today, Number.MAX_SAFE_INTEGER).filter((day) => day.dayOffset > 14);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const primaryCurrency = summaries[0]?.currency ?? currency;
+  const week = weekTotals(monthDays, primaryCurrency);
+  const strip = stripDays(monthDays);
+  const shownDays = selectedDay === null ? upcoming : upcoming.filter((day) => day.dayOffset === selectedDay);
+  const shownLater = selectedDay === null ? later : later.filter((day) => day.dayOffset === selectedDay);
+  const filterLabel = selectedDay === null ? undefined : selectedDay === 0 ? 'Bugün' : selectedDay === 1 ? 'Yarın' : `${selectedDay} gün sonra`;
 
   const toSubscriptions = () => router.navigate('/subscriptions');
   const toStats = () => router.navigate('/stats');
   const toAdd = () => router.push('/subscriptions/add');
   const openSubscription = (id: string) => router.push(`/subscriptions/${id}`);
   const showEmptyState = subscriptions.length === 0 && summaries.length === 0 && !paymentsUnavailable;
-  const categoryData = categoryTotals(active);
-  const showCategories = new Set(categoryData.filter((entry) => entry.amount.minorUnits > 0).map((entry) => entry.group)).size > 1;
 
   return (
     <ScrollView
@@ -138,30 +144,19 @@ function Summary({
         </EmptyStateLayout>
       ) : (
         <>
-          <HeroCard summaries={summaries} fallbackCurrency={currency} unavailable={paymentsUnavailable} loading={paymentsLoading} onPress={toStats} onRetry={onRetryPayments} />
-          {attention.length > 0 ? (
-            <>
-              <Spacer size={gaps.sectionTop} />
-              <AttentionSection items={attention} today={today} onOpen={openSubscription} onMore={toSubscriptions} />
-            </>
-          ) : null}
+          <HeroCard week={week} strip={strip} selectedDay={selectedDay} onSelectDay={setSelectedDay} summaries={summaries} fallbackCurrency={currency} unavailable={paymentsUnavailable} loading={paymentsLoading} onPress={toStats} onRetry={onRetryPayments} footer={attention.length > 0 ? <AttentionSection items={attention} today={today} onOpen={openSubscription} onMore={toSubscriptions} /> : undefined} />
           <Spacer size={gaps.sectionTop} />
           <UpcomingTimeline
-            days={upcoming}
-            later={later}
-            onOpen={openSubscription}
+            days={shownDays}
+            later={shownLater}
+            filterLabel={filterLabel}
+            onClearFilter={() => setSelectedDay(null)}
             onCalendar={() => router.push('/calendar')}
+            onOpen={openSubscription}
             onAll={toSubscriptions}
-            onReminders={() => router.push('/settings/notifications')}
           />
           <Spacer size={gaps.sectionTop} />
-          <TonalButton label="Abonelik ekle" onPress={toAdd} />
-          {showCategories ? (
-            <>
-              <Spacer size={gaps.sectionTop} />
-              <CategoryBarCard totals={categoryData} onPress={toStats} />
-            </>
-          ) : null}
+          <TextLink label="+ Abonelik ekle" onPress={toAdd} />
         </>
       )}
     </ScrollView>

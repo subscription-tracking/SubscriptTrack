@@ -13,16 +13,18 @@ export function ProgressRing({
   progress,
   color,
   trackColor,
+  strokeRatio = 0.14,
   children,
 }: {
   size: number;
   progress: number;
   color: string;
   trackColor: string;
+  strokeRatio?: number;
   children?: ReactNode;
 }) {
   useThemeRevision();
-  const stroke = size * 0.14;
+  const stroke = size * strokeRatio;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.min(1, Math.max(0, progress));

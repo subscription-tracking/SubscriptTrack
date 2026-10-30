@@ -15,14 +15,14 @@ const TAB_ITEMS: Record<string, NavItem> = {
   'settings/index': { key: 'settings', label: 'Ayarlar', icon: 'settings', iconOutline: 'settings-outline' },
 };
 
-function AppTabBar({ state, navigation }: TabBarProps) {
+function AppTabBar({ state, navigateToTab }: TabBarProps) {
   useThemeRevision();
   const items = state.routes.map((route: { name: string }) => TAB_ITEMS[route.name]);
   return (
     <BottomNavigation
       items={items}
       activeIndex={state.index}
-      onChange={(index) => navigation.navigate(state.routes[index].name, undefined)}
+      onChange={(index) => navigateToTab(state.routes[index].key)}
     />
   );
 }

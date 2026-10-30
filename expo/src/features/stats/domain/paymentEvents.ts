@@ -53,6 +53,12 @@ export function totalForMonth(events: readonly PaymentEvent[], currency: string,
   return total;
 }
 
+/** `totalForMonth` ile aynı kayıtların sayısı (ödeme adedi). */
+export function countForMonth(events: readonly PaymentEvent[], currency: string, month: Date, timeZone: string): number {
+  const key = monthKey(zoneToday(timeZone, month));
+  return events.filter((event) => event.status !== 'DEFERRED' && event.currency === currency && monthKey(localCivilDate(event.paidAt, timeZone)) === key).length;
+}
+
 /** Son `months` ayın toplamları, eskiden yeniye. */
 export function monthlyTotals(events: readonly PaymentEvent[], currency: string, now: Date, months: number, timeZone: string): number[] {
   const current = zoneToday(timeZone, now);

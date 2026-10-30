@@ -5,8 +5,9 @@ const path = require('node:path');
 
 const packageJson = require.resolve('node-forge/package.json');
 const packageInfo = JSON.parse(fs.readFileSync(packageJson, 'utf8'));
+// Yükseltilmiş sürümlerde yama gerekmez; GHSA-86w9-cpqp-85rv düzeltmesini check-node-forge-signature.cjs doğrular.
 if (packageInfo.version !== '1.4.0') {
-  throw new Error(`node-forge patch expects 1.4.0 pending upstream release, found ${packageInfo.version}`);
+  process.exit(0);
 }
 
 const rsaPath = path.join(path.dirname(packageJson), 'lib', 'rsa.js');

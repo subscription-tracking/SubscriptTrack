@@ -16,7 +16,7 @@ import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncSt
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import { activeForTotals } from '../../subscriptions/domain/activeSelectors';
-import { inCurrency } from '../../subscriptions/domain/currencyFilter';
+import { orderCurrencies } from '../../../core/domain/moneyByCurrency';
 import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { monthlyEquivalent, type Subscription } from '../../subscriptions/domain/subscription';
 import { useSavingsQuery } from '../data/queries';
@@ -63,12 +63,15 @@ export function SavingsScreen() {
 }
 
 /** Bir para biriminde en yüksek aylık tutarlı en çok üç abonelik (Flutter `_Top3Card` girdisi). */
-function topThree(active: readonly Subscription[]): Map<string, Subscription[]> {
-  const byCurrency = new Map<string, Subscription[]>();
+function topThree(active: readonly Subscription[], preferred: string): Map<string, Subscription[]> {
+  const grouped = new Map<string, Subscription[]>();
   for (const subscription of active) {
-    byCurrency.set(subscription.currency, [...(byCurrency.get(subscription.currency) ?? []), subscription]);
+    grouped.set(subscription.currency, [...(grouped.get(subscription.currency) ?? []), subscription]);
   }
-  for (const [currency, items] of byCurrency) {
+  const byCurrency = new Map<string, Subscription[]>();
+  for (const currency of orderCurrencies(grouped.keys(), preferred)) {
+    const items = grouped.get(currency);
+    if (!items) continue;
     byCurrency.set(
       currency,
       [...items].sort((a, b) => monthlyEquivalent(b).minorUnits - monthlyEquivalent(a).minorUnits || a.name.localeCompare(b.name, 'tr-TR') || a.id.localeCompare(b.id)).slice(0, 3),
@@ -89,11 +92,11 @@ function eventDate(iso: string, timeZone: string): string | null {
 
 function SavingsBody({ subscriptions, events, today, timeZone }: { subscriptions: Subscription[]; events: SavingsEvent[]; today: CivilDate; timeZone: string }) {
   useThemeRevision();
-  // Tasarruf yalnızca aktif para birimini gösterir; diğer para birimlerinin olayları gizlenir.
+  // Tüm para birimleri gösterilir; tercih edilen para birimi başta, kur çevrimi yoktur.
   const currency = useActiveCurrency();
-  const active = activeForTotals(inCurrency(subscriptions, currency), today);
-  const visibleEvents = events.filter((event) => event.currency === currency);
-  const groups = useMemo(() => topThree(active), [active]);
+  const active = activeForTotals(subscriptions, today);
+  const visibleEvents = events;
+  const groups = useMemo(() => topThree(active, currency), [active, currency]);
   const showCurrency = groups.size > 1;
   // Üst kartın saydığı üç kayıt "Tasarruf fırsatları"nda; geri kalanı "Diğer fırsatlar"da.
   const featuredIds = useMemo(() => new Set([...groups.values()].flat().map((item) => item.id)), [groups]);
@@ -104,7 +107,7 @@ function SavingsBody({ subscriptions, events, today, timeZone }: { subscriptions
   if (active.length === 0 && visibleEvents.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={textStyle('body', { color: colors.onSurfaceVariant, textAlign: 'center' })}>{`${currency} için aktif abonelik veya tasarruf geçmişi yok.`}</Text>
+        <Text style={textStyle('body', { color: colors.onSurfaceVariant, textAlign: 'center' })}>Aktif abonelik veya tasarruf geçmişi yok.</Text>
       </View>
     );
   }
@@ -139,7 +142,7 @@ function SavingsBody({ subscriptions, events, today, timeZone }: { subscriptions
           ))}
         </>
       ) : null}
-      </> : <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${currency} için aktif abonelik yok.`}</Text>}
+      </> : <Text style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Aktif abonelik yok.</Text>}
 
       {visibleEvents.length > 0 ? (
         <>

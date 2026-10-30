@@ -6,12 +6,14 @@ import { type SubscriptionRow, subscriptionFromRow } from '../domain/subscriptio
 const mockMutate = jest.fn();
 const mockCatalog: { name: string; category: 'streaming' }[] = [];
 
-jest.mock('expo-router', () => ({ useRouter: () => ({ back: jest.fn() }) }));
+jest.mock('expo-router', () => ({ useRouter: () => ({ back: jest.fn() }), useNavigation: () => ({ dispatch: jest.fn() }) }));
+jest.mock('expo-router/react-navigation', () => ({ usePreventRemove: jest.fn() }));
 jest.mock('@expo/vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('@expo/vector-icons/FontAwesome6', () => 'FontAwesome6');
 jest.mock('@tanstack/react-query', () => ({
   useMutation: () => ({ mutate: mockMutate, isPending: false }),
   useQueryClient: () => ({ invalidateQueries: jest.fn() }),
+  useQuery: () => ({ data: undefined, isPending: false }),
 }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => 'test-idempotency-key' }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 0 }) }));

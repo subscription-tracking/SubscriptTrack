@@ -57,13 +57,13 @@ it('aynı gün sonraki 20 kaydı altı satırla sınırlar ve tüm aboneliklere 
   const onAll = jest.fn();
   const onOpen = jest.fn();
   const entries = Array.from({ length: 20 }, (_, i) => ({ kind: 'renewal' as const, subscription: subscriptionFromRow(row({ id: `later-${i}`, name: `Servis ${i}` })) }));
-  render(<UpcomingTimeline days={[]} later={[{ date: { year: 2026, month: 10, day: 28 }, dayOffset: 15, entries }]} onOpen={onOpen} onCalendar={jest.fn()} onAll={onAll} onReminders={jest.fn()} />);
+  render(<UpcomingTimeline days={[]} later={[{ date: { year: 2026, month: 10, day: 28 }, dayOffset: 15, entries }]} onOpen={onOpen} onAll={onAll} onCalendar={jest.fn()} />);
   expect(screen.getByText('Servis 5')).toBeTruthy();
   expect(screen.queryByText('Servis 6')).toBeNull();
   expect(screen.getAllByText('28')).toHaveLength(1);
   fireEvent.press(screen.getByRole('button', { name: /Servis 0, 28 Eki/ }));
   expect(onOpen).toHaveBeenCalledWith('later-0');
-  fireEvent.press(screen.getByRole('link', { name: 'Tümünü gör' }));
+  fireEvent.press(screen.getByRole('link', { name: /Tümünü gör/ }));
   expect(onAll).toHaveBeenCalledTimes(1);
 });
 
@@ -103,10 +103,9 @@ it('hero kalan tutarı, ödenen ve toplamı gösterir', () => {
   mockPayments.mockReturnValue({ data: [payment('30')] });
   render(<DashboardScreen />);
 
-  expect(screen.getByText('Bu ay kalan · TRY')).toBeTruthy();
+  expect(screen.getByText('Önümüzdeki 7 gün')).toBeTruthy();
+  expect(screen.getByText(/Bu ay 1\/\d+ ödeme tamam · Kalan ₺150,00/)).toBeTruthy();
   expect(screen.queryByText('SubscriptTrack')).toBeNull();
-  expect(screen.getByRole('button', { name: /ödenen.*30.*toplam.*180/i })).toBeTruthy();
-  expect(screen.getByLabelText('Bu ay ödenen oran')).toBeTruthy();
 });
 
 it('hero kartı basılabilir ve İstatistikler ekranını açar', () => {
@@ -122,7 +121,7 @@ it('ödeme geçmişi yokken sıfır tutar yerine eksik veri durumunu gösterir',
 
   expect(screen.getByText('Ödeme özeti kullanılamıyor')).toBeTruthy();
   expect(screen.queryByText(/Ödenen.*0/)).toBeNull();
-  expect(screen.getByText('Dikkat gerektiren ödemeler')).toBeTruthy();
+  expect(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ })).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'Ödeme özeti yüklenemedi, tekrar dene' }));
   expect(mockPaymentRefetch).toHaveBeenCalledTimes(1);
 });
@@ -147,7 +146,7 @@ it('gecikmiş satır ve Ödendi onayı yenileme eylemini çalıştırır', () =>
   const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
   render(<DashboardScreen />);
 
-  expect(screen.getByText('Dikkat gerektiren ödemeler')).toBeTruthy();
+  fireEvent.press(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ }));
   expect(screen.getByText(/3 gün gecikti/)).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'Ödendi' }));
 
@@ -162,18 +161,26 @@ it('dikkat gerektiren yoksa bölüm çizilmez', () => {
   mockUseSubscriptionsQuery.mockReturnValue(ready([upcomingSub]));
   render(<DashboardScreen />);
 
-  expect(screen.queryByText('Dikkat gerektiren ödemeler')).toBeNull();
+  expect(screen.queryByRole('button', { name: /ödeme (gecikti|bekliyor)/ })).toBeNull();
 });
 
-it('zaman çizelgesi günlere göre gruplanır ve Takvim bağlantısı çalışır', () => {
+it('zaman çizelgesi günlere göre gruplanır ve Takvimi aç kısayolu çalışır', () => {
   render(<DashboardScreen />);
 
   expect(screen.getByText('Yaklaşan ödemeler')).toBeTruthy();
-  expect(screen.getByText('14 gün içinde')).toBeTruthy();
+  expect(screen.getByText('Takvim ›')).toBeTruthy();
   expect(screen.getByText('15')).toBeTruthy();
-  expect(screen.getByText('Deneme bitiyor')).toBeTruthy();
+  expect(screen.getByText(/Deneme bitiyor/)).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'Takvim' }));
   expect(mockPush).toHaveBeenLastCalledWith('/calendar');
+});
+
+it('gün şeridinde bir güne dokununca liste o güne süzülür ve süzgeç kaldırılır', () => {
+  render(<DashboardScreen />);
+  fireEvent.press(screen.getAllByRole('button', { name: /, \d+ ödeme$/ })[0]);
+  expect(screen.getByText('Seçili gün')).toBeTruthy();
+  fireEvent.press(screen.getByRole('button', { name: /süzgecini kaldır/ }));
+  expect(screen.getByText('Yaklaşan ödemeler')).toBeTruthy();
 });
 
 it('önümüzdeki 14 günde ödeme yoksa tek satır söyler', () => {
@@ -183,24 +190,7 @@ it('önümüzdeki 14 günde ödeme yoksa tek satır söyler', () => {
   expect(screen.getByText('Önümüzdeki 14 günde ödeme yok.')).toBeTruthy();
 });
 
-it('hatırlatma kısayolu tek satırda görünür', () => {
-  render(<DashboardScreen />);
-
-  expect(screen.getAllByRole('button', { name: 'Hatırlatma ayarları' })).toHaveLength(1);
-  fireEvent.press(screen.getByRole('button', { name: 'Hatırlatma ayarları' }));
-  expect(mockPush).toHaveBeenLastCalledWith('/settings/notifications');
-});
-
-it('kategori dağılımı kartı İstatistikler ekranını açar', () => {
-  mockUseSubscriptionsQuery.mockReturnValue(ready([upcomingSub, subscriptionFromRow(row({ id: 'music', category: 'music', next_renewal_date: '2026-10-15' }))]));
-  render(<DashboardScreen />);
-
-  fireEvent.press(screen.getByRole('button', { name: /Tahmini aylık dağılım.*İstatistikleri aç/ }));
-  expect(mockNavigate).toHaveBeenCalledWith('/stats');
-});
-
-it('tek kategoride dağılım kartını gizler ve tek takvim eylemi sunar', () => {
-  mockUseSubscriptionsQuery.mockReturnValue(ready([upcomingSub]));
+it('ana sayfada kategori dağılımı kartı yoktur', () => {
   render(<DashboardScreen />);
   expect(screen.queryByText('Tahmini aylık dağılım')).toBeNull();
   expect(screen.getAllByRole('button', { name: 'Takvim' })).toHaveLength(1);
@@ -229,6 +219,7 @@ it('başlamamış abonelik varsa onboarding boş durumu göstermez', () => {
 it('bugün vadeli kaydı gecikmiş diye nitelemez', () => {
   mockUseSubscriptionsQuery.mockReturnValue(ready([subscriptionFromRow(row({ id: 'today', next_renewal_date: '2026-10-13' }))]));
   render(<DashboardScreen />);
+  fireEvent.press(screen.getByRole('button', { name: /ödeme (gecikti|bekliyor)/ }));
   expect(screen.getByText(/Bugün yenileniyor/)).toBeTruthy();
   expect(screen.queryByText(/gün gecikti/)).toBeNull();
 });
@@ -270,7 +261,7 @@ it('yenileme hem abonelikleri hem ödeme geçmişini tekrar ister', () => {
 
 it('dolu ana sayfadan abonelik ekleme ekranına gider', () => {
   render(<DashboardScreen />);
-  fireEvent.press(screen.getByRole('button', { name: 'Abonelik ekle' }));
+  fireEvent.press(screen.getByRole('link', { name: '+ Abonelik ekle' }));
   expect(mockPush).toHaveBeenCalledWith('/subscriptions/add');
 });
 
@@ -286,8 +277,10 @@ it('birden fazla para birimini ayrı gösterir', () => {
   const usd = subscriptionFromRow(row({ id: 'usd', name: 'Dolar', currency: 'USD', amount: '5', next_renewal_date: '2026-10-15' }));
   mockUseSubscriptionsQuery.mockReturnValue(ready([upcomingSub, usd]));
   render(<DashboardScreen />);
-  expect(screen.getByText(/USD: kalan/)).toBeTruthy();
-  expect(screen.getAllByText('₺50,00').length).toBeGreaterThan(0);
+  // Her para birimi başlıkta kendi satırında: hiçbiri küçük not olarak gizlenmez.
+  expect(screen.getByText('USD')).toBeTruthy();
+  expect(screen.getByText('TRY')).toBeTruthy();
+  expect(screen.getAllByText(/₺50,00/).length).toBeGreaterThan(0);
 });
 
 it('bilinmeyen ödeme verisinde ilerleme oranı üretmez', () => {
@@ -299,5 +292,5 @@ it('bilinmeyen ödeme verisinde ilerleme oranı üretmez', () => {
 it('özetin erişilebilir etiketi finansal değerleri içerir', () => {
   mockPayments.mockReturnValue({ data: [payment('30')], refetch: mockPaymentRefetch });
   render(<DashboardScreen />);
-  expect(screen.getByRole('button', { name: /kalan ₺150,00, ödenen ₺30,00, toplam ₺180,00/ })).toBeTruthy();
+  expect(screen.getByRole('button', { name: /7 günde .*, Bu ay 1\/\d+ ödeme tamam · Kalan ₺150,00/ })).toBeTruthy();
 });

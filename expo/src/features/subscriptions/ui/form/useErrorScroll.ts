@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import type { LayoutChangeEvent, ScrollView } from 'react-native';
+import type { LayoutChangeEvent, ScrollViewInstance } from 'react-native';
 
 import type { FormErrors } from '../../domain/subscriptionForm';
 
@@ -18,7 +18,7 @@ function sectionOf(errors: FormErrors): FormSectionKey {
  * `onLayout` y değeri doğrudan kaydırma konumudur; konum bilinmiyorsa en üste çıkar.
  */
 export function useErrorScroll() {
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const offsets = useRef<Partial<Record<FormSectionKey, number>>>({});
 
   function onLayoutFor(key: FormSectionKey) {

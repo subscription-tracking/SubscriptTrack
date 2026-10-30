@@ -84,14 +84,15 @@ describe('SavingsScreen', () => {
 
     render(<SavingsScreen />);
 
-    expect(screen.getByText('TRY için aktif abonelik yok.')).toBeTruthy();
+    expect(screen.getByText('Aktif abonelik yok.')).toBeTruthy();
     expect(screen.getByText('Duraklatıldı · 10 Ekim 2026')).toBeTruthy();
   });
 
-  it('aktif TRY kayıtlarından en yüksek üç yıllık fırsatı ve aynı para biriminin geçmişini gösterir', () => {
+  it('her para birimi için en yüksek üç yıllık fırsatı ayrı gösterir, tercih edilen başta', () => {
     render(<SavingsScreen />);
 
-    expect(screen.getByText('En yüksek yıllık maliyetler')).toBeTruthy();
+    expect(screen.getByText('En yüksek yıllık maliyetler · TRY')).toBeTruthy();
+    expect(screen.getByText('En yüksek yıllık maliyetler · USD')).toBeTruthy();
     expect(screen.getByText('Tahmini: İlk 3 abonelik yılda ₺1.080,00 tutuyor.')).toBeTruthy();
     expect(screen.getByText('Tahmini yıllık maliyetler')).toBeTruthy();
     expect(screen.queryByText('Olası yıllık tasarruf')).toBeNull();
@@ -100,14 +101,13 @@ describe('SavingsScreen', () => {
     expect(screen.getByText('First Service')).toBeTruthy();
     expect(screen.getByText('İptal ve duraklatma geçmişi')).toBeTruthy();
     expect(screen.getByText('Duraklatıldı · 10 Ekim 2026')).toBeTruthy();
-    expect(screen.queryByText('USD Service')).toBeNull();
-    expect(screen.queryByText(/İptal edildi/)).toBeNull();
+    expect(screen.getAllByText('USD Service').length).toBeGreaterThan(0);
   });
 
-  it('seçili para biriminde hem aktif abonelik hem geçmiş yoksa kapsamı belirten boş durum gösterir', () => {
-    mockUseSubscriptionsQuery.mockReturnValue({ data: [sampleSubscriptions[4]], isPending: false, isError: false });
+  it('hiçbir para biriminde aktif abonelik ve geçmiş yoksa boş durum gösterir', () => {
+    mockUseSubscriptionsQuery.mockReturnValue({ data: [], isPending: false, isError: false });
     mockUseSavingsQuery.mockReturnValue({ data: [], isPending: false, isError: false });
     render(<SavingsScreen />);
-    expect(screen.getByText('TRY için aktif abonelik veya tasarruf geçmişi yok.')).toBeTruthy();
+    expect(screen.getByText('Aktif abonelik veya tasarruf geçmişi yok.')).toBeTruthy();
   });
 });

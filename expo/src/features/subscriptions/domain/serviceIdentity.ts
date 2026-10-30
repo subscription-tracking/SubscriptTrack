@@ -131,7 +131,15 @@ const CATEGORY_COLORS: Partial<Record<SubscriptionCategory, string>> = {
   education: CATEGORY_PALETTE.education,
 };
 
-/** Kategori rengi; `software` ve `other` için `null` (tema renginden çözülür). */
+/** Logosu olmayan hizmetler için ada göre sabit renk: aynı ad her zaman aynı tonu alır, liste tek düze görünmez. */
+const MONOGRAM_COLORS = Object.values(CATEGORY_PALETTE);
+export function monogramColor(name: string): string {
+  let hash = 0;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return MONOGRAM_COLORS[hash % MONOGRAM_COLORS.length];
+}
+
+/** Kategori rengi. */
 export function categoryColor(category: SubscriptionCategory): string | null {
   return CATEGORY_COLORS[category] ?? null;
 }
@@ -145,5 +153,5 @@ export function serviceMark(name: string, category: SubscriptionCategory): Servi
   if (material) return { kind: 'material', icon: material.icon, color: material.color };
   // Flutter `toUpperCase()` (yerelden bağımsız) ile aynı: "i" → "I".
   const initial = key.length > 0 ? name.trim()[0].toUpperCase() : '?';
-  return { kind: 'initial', initial, color: categoryColor(category) };
+  return { kind: 'initial', initial, color: categoryColor(category) ?? monogramColor(key) };
 }

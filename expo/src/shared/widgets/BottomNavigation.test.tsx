@@ -1,7 +1,8 @@
+import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { BottomNavigation, type NavItem } from './BottomNavigation';
-import { sizes } from '../design/tokens';
+import { sizes, spacing } from '../design/tokens';
 
 jest.mock('@expo/vector-icons/Ionicons', () => 'Ionicons');
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 12 }) }));
@@ -26,12 +27,11 @@ describe('BottomNavigation accessibility', () => {
 
   it('preserves the safe area while keeping every tab at least the minimum touch height', () => {
     render(<BottomNavigation items={items} activeIndex={0} onChange={jest.fn()} />);
-    const bar = screen.getByLabelText('Ana gezinme');
     const tabs = [screen.getByRole('tab', { name: 'Ana sayfa' }), screen.getByRole('tab', { name: 'Abonelikler' })];
 
-    expect(bar.props.style).toEqual(expect.arrayContaining([expect.objectContaining({ paddingBottom: 12 })]));
+    expect(StyleSheet.flatten(screen.getByTestId('bottom-navigation-wrap').props.style).bottom).toBe(12 + spacing.sm);
     for (const tab of tabs) {
-      expect(tab.props.style.minHeight).toBeGreaterThanOrEqual(sizes.minTouchTarget);
+      expect(StyleSheet.flatten(tab.props.style).height).toBeGreaterThanOrEqual(sizes.minTouchTarget);
     }
   });
 

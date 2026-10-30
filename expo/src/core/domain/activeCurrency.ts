@@ -1,6 +1,6 @@
 /**
- * Uygulamanın tek aktif para birimi. Kullanıcı üç para biriminden birini seçer; tüm toplamlar, grafikler,
- * listeler ve tasarruf yalnızca bu para birimindeki kayıtları gösterir. Kur çevrimi yapılmaz.
+ * Desteklenen para birimleri ve kullanıcının tercih ettiği para birimi. Tercih bir filtre değildir: form varsayılanı,
+ * ilk sıra ve İstatistikler'de başlangıç seçimidir; kayıtları gizlemez. Kur çevrimi yapılmaz.
  * I/O yoktur.
  */
 

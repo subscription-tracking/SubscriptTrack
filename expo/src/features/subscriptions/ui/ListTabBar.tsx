@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, sizes, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { LIST_TABS, type ListTab } from '../domain/subscriptionList';
 
@@ -44,9 +44,9 @@ export function ListTabBar({
               accessibilityState={{ selected }}
               accessibilityLabel={`${tab.label} ${counts[tab.key]}`}
               onPress={() => onChange(tab.key)}
-              style={[styles.pill, { backgroundColor: selected ? colors.primary : colors.surfaceHigh }]}
+              style={[styles.pill, selected ? styles.pillSelected : styles.pillIdle]}
             >
-              <Text style={selected ? textStyle('label', { color: colors.onPrimary }) : textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${tab.label} ${counts[tab.key]}`}</Text>
+              <Text style={selected ? textStyle('label', { color: colors.primary }) : textStyle('bodySmall', { color: colors.onSurfaceVariant })}>{`${tab.label} ${counts[tab.key]}`}</Text>
             </Pressable>
           );
         })}
@@ -96,6 +96,8 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pillSelected: { backgroundColor: withAlpha(colors.primary, 0.18), borderWidth: 1, borderColor: colors.primary },
+  pillIdle: { backgroundColor: colors.surface, borderWidth: borderWidth.hairline, borderColor: colors.border },
   actions: {
     flexDirection: 'row',
     gap: spacing.xxs,

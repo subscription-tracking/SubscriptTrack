@@ -1,6 +1,7 @@
 import { Money } from '../../../core/domain/money';
+import { orderCurrencies } from '../../../core/domain/moneyByCurrency';
 import { type CivilDate, addDays, dayNumber, daysBetween, daysInMonth } from '../../../core/time/calendar';
-import { totalForMonth, type PaymentEvent } from '../../stats/domain/paymentEvents';
+import { countForMonth, totalForMonth, type PaymentEvent } from '../../stats/domain/paymentEvents';
 import { compareByRenewal } from '../../subscriptions/domain/activeSelectors';
 import { isRenewalDue } from '../../subscriptions/domain/renewalOverdue';
 import type { Subscription } from '../../subscriptions/domain/subscription';
@@ -18,6 +19,10 @@ export interface MonthPaymentSummary {
   remaining: Money;
   /** `paid + remaining`. */
   total: Money;
+  /** Bu ay kaydedilen ödeme adedi; para biriminden bağımsız ilerleme hesabı için. */
+  paidCount: number;
+  /** Bu ayın sonuna kadar ödenmesi gereken ödeme adedi. */
+  dueCount: number;
 }
 
 /** Aktif kaydın bu ayın sonuna kadar kaç kez ödenmesi gerekir (haftalıkta birden çok olabilir). */
@@ -51,25 +56,23 @@ export function monthPaymentSummary(
   preferredCurrency?: string,
 ): MonthPaymentSummary[] {
   const remaining = new Map<string, Money>();
+  const dueCounts = new Map<string, number>();
   for (const subscription of active) {
     const count = dueCountThisMonth(subscription, today);
     if (count === 0) continue;
     const current = remaining.get(subscription.currency) ?? Money.zero;
     remaining.set(subscription.currency, current.add(subscription.amount.multiply(count)));
+    dueCounts.set(subscription.currency, (dueCounts.get(subscription.currency) ?? 0) + count);
   }
   const currencies = new Set<string>(remaining.keys());
   for (const event of payments) {
     if (event.status === 'PAID' && totalForMonth([event], event.currency, now, timeZone) > 0) currencies.add(event.currency);
   }
-  const ordered = [...currencies].sort((a, b) => {
-    if (a === preferredCurrency) return -1;
-    if (b === preferredCurrency) return 1;
-    return a.localeCompare(b);
-  });
+  const ordered = orderCurrencies(currencies, undefined).sort((a, b) => Number(b === preferredCurrency) - Number(a === preferredCurrency));
   return ordered.map((currency) => {
     const paid = Money.fromMinorUnits(totalForMonth(payments, currency, now, timeZone));
     const left = remaining.get(currency) ?? Money.zero;
-    return { currency, paid, remaining: left, total: paid.add(left) };
+    return { currency, paid, remaining: left, total: paid.add(left), paidCount: countForMonth(payments, currency, now, timeZone), dueCount: dueCounts.get(currency) ?? 0 };
   });
 }
 

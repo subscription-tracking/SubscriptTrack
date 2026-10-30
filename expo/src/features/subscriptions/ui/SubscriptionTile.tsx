@@ -1,18 +1,19 @@
 import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { themedStyles } from '../../../shared/design/themeRuntime';
 import { memo } from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { formatCurrency } from '../../../core/format/money';
-import { formatLongDate, monthShort } from '../../../core/format/date';
+import { formatLongDate } from '../../../core/format/date';
 import { type CivilDate } from '../../../core/time/calendar';
-import { borderWidth, colors, gaps, sizes, spacing, statusColors } from '../../../shared/design/tokens';
+import { borderWidth, colors, gaps, radius, spacing, withAlpha } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { BILLING_CYCLE_LABELS, CATEGORY_LABELS, type Subscription, daysUntilRenewal } from '../domain/subscription';
 import { renewalLabel } from '../domain/renewalLabel';
-import { advancedRenewalDate } from '../domain/renewalOverdue';
 import { isNotStarted } from '../domain/activeSelectors';
 import { statusChipState } from '../domain/statusChip';
+import { pressFeedback } from '../../../shared/haptics';
 import { ServiceIdentity } from './ServiceIdentity';
 import { SubscriptionStatusChip } from './SubscriptionStatusChip';
 
@@ -26,6 +27,8 @@ export const SubscriptionTile = memo(function SubscriptionTile({
   onPress,
   showStatus = true,
   selected,
+  position = 'single',
+  onLongPress,
 }: {
   subscription: Subscription;
   today: CivilDate;
@@ -33,22 +36,21 @@ export const SubscriptionTile = memo(function SubscriptionTile({
   onPress: (id: string) => void;
   showStatus?: boolean;
   selected?: boolean;
+  /** Gruplanmış kartta satırın yeri: köşe yuvarlama ve kenarlık buna göre. */
+  position?: 'single' | 'first' | 'middle' | 'last';
+  /** Uzun basınca (ör. çoklu seçimi başlatmak için) satırın kimliğiyle çağrılır. */
+  onLongPress?: (id: string) => void;
 }) {
   useThemeRevision();
   const status = subscription.status;
   const dimmed = status === 'paused' || status === 'cancelled' || status === 'expired';
   const days = daysUntilRenewal(subscription, today);
-  const chipVisible = showStatus && dimmed;
   const statusLabel = statusChipState({ status, isNotStarted: isNotStarted(subscription, today), daysUntilRenewal: days }).label;
   const dateLabel = status === 'trial'
     ? subscription.trialEndDate ? `Deneme bitişi ${formatLongDate(subscription.trialEndDate)}` : ''
     : status === 'active'
       ? subscription.nextRenewalDate ? `Yenileme ${formatLongDate(subscription.nextRenewalDate)}` : 'Yenileme tarihi yok'
       : '';
-  const dueDate = status === 'trial' ? subscription.trialEndDate : status === 'active' ? subscription.nextRenewalDate : null;
-  const dueDateShort = dueDate ? `${dueDate.day} ${monthShort(dueDate.month)}${dueDate.year !== today.year ? ` ${dueDate.year}` : ''}` : '';
-
-  const upcoming = days !== null && days < 0 ? advancedRenewalDate(subscription, today) : null;
 
   return (
     <Pressable
@@ -56,11 +58,13 @@ export const SubscriptionTile = memo(function SubscriptionTile({
       accessibilityState={selected === undefined ? undefined : { checked: selected }}
       accessibilityLabel={[subscription.name, CATEGORY_LABELS[subscription.category], BILLING_CYCLE_LABELS[subscription.billingCycle], formatCurrency(subscription.amount, subscription.currency), statusLabel, dateLabel].filter(Boolean).join(', ')}
       onPress={() => onPress(subscription.id)}
-      style={({ pressed }) => [styles.card, selected && styles.selected, pressed && styles.pressed]}
+      onLongPress={onLongPress ? () => { pressFeedback(); onLongPress(subscription.id); } : undefined}
+      style={({ pressed }) => [styles.card, position === 'single' && styles.single, position === 'first' && styles.first, position === 'middle' && styles.middleRow, position === 'last' && styles.last, selected && styles.selected, pressed && styles.pressed]}
     >
       <View style={styles.row}>
+        {selected !== undefined ? <View accessible={false} style={[styles.check, selected && styles.checkOn]}>{selected ? <Ionicons name="checkmark" size={16} color={colors.onPrimary} /> : null}</View> : null}
         <View style={{ opacity: dimmed ? 0.55 : 1 }}>
-          <ServiceIdentity name={subscription.name} category={subscription.category} size={sizes.listAvatar} compact />
+          <ServiceIdentity name={subscription.name} category={subscription.category} size={52} compact />
         </View>
 
         <View style={styles.middle}>
@@ -71,87 +75,80 @@ export const SubscriptionTile = memo(function SubscriptionTile({
           >
             {subscription.name}
           </Text>
-          <View style={styles.subtitleRow}>
-            <Text style={textStyle('caption', { flexShrink: 1 })}>
-              {`${CATEGORY_LABELS[subscription.category]} · ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
-            </Text>
-            {chipVisible ? (
-              <View style={styles.chipGap}>
-                <SubscriptionStatusChip
-                  status={status}
-                  isNotStarted={isNotStarted(subscription, today)}
-                  daysUntilRenewal={days}
-                />
-              </View>
-            ) : null}
-          </View>
+          <Text style={textStyle('bodySmall', { color: subtitleColor(subscription, days, today), marginTop: spacing.xxs / 2 })}>
+            {`${BILLING_CYCLE_LABELS[subscription.billingCycle]} · ${stateLabel(subscription, days, today)}`}
+          </Text>
         </View>
 
-        <Trailing subscription={subscription} days={days} today={today} dueDateShort={dueDateShort} />
-        {selected !== undefined ? <Text style={textStyle('bodyStrong', { color: selected ? colors.primary : colors.onSurfaceVariant, marginLeft: spacing.xs })}>{selected ? '☑' : '□'}</Text> : null}
+        <Trailing subscription={subscription} today={today} days={days} showStatus={showStatus} />
       </View>
-      {upcoming ? (
-        <Text style={[textStyle('caption'), styles.note]}>
-          {`Sonraki döngü (tahmini): ${formatLongDate(upcoming)}`}
-        </Text>
-      ) : null}
     </Pressable>
   );
 });
 
-function Trailing({ subscription, days, today, dueDateShort }: { subscription: Subscription; days: number | null; today: CivilDate; dueDateShort: string }) {
+/** Alt metindeki durum parçası: "3 gün sonra", "2 gün gecikti", "Duraklatıldı" gibi. */
+function stateLabel(subscription: Subscription, days: number | null, today: CivilDate): string {
+  const status = subscription.status;
+  if (status === 'paused') return 'Duraklatıldı';
+  if (status === 'cancelled') return 'İptal edildi';
+  if (status === 'expired') return 'Süresi doldu';
+  if (isNotStarted(subscription, today)) return 'Henüz başlamadı';
+  if (days === null) return '—';
+  if (days < 0) return `${-days} gün gecikti`;
+  if (days === 0) return 'Bugün';
+  if (days === 1) return 'Yarın';
+  return renewalLabel(days);
+}
+
+function subtitleColor(subscription: Subscription, days: number | null, today: CivilDate): string {
+  if (subscription.status === 'active' && days !== null && days < 0 && !isNotStarted(subscription, today)) return colors.error;
+  return colors.onSurfaceVariant;
+}
+
+function Trailing({ subscription, today, days, showStatus }: { subscription: Subscription; today: CivilDate; days: number | null; showStatus: boolean }) {
   useThemeRevision();
   const status = subscription.status;
-  const isPaused = status === 'paused';
-  const isCancelled = status === 'cancelled';
-  const isExpired = status === 'expired';
-  const overdue = days !== null && days < 0 && !isNotStarted(subscription, today);
-  const dueToday = days === 0 && !isNotStarted(subscription, today);
-  const labelColor = isPaused || isExpired
-    ? colors.onSurfaceVariant
-    : isCancelled
-      ? statusColors.success
-      : overdue
-        ? colors.error
-        : dueToday
-          ? statusColors.warning
-        : colors.onSurfaceVariant;
-  const label = isPaused ? 'Duraklatıldı' : isCancelled ? 'İptal edildi' : isExpired ? 'Süresi doldu' : isNotStarted(subscription, today) ? 'Henüz başlamadı' : days === null ? '—' : days < 0 ? `${-days} gün gecikti` : renewalLabel(days);
+  const muted = status === 'cancelled' || status === 'paused' || status === 'expired';
   return (
     <View style={styles.trailing}>
-      <Text style={textStyle('heading', { color: isCancelled || isPaused || isExpired ? colors.onSurfaceVariant : colors.onSurface })}>
+      <Text style={textStyle('heading', { color: muted ? colors.onSurfaceVariant : colors.onSurface, fontVariant: ['tabular-nums'] })}>
         {formatCurrency(subscription.amount, subscription.currency)}
       </Text>
-      <Text
-        style={textStyle(overdue || dueToday ? 'captionStrong' : 'caption', { color: labelColor, marginTop: gaps.legendRow - 1, textAlign: 'right' })}
-      >
-        {dueDateShort ? `${label} · ${dueDateShort}` : label}
-      </Text>
+      {showStatus ? (
+        <View style={styles.chipGap}>
+          <SubscriptionStatusChip status={status} isNotStarted={isNotStarted(subscription, today)} daysUntilRenewal={days} compact />
+        </View>
+      ) : null}
     </View>
   );
 }
 
 const styles = themedStyles(() => StyleSheet.create({
   card: {
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.md,
-    minHeight: sizes.minTouchTarget,
-    borderBottomWidth: borderWidth.hairline,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.background,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.md,
+    paddingVertical: spacing.sm,
+    minHeight: 76,
+    justifyContent: 'center',
+    borderLeftWidth: borderWidth.hairline,
+    borderRightWidth: borderWidth.hairline,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  note: {
-    marginTop: spacing.xs,
-    marginLeft: sizes.listAvatar + spacing.sm,
-  },
+  single: { borderRadius: radius.lg, borderWidth: borderWidth.hairline },
+  first: { borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, borderTopWidth: borderWidth.hairline, borderBottomWidth: borderWidth.hairline },
+  middleRow: { borderBottomWidth: borderWidth.hairline },
+  last: { borderBottomLeftRadius: radius.lg, borderBottomRightRadius: radius.lg, borderBottomWidth: borderWidth.hairline },
   pressed: {
     opacity: 0.85,
   },
-  selected: { backgroundColor: colors.secondaryContainer },
+  selected: { backgroundColor: withAlpha(colors.primary, 0.14) },
+  check: { width: 24, height: 24, marginRight: spacing.sm, borderRadius: radius.pill, borderWidth: borderWidth.focused, borderColor: colors.controlBorder, alignItems: 'center', justifyContent: 'center' },
+  checkOn: { borderColor: colors.primary, backgroundColor: colors.primary },
   middle: {
     flex: 1,
     marginLeft: gaps.rowLoose - 2,
@@ -163,11 +160,12 @@ const styles = themedStyles(() => StyleSheet.create({
     marginTop: spacing.xxs / 2,
   },
   chipGap: {
-    marginLeft: gaps.heroLabel,
+    marginTop: spacing.xxs,
   },
   trailing: {
     alignItems: 'flex-end',
     maxWidth: '48%',
+    minWidth: 88,
     flexShrink: 1,
   },
 }));

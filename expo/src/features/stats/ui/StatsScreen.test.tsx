@@ -69,6 +69,21 @@ describe('StatsScreen', () => {
     expect(screen.queryByText(/İstatistikler yüklenemedi/)).toBeNull();
   });
 
+  it('birden çok para biriminde üstte seçici çıkar ve seçimi değiştirir', () => {
+    const usd = { ...activeSubscription, id: 'usd-one', currency: 'USD' };
+    mockSubscriptions.mockReturnValue({ data: [activeSubscription, usd], isPending: false, isError: false, refetch: jest.fn() });
+    render(<StatsScreen />);
+    expect(screen.getByRole('radio', { name: 'TRY' }).props.accessibilityState.checked).toBe(true);
+    fireEvent.press(screen.getByRole('radio', { name: 'USD' }));
+    expect(screen.getByRole('radio', { name: 'USD' }).props.accessibilityState.checked).toBe(true);
+  });
+
+  it('tek para biriminde seçici çıkmaz', () => {
+    mockSubscriptions.mockReturnValue({ data: [activeSubscription], isPending: false, isError: false, refetch: jest.fn() });
+    render(<StatsScreen />);
+    expect(screen.queryByRole('radio', { name: 'USD' })).toBeNull();
+  });
+
   it('aktif abonelik yokken ilk kaydı eklemeye yönlendirir', () => {
     render(<StatsScreen />);
     expect(screen.getByText('Henüz analiz yok')).toBeTruthy();

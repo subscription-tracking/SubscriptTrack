@@ -2,6 +2,7 @@ import { useThemeRevision } from '../../../shared/design/useThemeRevision';
 import { Pressable, Text, View } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { formatCurrency } from '../../../core/format/money';
+import { orderCurrencies } from '../../../core/domain/moneyByCurrency';
 import { formatMonthYear } from '../../../core/format/date';
 import { dayNumber, type CivilDate } from '../../../core/time/calendar';
 import { colors, sizes, statusColors } from '../../../shared/design/tokens';
@@ -23,7 +24,7 @@ export function MonthHeader({ model }: { model: Model }) {
         </Pressable>
         <View style={styles.monthTitle}>
           <Text style={textStyle('bodyStrong', { textAlign: 'center' })}>{formatMonthYear(view.year, view.month)}</Text>
-          {[...totals.entries()].map(([currency, money]) => (
+          {orderCurrencies(totals.keys()).map((currency) => [currency, totals.get(currency)!] as const).map(([currency, money]) => (
             <Text key={currency} style={textStyle('bodySmall', { color: colors.primary, textAlign: 'center' })}>
               {`${formatCurrency(money, currency)} bu ay`}
             </Text>

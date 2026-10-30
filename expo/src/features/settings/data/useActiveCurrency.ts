@@ -15,8 +15,8 @@ const deviceKey = ['device-currency'] as const;
 const profileTimeZoneCacheQueryKey = (userId: string | undefined) => ['profile-timezone-cache', userId ?? ''] as const;
 
 /**
- * Uygulamanın tek aktif para birimi. Profilde kayıtlı tercih varsa o, yoksa cihazdaki son seçim, o da yoksa
- * TRY. Tüm toplam, liste, grafik ve tasarruf ekranları bu değeri kullanır.
+ * Kullanıcının tercih ettiği para birimi. Profilde kayıtlı tercih varsa o, yoksa cihazdaki son seçim, o da yoksa
+ * TRY. Ekranlar bunu sıralama ve varsayılan için kullanır; kayıt gizlemek için kullanmaz.
  */
 export function useActiveCurrency(): ActiveCurrency {
   const { user } = useAuth();

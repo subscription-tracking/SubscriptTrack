@@ -87,7 +87,11 @@ Geçişlerin tamamı `subscription_events` ile kaydedilir.
 
 ## 5. Para kuralları
 
-- **Aktif para birimi:** Uygulama tek bir aktif para birimi kullanır: `TRY`, `USD` veya `EUR`. Etkin değer önce profildeki `preferred_currency` (yoksa bu cihazdaki son seçim, o da yoksa `TRY`). Ana sayfa, liste, takvim, istatistik, tasarruf ve ödeme geçmişi yalnızca aktif para birimindeki kayıtları gösterir; başka para birimindeki kayıtlar gizlenir ve listede kaç kayıt gizlendiği belirtilir. Kur çevrimi yapılmaz. Form varsayılanı aktif para birimidir.
+- **Para birimleri:** Desteklenen kodlar `TRY`, `USD`, `EUR` (veritabanında üç harfli kod kısıtı; ürün kuralı bu üçü). Kur çevrimi yapılmaz; farklı para birimleri hiçbir ekranda birleştirilmez. Toplamlar para birimi başına tutulur ve tek yerde (`MoneyByCurrency`, `expo/src/core/domain/moneyByCurrency.ts`) sıralanır: tercih edilen para birimi başta, sonra TRY, USD, EUR.
+- **Tercih edilen para birimi** profildeki `preferred_currency` (yoksa bu cihazdaki son seçim, o da yoksa `TRY`). Filtre değildir; yalnızca formda varsayılan para birimi, ana sayfada ve toplam satırlarında ilk sıra ve İstatistikler'de başlangıç seçimi olur. Hiçbir kaydı tek başına gizlemez.
+- **Ana sayfa başlığı:** "Önümüzdeki 7 gün" tutarı her para birimi için ayrı satırda, aynı ağırlıkta gösterilir; tek para biriminde büyük tek rakam kalır. Gün şeridi ve ay ilerlemesi para biriminden bağımsız **ödeme adedine** göre hesaplanır ("Bu ay 5/9 ödeme tamam · Kalan ₺800 · $10"); tutarlar birimler arası toplanmaz.
+- **Ekranlar:** Ana sayfa, abonelik listesi, takvim, tasarruf ve ödeme geçmişi tüm para birimlerini gösterir (toplamlar ayrı satırlarda). Listede para birimi süzgeci isteğe bağlıdır; süzgeç açıkken kaç kaydın gizlendiği yazılır. İstatistikler yüzde ve grafik üretir, bu yüzden tek para birimi gösterir: birden çok para birimi varsa üstte seçici çıkar, tercih edilen seçili gelir.
+- Eski GBP verisi (ör. ödeme geçmişi) uygulamada gösterilmez; veri kararı ayrıca verilir.
 - Para değeri binary floating point ile saklanmaz.
 - Tutar ve para birimi birlikte anlamlıdır.
 - Farklı para birimleri otomatik olarak toplanmaz.

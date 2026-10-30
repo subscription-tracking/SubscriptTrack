@@ -17,8 +17,7 @@ import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
-import { inCurrency } from '../../subscriptions/domain/currencyFilter';
-import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
+import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { type Subscription } from '../../subscriptions/domain/subscription';
 import { usePaymentsQuery } from '../data/queries';
 import { usePaymentHistoryActions } from './usePaymentHistoryActions';
@@ -40,7 +39,6 @@ export function PaymentHistoryScreen({ subscriptionId }: { subscriptionId?: stri
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
 
-  const currency = useActiveCurrency();
   const router = useRouter();
   const online = useOnlineStatus();
   const state: AsyncState<{ payments: PaymentEvent[]; subscriptions: Subscription[] }> =
@@ -58,8 +56,8 @@ export function PaymentHistoryScreen({ subscriptionId }: { subscriptionId?: stri
         : {
             status: 'ready',
             data: {
-              payments: (payments.data ?? []).filter((payment) => subscriptionId ? payment.subscriptionId === subscriptionId : payment.currency === currency),
-              subscriptions: subscriptionId ? (subscriptions.data ?? []).filter((subscription) => subscription.id === subscriptionId) : inCurrency(subscriptions.data ?? [], currency),
+              payments: (payments.data ?? []).filter((payment) => !subscriptionId || payment.subscriptionId === subscriptionId),
+              subscriptions: (subscriptions.data ?? []).filter((subscription) => !subscriptionId || subscription.id === subscriptionId),
             },
           };
 

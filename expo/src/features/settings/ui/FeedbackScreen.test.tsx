@@ -68,7 +68,7 @@ describe('FeedbackScreen', () => {
   });
 
   it('paylaşım metnine kategori ve mesajı ekler', async () => {
-    const share = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' });
+    const share = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction', activityType: undefined });
     renderScreen();
     fireEvent.changeText(screen.getByLabelText('Mesajın'), 'Bildirim saati seçimi');
     fireEvent.press(screen.getByRole('button', { name: 'Paylaşım ekranını aç' }));

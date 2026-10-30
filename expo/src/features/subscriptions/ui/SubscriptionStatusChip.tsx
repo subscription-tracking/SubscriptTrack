@@ -12,13 +12,21 @@ export function SubscriptionStatusChip({
   status,
   isNotStarted = false,
   daysUntilRenewal = null,
+  compact = false,
 }: {
   status: SubscriptionStatus;
   isNotStarted?: boolean;
   daysUntilRenewal?: number | null;
+  /** Liste satırı: aktif ve yakında yenilenen kayıtlar kısa "Aktif" (yeşil), gecikenler "Gecikti" gösterir. */
+  compact?: boolean;
 }) {
   useThemeRevision();
-  const state = statusChipState({ status, isNotStarted, daysUntilRenewal });
+  const full = statusChipState({ status, isNotStarted, daysUntilRenewal });
+  const state = compact && status === 'active' && !isNotStarted
+    ? daysUntilRenewal !== null && daysUntilRenewal < 0
+      ? { label: 'Gecikti', tone: 'error' as const }
+      : { label: 'Aktif', tone: 'success' as const }
+    : full;
   const color = toneColor(state.tone);
   return (
     <View

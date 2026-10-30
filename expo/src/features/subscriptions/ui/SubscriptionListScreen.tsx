@@ -4,12 +4,12 @@ import { useCivilToday } from '../../../core/clock/useCivilToday';
 import { useOnlineStatus } from '../../../core/network/useOnlineStatus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { FlatList, type ListRenderItemInfo, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, type ListRenderItemInfo, Pressable, RefreshControl, ScrollView, type ScrollViewInstance, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../auth/AuthProvider';
 import { type CivilDate } from '../../../core/time/calendar';
-import { colors, sizes, spacing } from '../../../shared/design/tokens';
+import { colors, radius, sizes, spacing } from '../../../shared/design/tokens';
 import { textStyle } from '../../../shared/design/typography';
 import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncStateView';
 import { EmptyState, EmptyStateLayout } from '../../../shared/widgets/EmptyState';
@@ -19,9 +19,15 @@ import { useDeletionAction } from './useDeletionAction';
 import { countsByTab, LIST_TABS, type ListTab, splitAttention, visibleSubscriptions } from '../domain/subscriptionList';
 import { DEFAULT_FILTER, activeFilterCount, applyFilter, type SubscriptionFilter } from '../domain/subscriptionFilter';
 import { type Subscription, type SubscriptionCategory } from '../domain/subscription';
+import { hiddenCount } from '../domain/currencyFilter';
+import { activeMonthlyTotals, rowPosition } from '../domain/monthlyTotal';
+import { formatCurrency } from '../../../core/format/money';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ListTabBar } from './ListTabBar';
 import { SubscriptionFilterSheet } from './SubscriptionFilterSheet';
 import { SubscriptionListHeader } from './SubscriptionListHeader';
+import { tapFeedback } from '../../../shared/haptics';
+import { MonthlyTotalRow, SelectionActionBar, SelectionTopBar } from './SelectionBars';
 import { SubscriptionTile } from './SubscriptionTile';
 
 /** Her sekmenin boş ekran metni (Flutter `SubscriptionListScreen._tab`). */
@@ -52,10 +58,6 @@ function keyOf(row: ListRow): string {
   return row.key;
 }
 
-function ItemSeparator() {
-  return <View style={styles.separator} />;
-}
-
 /** Kaydırma penceresi: ilk ekrana sığan satırlar kadar çizilir. */
 const INITIAL_ROWS = 10;
 const WINDOW_SIZE = 7;
@@ -76,7 +78,7 @@ export function SubscriptionListScreen() {
   const [search, setSearch] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
   const [filter, setFilter] = useState<SubscriptionFilter>(DEFAULT_FILTER);
-  const pager = useRef<ScrollView>(null);
+  const pager = useRef<ScrollViewInstance>(null);
 
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
@@ -119,34 +121,30 @@ export function SubscriptionListScreen() {
       })),
     [all, counts, search, filter, today],
   );
+  const monthly = activeMonthlyTotals(all);
+  const hiddenByCurrency = filter.currency === null ? 0 : hiddenCount(all, filter.currency);
   const showGlobalEmpty = state.status === 'ready' && all.length === 0;
   const currentPage = pages.find((page) => page.key === tab);
   const visibleIds = new Set(currentPage?.items.filter((item) => item.kind === 'item').map((item) => item.key) ?? []);
   const visibleSelected = selected?.filter((id) => visibleIds.has(id)) ?? [];
   const filterCount = activeFilterCount(filter);
-  const selectionActions = selected !== null
-    ? [
-          { label: 'Bitti', icon: 'close' as const, onPress: () => setSelected(null), accessibilityLabel: 'Seçimden çık' },
-          { label: `Sil ${visibleSelected.length}`, icon: 'delete-outline' as const, onPress: () => deletion.confirm(visibleSelected), danger: true, disabled: deletion.busy || visibleSelected.length === 0, accessibilityLabel: `${visibleSelected.length} seçili aboneliği sil` },
-        ]
-    : (currentPage?.total ?? 0) > 0
-      ? [{ label: 'Seç', icon: 'checklist' as const, onPress: () => setSelected([]), accessibilityLabel: 'Çoklu seçim başlat' }]
-      : [];
 
   const openSubscription = useCallback((id: string) => router.push(`/subscriptions/${id}`), [router]);
+  const startSelection = useCallback((id: string) => setSelected([id]), []);
   const toggleSelected = useCallback(
-    (id: string) => setSelected((current) => (current?.includes(id) ? current.filter((item) => item !== id) : [...(current ?? []), id])),
+    (id: string) => { tapFeedback(); setSelected((current) => (current?.includes(id) ? current.filter((item) => item !== id) : [...(current ?? []), id])); },
     [],
   );
   const renderRow = useCallback(
-    ({ item: entry }: ListRenderItemInfo<ListRow>) => {
-      if (entry.kind === 'header') return <Text style={textStyle('label', { color: colors.onSurfaceVariant })}>{entry.title}</Text>;
+    ({ item: entry, index }: ListRenderItemInfo<ListRow>, rows: ListRow[]) => {
+      if (entry.kind === 'header') return <Text style={textStyle('label', { color: colors.onSurfaceVariant, marginTop: index === 0 ? 0 : spacing.md, marginBottom: spacing.xs })}>{entry.title}</Text>;
       const row = entry.subscription;
+      const position = rowPosition(rows, index);
       return (
-        <SubscriptionTile subscription={row} today={today} selected={selected === null ? undefined : selected.includes(row.id)} onPress={selected === null ? openSubscription : toggleSelected} />
+        <SubscriptionTile subscription={row} position={position} today={today} onLongPress={selected === null ? startSelection : undefined} selected={selected === null ? undefined : selected.includes(row.id)} onPress={selected === null ? openSubscription : toggleSelected} />
       );
     },
-    [selected, today, openSubscription, toggleSelected],
+    [selected, today, openSubscription, toggleSelected, startSelection],
   );
 
   function selectTab(next: ListTab) {
@@ -185,14 +183,26 @@ export function SubscriptionListScreen() {
         </EmptyStateLayout>
       ) : (
         <>
-          <SubscriptionListHeader
-            search={search}
-            onSearchChange={(value) => { setSelected(null); setSearch(value); }}
-            onAdd={() => router.push('/subscriptions/add')}
-            onFilter={() => setSheetOpen(true)}
-            activeFilterCount={filterCount}
-          />
-          <ListTabBar active={tab} counts={counts} onChange={selectTab} actions={selectionActions} />
+          {selected === null ? (
+            <>
+              <SubscriptionListHeader
+                search={search}
+                onSearchChange={(value) => { setSelected(null); setSearch(value); }}
+                onFilter={() => setSheetOpen(true)}
+                onSelect={(currentPage?.total ?? 0) > 0 ? () => setSelected([]) : undefined}
+                activeFilterCount={filterCount}
+              />
+              <ListTabBar active={tab} counts={counts} onChange={selectTab} />
+              {monthly.length > 0 ? <MonthlyTotalRow amount={monthly.map((item) => formatCurrency(item.total, item.currency)).join(' · ')} hiddenNote={hiddenByCurrency > 0 ? `${hiddenByCurrency} kayıt başka para biriminde gizli` : undefined} /> : null}
+            </>
+          ) : (
+            <SelectionTopBar
+              count={visibleSelected.length}
+              allSelected={visibleSelected.length === visibleIds.size}
+              onClose={() => setSelected(null)}
+              onToggleAll={() => setSelected(visibleSelected.length === visibleIds.size ? [] : [...visibleIds])}
+            />
+          )}
           <View style={styles.pagerWrap}>
             <AsyncStateView state={state}>
               {(data) => (
@@ -230,7 +240,6 @@ export function SubscriptionListScreen() {
                           windowSize={WINDOW_SIZE}
                           extraData={selected}
                           contentContainerStyle={[styles.list, { paddingBottom: bottomInset }]}
-                          ItemSeparatorComponent={ItemSeparator}
                           refreshControl={
                             <RefreshControl
                               refreshing={query.isRefetching}
@@ -238,7 +247,7 @@ export function SubscriptionListScreen() {
                               tintColor={colors.primary}
                             />
                           }
-                          renderItem={renderRow}
+                          renderItem={(info) => renderRow(info, page.items)}
                         />
                       )}
                     </View>
@@ -247,6 +256,13 @@ export function SubscriptionListScreen() {
               )}
             </AsyncStateView>
           </View>
+          {selected !== null ? (
+            <SelectionActionBar count={visibleSelected.length} busy={deletion.busy} bottom={bottomInset - spacing.xs} onDelete={() => deletion.confirm(visibleSelected)} />
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel="Abonelik ekle" onPress={() => router.push('/subscriptions/add')} style={[styles.fab, { bottom: bottomInset }]}>
+              <MaterialIcons name="add" size={32} color={colors.onPrimary} />
+            </Pressable>
+          )}
         </>
       )}
       <SubscriptionFilterSheet
@@ -294,12 +310,7 @@ const styles = themedStyles(() => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  list: {
-    paddingTop: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  separator: {
-    height: spacing.none,
-  },
+  list: { paddingTop: spacing.md, paddingHorizontal: spacing.lg },
+  fab: { position: 'absolute', right: spacing.lg, width: 56, height: 56, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary },
   cacheNotice: { ...textStyle('bodySmall', { color: colors.onSurfaceVariant }), paddingHorizontal: spacing.lg, paddingTop: spacing.xs },
 }));

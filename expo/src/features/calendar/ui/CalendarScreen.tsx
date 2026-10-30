@@ -10,8 +10,7 @@ import { AsyncStateView, type AsyncState } from '../../../shared/widgets/AsyncSt
 import { ScreenTopBar } from '../../../shared/widgets/ScreenTopBar';
 import { useSubscriptionsQuery } from '../../subscriptions/data/queries';
 import type { Subscription } from '../../subscriptions/domain/subscription';
-import { inCurrency } from '../../subscriptions/domain/currencyFilter';
-import { useActiveCurrency, useUserTimeZone } from '../../settings/data/useActiveCurrency';
+import { useUserTimeZone } from '../../settings/data/useActiveCurrency';
 import { CalendarMonth } from './CalendarMonth';
 import { styles } from './calendarStyles';
 
@@ -22,7 +21,6 @@ export function CalendarScreen() {
   const { user } = useAuth();
   const query = useSubscriptionsQuery(user?.id);
   const online = useOnlineStatus();
-  const currency = useActiveCurrency();
   const timeZone = useUserTimeZone();
   const today = useCivilToday(timeZone);
 
@@ -40,7 +38,7 @@ export function CalendarScreen() {
     <View style={styles.screen}>
       <ScreenTopBar title="Takvim" />
       {query.data !== undefined && (!online || query.isError) ? <View style={{ paddingHorizontal: spacing.lg }}><Text accessibilityLiveRegion="polite" style={textStyle('bodySmall', { color: colors.onSurfaceVariant })}>Takvim verileri güncel olmayabilir.</Text><TextLink label="Tekrar dene" onPress={() => void query.refetch()} /></View> : null}
-      <AsyncStateView state={state}>{(subscriptions) => <CalendarMonth subscriptions={inCurrency(subscriptions, currency)} today={today} />}</AsyncStateView>
+      <AsyncStateView state={state}>{(subscriptions) => <CalendarMonth subscriptions={subscriptions} today={today} />}</AsyncStateView>
     </View>
   );
 }

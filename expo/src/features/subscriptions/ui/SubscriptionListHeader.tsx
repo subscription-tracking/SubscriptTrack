@@ -14,26 +14,28 @@ import { SearchField } from '../../../shared/widgets/SearchField';
 export function SubscriptionListHeader({
   search,
   onSearchChange,
-  onAdd,
   onFilter,
+  onSelect,
   activeFilterCount = 0,
 }: {
   search: string;
   onSearchChange: (next: string) => void;
-  onAdd: () => void;
   onFilter: () => void;
+  /** Çoklu seçimi başlatır; verilmezse düğme çizilmez. */
+  onSelect?: () => void;
   activeFilterCount?: number;
 }) {
   useThemeRevision();
   return (
     <View style={styles.row}>
       <View style={styles.search}>
-        <SearchField value={search} onChangeText={onSearchChange} placeholder="Aboneliklerinde ara" />
+        <SearchField value={search} onChangeText={onSearchChange} placeholder="Ara" />
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Abonelik ekle" onPress={onAdd} style={styles.addButton}>
-        <MaterialIcons name="add" size={sizes.filterIcon} color={colors.secondary} />
-      </Pressable>
-      <View style={styles.gap} />
+      {onSelect ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Çoklu seçim başlat" onPress={onSelect} style={styles.iconButton}>
+          <MaterialIcons name="checklist" size={sizes.filterIcon} color={colors.onSurfaceVariant} />
+        </Pressable>
+      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={activeFilterCount > 0 ? `Filtrele ve sırala, ${activeFilterCount} etkin filtre` : 'Filtrele ve sırala'}
